@@ -1,0 +1,56 @@
+name: Build SV GFPAK hash cache from PokeDocs
+on:
+  push:
+    paths:
+      - '.github/workflows/build-sv-hashcache.yml'
+      - 'scripts/Build-SV-GFPAKHashCache.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            .github
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Obtain pinned PokeDocs hashlist source
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/pkZukan/PokeDocs.git /tmp/PokeDocs
+          git -C /tmp/PokeDocs checkout --detach 242039cbcd9de3f5a424de5b68ae581f7bed2b23
+      - name: Build binary GFPAKHashCache
+        run: |
+          mkdir -p dist
+          python scripts/Build-SV-GFPAKHashCache.py \
+            --hashlist /tmp/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_fd.txt \
+            --hashlist /tmp/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_trpak.txt \
+            --output dist/GFPAKHashCache.bin \
+            --report dist/hashcache-report.json
+      - name: Verify cache binary header and content
+        run: |
+          python - <<'PY'
+          import json, struct, pathlib
+          d=pathlib.Path("dist/GFPAKHashCache.bin")
+          meta=json.loads(pathlib.Path("dist/hashcache-report.json").read_text())
+          with d.open("rb") as f:
+              count=struct.unpack("<Q", f.read(8))[0]
+          assert count==meta["entries"] and count>0 and d.stat().st_size>16
+          print(f"Verified {count} hashes, {d.stat().st_size} bytes")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SV-4.0.0-GFPAKHashCache-PokeDocs-pinned
+          path: |
+            dist/GFPAKHashCache.bin
+            dist/hashcache-report.json
+          retention-days: 7
+          if-no-files-found: error
