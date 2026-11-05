@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 import runpy
 import subprocess
@@ -64,7 +65,7 @@ def main() -> int:
     parser.add_argument("--workspace", type=Path, required=True)
     parser.add_argument("--start-pack", type=int, default=0)
     parser.add_argument("--max-packs", type=int, default=2)
-    parser.add_argument("--window-packs", type=int, default=1)
+    parser.add_argument("--window-packs", type=int, default=0, help="0=auto (bounded windows), else 1..100")
     parser.add_argument("--workers", type=int, default=2)
     parser.add_argument("--publish-branch", choices=PUBLISH_BRANCHES, default=PUBLISH_BRANCHES[0])
     parser.add_argument("--seven-zip", default=r"C:\Program Files\7-Zip\7z.exe")
@@ -79,8 +80,10 @@ def main() -> int:
         raise RuntimeError("Unexpected source TRPFD descriptor counts")
     if args.start_pack < 0 or args.max_packs < 1 or args.max_packs > 200 or args.start_pack + args.max_packs > total:
         parser.error("start-pack >=0 and max-packs in 1..200, range must stay within native pack count")
-    if not 1 <= args.window_packs <= 100 or not 1 <= args.workers <= 4:
-        parser.error("window-packs in 1..100 and workers in 1..4")
+    if not 0 <= args.window_packs <= 100 or not 1 <= args.workers <= 4:
+        parser.error("window-packs in 0..100 (0=auto) and workers in 1..4")
+    window_packs = (args.window_packs if args.window_packs else
+                    min(20, max(1, math.ceil(args.max_packs / (args.workers * 4)))))
     current_branch = subprocess.check_output(
         ["git", "branch", "--show-current"], cwd=repo, text=True).strip()
     if current_branch != args.publish_branch:
@@ -119,7 +122,7 @@ def main() -> int:
 
     summaries, stage = run_windows(
         args.start_pack, args.max_packs, total,
-        args.window_packs, args.workers, prepare)
+        window_packs, args.workers, prepare)
     # Intentionally omit the global full-extract-progress checkpoint.
     report_root = root / "_index" / "batches"
     report = report_root / (
@@ -130,6 +133,7 @@ def main() -> int:
         "startPack": args.start_pack,
         "endPackExclusive": args.start_pack + args.max_packs,
         "windows": len(summaries), "workers": args.workers,
+        "windowPacks": window_packs,
         "verifiedOK": sum(x["success"] for x in summaries),
         "failed": sum(x["failed"] for x in summaries),
         "bytesVerified": sum(x["bytesVerified"] for x in summaries),
