@@ -51,6 +51,27 @@ class ParallelSecondaryTests(unittest.TestCase):
             self.assertEqual(pub["completed_tasks"],2)
             self.assertTrue(all((repo/x).exists() for x in pub["paths"]))
 
+    def test_failed_worker_is_checkpointed_and_bounded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            root = repo / fs.ROOT
+            task = {"id": "missing#00000", "fingerprint": "abcdef",
+                    "prefix": "message/dat/English/common",
+                    "paths": ["message/dat/English/common/missing.tbl"],
+                    "file_count": 1}
+            selection = root / fs.SELECTION_NAME
+            selection.parent.mkdir(parents=True, exist_ok=True)
+            selection.write_text(json.dumps({"selected": [task]}), encoding="utf-8")
+            for attempt in (1, 2):
+                result = par.main_run(repo, max_workers=1, png="", model="", output_mb=5)
+                self.assertEqual(result["error_count"], 1)
+                state = fs.load_state(repo)
+                saved = state["attempted"][task["id"]]
+                self.assertEqual(saved["status"], "ERROR")
+                self.assertEqual(saved["error_attempts"], attempt)
+                self.assertEqual(bool(fs.select_batch([task], state, 1, 5)),
+                                 attempt < fs.MAX_ERROR_ATTEMPTS)
+
     def test_verified_copy_rejects_tampering(self):
         with tempfile.TemporaryDirectory() as temp:
             base=Path(temp)
