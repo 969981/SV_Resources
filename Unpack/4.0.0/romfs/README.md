@@ -9,3 +9,5 @@ Follow the original RomFS hierarchy, then use the original complete filename as 
 Primary focus: `arc/data.trpfd/` and `arc/data.trpfs/`. For extracted virtual entries from data.trpfs, keep their case-sensitive game-relative paths under `virtual/`; nested parsing belongs under `parsed/` with an additional `<filename.ext>/` directory, and conversions under `converted/`.
 
 Do not confuse a file stored in an archive volume with an already extracted result. Do not auto-publish unverified or restricted game-derived assets.
+
+Additional parsed outputs: `event/trevt/bin/event.trevt/` and `system/prefetch/data/global-resident_{0,1}.trpre/`. Their structures, provenance and reproduction commands are documented at [TREVT/TRPRE](../../../../docs/research/trevt-prefetch-format.md).
