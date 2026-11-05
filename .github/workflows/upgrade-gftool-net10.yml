@@ -112,6 +112,68 @@ jobs:
                 'The upstreamTreeSha field preserves the imported original and sourceTreeSha tracks the '
                 'patched vendored source. See the NET10 build workflow for reproducible evidence.\n',encoding='utf-8')
           PY
+          python - <<'PY'
+          from pathlib import Path
+          bntx=Path('tools/gftool/NxMiddleware/BnTxx/BNTX.cs')
+          s=bntx.read_text(encoding='utf-8-sig')
+          assert 'public static Bitmap LoadFromFile(string file)' in s
+          assert 'public static Bitmap LoadFromFile(string file, string preferredName)' in s
+          s=s.replace('public static Bitmap LoadFromFile(string file)',
+                      'public static TexturePixels? LoadFromFile(string file)')
+          s=s.replace('public static Bitmap LoadFromFile(string file, string preferredName)',
+                      'public static Bitmap LoadBitmapFromFile(string file, string preferredName)')
+          anchor='        public static Bitmap LoadBitmapFromFile(string file, string preferredName)'
+          s=s.replace(anchor,'''        public static TexturePixels? LoadFromFile(string file, string preferredName)
+                  {
+                      using var bitmap = LoadBitmapFromFile(file, preferredName);
+                      return bitmap == null ? null : TexturePixels.FromBitmap(bitmap);
+                  }
+
+          '''.replace('          ','')+anchor)
+          idx=s.rfind('\n}')
+          assert idx>0
+          s=s[:idx]+'''
+              public sealed record TexturePixels(int Width, int Height, byte[] Bgra)
+              {
+                  public static TexturePixels FromBitmap(Bitmap source)
+                  {
+                      using var normalized = new Bitmap(source.Width, source.Height,
+                          System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                      using (var graphics = Graphics.FromImage(normalized))
+                      {
+                          graphics.DrawImage(source, 0, 0, source.Width, source.Height);
+                      }
+                      var rect = new Rectangle(0, 0, normalized.Width, normalized.Height);
+                      var data = normalized.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                          System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                      try
+                      {
+                          int rowBytes = checked(normalized.Width * 4);
+                          byte[] pixels = new byte[checked(rowBytes * normalized.Height)];
+                          for (int y = 0; y < normalized.Height; y++)
+                          {
+                              System.Runtime.InteropServices.Marshal.Copy(
+                                  IntPtr.Add(data.Scan0, checked(y * data.Stride)),
+                                  pixels, y * rowBytes, rowBytes);
+                          }
+                          return new TexturePixels(normalized.Width, normalized.Height, pixels);
+                      }
+                      finally
+                      {
+                          normalized.UnlockBits(data);
+                      }
+                  }
+              }
+          '''.replace('              ','    ')+s[idx:]
+          bntx.write_text(s,encoding='utf-8')
+          modlist=Path('tools/gftool/TrinityModLoader/UI/CheckedModListBox.cs')
+          s=modlist.read_text(encoding='utf-8-sig')
+          anchor='        public ModPack? ModPack'
+          assert anchor in s
+          s=s.replace(anchor,
+              '        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]\n'+anchor)
+          modlist.write_text(s,encoding='utf-8')
+          PY
           dotnet sln tools/gftool/TrinityModLoader.slnx list
           dotnet sln tools/gftool/NxMiddleware/NxMiddleware.slnx list
       - name: Verify Release NxMiddleware build
