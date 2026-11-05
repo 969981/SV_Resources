@@ -1,0 +1,103 @@
+name: SV R3 native model to converted glTF (verified sample)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/sv-secondary-native-model.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-native-model-publish
+  cancel-in-progress: false
+
+jobs:
+  native-model:
+    if: github.repository == '969981/SV_Resources'
+    runs-on: windows-latest
+    timeout-minutes: 75
+    env:
+      SV_ROOT: Unpack/4.0.0/romfs/arc/data.trpfs
+      SV_PREFIX: chara/model_pc/p0_bag0000_schoolbackpack
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_r3_r4.py
+            tools/gftool
+            tools/SV.R3.ModelExport
+            tools/PokeDocs/SV/Flatbuffers
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/chara/model_pc/p0_bag0000_schoolbackpack
+            Unpack/4.0.0/romfs/arc/data.trpfs/parsed
+            Unpack/4.0.0/romfs/arc/data.trpfs/converted
+            Unpack/4.0.0/romfs/arc/data.trpfs/resources
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Verify real model/mesh/skeleton parsing
+        shell: pwsh
+        env:
+          SV_REQUIRE_NATIVE_FIXTURES: '1'
+        run: python -m unittest discover -s tests -p test_sv_r3_r4.py -v
+      - name: Build existing .NET 10 gftool glTF exporter
+        shell: pwsh
+        run: |
+          dotnet build tools/SV.R3.ModelExport/SV.R3.ModelExport.csproj -c Release --nologo
+          if ($LASTEXITCODE -ne 0) { throw "Native model exporter build failed" }
+      - name: Convert and validate real backpack geometry
+        shell: pwsh
+        run: |
+          $exe = Join-Path $PWD "tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe"
+          if (!(Test-Path $exe)) { throw "Expected converter exe missing" }
+          $convert = '"' + $exe + '" {input} {output}'
+          python scripts/resource_pipeline/process_virtual.py --repo . --prefix $env:SV_PREFIX --kind models --limit 1 --max-source-files 100 --max-output-mb 50 --model-converter $convert | Out-File -FilePath sv-r3-secondary.json -Encoding utf8
+          if ($LASTEXITCODE -ne 0) { throw "Native model batch failed; see generated report" }
+          $report = Get-Content sv-r3-secondary.json -Raw | ConvertFrom-Json
+          Write-Host "R3 converted $($report.stages.models.counts.converted), model failures $($report.stages.models.counts.failed)"
+          if ($report.stages.models.counts.converted -ne 1) { throw "Verified native glTF not produced" }
+      - name: Stage source-backed model report and validated outputs
+        shell: pwsh
+        run: |
+          $report = Get-Content sv-r3-secondary.json -Raw | ConvertFrom-Json
+          $paths = @($report.report_path)
+          foreach ($out in $report.outputs) {
+            $asset = Join-Path $env:SV_ROOT $out.path
+            if (!(Test-Path $asset)) { throw "Missing generated asset: $asset" }
+            $paths += $asset
+          }
+          for ($start = 0; $start -lt $paths.Count; $start += 50) {
+            $end = [Math]::Min($start + 49, $paths.Count - 1)
+            $batch = $paths[$start..$end]
+            git add -f -- $batch
+            if ($LASTEXITCODE -ne 0) { throw "Git staging failed" }
+          }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Host "No changes to publish"; exit 0 }
+          git commit -m "data(SV): verified native TRMDL to glTF conversion"
+          if ($LASTEXITCODE -ne 0) { throw "Git commit failed" }
+          git pull --rebase origin master
+          if ($LASTEXITCODE -ne 0) { throw "Git rebase failed" }
+          git push origin HEAD:master
+          if ($LASTEXITCODE -ne 0) { throw "Git push failed" }
+      - name: Save conversion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-r3-native-model-report-${{ github.run_id }}
+          path: |
+            sv-r3-secondary.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary/*.json
+          if-no-files-found: warn
+          retention-days: 14
