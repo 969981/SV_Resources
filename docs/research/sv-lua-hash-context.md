@@ -56,3 +56,24 @@ py -3 -m unittest discover -s tests -p "test_sv_lua_callgraph.py" -v
 4. **P3**：将上一阶段 48 条精确 Hash 候选与新原生调用链逐条对账，未命中保留 UNKNOWN，不伪造完整映射。
 
 关联：[[sv-lua-hash-recovery|上一轮名称恢复]] · [[../resource-provenance|证据规则]]。
+
+
+## 4.0.0 原生 Lua 包定位（M1，已确认）
+
+真实 4.0.0 的 `data.trpfd` 已经解析为 **408,641** 条文件索引、**23,589** 个包，并与镜像 HashCache 对账。通过 [`scripts/Locate-SV-Lua-Packs.py`](../../scripts/Locate-SV-Lua-Packs.py) 精确匹配虚拟路径，两个目标均唯一命中：
+
+| 文件 | 文件 Hash | 原生 Pack Index | 原生 TRPAK 字节数 |
+| --- | --- | ---: | ---: |
+| `script/lua/bin/release/main/main.blua` | `BE21E65463B9A98F` | **21977** | 2,966,760 |
+| `script/lua/bin/release/main_dynamic/main_dynamic.blua` | `AFB44A97ABCB6477` | **21978** | 1,028,024 |
+
+[原生索引报告](../../Unpack/4.0.0/romfs/arc/data.trpfd/_index/lua_pack_locations.json) 包含每项所属 Pack、原始虚拟路径、来源索引 SHA-256。证据等级为 `CONFIRMED_NATIVE_TRPFD_INDEX`：只证明资源位于这些包中，**不代表文件已提取、反编译或证明运行中的 C→F 关系**。
+
+为直接衔接 C/F 研究，已新增：
+- [`scripts/Audit-SV-Lua-Bytecode.py`](../../scripts/Audit-SV-Lua-Bytecode.py)：在完整恢复、提取两份 `.blua` 后统计原始 C/F Hash 字符串是否出现、文件 SHA-256 与前 32 字节，并关联已映射和仍未知的 Hash。
+- [`.github/workflows/extract-sv-lua-targets.yml`](../../.github/workflows/extract-sv-lua-targets.yml)：从已归档的 83 个 7z 分卷恢复校验原生 TRPFS，**只解包 21977 和 21978**，提交原生字节码和审核结果；失败时保留 Actions Artifact。
+- [`tests/test_sv_lua_bytecode_audit.py`](../../tests/test_sv_lua_bytecode_audit.py)：不依赖 ROM 的合成数据校验测试。
+
+**关键区分**：字节码内发现 `CXXXXXXXX...` 或 `FXXXXXXXX...` 仅能证明原始字节出现了对应标记；C→F 的直接定义关系需要 Lua 5.4 原型树 / 指令上下文解析验证。切勿将「Hash 字符串同现」改写成「属于这个类的方法」。
+
+[针对两个包的 GitHub Actions 记录](https://github.com/969981/SV_Resources/actions/runs/41987437139)。如本页尚未补入原生解析结果，请以该工作流的最新成功提交和审计 JSON 为准。
