@@ -2,7 +2,7 @@
   "version": "4.0.0",
   "source": "virtual/message/dat/Italian/common",
   "kind": "all",
-  "completed_utc": "2026-11-05T12:40:04.061402+00:00",
+  "completed_utc": "2026-11-05T14:18:15.281352+00:00",
   "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
   "source_files_seen": 292,
   "selection_sha256": "8a271127096fe0c4c42c8aaad512d24e2dd6adc74df32d1ec93479bf26013b2e",
@@ -59,7 +59,22 @@
     }
   },
   "problems": [],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/message/dat/Italian/common/_inspection/dd33131f5216e852.jsonl",
+    "source_files": 292,
+    "inspection_records": 292,
+    "by_status": {
+      "STRUCTURE_PARSED": 292
+    },
+    "manifest_sha256": "C53D40FEAEAB62E561184AC05608193DB3ACC7164F86185DA833BC252D2375CD"
+  },
   "outputs": [
+    {
+      "path": "parsed/message/dat/Italian/common/_inspection/dd33131f5216e852.jsonl",
+      "bytes": 172121,
+      "sha256": "C53D40FEAEAB62E561184AC05608193DB3ACC7164F86185DA833BC252D2375CD"
+    },
     {
       "path": "parsed/message/dat/Italian/common/another_name.labels.json",
       "bytes": 22848,
@@ -3516,11 +3531,6 @@
       "sha256": "A42A1516F5EF95FD6B418C09B9357BDFB255477DDBDA35F110410DFD5B6295B1"
     },
     {
-      "path": "resources/messages/Italian/common/staff_list.json",
-      "bytes": 633272,
-      "sha256": "7D1825D753BA05C921A09FA1511688814327574ABB196EB5310E866EA6CA3335"
-    },
-    {
       "path": "resources/messages/Italian/common/status.json",
       "bytes": 33575,
       "sha256": "4A2D75F74F1CE8F570B76A7FAD5D4D43186AF85EFB76D7D05214C07222553C0F"
@@ -3566,127 +3576,109 @@
       "sha256": "9D1E1B163FCC449C6C4C16D24A88CF83B5092D1BD7E6704960E18410FE4EA230"
     },
     {
-      "path": "resources/messages/Italian/common/tokusei.json",
-      "bytes": 83059,
-      "sha256": "1FC76BC2A7918CF68B900E50FFA551B30D03E27AF26A2B7BF75D3FA4CAC9B6E7"
-    },
-    {
-      "path": "resources/messages/Italian/common/tokuseiinfo.json",
-      "bytes": 107842,
-      "sha256": "29CD8E61F63D6A1AF7303B15581FD25344AEDCD2BE030B16B17CC1D010FC1F77"
-    },
-    {
-      "path": "resources/messages/Italian/common/trade_demo.json",
-      "bytes": 8192,
-      "sha256": "2A2F8320A7477893B7E9DAE42E34AEBE6151C950F7996851E0904E999B6FFFA4"
-    },
-    {
-      "path": "resources/messages/Italian/common/trainermemo.json",
-      "bytes": 86726,
-      "sha256": "2FC1AC01D2D2F1EDFB7B5FA472E1AC5F330F0D148DD50CCE785DB4E64B203CE6"
-    },
-    {
-      "path": "resources/messages/Italian/common/trmsg.json",
-      "bytes": 898434,
-      "sha256": "8D1AFF9E3DB2723405A7B0FC6B0DA9910B3D2717C78F5BE6E72BEA1C0D7C727C"
-    },
-    {
-      "path": "resources/messages/Italian/common/trname.json",
-      "bytes": 140633,
-      "sha256": "59546C15C06D8C89E9E2D14412D02B87E5C1D20258914F3FC3097F11EAF11337"
-    },
-    {
-      "path": "resources/messages/Italian/common/trtype.json",
-      "bytes": 132983,
-      "sha256": "3C75A6A995AA44DAE0396055978F15E3F8BE3DA221D4003A4C4FCA6CF793F48A"
-    },
-    {
-      "path": "resources/messages/Italian/common/typename.json",
-      "bytes": 5218,
-      "sha256": "51D336EE92E741C90652D42E247F0D5C4AB4E5446920455194CAA8605A5FB826"
-    },
-    {
-      "path": "resources/messages/Italian/common/vs_demo.json",
-      "bytes": 2109,
-      "sha256": "4B3032102F13AE70D1C310B456DCC3DEF7DE56FC384EAD27762A1BA790E8857C"
-    },
-    {
-      "path": "resources/messages/Italian/common/waza_remember.json",
-      "bytes": 34885,
-      "sha256": "B5EE7CAAC20EA7C45DD60021D8815A75D21F6C48DD0805A820002E37C82A0B10"
-    },
-    {
       "path": "resources/messages/Italian/common/waza_wasure.json",
       "bytes": 831,
       "sha256": "826AE376C245D4AF4AD3834EB0EB398147F017D59561A8A986B691E05A35AAFE"
+    }
+  ],
+  "deferred_outputs": [
+    {
+      "path": "resources/messages/Italian/common/staff_list.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/tokusei.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/tokuseiinfo.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/trade_demo.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/trainermemo.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/trmsg.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/trname.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/trtype.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/typename.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/vs_demo.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    },
+    {
+      "path": "resources/messages/Italian/common/waza_remember.json",
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/wazainfo.json",
-      "bytes": 344023,
-      "sha256": "1BB076A64319765E26BC634FE59E32D64922B4FB1560004817AA89077C0684C5"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/wazaname.json",
-      "bytes": 246763,
-      "sha256": "F87B93B5566253C0BCD6DEE0A51DBBF7E0F216D182CBB102FE72F2F77D0F37C2"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/xmenu.json",
-      "bytes": 51329,
-      "sha256": "59F244892E535FC278B88AFEA08161016AD58CFAA1ABA5C297FBC104186D0E81"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/ymap_mission_add.json",
-      "bytes": 3247,
-      "sha256": "90A70DCFBA390331019613F09009F36977BB129F0C2145C148197E184A747794"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/ymap_mission_character.json",
-      "bytes": 7025,
-      "sha256": "04F7C7B6A0DD8E1AD4B404FAA8EE1352D0FBDC2FF4AE98603090DF4292A58A2C"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/ymap_mission_character_title.json",
-      "bytes": 7175,
-      "sha256": "76FD0FEDB15A9484080AEFA35EF7419A0DC3CC00AFAD78B2AEE56EA26762538B"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/ymap_title.json",
-      "bytes": 101435,
-      "sha256": "43E767291B3B8F93990396F929FD1D23B12057A73DB0CAB717848FBD286622CC"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/zkn_form.json",
-      "bytes": 391209,
-      "sha256": "A86BFA173AC05F5C1EC0345C1C9BE2318D5A72C1974B114E84E3909171CFE00D"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/zkn_height.json",
-      "bytes": 394486,
-      "sha256": "A0170D89E9124FF0CBD26A3BBF5AEB38248BDDF01EA745B55B14742ABE29DC96"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/zkn_type.json",
-      "bytes": 296040,
-      "sha256": "BEE9A5ECF137D5D04FCBF267EC7AFDE90B9C2C6DFB9BC0272E523763FB4B67E2"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/zkn_weight.json",
-      "bytes": 397124,
-      "sha256": "2F7722094586A6797E38813AB997D3394BE126A34586059B4F76A811FFA76923"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/zukan_comment_A.json",
-      "bytes": 612737,
-      "sha256": "9898FE3B9D33DF5CB953536E362ED39E94DA3D650FF92235E98D9B89EA11FD7C"
+      "reason": "BATCH_SIZE_LIMIT"
     },
     {
       "path": "resources/messages/Italian/common/zukan_comment_B.json",
-      "bytes": 612413,
-      "sha256": "BEC93293C440AB07007DE33DCB77D26EE1611ED9558E95DA455CF89FA2931C76"
+      "reason": "BATCH_SIZE_LIMIT"
     }
   ],
-  "deferred_outputs": [],
   "not_proven": [
     "gameplay species/item/etc identifiers",
     "undecoded proprietary formats",
