@@ -58,3 +58,12 @@ py -3 -m unittest discover -s tests -p test_sv_virtual_second_stage.py -v
 ## 非 UTF-8 原生键名
 
 真实 `message/dat/Simp_Chinese/common/bag.tbl` 中第 95 号键存在 `82 92` 字节（非合法 UTF-8），但 AHTB 结构、记录边界与 DAT 对齐均有效。解析器保留原始键十六进制值与 `INVALID_UTF8_ESCAPED` 状态，显示为转义占位符，不误认成原始 Unicode 名称。其他表项的正常 UTF-8 键名不受影响。
+
+## 真实样本第二阶段验收（2026-11-05）
+
+- **消息 / 中文**：`message/dat/Simp_Chinese/common` 的 292 个源文件中，141 个 DAT 和 151 个 AHTB 全部成功；`parsed/message/dat/Simp_Chinese/common` 292 份、`converted/message/dat/Simp_Chinese/common` 292 份、`resources/messages/Simp_Chinese/common` 141 份。该范围 725 个产物均成功提交。最近 [Actions 回归](https://github.com/969981/SV_Resources/actions/runs/42021340186) 全通过。
+- **纹理 / 缎带**：原生 `appli/tex/icon_ribbon/icon_ribbon_001/icon_ribbon_001.bntx` 已生成 `parsed/.../icon_ribbon_001.bntx.json` 和 `converted/.../icon_ribbon_001.png`，确认 128×128、PNG 签名与 BNTX 纹理尺寸吻合。[Actions 运行](https://github.com/969981/SV_Resources/actions/runs/42020923590) 成功。
+- **模型 / 背包**：`chara/model_pc/p0_bag0000_schoolbackpack/p0_bag0000_00_bag00.trmdl` 已生成 `parsed/.../*.object.json`，并由 .NET 10 gftool 导出 `converted/.../*.gltf`、配套 `.bin` 和纹理 PNG；glTF 结构及依赖验证通过。[Actions 运行](https://github.com/969981/SV_Resources/actions/runs/42021029541) 成功。
+- **证据等级**：上述批次中输入均为仓库已有的实际 `virtual/` 文件；SHA-256 由本地字节计算，当前报告为 `local_only`，尚未与独立 TRPFD 原始摘要逐条对账。模型尚未完成视觉人工验收，因此 `resources/geometry` 不应伪造“已审查”资源。
+
+继续处理其他语言/纹理/模型时以对应 `--prefix` 开始，先完成格式验证，再按照每批输出预算提交。**这些验收项不能外推为整个 Trinity 虚拟文件系统已完成二次加工。**
