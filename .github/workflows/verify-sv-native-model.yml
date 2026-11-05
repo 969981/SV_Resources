@@ -1,0 +1,68 @@
+name: Verify SV 4.0.0 native Trinity model and animation
+
+on:
+  push:
+    branches:
+      - feature/sv-trpfs-r3r4-pipeline
+    paths:
+      - 'scripts/resource_pipeline/native_sv.py'
+      - 'tests/test_sv_native.py'
+      - '.github/workflows/verify-sv-native-model.yml'
+  pull_request:
+    paths:
+      - 'scripts/resource_pipeline/native_sv.py'
+      - 'tests/test_sv_native.py'
+      - '.github/workflows/verify-sv-native-model.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/resource_pipeline/native_sv.py
+            tests/test_sv_native.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trmdl
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trmsh
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trmbf
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trmtr
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trskl
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00_00010_defaultidle01.tranm
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Synthetic bounded FlatBuffers and link regression
+        run: python -m unittest discover -s tests -p 'test_sv_native.py' -v
+      - name: Audit native SV 4.0.0 model/mesh/material/skeleton/animation bytes
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts/resource_pipeline')
+          from native_sv import audit_bundle, parse_file
+          base = 'pokemon/data/pm0025/pm0025_00_00/'
+          root = Path('Unpack/4.0.0/romfs/arc/data.trpfs')
+          source = base + 'pm0025_00_00.trmdl'
+          animation = base + 'pm0025_00_00_00010_defaultidle01.tranm'
+          for extension in ('trmdl','trmsh','trmbf','trmtr','trskl'):
+              item = parse_file(root, base + 'pm0025_00_00.' + extension)
+              print('Native parser:', extension, item['size'], item['sha256'][:16], flush=True)
+          clip = parse_file(root, animation)
+          print('Native animation tracks:', len(clip['data']['tracks']), flush=True)
+          report = audit_bundle(root, source, animation)
+          print('Native link checks:', json.dumps(report['checks'], ensure_ascii=False)[:6000], flush=True)
+          print('Resolved references:', json.dumps(report['references'], ensure_ascii=False)[:3500], flush=True)
+          assert len(report['model']['data']['mesh_references']) > 0
+          assert report['checks']['geometry']['mesh_count'] > 0
+          assert report['checks']['skeleton']['nodes'] > 0
+          assert len(clip['data']['tracks']) > 0
+          print('Native model/animation parse: PASS; rendering fidelity NOT_TESTED', flush=True)
+          PY
