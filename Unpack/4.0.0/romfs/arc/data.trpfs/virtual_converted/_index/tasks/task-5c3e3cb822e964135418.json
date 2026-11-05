@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task": "appli/tex/emote_field/emote_icon_field_02#00000",
+  "input_fingerprint": "5D27474B4FAB1BD0423751D4A6EAD1D0621CB7F32A5381E39E59198E4E517559",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "appli/tex/emote_field/emote_icon_field_02/emote_icon_field_02.bntx",
+      "source_sha256": "7AB2FFBA93FFD2E837372FAFB8F85913B9540B91B2FA56B20EE90724A27B1303",
+      "bytes": 20584,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010050000068500000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/appli/tex/emote_field/emote_icon_field_02/emote_icon_field_02.bntx.json"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/appli/tex/emote_field/emote_icon_field_02/emote_icon_field_02.png",
+      "path": "virtual_converted/appli/tex/emote_field/emote_icon_field_02/emote_icon_field_02.png",
+      "sha256": "44B4B2078505A761A32A1C1E97F2ABEBB5713B925278557FDD16106E21388324",
+      "bytes": 1726
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/emote_field/emote_icon_field_02/_inspection/2863caade4da056e.jsonl",
+      "path": "virtual_converted/_parsed/appli/tex/emote_field/emote_icon_field_02/_inspection/2863caade4da056e.jsonl",
+      "sha256": "932CBE23AA380AF1959ABF6CAB82043C622298F9BFD9D0C1E7B41C079B00D856",
+      "bytes": 620
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/emote_field/emote_icon_field_02/emote_icon_field_02.bntx.json",
+      "path": "virtual_converted/_parsed/appli/tex/emote_field/emote_icon_field_02/emote_icon_field_02.bntx.json",
+      "sha256": "BEC968A469CE87A10CA571AFE231866E1A4BFFB67E1BE54187A96F827086D02F",
+      "bytes": 298
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "appli/tex/emote_field/emote_icon_field_02",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
