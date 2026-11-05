@@ -144,7 +144,9 @@ def select_batch(tasks, state, max_tasks=20, max_files=2400):
         if len(selected) >= max_tasks:
             break
         if selected and total + item["file_count"] > max_files:
-            break
+            # Backfill later small independent groups instead of leaving the
+            # remaining batch capacity idle behind a large 1200-file group.
+            continue
         if item["file_count"] > max_files:
             raise ValueError("Oversized native group; decrease --group-files or increase --max-files")
         selected.append(item)
