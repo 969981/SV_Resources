@@ -61,3 +61,27 @@ python -m unittest discover -s tests -p test_sv_m2_parallel.py -v
 ```
 
 合成测试覆盖 Pack 区间顺序、并发上限、进程数 1 回退、异常传播、已发布旧窗口碰撞不误判、Windows 大小写冲突阻断与参数越界。真实 ROM 的多进程端到端测试需要在 Windows Runner 使用验证过的源文件与依赖；不应以合成测试代替全量解包成功判定。
+
+## 旧版手动抽取工作流（sv-m2-virtual-extract.yml）
+
+原始 `.github/workflows/sv-m2-virtual-extract.yml` 是按人工指定 `start_pack / max_packs` 直接抽取 TRPFS virtual 文件的旧工作流，不会自动续跑 23,589 包。它现在复用相同的 `scripts/sv_m2_parallel.py` 调度器和 `scripts/Run-SV-FullExtract.py` 的 `process_batch` 原生文件校验、>90MiB 分卷与 `7z t` 核验逻辑；入口为 `scripts/Run-SV-M2Window.py`。
+
+- `start_pack=0`、`max_packs=2`（和旧版保持一致）；`workers=2`；`window_packs=0` 为自动窗口划分；`publish_branch=sv-m2-manual-4.0.0` 默认隔离 Git 发布。允许显式选 `master`，但可能遭遇其他工作流的并发提交冲突。
+- `max_packs` 仍限制为 1..200。自动窗口长度为 `min(20, max(1, ceil(max_packs/(workers*4))))`；短窗口可以让 2 包分别进入两个独立 dotnet 子进程。
+- Native JSONL、摘要和大文件 7z 清单写入 `_index/batches/manual-pack-<start>-<end>.jsonl` 与同名前缀的 JSON。**manual-pack 不匹配全量审计的 `pack-*.jsonl`**，不会污染全量验收证据。
+- 只有所有窗口全为 `OK`、文件大小和 SHA-256 检查通过、分卷归档校验通过之后才进行一次显式路径 Git 暂存与非强推。若任意窗口 `FAILED`，没有文件提交；可从 Actions artifact 读取已有的 manual 证据以排障。
+- **不更新 `full-extract-progress.json`，也不触发旧版的全量完成判定**。人工抽样与全量发布分属不同写入分支。
+- 默认新建或更新 `sv-m2-manual-4.0.0`，成功时创建/更新单独的数据审查 PR。已存在 `master` 的文件按源 SHA-256 复核，无差异内容不会被重复加入 Git。
+- 原版直接 `git add virtual/` 可能将其他已有源文件一起暂存；新版只收集本次原生报告提及且审核成功的文件与证据路径。
+
+示例（在 Windows 环境中已经通过 `Prepare-SV-Trinity.ps1` 恢复来源、复制固定 HashCache 和 Oodle，并切换到相应输出分支时）：
+
+```powershell
+python scripts/Run-SV-M2Window.py --repo . `
+  --workspace "D:\temp\SV-4.0.0-Trinity-RomFS" `
+  --start-pack 0 --max-packs 2 --workers 2 --window-packs 0 `
+  --publish-branch sv-m2-manual-4.0.0
+```
+
+验证：`python -m unittest discover -s tests -p 'test_sv_m2_*py' -v`。
+这组测试使用合成报告验证 Pack 顺序、隔离的 `manual-pack` 输出、严格失败传播、范围检查及不会返回全量进度文件，不替代完整 TRPFS 实测。
