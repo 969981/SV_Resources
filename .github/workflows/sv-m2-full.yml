@@ -24,10 +24,19 @@ on:
           - "3"
           - "4"
         default: "2"
+      publish_branch:
+        description: "Publish to isolated M2 branch (recommended) or directly to master"
+        required: true
+        type: choice
+        options:
+          - "sv-m2-packs-4.0.0"
+          - "master"
+        default: "sv-m2-packs-4.0.0"
 
 permissions:
   contents: write
   actions: write
+  pull-requests: write
 
 concurrency:
   group: sv-trinity-full-4-0-0
@@ -42,6 +51,7 @@ jobs:
       START_PACK: ${{ github.event.inputs.start_pack || '2' }}
       BATCH_PACKS: ${{ github.event.inputs.batch_packs || '100' }}
       WORKERS: ${{ github.event.inputs.workers || '2' }}
+      PUBLISH_BRANCH: ${{ github.event.inputs.publish_branch || 'sv-m2-packs-4.0.0' }}
     steps:
       - name: Free-space and batch limit preflight
         shell: pwsh
@@ -77,6 +87,31 @@ jobs:
             Unpack/4.0.0/romfs/arc/data.trpfs
           sparse-checkout-cone-mode: false
           persist-credentials: true
+
+      - name: Select isolated publish branch (no reset/rebase/force)
+        shell: pwsh
+        run: |
+          if ($env:PUBLISH_BRANCH -eq 'master') {
+            Write-Host 'Legacy direct-to-master publication requested.'
+            exit 0
+          }
+          if ($env:PUBLISH_BRANCH -ne 'sv-m2-packs-4.0.0') { throw 'Unexpected M2 publication branch' }
+          $ref = "refs/heads/$env:PUBLISH_BRANCH"
+          $found = git ls-remote --heads origin $ref
+          if ($LASTEXITCODE -ne 0) { throw 'Unable to inspect M2 publication branch' }
+          if ([string]::IsNullOrWhiteSpace(($found | Out-String))) {
+            git switch -c $env:PUBLISH_BRANCH
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to create local M2 branch' }
+            git push origin "HEAD:$ref"
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to create remote M2 branch' }
+          }
+          else {
+            git fetch origin $env:PUBLISH_BRANCH
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to fetch existing M2 branch' }
+            git switch -c $env:PUBLISH_BRANCH "origin/$env:PUBLISH_BRANCH"
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to switch to existing M2 branch' }
+          }
+          Write-Host "M2 dedicated output branch = $env:PUBLISH_BRANCH"
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -123,7 +158,7 @@ jobs:
       - name: Full staged native extraction and Git publishing
         shell: pwsh
         run: |
-          python scripts/Run-SV-FullExtract.py --repo . --workspace $env:ROMFS_WORK --start-pack $env:START_PACK --batch-packs $env:BATCH_PACKS --workers $env:WORKERS --time-budget-minutes 230
+          python scripts/Run-SV-FullExtract.py --repo . --workspace $env:ROMFS_WORK --start-pack $env:START_PACK --batch-packs $env:BATCH_PACKS --workers $env:WORKERS --publish-branch $env:PUBLISH_BRANCH --time-budget-minutes 230
           if ($LASTEXITCODE -ne 0) { throw "Full extraction pipeline failed at a checkpoint. Return code=$LASTEXITCODE" }
 
       - name: Upload durable last checkpoint (even when a step fails)
@@ -144,12 +179,21 @@ jobs:
           Write-Host "M2 next pack = $($p.nextPack) / $($p.totalPacks); state = $($p.state)"
           if ($p.nextPack -lt $p.totalPacks) {
             if ($p.state -ne 'PARTIAL') { throw 'Cannot auto-continue non-partial checkpoint' }
-            gh workflow run sv-m2-full.yml --ref master -f "start_pack=$($p.nextPack)" -f "batch_packs=$env:BATCH_PACKS" -f "workers=$env:WORKERS"
+            gh workflow run sv-m2-full.yml --ref $env:PUBLISH_BRANCH -f "start_pack=$($p.nextPack)" -f "batch_packs=$env:BATCH_PACKS" -f "workers=$env:WORKERS" -f "publish_branch=$env:PUBLISH_BRANCH"
             if ($LASTEXITCODE -ne 0) { throw 'Unable to dispatch next verified pack window; run manually from the recorded checkpoint' }
             Write-Host "Next GitHub Actions run dispatched for native pack $($p.nextPack)."
           }
           elseif ($p.state -eq 'COMPLETE') {
             Write-Host 'All native file hash records accounted for, with no failures.'
+            if ($env:PUBLISH_BRANCH -ne 'master') {
+              $prs = gh pr list --base master --head $env:PUBLISH_BRANCH --json number --jq '.[0].number'
+              if ($LASTEXITCODE -ne 0) { throw 'Unable to inspect M2 data merge request' }
+              if ([string]::IsNullOrWhiteSpace(($prs | Out-String))) {
+                gh pr create --base master --head $env:PUBLISH_BRANCH --title 'data(m2): merge fully audited SV Trinity unpack' --body 'Complete native TRPFD audit passed on isolated M2 branch. Review the generated resource files, 7z evidence, and full-extract-audit.json before merging into master.'
+                if ($LASTEXITCODE -ne 0) { throw 'Unable to open audited M2 merge request' }
+              }
+              Write-Host "Verified data remains on $env:PUBLISH_BRANCH until reviewed and merged."
+            }
           }
           else {
             throw "All pack indices visited, but audit found unresolved records. State=$($p.state). Check full-extract-audit.json."
