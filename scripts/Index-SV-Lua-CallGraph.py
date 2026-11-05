@@ -252,6 +252,7 @@ def build(external_dir: Path, hash_root: Path, supplemental_file: Path):
         row = {"class_hash": "C" + h, "status": "PRESENT_IN_OLDER_CORPUS" if r else "NOT_IN_OLDER_CORPUS"}
         row.update(r)
         row["class_hash"] = "C" + h
+        row["status"] = "PRESENT_IN_OLDER_CORPUS" if r else "NOT_IN_OLDER_CORPUS"
         missing_c.append(row)
     owners = []
     for r in method_rows:
