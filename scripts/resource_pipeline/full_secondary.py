@@ -277,7 +277,7 @@ def main(argv=None):
     p.add_argument("--max-files",type=int,default=2400)
     p.add_argument("--png-converter",default="")
     p.add_argument("--model-converter",default="")
-    p.add_argument("action",choices=("select","paths","execute","status"))
+    p.add_argument("action",choices=("select","paths","fetch","execute","status"))
     args=p.parse_args(argv)
     repo=repo_root(args.repo)
     if args.group_files<2 or args.max_tasks<1 or args.max_files<args.group_files:
@@ -292,6 +292,13 @@ def main(argv=None):
         sys.stdout.buffer.write(b"".join(
             (str(ROOT/"virtual"/name).encode("utf-8")+b"\0") for name in paths))
         return 0
+    elif args.action=="fetch":
+        selection=json.loads((repo/ROOT/SELECTION_NAME).read_text("utf-8"))
+        paths=[str(ROOT/"virtual"/x) for x in safe_paths_for_checkout(selection)]
+        for offset in range(0,len(paths),120):
+            subprocess.run(["git","sparse-checkout","add",*paths[offset:offset+120]],
+                           cwd=repo,check=True)
+        result={"fetched_native_paths":len(paths),"scope":"EXACT_SPARSE_PATH_LIST"}
     elif args.action=="execute":
         result=process_batch(repo,args.png_converter,args.model_converter)
     else:
