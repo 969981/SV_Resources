@@ -115,3 +115,15 @@ py -3 -m unittest discover -s tests -p test_za_lua_hash_recovery.py -v
 - `Recover-SV-Prefetch-Missing.py`：从固定 PokeDocs 原始哈希表恢复 36 条经过 SV 原生 FNV-1a 变体验证的路径，46 条仍 UNKNOWN。
 
 自动验证与按明细提交：`.github/workflows/analyze-sv-event-prefetch-links.yml`；研究记录：[SV 原生事件与哈希证据](../docs/research/sv-event-prefetch-native-links.md)。
+
+## ZA Lua 第二轮（S/F 原始空行补全及 Haxe 重建交叉核验）
+
+- `Recover-ZA-Lua-Hashes.py`：578 条 Hash 匹配与非破坏式合并；原文件在 `tools/PokeDocs` 保持不变。
+- `Verify-ZA-Lua-Sources.py`：检查 `source-evidence.tsv`、原始 1-based 行号、第三方固定版本的 `@:hashAbi` 及 Git Blob SHA，并生成/验证 `source-line-index.tsv`、`source-audit.json`。
+- [详细 Obsidian 研究文档](../docs/research/za-lua-hash-recovery.md)。
+
+```powershell
+py -3 .\scripts\Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 578
+py -3 .\scripts\Verify-ZA-Lua-Sources.py --verify-only --reconstruction-root .research/ZAScripts
+py -3 -m unittest discover -s tests -p test_za_lua_source_evidence.py -v
+```

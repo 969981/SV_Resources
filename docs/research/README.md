@@ -25,3 +25,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## SV TREVT / TRPRE 原生事件与资源哈希
 
 - [SV 4.0.0 原生关联证据：事件状态、FNV 哈希算法与 Prefetch 36 个名称恢复](sv-event-prefetch-native-links.md) — 17,714/17,760 个路径哈希关系可验证，保留剩余 46 个未知键和条件运行时语义的证据边界。
+
+## ZA Lua 第二轮可复核证据
+
+- [ZA Lua 完整 Hash 与原始行号/重建源码证据](za-lua-hash-recovery.md) — 578 个精确命中，其中 566 个具第三方固定源码 `@:hashAbi` 对照，原始空白剩 195（S 117、F 75、E 3）；不宣称已原生运行验证。

@@ -1,21 +1,28 @@
-name: Verify ZA Lua Hash recovery
+name: Verify ZA Lua Hash recovery and source evidence
+
 on:
   push:
     paths:
-      - 'scripts/Recover-ZA-Lua-Hashes.py'
-      - 'tests/test_za_lua_hash_recovery.py'
-      - 'tools/PokeDocs-Supplement/ZA/Hashlists/Lua/**'
       - '.github/workflows/verify-za-lua-hashes.yml'
+      - 'scripts/Recover-ZA-Lua-Hashes.py'
+      - 'scripts/Verify-ZA-Lua-Sources.py'
+      - 'tests/test_za_lua_hash_recovery.py'
+      - 'tests/test_za_lua_source_evidence.py'
+      - 'tools/PokeDocs-Supplement/ZA/Hashlists/Lua/**'
+      - 'docs/research/za-lua-hash-recovery.md'
   pull_request:
   workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout only relevant SV_Resources paths
+        uses: actions/checkout@v4
         with:
           sparse-checkout: |
             scripts
@@ -23,9 +30,32 @@ jobs:
             tools/PokeDocs/ZA/Hashlists/Lua
             tools/PokeDocs-Supplement/ZA/Hashlists/Lua
           sparse-checkout-cone-mode: true
+
+      - name: Checkout pinned independent ZA script reconstruction
+        uses: actions/checkout@v4
+        with:
+          repository: Reisyukaku/ZAScripts
+          ref: c7bc243ac4d28356dff9f06b6723330ea92247d5
+          path: .research/zascripts
+          persist-credentials: false
+          sparse-checkout: |
+            source
+          sparse-checkout-cone-mode: true
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m unittest discover -s tests -p test_za_lua_hash_recovery.py -v
-      - run: python scripts/Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 70
-      - run: git diff --exit-code -- tools/PokeDocs/ZA/Hashlists/Lua
+
+      - name: Test parsers on synthetic data
+        run: |
+          python -m unittest discover -s tests -p 'test_za_lua_hash_recovery.py' -v
+          python -m unittest discover -s tests -p 'test_za_lua_source_evidence.py' -v
+
+      - name: Verify original-to-merged hashes and 578 candidates
+        run: python scripts/Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 578
+
+      - name: Verify pinned source annotations and original line numbers
+        run: python scripts/Verify-ZA-Lua-Sources.py --verify-only --reconstruction-root .research/zascripts
+
+      - name: Ensure original PokeDocs is untouched
+        run: git diff --exit-code -- tools/PokeDocs/ZA/Hashlists/Lua

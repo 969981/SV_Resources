@@ -43,3 +43,7 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 ## ZA Lua Hash 恢复（Obsidian）
 
 - [ZA Lua C/E/F/S 空白 Hash 补全](research/za-lua-hash-recovery.md) — 70 条完整 Hash 精确候选，原未知 773→703，独立补充表与脚本。
+
+## ZA Lua 第二轮（Obsidian）
+
+- [ZA Lua Hash/固定源码和原始行号对照](research/za-lua-hash-recovery.md) — 578 条合并候选、566 条具名重建证据、完整 1-based 原始行号索引及可复核命令。
