@@ -158,3 +158,7 @@ py -3 .\scripts\Verify-ZA-Lua-Sources.py --scan-reconstruction --reconstruction-
 py -3 .\scripts\Audit-ZA-Lua-Unresolved.py --haxe-root .research/ZAScripts
 py -3 -m unittest discover -s tests -p test_za_lua_native_evidence.py -v
 ```
+
+## SV 4.0.0 Lua：12 个原生新 S Hash 的独立增量
+
+[`Merge-SV-Lua-Native-S-Fields.py`](Merge-SV-Lua-Native-S-Fields.py) 从经原生 Lua 验证的 `followup-c-static-s-closures.tsv` 读取 12 个 **PokeDocs 原 S 文件没有收录的 Hash**，通过 FNV-1a-64 核查 `GetInt8`，输出 6,635 行完整增强列表、12 行原生证据表和 SHA-256 来源报告。**不读取或拆分 .blua**，不修改 PokeDocs。运行 `python scripts/Merge-SV-Lua-Native-S-Fields.py` 和 `--verify-only`。自动检查见 [工作流](../.github/workflows/merge-sv-lua-native-s.yml)；[Obsidian 证据文档](../docs/research/sv-lua-native-4.0.0-phase4.md)。
