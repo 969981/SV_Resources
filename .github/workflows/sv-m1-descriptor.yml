@@ -1,0 +1,95 @@
+name: SV M1 - extract native TRPFD index
+on:
+  push:
+    paths:
+      - '.github/workflows/sv-m1-descriptor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-m1-descriptor-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-descriptor:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check free runner disk
+        shell: pwsh
+        run: |
+          Get-CimInstance Win32_LogicalDisk |
+            Select-Object DeviceID, @{n='FreeGiB';e={[Math]::Round($_.FreeSpace / 1GB, 2)}}, @{n='SizeGiB';e={[Math]::Round($_.Size / 1GB, 2)}} |
+            Format-Table -AutoSize
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            .github/workflows/sv-m1-descriptor.yml
+            violet_4.0.0_romfs_transfer_manifest.json
+            4.0.0/1/arc/data.trpfd
+            tools/SV.TrinityDump
+            tools/gftool
+            tools/HashCaches/SV
+            Unpack/4.0.0/romfs/arc/data.trpfd
+          sparse-checkout-cone-mode: false
+          persist-credentials: true
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Initialize pinned gftool Core
+        shell: pwsh
+        run: |
+          git submodule update --init --recursive -- tools/gftool
+          if ($LASTEXITCODE -ne 0) { throw 'gftool submodule initialization failed' }
+
+      - name: Verify native data.trpfd against transfer manifest
+        shell: pwsh
+        run: |
+          $manifest = Get-Content violet_4.0.0_romfs_transfer_manifest.json -Raw | ConvertFrom-Json
+          $records = @($manifest.files | Where-Object relativePath -eq 'arc/data.trpfd')
+          if ($records.Count -ne 1) { throw 'Missing or duplicated data.trpfd manifest record' }
+          $source = '4.0.0/1/arc/data.trpfd'
+          $item = Get-Item $source
+          $sha = (Get-FileHash $source -Algorithm SHA256).Hash
+          if ($item.Length -ne [long]$records[0].sourceBytes -or $sha -ne [string]$records[0].sourceSha256) {
+            throw "data.trpfd source size or SHA256 mismatch: $sha"
+          }
+          Write-Host "Verified original TRPFD: $($item.Length) bytes SHA256=$sha"
+
+      - name: Extract real TRPFD index using pinned GFTool.Core
+        shell: pwsh
+        run: |
+          $flags = @('--descriptor-only','--romfs','4.0.0/1','--output','Unpack/4.0.0/romfs/arc/data.trpfd','--cache','tools/HashCaches/SV/GFPAKHashCache.bin')
+          dotnet run --project tools/SV.TrinityDump/SV.TrinityDump.csproj -c Release -- $flags
+          if ($LASTEXITCODE -ne 0) { throw "TRPFD parse/export failed ($LASTEXITCODE)" }
+          Get-Content 'Unpack/4.0.0/romfs/arc/data.trpfd/_index/descriptor_summary.json' | Write-Host
+
+      - name: Store index as independent Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV-4.0.0-TRPFD-Native-Index
+          path: Unpack/4.0.0/romfs/arc/data.trpfd/_index/
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Commit only extracted metadata into its destination directory
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "Unpack/4.0.0/romfs/arc/data.trpfd/_index/descriptor_summary.json" "Unpack/4.0.0/romfs/arc/data.trpfd/_index/file_index.tsv.gz" "Unpack/4.0.0/romfs/arc/data.trpfd/_index/pack_index.tsv"
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "No changes: extracted TRPFD index already matches repository"
+            exit 0
+          }
+          git commit -m "data(m1): extract verified SV 4.0.0 TRPFD descriptor index"
+          if ($LASTEXITCODE -ne 0) { throw 'Commit failed' }
+          git push origin HEAD:master
+          if ($LASTEXITCODE -ne 0) { throw 'Push rejected; inspect uploaded artifact and re-run safely' }
