@@ -60,3 +60,17 @@ See exact commands in [M1/M2 execution guide](../docs/unpack-roadmap.md#m1m2-loc
 `Sync-SV-Tools.ps1` now initializes/verifies four submodules (`tools/gftool`, `tools/pkNX`, `tools/Switch-Toolbox`, `tools/SCVI_Extract`) and verifies the existing complete vendored `tools/PokeDocs` tree. The old `tools/_external` location is obsolete. Run `git submodule update --init --recursive` after pulling to get complete source for those four; vendored PokeDocs is already present; use `-VerifyOnly` to inspect pinned SHAs without downloads. `-IncludeLegacy` is accepted for backward compatibility but the SCVI_Extract submodule is always included.
 
 `Prepare-SV-Trinity.ps1` can automatically take the **existing** `scripts/deps/oo2core_8_win64.dll` as runtime input if `-OodleDllPath` is omitted. It stages a copy under ignored `tools/_local/` while leaving `scripts/deps` unchanged.
+
+## PokeDocs TXT → GFPAKHashCache.bin（SV / ZA）
+
+- `Build-SV-GFPAKHashCache.py`：底层转换器；单目标 BIN，可传多个 `--hashlist`，保留旧调用兼容性。
+- `Build-PokeDocs-HashCaches.py`：SV/ZA 双游戏独立生成、逐条二进制验证、来源 SHA-256 和 `provenance.json`；不访问网络，也不依赖 ROM。
+
+```powershell
+py -3 .\scripts\Build-PokeDocs-HashCaches.py --overwrite
+py -3 .\scripts\Build-PokeDocs-HashCaches.py --verify-only
+py -3 .\scripts\Build-PokeDocs-HashCaches.py --game ZA --overwrite
+py -3 -m unittest discover -s tests -p "test_*.py" -v
+```
+
+原始 PokeDocs **完整实体快照**在 `tools/PokeDocs/`，不是 submodule。CI 中完整镜像、生成及提交的 YAML 位于 `.github/workflows/vendor-pokedocs.yml`；单 SV Artifact 工作流是 `build-sv-hashcache.yml`。Obsidian 技术说明：[docs/hashcache/README.md](../docs/hashcache/README.md)。
