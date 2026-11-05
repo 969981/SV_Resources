@@ -287,8 +287,13 @@ namespace FirstPlugin
 
                 reader.Seek(SectionSize + pos, System.IO.SeekOrigin.Begin);
 
+#if NETFRAMEWORK
                 ContextMenu = new ContextMenu();
                 ContextMenu.MenuItems.Add(new MenuItem("Export Shader", ExportShader));
+#else
+                ContextMenuStrip = new ContextMenuStrip();
+                ContextMenuStrip.Items.Add("Export Shader", null, ExportShader);
+#endif
             }
 
             public void Write(FileWriter reader)
