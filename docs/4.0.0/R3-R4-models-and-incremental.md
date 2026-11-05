@@ -76,7 +76,7 @@ python scripts/resource_pipeline/r34.py promote \
 
 ## GitHub Actions 与发布策略
 
-[verify-sv-r34-pipeline.yml](../../../.github/workflows/verify-sv-r34-pipeline.yml) 在提交与 PR 时仅运行合成数据验证，不下载游戏资源；`workflow_dispatch` 的 `native-plan` 只在拥有本地原始资源和索引的 `self-hosted, sv-resources` 专用 runner 运行，只生成本地清单，不上传二进制。
+[verify-sv-r34-pipeline.yml](../../.github/workflows/verify-sv-r34-pipeline.yml) 在提交与 PR 时仅运行合成数据验证，不下载游戏资源；`workflow_dispatch` 的 `native-plan`、`native-run`、`native-retry` 只在拥有本地原始资源、R0 索引及合法转换器的 `self-hosted, sv-resources` 专用 runner 运行。`native-plan` 仅生成本地清单；`native-run` 与 `native-retry` 在私有 runner 上执行或重试限定分片，不上传原始文件、GLB 或大体积二进制。设置仓库变量 `SV_RESOURCE_ROOT`、`SV_R3_CONVERTER`、`SV_R3_CONVERTER_VERSION`，并为分片配置输入参数。
 
 **Git 主分支只保存**代码、文档、schema、索引格式与少量获授权样本；`parsed/`、`converted/`、`resources/` 大体积产物继续被 `.gitignore` 排除。分批归档、分卷、Release 附件发布前必须逐项核对游戏资产和第三方依赖的再分发授权；无授权则仅私有本地生成，不在公开 GitHub Release 分发。
 
