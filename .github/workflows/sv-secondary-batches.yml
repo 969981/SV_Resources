@@ -1,0 +1,240 @@
+name: SV virtual secondary batches (text, BNTX, gftool)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/sv-secondary-batches.yml'
+  workflow_dispatch:
+    inputs:
+      category:
+        description: 'pilot, text, images, or models'
+        type: choice
+        options: [pilot, text, images, models]
+        default: pilot
+      scope:
+        description: 'Optional virtual-relative folder'
+        type: string
+        required: false
+        default: ''
+      offset:
+        description: 'First source folder, zero-based'
+        type: number
+        default: 0
+      count:
+        description: 'Number of folders (1-100)'
+        type: number
+        default: 8
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-secondary-publish-master
+  cancel-in-progress: false
+
+jobs:
+  text-images:
+    if: github.repository == '969981/SV_Resources' && (github.event_name == 'push' || inputs.category != 'models')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          filter: blob:none
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_secondary_batches.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test batch planning and publication boundaries
+        run: python -m unittest discover -s tests -p test_sv_secondary_batches.py -v
+      - name: Plan and sparse-checkout real sources
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,subprocess,sys
+          params=json.load(open(os.environ['GITHUB_EVENT_PATH'])).get('inputs') or {}
+          kind=params.get('category') or 'pilot'
+          scope=params.get('scope') or ''
+          offset=int(params.get('offset') or 0)
+          count=int(params.get('count') or 8)
+          if not 1<=count<=100 or offset<0: raise ValueError('Unsafe requested batch')
+          if kind=='pilot':
+              jobs=[('text','message/dat/English/common',0,1),
+                    ('images','appli/tex/icon_item',0,8)]
+          elif kind=='text':
+              jobs=[('text',scope or 'message/dat',offset,count)]
+          elif kind=='images':
+              jobs=[('images',scope or 'appli/tex/icon_item',offset,count)]
+          else:
+              raise ValueError('This runner supports text/images only')
+          records=[]
+          for cat,prefix,start,n in jobs:
+              cmd=[sys.executable,'scripts/resource_pipeline/batch_secondary.py',
+                   'plan','--kind',cat,'--scope',prefix,'--offset',str(start),
+                   '--count',str(n)]
+              a=json.loads(subprocess.run(cmd,capture_output=True,text=True,check=True).stdout)
+              if not a['selected_scopes']: raise ValueError('No matching input '+prefix)
+              records.append({'kind':cat,'scope':prefix,'offset':start,'count':n,
+                              'scopes':a['selected_scopes']})
+          root='Unpack/4.0.0/romfs/arc/data.trpfs'
+          dirs=[root+'/virtual/'+p for job in records for p in job['scopes']]
+          dirs += [root+'/parsed',root+'/converted',root+'/resources',root+'/_index/secondary']
+          subprocess.run(['git','sparse-checkout','add',*dirs],check=True)
+          open('secondary-jobs.json','w').write(json.dumps(records,indent=2))
+          print(json.dumps(records,indent=2))
+          PY
+      - name: Compile pinned PNG decoder if needed
+        shell: bash
+        env:
+          RUSTFLAGS: -C link-arg=-lstdc++
+        run: |
+          if python -c "import json; assert not any(x['kind']=='images' for x in json.load(open('secondary-jobs.json')))"; then
+            echo "No image batch"
+          else
+            cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex \
+              --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac ultimate_tex_cli
+          fi
+      - name: Convert and stage SHA-verified outputs
+        run: |
+          python - <<'PY'
+          import json,subprocess,sys
+          rows=json.load(open('secondary-jobs.json'))
+          failures=[]
+          for job in rows:
+              args=[sys.executable,'scripts/resource_pipeline/batch_secondary.py','run',
+                    '--kind',job['kind'],'--scope',job['scope'],
+                    '--offset',str(job['offset']),'--count',str(job['count']),
+                    '--file-limit','1000','--max-source-files','3000',
+                    '--max-output-mb','75','--stage']
+              if job['kind']=='images':
+                  args+=['--png-converter','ultimate_tex_cli {input} {output}']
+              p=subprocess.run(args,capture_output=True,text=True)
+              if p.stdout:
+                  try:
+                      report=json.loads(p.stdout)
+                      print(job['kind'],json.dumps(report.get('summary',{})))
+                  except ValueError:
+                      print(p.stdout[-1500:])
+              if p.returncode: failures.append({'kind':job['kind'],'stderr':p.stderr[-2000:],
+                                                'stdout':p.stdout[-2000:]})
+          open('secondary-failures.json','w').write(json.dumps(failures,indent=2))
+          PY
+      - name: Commit audited text and icon outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(SV): batch native text and PNG derivatives"
+          git pull --rebase origin master
+          git push origin HEAD:master
+      - name: Upload processing evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-secondary-text-images
+          path: |
+            secondary-jobs.json
+            secondary-failures.json
+          if-no-files-found: warn
+      - name: Check unhandled errors
+        if: always()
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('secondary-failures.json')
+          if p.exists() and json.loads(p.read_text()): raise SystemExit(p.read_text())
+          PY
+
+  models:
+    needs: [text-images]
+    if: always() && github.repository == '969981/SV_Resources' && (github.event_name == 'push' || inputs.category == 'pilot' || inputs.category == 'models')
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          filter: blob:none
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_secondary_batches.py
+            tools/gftool
+            tools/SV.R3.ModelExport
+            tools/PokeDocs/SV/Flatbuffers
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Plan and sparse-checkout model batch
+        shell: pwsh
+        run: |
+          @'
+          import json,os,subprocess,sys
+          data=json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          p=data.get('inputs') or {}
+          if (p.get('category') or 'pilot')=='pilot':
+              scope='chara/model_pc/p0_bag0002_nylon'; offset=0; count=1
+          else:
+              scope=p.get('scope') or 'chara/model_pc'
+              offset=int(p.get('offset') or 0)
+              count=int(p.get('count') or 8)
+          cmd=[sys.executable,'scripts/resource_pipeline/batch_secondary.py',
+               'plan','--kind','models','--scope',scope,
+               '--offset',str(offset),'--count',str(count)]
+          r=json.loads(subprocess.run(cmd,capture_output=True,text=True,check=True).stdout)
+          if not r['selected_scopes']: raise ValueError('No models at requested offset')
+          root='Unpack/4.0.0/romfs/arc/data.trpfs'
+          dirs=[root+'/virtual/'+x for x in r['selected_scopes']]
+          dirs += [root+'/parsed',root+'/converted',root+'/resources',root+'/_index/secondary']
+          subprocess.run(['git','sparse-checkout','add',*dirs],check=True)
+          open('model-job.json','w').write(json.dumps({'scope':scope,'offset':offset,'count':count}))
+          print(r)
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot prepare model sources' }
+      - name: Build native .NET 10 gftool converter
+        shell: pwsh
+        run: |
+          dotnet build tools/SV.R3.ModelExport/SV.R3.ModelExport.csproj -c Release --nologo
+          if ($LASTEXITCODE -ne 0) { throw 'gftool build failed' }
+      - name: Convert and stage validated glTF resources
+        shell: pwsh
+        run: |
+          $task = Get-Content model-job.json -Raw | ConvertFrom-Json
+          $exe = (Resolve-Path 'tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe').Path
+          $template = '"' + $exe + '" {input} {output}'
+          python scripts/resource_pipeline/batch_secondary.py run --kind models --scope $task.scope --offset $task.offset --count $task.count --file-limit 100 --max-source-files 3000 --max-output-mb 75 --model-converter $template --stage | Out-File model-batch-result.json -Encoding utf8
+          if ($LASTEXITCODE -ne 0) { Write-Warning 'Model conversion has blocked/failed entries; inspect report' }
+      - name: Commit validated model derivatives
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Host 'No validated model changes'; exit 0 }
+          git commit -m "data(SV): batch gftool glTF derivatives"
+          if ($LASTEXITCODE -ne 0) { throw 'Commit failed' }
+          git pull --rebase origin master
+          if ($LASTEXITCODE -ne 0) { throw 'Rebase failed' }
+          git push origin HEAD:master
+          if ($LASTEXITCODE -ne 0) { throw 'Push failed' }
+      - name: Preserve model processing report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-secondary-models
+          path: |
+            model-job.json
+            model-batch-result.json
+          if-no-files-found: warn
