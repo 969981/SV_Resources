@@ -1,29 +1,24 @@
-name: Convert Scarlet/Violet 4.0.0 main NSO to ELF
-
+name: SV 4.0.0 extra ExeFS ELF and NPDM
 on:
   push:
     branches: [master]
     paths:
       - '.github/workflows/convert-sv-exefs.yml'
-      - 'tools/nx2elf/**'
       - 'scripts/Convert-SV-ExeFS.py'
-      - 'docs/exefs-nx2elf.md'
+      - 'scripts/Parse-SV-NPDM.py'
   workflow_dispatch:
-
 permissions:
   contents: write
-
+  pull-requests: write
 concurrency:
-  group: sv-nx2elf-4-0-0
+  group: sv-exefs-misc-400
   cancel-in-progress: false
-
 jobs:
-  convert:
+  extract:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 75
     steps:
-      - name: Checkout pinned converter and both original NSOs
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: master
           fetch-depth: 1
@@ -31,82 +26,80 @@ jobs:
           sparse-checkout: |
             tools/nx2elf
             scripts/Convert-SV-ExeFS.py
-            docs/exefs-nx2elf.md
-            4.0.0/0/scarlet_main
-            4.0.0/0/violet_main
+            scripts/Parse-SV-NPDM.py
+            4.0.0/0/rtld
+            4.0.0/0/sdk
+            4.0.0/0/subsdk0
+            4.0.0/0/scarlet_main.npdm
+            4.0.0/0/violet_main.npdm
             Unpack/4.0.0/exefs
           sparse-checkout-cone-mode: false
           persist-credentials: true
-
-      - name: Install 7z and build vendored nx2elf
+      - name: Build converter and check scripts
         shell: bash
         run: |
           set -euo pipefail
-          if ! command -v 7z >/dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y p7zip-full
-          fi
+          if ! command -v 7z >/dev/null; then sudo apt-get update && sudo apt-get install -y p7zip-full; fi
           cmake -S tools/nx2elf -B "$RUNNER_TEMP/nx2elf-build" -DCMAKE_BUILD_TYPE=Release
           cmake --build "$RUNNER_TEMP/nx2elf-build" --config Release --parallel 2
-          test -x "$RUNNER_TEMP/nx2elf-build/nx2elf"
-          python3 -m py_compile scripts/Convert-SV-ExeFS.py
-
-      - name: Convert and validate both independent main modules
+          python3 -m py_compile scripts/Convert-SV-ExeFS.py scripts/Parse-SV-NPDM.py
+      - name: Convert and validate three remaining NSOs
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/Convert-SV-ExeFS.py \
-            --repo-root . \
-            --nx2elf "$RUNNER_TEMP/nx2elf-build/nx2elf" \
-            --keep-elf
-          for name in scarlet_main violet_main; do
-            test -s "Unpack/4.0.0/exefs/$name/provenance.json"
+          python3 scripts/Convert-SV-ExeFS.py --repo-root . --nx2elf "$RUNNER_TEMP/nx2elf-build/nx2elf" --keep-elf --names rtld sdk subsdk0
+          for name in rtld sdk subsdk0; do
             test -s "Unpack/4.0.0/exefs/$name/_work/$name.elf"
-            file "Unpack/4.0.0/exefs/$name/_work/$name.elf"
-            readelf -h "Unpack/4.0.0/exefs/$name/_work/$name.elf" | grep -E 'ELF64|AArch64'
+            readelf -h "Unpack/4.0.0/exefs/$name/_work/$name.elf" | grep -q AArch64
           done
-
-      - name: Upload full ELF files for direct download
+      - name: Extract and validate NPDM sections
+        run: python3 scripts/Parse-SV-NPDM.py --repo-root .
+      - name: Upload full ELF artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: SV-4.0.0-ExeFS-main-ELF
-          path: |
-            Unpack/4.0.0/exefs/scarlet_main/_work/scarlet_main.elf
-            Unpack/4.0.0/exefs/violet_main/_work/violet_main.elf
-            Unpack/4.0.0/exefs/scarlet_main/provenance.json
-            Unpack/4.0.0/exefs/violet_main/provenance.json
+          name: SV-4.0.0-Extra-ExeFS-ELF
           retention-days: 30
-          compression-level: 1
           if-no-files-found: warn
-
-      - name: Commit only verified Git-safe ELF outputs and provenance
+          path: |
+            Unpack/4.0.0/exefs/rtld/_work/rtld.elf
+            Unpack/4.0.0/exefs/sdk/_work/sdk.elf
+            Unpack/4.0.0/exefs/subsdk0/_work/subsdk0.elf
+      - name: Commit only hash-verified derived files
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json
-          import subprocess
           from pathlib import Path
-          root = Path("Unpack/4.0.0/exefs")
-          for name in ("scarlet_main", "violet_main"):
-              manifest = root / name / "provenance.json"
-              obj = json.loads(manifest.read_text(encoding="utf-8"))
-              assert obj["status"] == "CONFIRMED" and obj["elfSha256"]
-              subprocess.run(["git", "add", "--", str(manifest)], check=True)
-              for file in obj["artifacts"]:
-                  relative = Path(file["path"])
-                  assert relative.parts[:4] == ("Unpack", "4.0.0", "exefs", name)
-                  assert "_work" not in relative.parts
-                  assert relative.stat().st_size == file["size"] < 100_000_000
-                  subprocess.run(["git", "add", "--", str(relative)], check=True)
+          import hashlib, json, subprocess
+          base=Path("Unpack/4.0.0/exefs")
+          for name in ("rtld","sdk","subsdk0"):
+              p=json.loads((base/name/"provenance.json").read_text())
+              assert p["status"]=="CONFIRMED" and p["sourcePath"]==f"4.0.0/0/{name}"
+              paths=[base/name/"provenance.json"]+[Path(x["path"]) for x in p["artifacts"]]
+              for f in paths:
+                  assert f.is_file() and f.stat().st_size<100000000
+                  subprocess.run(["git","add","--",str(f)],check=True)
+          for name in ("scarlet_main.npdm","violet_main.npdm"):
+              directory=base/name
+              p=json.loads((directory/"provenance.json").read_text())
+              assert p["status"]=="CONFIRMED" and p["sourcePath"]==f"4.0.0/0/{name}"
+              paths=[directory/"provenance.json"]
+              for filename,details in p["sections"].items():
+                  f=directory/filename
+                  assert f.is_file() and f.stat().st_size==details["size"]
+                  assert hashlib.sha256(f.read_bytes()).hexdigest()==details["sha256"]
+                  paths.append(f)
+              for f in paths:
+                  subprocess.run(["git","add","--",str(f)],check=True)
           PY
-          if git diff --cached --quiet; then
-            echo 'Both converted ELF results already match committed artifacts.'
-            exit 0
-          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git diff --cached --stat
-          git commit -m 'exefs: publish verified Scarlet and Violet 4.0.0 ELF outputs'
-          git push origin HEAD:refs/heads/master
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'exefs: convert rtld sdk subsdk0 and parse Scarlet Violet NPDM'
+          if ! git push origin HEAD:refs/heads/master; then
+            git push origin "HEAD:refs/heads/exefs/misc-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            gh pr create --base master --head "exefs/misc-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --title "Publish SV extra ExeFS verified outputs" --body "Three ELF conversions and two NPDM structural extractions, each with SHA-256 provenance."
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -48,3 +48,13 @@ Restore an archived ELF with 7z x scarlet_main.elf.7z.001 (or violet_main.elf.7z
 ## Validation scope
 
 The converter validates NSO0 magic, ELF64 little-endian format, AArch64 machine type (183), and SHA-256. Large outputs undergo archive-test and complete extraction/hash round-trip. The tool currently returns exit code zero on some failure paths; output existence and header checks are therefore mandatory. Binary conversion does not prove semantics, recovered symbols, or call graph correctness. Keep source ExeFS files unchanged, and never stage ignored _work files.
+
+## Additional ExeFS modules (rtld, sdk, subsdk0)
+
+The original `4.0.0/0/rtld`, `sdk`, and `subsdk0` are independent `NSO0` modules. Run `python3 scripts/Convert-SV-ExeFS.py --repo-root . --nx2elf /path/to/nx2elf --names rtld sdk subsdk0` to create their independent AArch64 ELFs and SHA-256 provenance under `Unpack/4.0.0/exefs/<original-name>/`. Shared modules are **not** Scarlet/Violet main build IDs and should not be mislabeled. The existing two main ELFs are not rewritten by this narrower command.
+
+## NPDM metadata, not an executable
+
+`scarlet_main.npdm` and `violet_main.npdm` begin with `META` and include an unsigned ACI0 and signed-capability ACID. Parse these with `python3 scripts/Parse-SV-NPDM.py --repo-root .`. Each `Unpack/4.0.0/exefs/<name>.npdm/` contains `META.bin`, `ACI0.bin`, `ACID.bin`, individual `ACI0_{FAC,SAC,KC}.bin` and `ACID_{FAC,SAC,KC}.bin`, JSON for all three blocks, and `provenance.json` with source/section SHA-256. The parser checks bounds, marker bytes, and program-ID inclusion in the ACID range; it does **not** cryptographically authenticate the ACID RSA signature or decode every service/kernel permission. ACID subblock offsets are relative to its signature start, not to the `ACID` magic at `+0x200`. NPDM is never passed to nx2elf.
+
+Reference: https://switchbrew.org/wiki/NPDM
