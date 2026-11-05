@@ -5,7 +5,10 @@ on:
     branches: [master]
     paths:
       - 'scripts/resource_pipeline/process_virtual.py'
+      - 'scripts/resource_pipeline/cli.py'
+      - 'scripts/resource_pipeline/r1_text.py'
       - 'tests/test_sv_virtual_second_stage.py'
+      - 'tests/test_sv_r1_native.py'
       - '.github/workflows/sv-secondary-process.yml'
   workflow_dispatch:
     inputs:
@@ -56,6 +59,7 @@ jobs:
           sparse-checkout: |
             scripts/resource_pipeline
             tests/test_sv_virtual_second_stage.py
+            tests/test_sv_r1_native.py
             tools/PokeDocs/SV/Flatbuffers
             tools/SV.R3.ModelExport
           sparse-checkout-cone-mode: false
@@ -82,6 +86,10 @@ jobs:
           mkdir -p "$SV_ROOT/_index"
       - name: Run bounded synthetic converter tests
         run: python -m unittest discover -s tests -p test_sv_virtual_second_stage.py -v
+      - name: Verify native real-message fixtures including malformed labels
+        run: python -m unittest discover -s tests -p test_sv_r1_native.py -v
+        env:
+          SV_REQUIRE_NATIVE_FIXTURES: '1'
       - name: Install exact BNTX converter only when selected
         if: env.SV_DECODE_PNG == 'true'
         run: |
