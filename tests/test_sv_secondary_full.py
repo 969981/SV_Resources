@@ -50,6 +50,17 @@ class FullSecondaryTests(unittest.TestCase):
         changed=fs.build_tasks(newrows,2)
         self.assertEqual(len(fs.select_batch(changed,state,10,10)),2)
 
+    def test_error_retry_budget_and_changed_fingerprint(self):
+        task = {"id": "broken#00000", "fingerprint": "original", "file_count": 5}
+        state = {"attempted": {
+            task["id"]: {"fingerprint": "original", "status": "ERROR",
+                         "error_attempts": 1}}}
+        self.assertEqual(fs.select_batch([task], state, 2, 10), [task])
+        state["attempted"][task["id"]]["error_attempts"] = fs.MAX_ERROR_ATTEMPTS
+        self.assertEqual(fs.select_batch([task], state, 2, 10), [])
+        changed = dict(task, fingerprint="new-source-fingerprint")
+        self.assertEqual(fs.select_batch([changed], state, 2, 10), [changed])
+
     def test_windows_sparse_checkout_missing_files_are_restored(self):
         # Reproduce Git reporting success without materializing a selected path.
         with tempfile.TemporaryDirectory() as temp:
