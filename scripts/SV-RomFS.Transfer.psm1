@@ -184,6 +184,7 @@ function Assert-SVGitPreflight {
     )
     $branch = (Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('branch', '--show-current')).StdOut.Trim()
     if ($branch -ne 'master') { throw "Expected branch master, found '$branch'." }
+    [void](Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('status', '--short', '--branch'))
     $staged = Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('diff', '--cached', '--quiet') -AllowFailure
     if ($staged.ExitCode -ne 0) { throw 'The Git index contains staged user changes. Commit or unstage them before running the transfer.' }
     if ($RequireRemote) {
