@@ -126,7 +126,6 @@ internal static class Program
             }
         }
         File.Move(tempFile, hashListName, true);
-        var packs = new List<object>();
         using (var writer = new StreamWriter(packListName, false, new UTF8Encoding(false)))
         {
             writer.WriteLine("pack_index\tpack_name\treferenced_files\tpacked_bytes\treported_file_count");
@@ -141,7 +140,7 @@ internal static class Program
         {
             gameVersion = "4.0.0",
             sourcePath = "4.0.0/1/arc/data.trpfd",
-            sourceBytes = new FileInfo(descriptorPath).Length,
+            sourceBytes = new System.IO.FileInfo(descriptorPath).Length,
             sourceSha256 = Sha256File(descriptorPath),
             cacheSha256 = Sha256File(cachePath),
             hashCacheEntries = GFPakHashCache.Count,
