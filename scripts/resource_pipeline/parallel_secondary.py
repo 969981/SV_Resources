@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 try:
     from . import cli, full_secondary as fs
@@ -67,6 +68,7 @@ def stage_native(repo: Path, task):
 
 def worker(repo: Path, task, png_converter: str, model_converter: str, per_task_mb: int):
     work = isolated_root(repo, task)
+    started = time.monotonic()
     try:
         stage_native(repo, task)
         command = [
@@ -93,9 +95,11 @@ def worker(repo: Path, task, png_converter: str, model_converter: str, per_task_
         if result.get("index", {}).get("hash_mismatch", 0):
             raise ValueError("Native hash mismatch: " + task["id"])
         return {"task":task, "work":work, "data":result,
-                "returncode":p.returncode, "stderr":p.stderr[-1400:]}
+                "returncode":p.returncode, "stderr":p.stderr[-1400:],
+                "elapsed_seconds":round(time.monotonic()-started,3)}
     except Exception as exc:
-        return {"task":task, "work":work, "error":str(exc)[:1600]}
+        return {"task":task, "work":work, "error":str(exc)[:1600],
+                "elapsed_seconds":round(time.monotonic()-started,3)}
 
 
 def copy_verified(source: Path, dest: Path, expected_sha: str):
@@ -144,6 +148,7 @@ def publish_result(repo: Path, completed):
 
 
 def main_run(repo: Path, max_workers: int, png: str, model: str, output_mb: int):
+    started = time.monotonic()
     root = repo / fs.ROOT
     selection = json.loads((root / fs.SELECTION_NAME).read_text("utf-8"))
     tasks = selection["selected"]
@@ -187,6 +192,7 @@ def main_run(repo: Path, max_workers: int, png: str, model: str, output_mb: int)
             row={"task":task["id"],"fingerprint":task["fingerprint"],
                  "input_files":task["file_count"],"status":"ERROR",
                  "error":issue, "published":len(files)}
+        row["elapsed_seconds"]=item.get("elapsed_seconds")
         row["updated_utc"]=cli.utcnow()
         summaries.append(row)
         # Do not checkpoint ERROR as success: it must be selectable on retry.
@@ -202,8 +208,12 @@ def main_run(repo: Path, max_workers: int, png: str, model: str, output_mb: int)
     cli.store_json(root / fs.STATE_NAME, state)
     published.add(str(fs.ROOT / fs.STATE_NAME))
     run={"schemaVersion":1,"source_version":cli.VERSION,
-         "parallel_workers":max_workers,"selected_count":len(tasks),
+         "parallel_workers":max_workers,
+         "elapsed_seconds":round(time.monotonic()-started,3),
+         "selected_count":len(tasks),
          "input_files":sum(t["file_count"] for t in tasks),
+         "files_per_second":round(
+             sum(t["file_count"] for t in tasks)/max(0.001,time.monotonic()-started),2),
          "completed_count":sum(s["status"]!="ERROR" for s in summaries),
          "error_count":sum(s["status"]=="ERROR" for s in summaries),
          "partial_count":sum(s["status"]=="PARTIAL" for s in summaries),
