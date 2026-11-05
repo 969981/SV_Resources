@@ -258,6 +258,8 @@ def choose(repo, group_files, max_tasks, max_files):
         "remaining_before_batch": len(rows) - seen,
         "selected_count": len(selected),
         "selected_files": sum(t["file_count"] for t in selected),
+        "needs_bntx": any(p.lower().endswith(".bntx") for t in selected for p in t["paths"]),
+        "needs_models": any(p.lower().endswith(".trmdl") for t in selected for p in t["paths"]),
         "selected": selected,
     }
     cli.store_json(repo / ROOT / SELECTION_NAME, summary)
