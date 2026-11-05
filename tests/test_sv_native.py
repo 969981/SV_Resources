@@ -54,6 +54,12 @@ class MakeFB:
         self.b.extend(struct.pack('<I', count) + bytes(4 * count))
         return [p + 4 + 4 * i for i in range(count)]
 
+    def bytevector(self, data):
+        self.pad(4)
+        p = len(self.b)
+        self.b.extend(struct.pack('<I', len(data)) + bytes(data))
+        return p
+
     def finish(self):
         struct.pack_into('<I', self.b, 0, self.root)
         return bytes(self.b)
@@ -121,8 +127,20 @@ def buffer_bytes():
     root = b.table({1})
     vec = b.vector(1)
     b.ref(root[1], vec[0] - 4)
-    t = b.table({})
-    b.ref(vec[0], b.root if False else len(b.b) - 4)
+    buffer = b.table({0, 1})
+    b.ref(vec[0], buffer[0] - 4)
+    indices = b.vector(1)
+    b.ref(buffer[0], indices[0] - 4)
+    index = b.table({0})
+    b.ref(indices[0], index[0] - 4)
+    data = b.bytevector(bytes([0, 1, 2]))
+    b.ref(index[0], data)
+    vertices = b.vector(1)
+    b.ref(buffer[1], vertices[0] - 4)
+    vertex = b.table({0})
+    b.ref(vertices[0], vertex[0] - 4)
+    data2 = b.bytevector(bytes(range(12)))
+    b.ref(vertex[0], data2)
     return b.finish()
 
 
@@ -166,15 +184,16 @@ class Tests(unittest.TestCase):
             x.mkdir(parents=True)
             for name, data in [('obj.trmdl', model_bytes()), ('obj.trmsh', empty_mesh()),
                                ('obj.trskl', skeleton_bytes()), ('obj.trmtr', material_bytes()),
-                               ('anim.tranm', anim_bytes())]:
+                               ('obj.trmbf', buffer_bytes()), ('anim.tranm', anim_bytes())]:
                 (x / name).write_bytes(data)
             report = sv.audit_bundle(root, 'pokemon/demo/obj.trmdl', 'pokemon/demo/anim.tranm')
-            self.assertEqual(report['checks']['model_dependencies'], 'INCOMPLETE')  # missing trmbf
+            self.assertEqual(report['checks']['model_dependencies'], 'PASS')
             self.assertEqual(report['checks']['materials']['status'], 'PASS')
             self.assertEqual(report['checks']['animation_binding']['status'], 'PASS')
             self.assertEqual(report['checks']['skeleton']['nodes'], 1)
-            self.assertEqual(len(report['linked']), 3)
-            (x / 'obj.trmbf').write_bytes(b'\0' * 16)
+            self.assertEqual(len(report['linked']), 4)
+            self.assertEqual(report['checks']['geometry']['buffer_sets'], 1)
+            self.assertEqual(sv.parse_trmbf(sv.FB(buffer_bytes()))['buffer_sets'][0]['vertex_buffer_sizes'][0], 12)
             self.assertEqual(sv.resolve_ref(root, 'pokemon/demo/obj.trmdl', '../../../../../etc/passwd')['status'], 'REJECTED_TRAVERSAL')
 
     def test_no_path_escape_or_invalid_vtable(self):
