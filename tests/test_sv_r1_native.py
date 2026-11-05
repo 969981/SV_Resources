@@ -54,6 +54,19 @@ class SVMessageNativeTests(unittest.TestCase):
         self.assertEqual(decoded[9]["text"], "/")
         self.assertEqual(decoded[6]["text"].split("[")[0], "Lv.")
 
+    def test_native_bag_has_lossless_invalid_utf8_label(self):
+        # Native bag.tbl contains one malformed UTF-8 key (at ordinal 95);
+        # keep raw bytes rather than guessing a Shift-JIS game identifier.
+        decoded = r1_text.join_messages(
+            self.read("bag", "dat"), self.read("bag", "tbl"),
+            "Simp_Chinese", "bag")
+        self.assertEqual(len(decoded["entries"]), 395)
+        odd = decoded["entries"][95]
+        self.assertEqual(odd["label_encoding_status"], "INVALID_UTF8_ESCAPED")
+        self.assertIn("8292", odd["label_raw_hex"])
+        self.assertIn("\\x82\\x92", odd["label"])
+        self.assertTrue(decoded["sentinel"]["label"].lower().endswith("_max"))
+
     def test_mismatched_tbl_rejected(self):
         tbl = bytearray(self.read("monsname","tbl"))
         struct.pack_into("<I",tbl,4,1)
