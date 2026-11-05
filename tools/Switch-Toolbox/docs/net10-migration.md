@@ -7,7 +7,7 @@ This branch changes the five legacy .NET Framework 4.8 C# projects to SDK-style 
 - Windows Forms and WPF are used in different projects; cross-platform execution is not supported.
 - The tree contains thousands of source/data files, and many precompiled third-party and native DLLs originally built for .NET Framework or Windows x86/x64.
 - Legacy packages.config and historical binaries remain as provenance, but SDK-style project builds use PackageReference.
-- DirectXTexNet 1.0.0-rc3, AssimpNet 4.1.0, CsvHelper 8.0.0, ZstdSharp.Port 0.7.2 are intentionally pinned pending explicit API/native compatibility tests; claiming they are modernized would be incorrect.
+- DirectXTexNet (bundled legacy binary), AssimpNet 4.1.0, CsvHelper 8.0.0, ZstdSharp.Port 0.7.2 are intentionally pinned pending explicit API/native compatibility tests; claiming they are modernized would be incorrect.
 - Updated where API continuity is more likely: SharpZipLib 1.4.2, K4os LZ4 1.3.8/Streams 1.3.8, K4os.Hash.xxHash 1.0.8, Newtonsoft.Json 13.0.3 and DockPanelSuite 3.1.1. Versions and compatibility must be confirmed by the CI restore/build.
 - Old System.Activities.Statements imports were unused and removed. References to obsolete framework assemblies are delegated to the Windows desktop SDK.
 
@@ -27,3 +27,6 @@ This branch changes the five legacy .NET Framework 4.8 C# projects to SDK-style 
 - DockPanelSuite, CsvHelper and other APIs changed across versions; compile and round-trip evidence is required.
 
 The Windows CI workflow is `.github/workflows/switch-toolbox-net10.yml`. Its successful build alone is insufficient to claim all format editing features have been verified.
+
+## First Windows CI iteration
+The first build restored dependencies successfully but failed on updater directory ACL API changes and a missing DirectXTexNet namespace after NuGet conversion. The updater now calls DirectoryInfo ACL extension methods; DirectXTexNet is linked to the bundled DLL to preserve the upstream API while native replacement is still under investigation. These fixes must be verified in a subsequent CI run.

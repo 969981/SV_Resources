@@ -1539,9 +1539,10 @@
 
 <Import Project="..\packages\DirectXTexNet.1.0.0-rc3\build\DirectXTexNet.targets" Condition="Exists('..\packages\DirectXTexNet.1.0.0-rc3\build\DirectXTexNet.targets')" />
   <ItemGroup>
+    <Reference Include="DirectXTexNet"><HintPath>..\Toolbox\Lib\Plugins\DirectXTexNet.dll</HintPath><Private>true</Private></Reference>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
     <PackageReference Include="CsvHelper" Version="8.0.0" />
-    <PackageReference Include="DirectXTexNet" Version="1.0.0-rc3" />
+
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.3.8" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.3.8" />

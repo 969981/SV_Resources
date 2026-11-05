@@ -726,7 +726,7 @@
 
 <Import Project="..\packages\DirectXTexNet.1.0.0-rc3\build\DirectXTexNet.targets" Condition="Exists('..\packages\DirectXTexNet.1.0.0-rc3\build\DirectXTexNet.targets')" />
   <ItemGroup>
-    <PackageReference Include="DirectXTexNet" Version="1.0.0-rc3" />
+    <Reference Include="DirectXTexNet"><HintPath>Lib\Plugins\DirectXTexNet.dll</HintPath><Private>true</Private></Reference>
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="10.0.0" />
   </ItemGroup>
 </Project>
