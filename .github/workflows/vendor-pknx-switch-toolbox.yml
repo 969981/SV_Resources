@@ -1,9 +1,6 @@
 name: Vendor complete pkNX and Switch-Toolbox sources
 
 on:
-  push:
-    paths:
-      - '.github/workflows/vendor-pknx-switch-toolbox.yml'
   workflow_dispatch:
 
 permissions:
@@ -50,7 +47,7 @@ jobs:
           set -euo pipefail
           test ! -e tools/pkNX/.git
           test ! -e tools/Switch-Toolbox/.git
-          git rm -f --cached -- tools/pkNX tools/Switch-Toolbox
+          git rm -r -f --cached -- tools/pkNX tools/Switch-Toolbox
           mkdir -p tools/pkNX tools/Switch-Toolbox
           rsync -a --delete --exclude='.git/' "$RUNNER_TEMP/pknx/" tools/pkNX/
           rsync -a --delete --exclude='.git/' "$RUNNER_TEMP/switchtoolbox/" tools/Switch-Toolbox/
@@ -120,6 +117,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git diff --cached --stat | tail -n 30
+          if git diff --cached --quiet; then echo 'Source snapshots are already current'; exit 0; fi
           git commit -m 'Vendor full pinned pkNX and Switch-Toolbox sources'
           python -m unittest discover -s tests -p test_sv_tool_submodules.py -v
           branch="vendor/pknx-switchtoolbox-$GITHUB_RUN_ID"
