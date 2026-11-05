@@ -1,0 +1,44 @@
+name: Verify SV BNTX to PNG with pinned decoder
+
+on:
+  push:
+    branches:
+      - feature/sv-trpfs-resource-pipeline-r1-full-decode
+    paths:
+      - 'scripts/resource_pipeline/**'
+      - 'tests/verify_sv_bntx_native.py'
+      - '.github/workflows/verify-sv-bntx-png.yml'
+  pull_request:
+    paths:
+      - 'scripts/resource_pipeline/**'
+      - 'tests/verify_sv_bntx_native.py'
+      - '.github/workflows/verify-sv-bntx-png.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-bntx:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/verify_sv_bntx_native.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/appli/tex/icon_ribbon/icon_ribbon_001/icon_ribbon_001.bntx
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm Rust toolchain
+        run: cargo --version
+      - name: Compile pinned ultimate_tex_cli (BC7 decoder)
+        run: |
+          cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex \
+            --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac \
+            --package ultimate_tex_cli
+      - name: Verify real SV BNTX conversion and index entries
+        run: python tests/verify_sv_bntx_native.py

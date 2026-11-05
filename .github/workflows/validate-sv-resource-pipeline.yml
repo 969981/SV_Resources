@@ -5,10 +5,11 @@ on:
     paths:
       - 'scripts/resource_pipeline/**'
       - 'tests/test_sv_resource_pipeline.py'
+      - 'tests/test_sv_r1_native.py'
       - '.github/workflows/validate-sv-resource-pipeline.yml'
   push:
     branches:
-      - 'feature/sv-trpfs-resource-pipeline-r0-r1'
+      - 'feature/sv-trpfs-resource-pipeline-r1-full-decode'
     paths:
       - 'scripts/resource_pipeline/**'
       - 'tests/test_sv_resource_pipeline.py'
@@ -27,6 +28,18 @@ jobs:
           sparse-checkout: |
             scripts/resource_pipeline
             tests/test_sv_resource_pipeline.py
+            tests/test_sv_r1_native.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/monsname.dat
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/monsname.tbl
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/itemname.dat
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/itemname.tbl
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/wazaname.dat
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/wazaname.tbl
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/tokusei.dat
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/tokusei.tbl
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/ribbon.dat
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/ribbon.tbl
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/bag.dat
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese/common/app_common.tbl
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/appli/tex/icon_ribbon/icon_ribbon_001/icon_ribbon_001.bntx
             .github/workflows/validate-sv-resource-pipeline.yml
@@ -35,6 +48,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Compile pipeline
-        run: python -m py_compile scripts/resource_pipeline/cli.py
+        run: python -m py_compile scripts/resource_pipeline/cli.py scripts/resource_pipeline/r1_text.py
       - name: Run synthetic conversion and schema tests
         run: python -m unittest discover -s tests -p 'test_sv_resource_pipeline.py' -v
+      - name: Run native SV text format and integration tests
+        run: python -m unittest discover -s tests -p 'test_sv_r1_native.py' -v
+
