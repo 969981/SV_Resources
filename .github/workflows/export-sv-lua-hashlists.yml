@@ -1,0 +1,32 @@
+name: Export small SV Lua hashlist reference files
+on:
+  push:
+    paths:
+      - '.github/workflows/export-sv-lua-hashlists.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          sparse-checkout: |
+            tools/PokeDocs/SV/Hashlists/Lua
+            tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv
+          sparse-checkout-cone-mode: false
+      - name: Confirm source hashlist files are intact
+        run: |
+          test -s tools/PokeDocs/SV/Hashlists/Lua/lua_c_hashes.txt
+          test -s tools/PokeDocs/SV/Hashlists/Lua/lua_f_hashes.txt
+          sha256sum tools/PokeDocs/SV/Hashlists/Lua/lua_{c,e,f,s}_hashes.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SV-Lua-small-hashlists
+          path: |
+            tools/PokeDocs/SV/Hashlists/Lua/lua_c_hashes.txt
+            tools/PokeDocs/SV/Hashlists/Lua/lua_f_hashes.txt
+            tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv
+          retention-days: 7
