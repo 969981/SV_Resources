@@ -49,14 +49,46 @@ namespace Toolbox
             var domain = AppDomain.CurrentDomain;
             domain.AssemblyResolve += LoadAssembly;
 
+#if NET10_0_OR_GREATER
+            // CI/runtime acceptance mode: validate the deployed plugin tree
+            // without requiring a desktop or opening a game asset.
+            if (args.Any(a => string.Equals(a, "--verify-runtime", StringComparison.OrdinalIgnoreCase)))
+            {
+                var plugins = PluginLoader.LoadPlugins();
+                if (plugins.Count == 0)
+                    throw new InvalidOperationException("No .NET 10 plugins were loaded from Lib/Plugins.");
+
+                var verification = new List<string>();
+                foreach (var plugin in plugins)
+                {
+                    plugin.Load();
+                    Type[] types = plugin.Types;
+                    if (types == null || types.Length == 0)
+                        throw new InvalidOperationException("Plugin has no registered resource types: " + plugin.Name);
+                    verification.Add(plugin.Name + ": " + types.Length + " resource types");
+                }
+                VerifyFormatIdentification(plugins.SelectMany(p => p.Types).ToArray(), verification);
+                File.WriteAllLines(Path.Combine(Runtime.ExecutableDir, "net10-runtime-smoke.txt"), verification);
+                return;
+            }
+#endif
+
             bool LoadedDX = TryLoadDirectXTex();
             if (!LoadedDX && !Toolbox.Library.Runtime.UseDirectXTexDecoder)
             {
                 var result = MessageBox.Show("Direct X Tex Failed to load! Make sure to install Visual C++ and Direct X Tex. Do you want to go to the install sites?", "", MessageBoxButtons.YesNo);
                 if (result == DialogResult.Yes)
                 {
+#if NET10_0_OR_GREATER
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads") { UseShellExecute = true });
+#else
                     System.Diagnostics.Process.Start("https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads");
+#endif
+#if NET10_0_OR_GREATER
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://www.microsoft.com/en-us/download/details.aspx?id=35") { UseShellExecute = true });
+#else
                     System.Diagnostics.Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=35");
+#endif
                 }
             }
 
@@ -120,6 +152,57 @@ namespace Toolbox
             }
         }
 
+#if NET10_0_OR_GREATER
+        // Exercise format dispatch with synthetic headers, without writing or distributing game assets.
+        // These are identification smoke tests, not file-format round-trip certification.
+        private static void VerifyFormatIdentification(Type[] types, List<string> report)
+        {
+            var fixtures = new (string TypeName, string Header)[]
+            {
+                ("FirstPlugin.SARC", "SARC"),
+                ("FirstPlugin.BYAML", "BY"),
+                ("FirstPlugin.AAMP", "AAMP"),
+                ("FirstPlugin.MSBT", "MsgStdBn"),
+                ("LayoutBXLYT.Cafe.BFLYT", "FLYT"),
+            };
+
+            foreach (var fixture in fixtures)
+            {
+                Type format = types.FirstOrDefault(t => t.FullName == fixture.TypeName);
+                if (format == null)
+                    throw new InvalidOperationException("Missing format handler: " + fixture.TypeName);
+
+                var identify = format.GetMethod("Identify", new[] { typeof(Stream) });
+                if (identify == null || identify.ReturnType != typeof(bool))
+                    throw new InvalidOperationException("Format handler lacks Identify(Stream): " + fixture.TypeName);
+
+                object instance = Activator.CreateInstance(format);
+                byte[] valid = new byte[32];
+                byte[] header = System.Text.Encoding.ASCII.GetBytes(fixture.Header);
+                Buffer.BlockCopy(header, 0, valid, 0, header.Length);
+                using (var stream = new MemoryStream(valid, writable: false))
+                {
+                    if (!(bool)identify.Invoke(instance, new object[] { stream }))
+                        throw new InvalidDataException("Valid magic rejected by " + fixture.TypeName);
+                }
+                valid[0] = 0;
+                using (var stream = new MemoryStream(valid, writable: false))
+                {
+                    if ((bool)identify.Invoke(instance, new object[] { stream }))
+                        throw new InvalidDataException("Invalid magic accepted by " + fixture.TypeName);
+                }
+                report.Add(fixture.TypeName + ": positive/negative header checks passed");
+            }
+
+            foreach (string name in new[] { "BFRES", "BNTX" })
+            {
+                if (!types.Any(t => t.Name == name))
+                    throw new InvalidOperationException("Missing registered " + name + " handler");
+                report.Add(name + ": handler registered (round-trip not tested)");
+            }
+        }
+#endif
+
         private static bool TryLoadZSTD()
         {
             try
@@ -128,8 +211,17 @@ namespace Toolbox
                 String filePath = Path.Combine(folder, Environment.Is64BitProcess ? "x64" : "x86", "libzstd.dll");
                 if (File.Exists(filePath))
                 {
+#if NET10_0_OR_GREATER
+                    // This is a native Win32 DLL, not a managed assembly.
+                    if (NativeLibrary.TryLoad(filePath, out IntPtr nativeHandle))
+                    {
+                        NativeLibrary.Free(nativeHandle);
+                        return true;
+                    }
+#else
                     Assembly assembly = Assembly.LoadFile(filePath);
                     return true;
+#endif
                 }
             }
             catch (Exception ex)
@@ -147,13 +239,31 @@ namespace Toolbox
                 String filePathLib = Path.Combine(folder, "Lib", Environment.Is64BitProcess ? "x64" : "x86", "DirectXTexNetImpl.dll");
                 if (File.Exists(filePath))
                 {
+#if NET10_0_OR_GREATER
+                    // This is a native Win32 DLL, not a managed assembly.
+                    if (NativeLibrary.TryLoad(filePath, out IntPtr nativeHandle))
+                    {
+                        NativeLibrary.Free(nativeHandle);
+                        return true;
+                    }
+#else
                     Assembly assembly = Assembly.LoadFile(filePath);
                     return true;
+#endif
                 }
                 if (File.Exists(filePathLib))
                 {
+#if NET10_0_OR_GREATER
+                    // This is a native Win32 DLL, not a managed assembly.
+                    if (NativeLibrary.TryLoad(filePathLib, out IntPtr nativeHandle))
+                    {
+                        NativeLibrary.Free(nativeHandle);
+                        return true;
+                    }
+#else
                     Assembly assembly = Assembly.LoadFile(filePathLib);
                     return true;
+#endif
                 }
             }
             catch (Exception ex)

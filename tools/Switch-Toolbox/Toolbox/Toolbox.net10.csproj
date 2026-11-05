@@ -1,0 +1,660 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>Toolbox</AssemblyName>
+    <RootNamespace>Toolbox</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <NoWarn>$(NoWarn);WFO1000</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <ApplicationIcon>Tool.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="GUI\AF_FileAssociations.cs" />
+    <Compile Include="GUI\ApplicationCloseDialog.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="GUI\ApplicationCloseDialog.Designer.cs">
+          <DependentUpon>ApplicationCloseDialog.cs</DependentUpon>
+        </Compile>
+    <Compile Include="GUI\Credits.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="GUI\Credits.Designer.cs">
+          <DependentUpon>Credits.cs</DependentUpon>
+        </Compile>
+    <Compile Include="GUI\FileAssociationForm.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="GUI\FileAssociationForm.Designer.cs">
+          <DependentUpon>FileAssociationForm.cs</DependentUpon>
+        </Compile>
+    <Compile Include="GUI\GithubIssueDialog.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="GUI\GithubIssueDialog.Designer.cs">
+          <DependentUpon>GithubIssueDialog.cs</DependentUpon>
+        </Compile>
+    <Compile Include="GUI\GithubUpdateDialog.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="GUI\GithubUpdateDialog.Designer.cs">
+          <DependentUpon>GithubUpdateDialog.cs</DependentUpon>
+        </Compile>
+    <Compile Include="GUI\HashCalculatorForm.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="GUI\HashCalculatorForm.Designer.cs">
+          <DependentUpon>HashCalculatorForm.cs</DependentUpon>
+        </Compile>
+    <Compile Include="GUI\NodeWrappers.cs" />
+    <Compile Include="GUI\PluginManager.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="GUI\PluginManager.Designer.cs">
+          <DependentUpon>PluginManager.cs</DependentUpon>
+        </Compile>
+    <Compile Include="GUI\Settings.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="GUI\Settings.Designer.cs">
+          <DependentUpon>Settings.cs</DependentUpon>
+        </Compile>
+    <Compile Include="GUI\Startup Window.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="GUI\Startup Window.Designer.cs">
+          <DependentUpon>Startup Window.cs</DependentUpon>
+        </Compile>
+    <Compile Include="MainForm.cs">
+          <SubType>Form</SubType>
+        </Compile>
+    <Compile Include="MainForm.Designer.cs">
+          <DependentUpon>MainForm.cs</DependentUpon>
+        </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UpdateProgram.cs" />
+    <Compile Include="VersionCheck.cs" />
+    <Compile Include="WindowsExplorer\ExplorerContextMeny.cs" />
+    <EmbeddedResource Include="GUI\ApplicationCloseDialog.resx">
+          <DependentUpon>ApplicationCloseDialog.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="GUI\Credits.resx">
+          <DependentUpon>Credits.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="GUI\FileAssociationForm.resx">
+          <DependentUpon>FileAssociationForm.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="GUI\GithubIssueDialog.resx">
+          <DependentUpon>GithubIssueDialog.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="GUI\GithubUpdateDialog.resx">
+          <DependentUpon>GithubUpdateDialog.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="GUI\HashCalculatorForm.resx">
+          <DependentUpon>HashCalculatorForm.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="GUI\PluginManager.resx">
+          <DependentUpon>PluginManager.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="GUI\Settings.resx">
+          <DependentUpon>Settings.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="GUI\Startup Window.resx">
+          <DependentUpon>Startup Window.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+          <DependentUpon>MainForm.cs</DependentUpon>
+        </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+          <Generator>ResXFileCodeGenerator</Generator>
+          <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+          <SubType>Designer</SubType>
+        </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+          <AutoGen>True</AutoGen>
+          <DependentUpon>Resources.resx</DependentUpon>
+          <DesignTime>True</DesignTime>
+        </Compile>
+    <None Include="KclMaterialPresets\3D World.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="KclMaterialPresets\Default.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="KclMaterialPresets\Mario Kart 8 Deluxe.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="KclMaterialPresets\Mario Kart 8.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="KclMaterialPresets\Mario Kart Wii.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="KclMaterialPresets\Mario Odyssey.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="KclMaterialPresets\Splatoon 1.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="KclMaterialPresets\Splatoon 2.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="KclMaterialPresets\Twilight Princess.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Lib\MTVertexFormats\M11.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Lib\MTVertexFormats\MHGU.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Lib\SarcHashes\ALBW.saht">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Properties\app.manifest" />
+    <None Include="Properties\Settings.settings">
+          <Generator>SettingsSingleFileGenerator</Generator>
+          <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+        </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+          <AutoGen>True</AutoGen>
+          <DependentUpon>Settings.settings</DependentUpon>
+          <DesignTimeSharedInput>True</DesignTimeSharedInput>
+        </Compile>
+    <None Include="runtimes\linux-x64\native\libtrueyz.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bcres\BCRES.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bcres\BCRES.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\BFRES.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\BFRES.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\BFRESTurboShadow.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\BFRES_Botw.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\BFRES_Debug.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\BFRES_PBR.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\BFRES_utility.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\Normals.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\Normals.geom">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bfres\Normals.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bone.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Bone.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Drawing2D\KCL.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Drawing2D\KCL.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\GFBModel.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\GFBModel.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\HDRSkyBox\HDRSkyBox.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\HDRSkyBox\HDRSkyBox.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\KCL.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\KCL.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Layout\Bflyt.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Layout\Bflyt.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Layout\Legacy\Bflyt.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Layout\Legacy\Bflyt.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Legacy\BFRES.frag" />
+    <None Include="Shader\Legacy\BFRES.vert" />
+    <None Include="Shader\Legacy\KCL.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Legacy\KCL.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\LevelEditor\BfresBasic.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\LevelEditor\BfresBasic.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\LevelEditor\BfresDebug.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\LevelEditor\ProbeSphere.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\LevelEditor\ProbeSphere.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\MKAGPDX\MKAGPDX_Model.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\MKAGPDX\MKAGPDX_Model.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Path\LineShader2.geom">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Path\TriangleShader2.geom">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\PBR\brdf.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\PBR\brdf.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\PBR\HDR.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\PBR\HDR.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\PBR\irradianceShader.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\PBR\irradianceShader.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\PBR\preFilter.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\PBR\preFilter.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\GenericShader.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\GenericShader.vert">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Utility\Utility.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Shader\Utility\Wireframe.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="Update.bat">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <None Include="App.config" />
+    <Content Include="Gl_EditorFramework.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Hashes\ACNHBYML.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Hashes\ACNHHeaders.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Hashes\ACNHValues.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="libfbxsdk.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\aamp_hashed_names.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\BarsLibrary.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\BcresLibrary.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Be.Windows.Forms.HexBox.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\BezelEngineArchive_Lib.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\BfshaLibrary.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\BrawlLib.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\ByamlExt.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\CSCore.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\CsvHelper.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Cyotek.Windows.Forms.ImageBox.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\DarkUI.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\EditorCoreCommon.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\EndianBinaryStreams.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Extensions.Data.xxHash.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\FirstPlugin.Plg.dll" />
+    <Content Include="Lib\FlatBuffers.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\GL_Core.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\IONET.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\K4os.Compression.LZ4.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\K4os.Compression.LZ4.Streams.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\K4os.Hash.xxHash.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\KclLibrary.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\KclLibraryGUI.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\LibHac.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\LibTennis32.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\LibTennis64.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\7ZIP LZMA LICENSE.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\Assimp COPYRIGHT.txt" />
+    <Content Include="Lib\Licenses\ImageBox COPYRIGHT.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\Kuriimu LICENSE.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\NAudio COPYRIGHT.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\SFGraphics COPYRIGHT.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\SharpYaml COPYRIGHT.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\SmashForge COPYRIGHT.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\TargaImage COPYRIGHT.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\TMPK LICENSE.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Licenses\ZSTD NET COPYRIGHT.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\LZ4.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\LZ4.Frame.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\NAudio.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Newtonsoft.Json.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\ObjectListView.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Octokit.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\OpenTK.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\OpenTK.GLControl.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\PakFileIDs\PakContents.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Plugins\Blank.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\RG_ETC1.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\SARCExt.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\SarcHashes\ALBW.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\ScintillaNET FindReplaceDialog.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\ScintillaNET.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\SELib.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\SFGraphics.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\SFGraphics.Utils.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\SharpYaml.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\SPICA.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\SPICA.Rendering.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\SuperBMDLib.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Syroot.BinaryData.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Syroot.Maths.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Syroot.NintenTools.Bfres.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Syroot.NintenTools.MarioKart8.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Syroot.NintenTools.NSW.Bfres.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Syroot.NintenTools.NSW.Bntx.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\VGAudio.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\WeifenLuo.WinFormsUI.Docking.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\Yaz0.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\yaz0_x86.dll" />
+    <Content Include="Lib\ZeldaLib.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Lib\ZstdDictionaries\PutZsdicFilesHere.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <!-- NET10 LZ4.dll is supplied by Toolbox_Library; copying this second root file causes NETSDK1152 on publish. -->
+    <Content Include="Octokit.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Presets\Materials\Dummy.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Presets\Shaders\Dummy.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Presets\UserData.xml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Projects\Recent\DUMMY.txt" />
+    <None Include="Shader\LevelEditor\LightingGraphics.frag">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    <Content Include="runtimes\win-x64\native\trueyz.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="runtimes\win-x86\native\trueyz.dll" />
+    <Content Include="SwitchToolbox.FbxNative.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="tegra_swizzle_x64.dll">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    <Content Include="tegra_swizzle_x86.dll">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    <Content Include="trueyz.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="x64\DirectXTexNetImpl.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="x64\libzstd.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="x86\DirectXTexNetImpl.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="x86\libzstd.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="ZstdNet.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <None Include="Resources\Save.png" />
+    <None Include="Resources\UpdateIcon.png" />
+    <None Include="Shader\Utility\PbrUtility.frag">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    <Content Include="Switch_Toolbox.csproj.user" />
+    <Content Include="System.Buffers.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="System.Memory.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="System.Numerics.Vectors.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    <Content Include="Tool.ico" />
+    <None Include="Resources\Logo.png" />
+    <Content Include="Version.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Octokit"><HintPath>Lib\Octokit.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="GL_EditorFramework"><HintPath>..\GL_EditorFramework.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="OpenTK"><HintPath>..\Toolbox\Lib\OpenTK.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="OpenTK.GLControl"><HintPath>Lib\OpenTK.GLControl.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.NintenTools.NSW.Bntx"><HintPath>..\Toolbox\Lib\Syroot.NintenTools.NSW.Bntx.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="DirectXTexNet"><HintPath>..\Toolbox\Lib\Plugins\DirectXTexNet.dll</HintPath><Private>true</Private></Reference>
+    <ProjectReference Include="..\File_Format_Library\File_Format_Library.net10.csproj" />
+    <ProjectReference Include="..\Switch_Toolbox_Library\Toolbox_Library.net10.csproj" />
+    <ProjectReference Include="..\Updater\Updater.net10.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Preserve legacy plug-in layouts and native runtime dependencies; do not
+         ship old copies of the two assemblies compiled by this NET10 solution. -->
+    <Content Include="Lib\**\*" Exclude="@(Content);Lib\FirstPlugin.Plg.dll;Lib\Switch_Toolbox.Library.dll;Lib\Plugins\FirstPlugin.Plg.dll;Lib\Plugins\Switch_Toolbox.Library.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <Target Name="StageNet10Plugin" AfterTargets="Build">
+    <MakeDir Directories="$(TargetDir)Lib\Plugins" />
+    <Error Condition="!Exists('$(TargetDir)FirstPlugin.Plg.dll')"
+           Text="The compiled .NET 10 FirstPlugin.Plg.dll is missing from the app output." />
+    <Copy SourceFiles="$(TargetDir)FirstPlugin.Plg.dll"
+          DestinationFiles="$(TargetDir)Lib\Plugins\FirstPlugin.Plg.dll"
+          SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="StageNet10PluginForPublish" AfterTargets="Publish">
+    <MakeDir Directories="$(PublishDir)Lib\Plugins" />
+    <Error Condition="!Exists('$(PublishDir)FirstPlugin.Plg.dll')"
+           Text="The compiled .NET 10 FirstPlugin.Plg.dll is missing from the publish directory." />
+    <Copy SourceFiles="$(PublishDir)FirstPlugin.Plg.dll"
+          DestinationFiles="$(PublishDir)Lib\Plugins\FirstPlugin.Plg.dll"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

@@ -18,6 +18,7 @@ namespace System
 
         public static T[] SubArrayDeepClone<T>(this T[] data, int index, int length)
         {
+#if NETFRAMEWORK
             T[] arrCopy = new T[length];
             Array.Copy(data, index, arrCopy, 0, length);
             using (MemoryStream ms = new MemoryStream())
@@ -27,6 +28,10 @@ namespace System
                 ms.Position = 0;
                 return (T[])bf.Deserialize(ms);
             }
+        
+#else
+            throw new System.PlatformNotSupportedException("BinaryFormatter is unavailable on .NET 10. This format requires a verified, lossless migration.");
+#endif
         }
     }
 }

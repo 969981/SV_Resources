@@ -29,6 +29,7 @@ namespace Toolbox.Library.IO
 
         public static byte[] DeserializeToBytes<T>(this T structure) where T : struct
         {
+#if NETFRAMEWORK
             using (MemoryStream stream = new MemoryStream())
             {
                 BinaryFormatter bf = new BinaryFormatter();
@@ -38,16 +39,25 @@ namespace Toolbox.Library.IO
                 stream.Seek(0, SeekOrigin.Begin);
                 return stream.ToArray();
             }
+        
+#else
+            throw new System.PlatformNotSupportedException("BinaryFormatter is unavailable on .NET 10. This format requires a verified, lossless migration.");
+#endif
         }
 
         public static T SerializeToStruct<T>(this byte[] buffer) where T : struct
         {
+#if NETFRAMEWORK
             using (MemoryStream stream = new MemoryStream(buffer))
             {
                 BinaryFormatter bf = new BinaryFormatter();
                 var data = bf.Deserialize(stream);
                 return (T)data;
             }
+        
+#else
+            throw new System.PlatformNotSupportedException("BinaryFormatter is unavailable on .NET 10. This format requires a verified, lossless migration.");
+#endif
         }
 
         //Structs can be a bit faster and more memory efficent

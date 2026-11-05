@@ -126,10 +126,11 @@ namespace Updater
         {
             try
             {
-                System.Security.AccessControl.DirectorySecurity sec = System.IO.Directory.GetAccessControl(directory);
+                var target = new System.IO.DirectoryInfo(directory);
+                System.Security.AccessControl.DirectorySecurity sec = target.GetAccessControl();
                 FileSystemAccessRule accRule = new FileSystemAccessRule(Environment.UserDomainName + "\\" + Environment.UserName, FileSystemRights.FullControl, AccessControlType.Allow);
                 sec.AddAccessRule(accRule);
-                Directory.SetAccessControl(directory, sec);
+                target.SetAccessControl(sec);
             }
             catch (Exception ex)
             {

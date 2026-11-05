@@ -202,6 +202,7 @@ namespace Toolbox.Library
 
         public static T DeepCopy<T>(T other)
         {
+#if NETFRAMEWORK
             using (MemoryStream ms = new MemoryStream())
             {
                 BinaryFormatter formatter = new BinaryFormatter();
@@ -209,6 +210,10 @@ namespace Toolbox.Library
                 ms.Position = 0;
                 return (T)formatter.Deserialize(ms);
             }
+        
+#else
+            throw new System.PlatformNotSupportedException("BinaryFormatter is unavailable on .NET 10. This format requires a verified, lossless migration.");
+#endif
         }
         public static Matrix4 TransformValues(Vector3 translation, Vector3 rotation, float scale)
         {

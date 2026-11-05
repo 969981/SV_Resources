@@ -1,0 +1,74 @@
+name: Verify Switch-Toolbox .NET 10 migration
+on:
+  push:
+    branches: ['upgrade/switch-toolbox-net10']
+    paths:
+      - 'tools/Switch-Toolbox/**'
+      - '.github/workflows/verify-switch-toolbox-net10.yml'
+  pull_request:
+    paths:
+      - 'tools/Switch-Toolbox/**'
+      - '.github/workflows/verify-switch-toolbox-net10.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  win10-build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: tools/Switch-Toolbox
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools/Switch-Toolbox
+            .github
+          sparse-checkout-cone-mode: false
+          submodules: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Check toolchain and five projects
+        shell: pwsh
+        run: |
+          dotnet --info
+          $projects = @(dotnet sln Toolbox.net10.slnx list | Select-String 'net10.csproj$')
+          if ($projects.Count -ne 5) { throw "Expected five NET10 projects, got $($projects.Count)" }
+      - name: Restore .NET 10
+        run: dotnet restore Toolbox.net10.slnx --nologo -v minimal
+      - name: Yaz0 .NET 10 round-trip and malformed-data smoke tests
+        run: dotnet run --project tests/Yaz0Smoke.csproj -c Release --nologo
+      - name: Build .NET 10 Release
+        run: dotnet build Toolbox.net10.slnx -c Release --no-restore --nologo -v minimal
+      - name: Build .NET 10 Debug
+        run: dotnet build Toolbox.net10.slnx -c Debug --no-restore --nologo -v minimal
+      - name: Publish Windows x64 and verify runtime plugin loading
+        shell: pwsh
+        run: |
+          $out = Join-Path $PWD 'artifacts/net10-win-x64'
+          dotnet publish Toolbox/Toolbox.net10.csproj -c Release -r win-x64 --self-contained false -o $out --nologo -v minimal
+          if ($LASTEXITCODE -ne 0) { throw "NET10 x64 publish failed" }
+          $exe = Join-Path $out 'Toolbox.exe'
+          $plugin = Join-Path $out 'Lib/Plugins/FirstPlugin.Plg.dll'
+          if (!(Test-Path $exe -PathType Leaf)) { throw "Missing NET10 executable" }
+          if (!(Test-Path $plugin -PathType Leaf)) { throw "Missing NET10 plugin" }
+          if (!(Test-Path (Join-Path $out 'Lib/Plugins/VGAudio.dll') -PathType Leaf)) {
+            throw "Missing legacy audio runtime dependency"
+          }
+          $proc = Start-Process -FilePath $exe -ArgumentList '--verify-runtime' -WorkingDirectory $out -PassThru
+          if (!$proc.WaitForExit(20000)) {
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+            throw "Runtime verifier did not exit within the watchdog"
+          }
+          if ($proc.ExitCode -ne 0) { throw "NET10 runtime verifier failed: $($proc.ExitCode)" }
+          $report = Join-Path $out 'net10-runtime-smoke.txt'
+          if (!(Test-Path $report -PathType Leaf)) { throw "No runtime verification report generated" }
+          Get-Content $report
+      - uses: actions/upload-artifact@v4
+        with:
+          name: switch-toolbox-net10-win-x64
+          path: tools/Switch-Toolbox/artifacts/net10-win-x64/
+          if-no-files-found: error
+          retention-days: 7
