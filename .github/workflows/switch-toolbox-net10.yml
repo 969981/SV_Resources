@@ -48,6 +48,12 @@ jobs:
           if (-not (Test-Path "$base/Toolbox.exe")) { throw "Missing Toolbox.exe: $base" }
           if (-not (Test-Path "$base/Toolbox.Library.dll")) { throw "Missing Toolbox.Library.dll: $base" }
           Write-Host "Build output exists; UI/format regressions remain to be tested."
+      - name: Managed runtime and format header smoke tests
+        if: success()
+        shell: pwsh
+        run: |
+          dotnet run --project tools/Switch-Toolbox/Net10.Validation/Net10.Validation.csproj --configuration Release 2>&1 | Tee-Object -FilePath smoke.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Collect build logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -56,5 +62,6 @@ jobs:
           path: |
             restore.log
             build.log
+            smoke.log
           if-no-files-found: ignore
           retention-days: 14
