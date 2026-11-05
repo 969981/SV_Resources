@@ -149,10 +149,21 @@ jobs:
           if ($LASTEXITCODE -eq 0) { exit 0 }
           git commit -m "data(SV): full secondary sweep checkpoint and validated conversions"
           if ($LASTEXITCODE -ne 0) { throw 'Git commit failed' }
-          git pull --rebase origin master
-          if ($LASTEXITCODE -ne 0) { throw 'Git rebase failed' }
-          git push origin HEAD:master
-          if ($LASTEXITCODE -ne 0) { throw 'Git push failed' }
+          $pushed = $false
+          for ($attempt=1; $attempt -le 6; $attempt++) {
+            git fetch origin master
+            if ($LASTEXITCODE -ne 0) { throw 'Could not refresh remote master' }
+            git rebase origin/master
+            if ($LASTEXITCODE -ne 0) {
+              git rebase --abort
+              throw 'Git rebase conflict; checkpoint remains in Actions artifact'
+            }
+            git push origin HEAD:master
+            if ($LASTEXITCODE -eq 0) { $pushed = $true; break }
+            Write-Warning "Concurrent master update during push attempt $attempt/6; retrying fast-forward only"
+            Start-Sleep -Seconds ([Math]::Min($attempt * 2, 10))
+          }
+          if (-not $pushed) { throw 'Six non-forced push attempts were rejected; keep checkpoint artifact' }
       - name: Automatically continue until all tracked paths are attempted
         shell: pwsh
         run: |
