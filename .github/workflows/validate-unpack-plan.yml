@@ -8,7 +8,7 @@ on:
       - 'tests/test_*.py'
       - 'tools/SV.TrinityDump/**'
       - 'tools/upstream.json'
-      - 'tools/gftool'
+      - 'tools/gftool/**'
       - '.gitmodules'
       - 'scripts/Sync-SV-Tools.ps1'
       - 'scripts/Prepare-SV-Trinity.ps1'
@@ -21,7 +21,7 @@ on:
       - 'tests/test_*.py'
       - 'tools/SV.TrinityDump/**'
       - 'tools/upstream.json'
-      - 'tools/gftool'
+      - 'tools/gftool/**'
       - '.gitmodules'
       - 'scripts/Sync-SV-Tools.ps1'
       - 'scripts/Prepare-SV-Trinity.ps1'
@@ -66,15 +66,15 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Initialize pinned gftool submodule (never install Oodle)
+      - name: Verify gftool and nested NxMiddleware are local source trees
         shell: pwsh
         run: |
-          git submodule sync --recursive
-          git submodule update --init --recursive -- tools/gftool
-          if ($LASTEXITCODE -ne 0) { throw 'gftool submodule checkout failed' }
-          $expected = (Get-Content tools/upstream.json -Raw | ConvertFrom-Json).tools | Where-Object name -eq 'gftool' | Select-Object -ExpandProperty ref
-          $actual = git -C tools/gftool rev-parse HEAD
-          if ($actual.Trim() -ne $expected) { throw "gftool SHA mismatch: $actual" }
+          $expected = (Get-Content tools/upstream.json -Raw | ConvertFrom-Json).tools | Where-Object name -eq 'gftool' | Select-Object -ExpandProperty sourceTreeSha
+          $actual = (git rev-parse 'HEAD:tools/gftool').Trim()
+          if ($actual -ne $expected) { throw "Vendored gftool SHA mismatch: $actual != $expected" }
+          $gitlinks = @(git ls-tree -r HEAD -- tools/gftool | Select-String '^160000 ')
+          if ($gitlinks.Count -ne 0) { throw 'Nested Gitlinks remain under gftool' }
+          if (-not (Test-Path 'tools/gftool/NxMiddleware/BnTxx/BnTxx.csproj')) { throw 'NxMiddleware is missing' }
       - name: Parse Windows PowerShell integration scripts
         shell: pwsh
         run: |

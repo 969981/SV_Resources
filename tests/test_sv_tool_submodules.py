@@ -11,12 +11,14 @@ ROOT = Path(__file__).resolve().parents[1]
 class TestToolSubmodules(unittest.TestCase):
     def test_pinned_sources(self):
         meta = json.loads((ROOT / "tools/upstream.json").read_text(encoding="utf-8"))
-        self.assertEqual(meta["sourceTracking"], "mixed-vendor-and-submodules")
+        self.assertEqual(meta["sourceTracking"], "vendor-only")
         tools = meta["tools"]
         self.assertEqual(set(x["name"] for x in tools),
                          {"gftool", "PokeDocs", "pkNX", "Switch-Toolbox", "SCVI_Extract", "nx2elf"})
         config = configparser.ConfigParser()
-        self.assertTrue(config.read(ROOT / ".gitmodules", encoding="utf-8"))
+        if (ROOT / ".gitmodules").exists():
+            config.read(ROOT / ".gitmodules", encoding="utf-8")
+        self.assertFalse(config.sections(), "Submodule metadata should be empty")
         entries = subprocess.run(["git", "ls-tree", "HEAD", "--", "tools"], cwd=ROOT,
                                  capture_output=True, text=True, check=True)
         self.assertIn("tools", entries.stdout)
@@ -46,16 +48,19 @@ class TestToolSubmodules(unittest.TestCase):
                     actual = subprocess.run(["git", "ls-tree", "-r", "--name-only", "HEAD", "--", path],
                                             cwd=ROOT, capture_output=True, text=True, check=True)
                     self.assertEqual(len(actual.stdout.splitlines()), 13)
+                elif item["name"] == "gftool":
+                    for rel in ("GFTool.Core/GFTool.Core.csproj", "NxMiddleware/BnTxx/BnTxx.csproj", "TrinityModLoader.sln", "LICENSE"):
+                        self.assertTrue((ROOT / path / rel).is_file(), f"Missing: {path}/{rel}")
+                    tree = subprocess.run(["git", "ls-tree", "-r", "HEAD", "--", path], cwd=ROOT,
+                                          capture_output=True, text=True, check=True)
+                    self.assertNotIn("160000 commit", tree.stdout)
                 elif item["name"] in ("pkNX", "Switch-Toolbox"):
                     solution = "pkNX.sln" if item["name"] == "pkNX" else "Toolbox.sln"
                     self.assertTrue((ROOT / path / solution).is_file())
                 else:
                     self.fail(f"Unexpected vendored tool: {item['name']}")
             else:
-                self.assertTrue(config.has_section(section), path)
-                self.assertEqual(config[section]["path"], path)
-                self.assertEqual(config[section]["url"], item["repository"])
-                self.assertIn(f"160000 commit {item['ref']}\t{path}", recursive.stdout)
+                self.fail(f"Unknown vendored tool: {item['name']}")
             self.assertEqual(len(item["ref"]), 40)
 
     def test_project_uses_imported_gftool(self):

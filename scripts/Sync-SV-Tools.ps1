@@ -1,4 +1,4 @@
-# Verify five complete vendored source trees and initialize one pinned Git submodule under tools/.
+# Verify six complete vendored source trees, with gftool/NxMiddleware included locally.
 # Preserves local changes: git submodule update stops rather than overwriting conflicts.
 [CmdletBinding()]
 param(
@@ -12,13 +12,9 @@ $RepositoryRoot = [IO.Path]::GetFullPath($RepositoryRoot)
 $manifestPath = Join-Path $RepositoryRoot 'tools\upstream.json'
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { throw "Missing: $manifestPath" }
 $config = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if ($config.sourceTracking -ne 'mixed-vendor-and-submodules') { throw 'Unexpected tool manifest version' }
+if ($config.sourceTracking -ne 'vendor-only') { throw 'Unexpected tool manifest version' }
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw 'Git executable not found' }
 
-if (-not $VerifyOnly) {
-    & git -C $RepositoryRoot submodule sync --recursive
-    if ($LASTEXITCODE -ne 0) { throw 'git submodule sync failed' }
-}
 foreach ($item in $config.tools) {
     $path = [string]$item.path
     $expected = [string]$item.ref
@@ -51,6 +47,10 @@ foreach ($item in $config.tools) {
             foreach ($file in @('CMakeLists.txt','nx2elf.cpp','lz4.c','elf.h','elf_eh.cpp')) {
                 if (-not (Test-Path -LiteralPath (Join-Path $dest $file) -PathType Leaf)) { throw "Missing vendored nx2elf file: $file" }
             }
+        } elseif ($item.name -eq 'gftool') {
+            foreach ($relative in @('GFTool.Core/GFTool.Core.csproj', 'NxMiddleware/BnTxx/BnTxx.csproj', 'TrinityModLoader.sln', 'LICENSE')) {
+                if (-not (Test-Path -LiteralPath (Join-Path $dest $relative) -PathType Leaf)) { throw "Missing vendored gftool file: $relative" }
+            }
         } elseif ($item.name -eq 'pkNX') {
             if (-not (Test-Path -LiteralPath (Join-Path $dest 'pkNX.sln') -PathType Leaf)) { throw 'Missing vendored pkNX solution' }
         } elseif ($item.name -eq 'Switch-Toolbox') {
@@ -61,18 +61,6 @@ foreach ($item in $config.tools) {
         Write-Host "$path  vendored tree $tree"
         continue
     }
-    if ($item.importMethod -ne 'git-submodule') { throw "Unsupported import method for $path" }
-    if (-not $VerifyOnly) {
-        & git -C $RepositoryRoot submodule update --init --recursive -- $path
-        if ($LASTEXITCODE -ne 0) { throw "Unable to initialize $path" }
-    }
-    if (-not (Test-Path -LiteralPath (Join-Path $dest '.git'))) {
-        throw "Submodule not initialized: $path (run script without -VerifyOnly)"
-    }
-    $actual = (& git -C $dest rev-parse HEAD).Trim()
-    if ($LASTEXITCODE -ne 0 -or $actual -ne $expected) {
-        throw "Pinned revision mismatch: $path expected=$expected actual=$actual"
-    }
-    Write-Host "$path  $actual"
+    throw "Only vendor-tree source imports are supported: $path"
 }
-Write-Host 'All six tool source locations verified (one submodule + five full source snapshots). No game data extracted or tool executables run.'
+Write-Host 'All six tool source locations verified as real Git files. No submodule checkout or executable run required.'

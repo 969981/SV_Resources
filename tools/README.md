@@ -1,6 +1,6 @@
 # SV tools — pinned upstream sources
 
-All six upstream projects are available under `tools/`. **PokeDocs, SCVI_Extract, pkNX, Switch-Toolbox and nx2elf are complete vendored source snapshots** (normal Git files, not gitlinks), while gftool remains a pinned Git submodule. Use `git clone --recurse-submodules` or `git submodule update --init --recursive` to obtain gftool (including its nested dependencies). The five vendored directories need no additional checkout.
+All six upstream tool projects are stored as complete vendored source trees (ordinary Git files, not Gitlinks). `gftool` includes the full pinned `NxMiddleware` source at `tools/gftool/NxMiddleware`. `git clone` and `git pull` obtain these sources without submodule initialization.
 
 | Local path | Upstream | Purpose | Priority |
 | --- | --- | --- | --- |
@@ -11,21 +11,19 @@ All six upstream projects are available under `tools/`. **PokeDocs, SCVI_Extract
 | [SCVI_Extract](SCVI_Extract) | [psthrn42/SCVI_Extract](https://github.com/psthrn42/SCVI_Extract) | **Full vendored source**; legacy Python TRPFS extractor / comparison | P2 |
 | [nx2elf](nx2elf) | [shuffle2/nx2elf](https://github.com/shuffle2/nx2elf) | **Full vendored source**; ExeFS NSO → AArch64 ELF for disassembly | P0 |
 
-Pinned SHA, source URL, branch, import method and role: [upstream.json](upstream.json). For PokeDocs, the tracked tree is exactly the upstream tree hash `96ea0ac5...`. For SCVI_Extract, the tracked tree is exactly the upstream tree hash `33d0fd99...` (10 files from `0d4f817...`). pkNX source commit `d191cd0e...` has tree `b660e4f0...`; Switch-Toolbox source commit `3a327914...` has tree `ec1508a9...`. All five vendored tree SHAs are recorded in `upstream.json`. **Do not auto-merge or pull upstream into master** without tests; update pinned vendor trees or the remaining gftool submodule pointer through reviewed commits. Respect each project's own license and third-party dependencies.
+Pinned SHA, source URL, branch, import method and role: [upstream.json](upstream.json). For PokeDocs, the tracked tree is exactly the upstream tree hash `96ea0ac5...`. For SCVI_Extract, the tracked tree is exactly the upstream tree hash `33d0fd99...` (10 files from `0d4f817...`). pkNX source commit `d191cd0e...` has tree `b660e4f0...`; Switch-Toolbox source commit `3a327914...` has tree `ec1508a9...`. All six vendored tree SHAs are recorded in `upstream.json`. **Do not auto-merge or pull upstream into master** without tests; update pinned vendor trees or the pinned gftool vendor tree through reviewed commits. Respect each project's own license and third-party dependencies.
 
 ## Retrieve all sources (Windows)
 
 ```powershell
-git clone --recurse-submodules https://github.com/969981/SV_Resources.git
+git clone https://github.com/969981/SV_Resources.git
 cd SV_Resources
-# Or for an existing checkout:
-git submodule sync --recursive
-git submodule update --init --recursive
-# Wrapper with pin validation (one submodule and five complete vendored trees):
+# For an existing checkout: git pull
+# Verify the six pinned vendored source trees:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Sync-SV-Tools.ps1
 ```
 
-If using sparse checkout, ensure `.gitmodules` and `tools/` are present. The `tools/PokeDocs`, `tools/SCVI_Extract`, `tools/pkNX` and `tools/Switch-Toolbox` trees already contain their complete pinned source snapshots. gftool has its own nested `NxMiddleware` submodule, so use `--recursive` for the full source. Switch-Toolbox includes many third-party packages and binary dependencies. Its Git-tracked content is included in the vendored source tree; retain and review applicable third-party licenses.
+If using sparse checkout, include the required `tools/` directories. The nested `NxMiddleware` directory is also real source and needs no additional checkout. Switch-Toolbox includes many third-party packages and binary dependencies. Its Git-tracked content is included in the vendored source tree; retain and review applicable third-party licenses.
 
 ## Native ExeFS ELF conversion
 
@@ -45,7 +43,7 @@ The pinned `tools/nx2elf` tree is identical to upstream commit `a1760ba54e2aefb4
 
 ## Reproducibility and CI
 
-- `tools/upstream.json` is checked against `.gitmodules`, the one gitlink and four vendored source trees by synthetic test.
-- CI compiles `SV.TrinityDump` using the actual pinned gftool submodule; no Oodle or ROM files required.
+- `tools/upstream.json` is checked against all six vendored source trees; no gitlinks or active submodule declarations are expected.
+- CI compiles `SV.TrinityDump` using the pinned vendored gftool source; no Oodle or ROM files required.
 - CI can build GFPAKHashCache from pinned PokeDocs (downloadable Actions artifact).
 - Actual 8 GiB `data.trpfs` extraction remains a local Windows validation step; no source extraction is claimed from submodule initialization alone.
