@@ -1,0 +1,71 @@
+name: Locate SV 4.0.0 Lua bytecode in native TRPFD index
+
+on:
+  push:
+    paths:
+      - '.github/workflows/locate-sv-lua-packs.yml'
+      - 'scripts/Locate-SV-Lua-Packs.py'
+      - 'tests/test_sv_lua_pack_locator.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-4-0-0-lua-locator
+  cancel-in-progress: false
+
+jobs:
+  locate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          sparse-checkout: |
+            .github
+            scripts
+            tests
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify locator with synthetic fixture
+        run: |
+          python -m py_compile scripts/Locate-SV-Lua-Packs.py tests/test_sv_lua_pack_locator.py
+          python -m unittest discover -s tests -p 'test_sv_lua_pack_locator.py' -v
+      - name: Scan actual 4.0.0 native descriptor index
+        run: |
+          python scripts/Locate-SV-Lua-Packs.py
+          python scripts/Locate-SV-Lua-Packs.py --verify-only
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("Unpack/4.0.0/romfs/arc/data.trpfd/_index/lua_pack_locations.json")
+          j = json.loads(p.read_text())
+          assert j["descriptor_files_scanned"] == 408641, j
+          assert j["bytecode_extracted"] is False
+          print("Confirmed native paths:", json.dumps(j["targets"], indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SV-4.0.0-Lua-native-pack-locations
+          path: Unpack/4.0.0/romfs/arc/data.trpfd/_index/lua_pack_locations.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Commit only native Lua pack location report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- Unpack/4.0.0/romfs/arc/data.trpfd/_index/lua_pack_locations.json
+          if git diff --cached --quiet; then
+            echo 'No change to Lua location report.'
+            exit 0
+          fi
+          git commit -m 'Record verified SV 4.0.0 main and main_dynamic Lua TRPFD pack locations'
+          git push origin HEAD:refs/heads/master
