@@ -49,6 +49,7 @@ jobs:
         with:
           sparse-checkout: |
             tools
+            scripts
             .github
           sparse-checkout-cone-mode: true
       - uses: actions/setup-dotnet@v4
@@ -60,5 +61,18 @@ jobs:
           git clone --filter=blob:none --no-checkout https://github.com/pkZukan/gftool.git tools/_external/gftool
           git -C tools/_external/gftool checkout --detach cac7a210fcbef5ecf1ee108c10d1a1bdddc4cd4c
           git -C tools/_external/gftool submodule update --init --recursive
+      - name: Parse Windows PowerShell integration scripts
+        shell: pwsh
+        run: |
+          $paths = @('scripts/Prepare-SV-Trinity.ps1', 'scripts/Run-SV-TrinityDump.ps1', 'scripts/Sync-SV-Tools.ps1')
+          foreach ($path in $paths) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $path), [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -ne 0) {
+              $errors | ForEach-Object { Write-Error $_.Message }
+              throw "PowerShell parse failed: $path"
+            }
+          }
       - name: Compile net8 CLI against pinned GFTool.Core
         run: dotnet build tools/SV.TrinityDump/SV.TrinityDump.csproj -c Release --nologo
