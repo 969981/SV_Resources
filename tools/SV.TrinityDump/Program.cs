@@ -227,7 +227,12 @@ internal static class Program
         string outputVirtual = Path.Combine(output, "virtual");
         string indexDir = Path.Combine(output, "_index");
         Directory.CreateDirectory(indexDir);
-        string reportPath = Path.Combine(indexDir, "export.jsonl");
+        string reportPath = args.TryGetValue("--report", out var requestedReport)
+            ? Path.GetFullPath(requestedReport) : Path.Combine(indexDir, "export.jsonl");
+        string reportRoot = Path.GetFullPath(indexDir).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        if (!Path.GetFullPath(reportPath).StartsWith(reportRoot, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Batch report must be stored inside the output _index directory");
+        Directory.CreateDirectory(Path.GetDirectoryName(reportPath)!);
         var prior = new Dictionary<string, ExportRow>(StringComparer.Ordinal);
         if (File.Exists(reportPath))
             foreach (var line in File.ReadLines(reportPath))
@@ -293,12 +298,9 @@ internal static class Program
                     try
                     {
                         if (prior.TryGetValue(hashText, out var old) && old.Status == "OK" &&
-                            old.OutputPath is not null && old.Sha256 is not null &&
-                            string.Equals(Path.GetFullPath(old.OutputPath), target, StringComparison.OrdinalIgnoreCase) &&
-                            File.Exists(target) && Sha256File(target) == old.Sha256)
+                            old.Sha256 is not null && File.Exists(target) &&
+                            Sha256File(target) == old.Sha256)
                         { skipped++; continue; }
-                        if (File.Exists(target)) throw new IOException("Output exists but is not verified by previous manifest");
-
                         var entry = pack.FileEntry[j];
                         byte[]? bytes = entry.EncryptionType != -1 ?
                             Oodle.Decompress(entry.FileBuffer, checked((long)entry.FileSize)) : entry.FileBuffer;
@@ -306,6 +308,17 @@ internal static class Program
                         if (entry.EncryptionType != -1 && (ulong)bytes.Length != entry.FileSize)
                             throw new InvalidDataException("Decompressed size differs from entry size");
                         string digest = Sha256(bytes);
+                        if (File.Exists(target))
+                        {
+                            if (Sha256File(target) != digest)
+                                throw new IOException("Existing output differs from the native source; refusing to overwrite");
+                            var existingRow = new ExportRow("OK", hashText, relative, target, digest, bytes.LongLength,
+                                                            packName, offset, null);
+                            log.WriteLine(JsonSerializer.Serialize(existingRow));
+                            prior[hashText] = existingRow;
+                            skipped++;
+                            continue;
+                        }
                         Directory.CreateDirectory(Path.GetDirectoryName(target)!);
                         string tmp = target + ".sv-writing";
                         if (File.Exists(tmp)) throw new IOException("Stale temporary file; inspect before retry: " + tmp);
