@@ -93,7 +93,7 @@ def build_tasks(rows, max_group_files=1200):
         chunks = []
         current = []
         for family in sorted(families):
-            members = families[family]
+            members = sorted(families[family])
             if current and len(current) + len(members) > max_group_files:
                 chunks.append(current)
                 current = []
