@@ -19,3 +19,7 @@ Start with [documentation](docs/README.md), [layout rules](docs/repository-layou
 Original source files remain read-only and are verified by SHA-256. Do not infer identical gameplay solely from matching RomFS hashes: version-specific program logic requires separate analysis. Large file transfer uses local Windows 7-Zip and explicit per-path Git batch commits; see `scripts/README.md`.
 
 This repository may contain game-derived material. Do not add decryption keys, credentials or data without appropriate rights and access controls.
+
+## RomFS transfer
+
+See [the Violet 4.0.0 RomFS transfer guide](docs/romfs-transfer.md) for the manifest, resumable workflow, verification, and restoration steps.
