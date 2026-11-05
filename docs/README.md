@@ -49,3 +49,7 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 - [ZA Lua Hash/固定源码和原始行号对照](research/za-lua-hash-recovery.md) — 578 条合并候选、566 条具名重建证据、完整 1-based 原始行号索引及可复核命令。
 
 - [ZA Lua 第三轮补全与原始行号](research/za-lua-hash-recovery.md) — 611 条 Hash 候选（599 条第三方 Haxe 注解证据），仍未知 162 条。
+
+## SV Lua 原生 4.0.0 名称恢复后续
+
+- [直接分析整份 BLUA：C 类静态闭包、注册关系和 F 回调补全](research/sv-lua-native-4.0.0-followup.md) — 4 个新增 F、281 条 C→S 赋值与来源证据；原始 PokeDocs 不变。
