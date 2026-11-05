@@ -1,0 +1,88 @@
+name: SV R1 native BNTX to validated PNG sample
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/sv-secondary-native-bntx.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-native-bntx-publish
+  cancel-in-progress: false
+
+jobs:
+  bntx:
+    if: github.repository == '969981/SV_Resources'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      SV_ROOT: Unpack/4.0.0/romfs/arc/data.trpfs
+      RUSTFLAGS: -C link-arg=-lstdc++
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/verify_sv_bntx_native.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/appli/tex/icon_ribbon/icon_ribbon_001
+            Unpack/4.0.0/romfs/arc/data.trpfs/parsed
+            Unpack/4.0.0/romfs/arc/data.trpfs/converted
+            Unpack/4.0.0/romfs/arc/data.trpfs/resources
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned BC7 decoder
+        run: |
+          cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex \
+            --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac ultimate_tex_cli
+      - name: Verify native BNTX conversion signature and dimensions
+        run: python tests/verify_sv_bntx_native.py
+      - name: Convert actual icon and generate auditable three-layer result
+        run: |
+          python scripts/resource_pipeline/process_virtual.py --repo . \
+            --prefix appli/tex/icon_ribbon/icon_ribbon_001 --kind bntx \
+            --png-converter 'ultimate_tex_cli {input} {output}' --limit 1 \
+            --max-source-files 10 --max-output-mb 20 > sv-bntx-secondary.json
+          python - <<'PY'
+          import json
+          r=json.load(open('sv-bntx-secondary.json',encoding='utf-8'))
+          assert r['stages']['bntx']['ok']==1,r['stages']
+          assert not r['deferred_outputs'],r['deferred_outputs']
+          assert any(x['path'].endswith('.png') for x in r['outputs'])
+          print('Verified outputs:',[x['path'] for x in r['outputs']])
+          PY
+      - name: Publish strictly recorded secondary artifacts
+        run: |
+          python - <<'PY'
+          import json,pathlib,subprocess,os
+          r=json.load(open('sv-bntx-secondary.json',encoding='utf-8'))
+          root=pathlib.Path(os.environ['SV_ROOT'])
+          paths=[pathlib.Path(r['report_path'])]+[root/x['path'] for x in r['outputs']]
+          for p in paths:
+              if not p.is_file(): raise ValueError('Missing native conversion result '+str(p))
+          subprocess.run(['git','add','-f','--',*[str(p) for p in paths]],check=True)
+          print('Prepared',len(paths),'audited files')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(SV): native BNTX to dimension-verified PNG"
+          git pull --rebase origin master
+          git push origin HEAD:master
+      - name: Upload conversion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-native-bntx-report-${{ github.run_id }}
+          path: |
+            sv-bntx-secondary.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary/*.json
+          if-no-files-found: warn
+          retention-days: 14
