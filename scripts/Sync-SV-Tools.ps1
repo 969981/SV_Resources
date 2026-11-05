@@ -1,4 +1,4 @@
-# Verify four complete vendored source trees and initialize one pinned Git submodule under tools/.
+# Verify five complete vendored source trees and initialize one pinned Git submodule under tools/.
 # Preserves local changes: git submodule update stops rather than overwriting conflicts.
 [CmdletBinding()]
 param(
@@ -47,6 +47,10 @@ foreach ($item in $config.tools) {
                     throw "Missing vendored SCVI_Extract file: $sourceFile"
                 }
             }
+        } elseif ($item.name -eq 'nx2elf') {
+            foreach ($file in @('CMakeLists.txt','nx2elf.cpp','lz4.c','elf.h','elf_eh.cpp')) {
+                if (-not (Test-Path -LiteralPath (Join-Path $dest $file) -PathType Leaf)) { throw "Missing vendored nx2elf file: $file" }
+            }
         } elseif ($item.name -eq 'pkNX') {
             if (-not (Test-Path -LiteralPath (Join-Path $dest 'pkNX.sln') -PathType Leaf)) { throw 'Missing vendored pkNX solution' }
         } elseif ($item.name -eq 'Switch-Toolbox') {
@@ -71,4 +75,4 @@ foreach ($item in $config.tools) {
     }
     Write-Host "$path  $actual"
 }
-Write-Host 'All five tool source locations verified (one submodule + four full source snapshots). No game data extracted or tool executables run.'
+Write-Host 'All six tool source locations verified (one submodule + five full source snapshots). No game data extracted or tool executables run.'

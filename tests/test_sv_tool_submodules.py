@@ -14,7 +14,7 @@ class TestToolSubmodules(unittest.TestCase):
         self.assertEqual(meta["sourceTracking"], "mixed-vendor-and-submodules")
         tools = meta["tools"]
         self.assertEqual(set(x["name"] for x in tools),
-                         {"gftool", "PokeDocs", "pkNX", "Switch-Toolbox", "SCVI_Extract"})
+                         {"gftool", "PokeDocs", "pkNX", "Switch-Toolbox", "SCVI_Extract", "nx2elf"})
         config = configparser.ConfigParser()
         self.assertTrue(config.read(ROOT / ".gitmodules", encoding="utf-8"))
         entries = subprocess.run(["git", "ls-tree", "HEAD", "--", "tools"], cwd=ROOT,
@@ -40,6 +40,12 @@ class TestToolSubmodules(unittest.TestCase):
                     actual = subprocess.run(["git", "ls-tree", "-r", "--name-only", "HEAD", "--", path],
                                             cwd=ROOT, capture_output=True, text=True, check=True)
                     self.assertEqual(len(actual.stdout.splitlines()), 10)
+                elif item["name"] == "nx2elf":
+                    self.assertTrue((ROOT / path / "CMakeLists.txt").is_file())
+                    self.assertTrue((ROOT / path / "nx2elf.cpp").is_file())
+                    actual = subprocess.run(["git", "ls-tree", "-r", "--name-only", "HEAD", "--", path],
+                                            cwd=ROOT, capture_output=True, text=True, check=True)
+                    self.assertEqual(len(actual.stdout.splitlines()), 13)
                 elif item["name"] in ("pkNX", "Switch-Toolbox"):
                     solution = "pkNX.sln" if item["name"] == "pkNX" else "Toolbox.sln"
                     self.assertTrue((ROOT / path / solution).is_file())

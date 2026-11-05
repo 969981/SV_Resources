@@ -1,0 +1,112 @@
+name: Convert Scarlet/Violet 4.0.0 main NSO to ELF
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/convert-sv-exefs.yml'
+      - 'tools/nx2elf/**'
+      - 'scripts/Convert-SV-ExeFS.py'
+      - 'docs/exefs-nx2elf.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-nx2elf-4-0-0
+  cancel-in-progress: false
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout pinned converter and both original NSOs
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            tools/nx2elf
+            scripts/Convert-SV-ExeFS.py
+            docs/exefs-nx2elf.md
+            4.0.0/0/scarlet_main
+            4.0.0/0/violet_main
+            Unpack/4.0.0/exefs
+          sparse-checkout-cone-mode: false
+          persist-credentials: true
+
+      - name: Install 7z and build vendored nx2elf
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v 7z >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y p7zip-full
+          fi
+          cmake -S tools/nx2elf -B "$RUNNER_TEMP/nx2elf-build" -DCMAKE_BUILD_TYPE=Release
+          cmake --build "$RUNNER_TEMP/nx2elf-build" --config Release --parallel 2
+          test -x "$RUNNER_TEMP/nx2elf-build/nx2elf"
+          python3 -m py_compile scripts/Convert-SV-ExeFS.py
+
+      - name: Convert and validate both independent main modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/Convert-SV-ExeFS.py \
+            --repo-root . \
+            --nx2elf "$RUNNER_TEMP/nx2elf-build/nx2elf" \
+            --keep-elf
+          for name in scarlet_main violet_main; do
+            test -s "Unpack/4.0.0/exefs/$name/provenance.json"
+            test -s "Unpack/4.0.0/exefs/$name/_work/$name.elf"
+            file "Unpack/4.0.0/exefs/$name/_work/$name.elf"
+            readelf -h "Unpack/4.0.0/exefs/$name/_work/$name.elf" | grep -E 'ELF64|AArch64'
+          done
+
+      - name: Upload full ELF files for direct download
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV-4.0.0-ExeFS-main-ELF
+          path: |
+            Unpack/4.0.0/exefs/scarlet_main/_work/scarlet_main.elf
+            Unpack/4.0.0/exefs/violet_main/_work/violet_main.elf
+            Unpack/4.0.0/exefs/scarlet_main/provenance.json
+            Unpack/4.0.0/exefs/violet_main/provenance.json
+          retention-days: 30
+          compression-level: 1
+          if-no-files-found: warn
+
+      - name: Commit only verified Git-safe ELF outputs and provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+          root = Path("Unpack/4.0.0/exefs")
+          for name in ("scarlet_main", "violet_main"):
+              manifest = root / name / "provenance.json"
+              obj = json.loads(manifest.read_text(encoding="utf-8"))
+              assert obj["status"] == "CONFIRMED" and obj["elfSha256"]
+              subprocess.run(["git", "add", "--", str(manifest)], check=True)
+              for file in obj["artifacts"]:
+                  relative = Path(file["path"])
+                  assert relative.parts[:4] == ("Unpack", "4.0.0", "exefs", name)
+                  assert "_work" not in relative.parts
+                  assert relative.stat().st_size == file["size"] < 100_000_000
+                  subprocess.run(["git", "add", "--", str(relative)], check=True)
+          PY
+          if git diff --cached --quiet; then
+            echo 'Both converted ELF results already match committed artifacts.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git diff --cached --stat
+          git commit -m 'exefs: publish verified Scarlet and Violet 4.0.0 ELF outputs'
+          git push origin HEAD:refs/heads/master

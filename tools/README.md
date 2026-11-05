@@ -1,6 +1,6 @@
 # SV tools — pinned upstream sources
 
-All five upstream projects are available under `tools/`. **PokeDocs, SCVI_Extract, pkNX and Switch-Toolbox are complete vendored source snapshots**, while gftool is the **only remaining pinned Git submodule**. Use `git clone --recurse-submodules` or `git submodule update --init --recursive` to obtain gftool (including its nested dependencies). The four vendored directories need no additional checkout.
+All six upstream projects are available under `tools/`. **PokeDocs, SCVI_Extract, pkNX, Switch-Toolbox and nx2elf are complete vendored source snapshots** (normal Git files, not gitlinks), while gftool remains a pinned Git submodule. Use `git clone --recurse-submodules` or `git submodule update --init --recursive` to obtain gftool (including its nested dependencies). The five vendored directories need no additional checkout.
 
 | Local path | Upstream | Purpose | Priority |
 | --- | --- | --- | --- |
@@ -9,8 +9,9 @@ All five upstream projects are available under `tools/`. **PokeDocs, SCVI_Extrac
 | [pkNX](pkNX) | [kwsch/pkNX](https://github.com/kwsch/pkNX) | **Full vendored source**; SV 4.0.0 data dump, not editor | P1 |
 | [Switch-Toolbox](Switch-Toolbox) | [KillzXGaming/Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox) | **Full vendored source**, including upstream tracked binaries; verify compatibility per file | P1 |
 | [SCVI_Extract](SCVI_Extract) | [psthrn42/SCVI_Extract](https://github.com/psthrn42/SCVI_Extract) | **Full vendored source**; legacy Python TRPFS extractor / comparison | P2 |
+| [nx2elf](nx2elf) | [shuffle2/nx2elf](https://github.com/shuffle2/nx2elf) | **Full vendored source**; ExeFS NSO → AArch64 ELF for disassembly | P0 |
 
-Pinned SHA, source URL, branch, import method and role: [upstream.json](upstream.json). For PokeDocs, the tracked tree is exactly the upstream tree hash `96ea0ac5...`. For SCVI_Extract, the tracked tree is exactly the upstream tree hash `33d0fd99...` (10 files from `0d4f817...`). pkNX source commit `d191cd0e...` has tree `b660e4f0...`; Switch-Toolbox source commit `3a327914...` has tree `ec1508a9...`. All four vendored tree SHAs are recorded in `upstream.json`. **Do not auto-merge or pull upstream into master** without tests; update pinned vendor trees or the remaining gftool submodule pointer through reviewed commits. Respect each project's own license and third-party dependencies.
+Pinned SHA, source URL, branch, import method and role: [upstream.json](upstream.json). For PokeDocs, the tracked tree is exactly the upstream tree hash `96ea0ac5...`. For SCVI_Extract, the tracked tree is exactly the upstream tree hash `33d0fd99...` (10 files from `0d4f817...`). pkNX source commit `d191cd0e...` has tree `b660e4f0...`; Switch-Toolbox source commit `3a327914...` has tree `ec1508a9...`. All five vendored tree SHAs are recorded in `upstream.json`. **Do not auto-merge or pull upstream into master** without tests; update pinned vendor trees or the remaining gftool submodule pointer through reviewed commits. Respect each project's own license and third-party dependencies.
 
 ## Retrieve all sources (Windows)
 
@@ -20,11 +21,15 @@ cd SV_Resources
 # Or for an existing checkout:
 git submodule sync --recursive
 git submodule update --init --recursive
-# Wrapper with pin validation (one submodule and four complete vendored trees):
+# Wrapper with pin validation (one submodule and five complete vendored trees):
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Sync-SV-Tools.ps1
 ```
 
 If using sparse checkout, ensure `.gitmodules` and `tools/` are present. The `tools/PokeDocs`, `tools/SCVI_Extract`, `tools/pkNX` and `tools/Switch-Toolbox` trees already contain their complete pinned source snapshots. gftool has its own nested `NxMiddleware` submodule, so use `--recursive` for the full source. Switch-Toolbox includes many third-party packages and binary dependencies. Its Git-tracked content is included in the vendored source tree; retain and review applicable third-party licenses.
+
+## Native ExeFS ELF conversion
+
+The pinned `tools/nx2elf` tree is identical to upstream commit `a1760ba54e2aefb41444933f53b90e6e8b05c399` (tree `9b59e627f272251f564af320daa2b7be66b319f5`). Build with `cmake -S tools/nx2elf -B build/nx2elf -DCMAKE_BUILD_TYPE=Release` and `cmake --build build/nx2elf --config Release`. Convert `4.0.0/0/scarlet_main` and `violet_main` separately using `scripts/Convert-SV-ExeFS.py`. Provenance and output artifacts belong under `Unpack/4.0.0/exefs/<original_name>/`; oversized ELF files are published as verified 7z volumes, with full ELF in workflow artifacts. See `docs/exefs-nx2elf.md`. Upstream currently publishes no license file; check authorization for redistribution before reusing or republishing this snapshot.
 
 ## Existing SV.TrinityDump batch extractor
 
