@@ -3,7 +3,10 @@ name: SV FULL secondary sweep - all tracked Trinity virtual files
 on:
   push:
     branches: [master]
-    paths: ['.github/workflows/sv-secondary-full.yml']
+    paths:
+      - '.github/workflows/sv-secondary-full.yml'
+      - 'scripts/resource_pipeline/full_secondary.py'
+      - 'tests/test_sv_secondary_full.py'
   workflow_dispatch:
     inputs:
       max_files:
