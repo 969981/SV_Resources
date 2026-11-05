@@ -26,6 +26,7 @@ STATE_NAME = "_index/secondary/full-state.json"
 SELECTION_NAME = "_index/secondary/full-selection.json"
 RUN_NAME = "_index/secondary/full-last-run.json"
 EPOCH = "full-sweep-v1"  # Bump only when parser semantics/tool chain change.
+MAX_ERROR_ATTEMPTS = 2  # Never let a permanently failing group stall the full sweep.
 
 
 def repo_root(path):
@@ -135,11 +136,20 @@ def load_state(repo):
     return data
 
 
+def is_terminal(task, state):
+    """A matching successful/partial attempt is final; errors get bounded retries."""
+    previous = state["attempted"].get(task["id"], {})
+    if previous.get("fingerprint") != task["fingerprint"]:
+        return False
+    return (previous.get("status") != "ERROR" or
+            int(previous.get("error_attempts", 0)) >= MAX_ERROR_ATTEMPTS)
+
+
 def select_batch(tasks, state, max_tasks=20, max_files=2400):
     selected = []
     total = 0
     for item in tasks:
-        if state["attempted"].get(item["id"], {}).get("fingerprint") == item["fingerprint"]:
+        if is_terminal(item, state):
             continue
         if len(selected) >= max_tasks:
             break
@@ -247,8 +257,7 @@ def choose(repo, group_files, max_tasks, max_files):
     tasks = build_tasks(rows, group_files)
     state = load_state(repo)
     selected = select_batch(tasks, state, max_tasks, max_files)
-    seen = sum(t["file_count"] for t in tasks if
-               state["attempted"].get(t["id"], {}).get("fingerprint") == t["fingerprint"])
+    seen = sum(t["file_count"] for t in tasks if is_terminal(t, state))
     summary = {
         "schemaVersion": 1, "epoch": EPOCH,
         "source_version": cli.VERSION,
@@ -344,14 +353,28 @@ def status(repo, group_files):
     rows=listed_native(repo)
     tasks=build_tasks(rows,group_files)
     state=load_state(repo)
-    pending=[t for t in tasks if state["attempted"].get(t["id"],{}).get("fingerprint") != t["fingerprint"]]
-    return {"tracked_native_files":len(rows),"native_groups":len(tasks),
-            "remaining_groups":len(pending),
-            "remaining_files":sum(t["file_count"] for t in pending),
-            "attempted_groups":len(tasks)-len(pending),
-            "unresolved_groups":sum(v.get("status")!="ATTEMPTED" for v in state["attempted"].values()),
-            "state":"SWEEP_ATTEMPTED" if not pending else "PARTIAL",
-            "note":"Not a claim that every proprietary format was decoded"}
+    pending = [t for t in tasks if not is_terminal(t, state)]
+    matching = [state["attempted"][t["id"]] for t in tasks
+                if state["attempted"].get(t["id"], {}).get("fingerprint") == t["fingerprint"]]
+    error_groups = sum(x.get("status") == "ERROR" for x in matching)
+    partial_groups = sum(x.get("status") == "PARTIAL" for x in matching)
+    exhausted_errors = sum(x.get("status") == "ERROR" and
+                           int(x.get("error_attempts", 0)) >= MAX_ERROR_ATTEMPTS
+                           for x in matching)
+    phase = ("PARTIAL" if pending else
+             "SWEEP_ATTEMPTED_WITH_ERRORS" if error_groups else
+             "SWEEP_ATTEMPTED_WITH_PARTIAL" if partial_groups else
+             "SWEEP_ATTEMPTED")
+    return {"tracked_native_files": len(rows), "native_groups": len(tasks),
+            "remaining_groups": len(pending),
+            "remaining_files": sum(t["file_count"] for t in pending),
+            "attempted_groups": len(tasks) - len(pending),
+            "error_groups": error_groups,
+            "exhausted_error_groups": exhausted_errors,
+            "partial_groups": partial_groups,
+            "unresolved_groups": error_groups + partial_groups,
+            "state": phase,
+            "note": "Attempted is not the same as decoded; errors remain explicitly recorded"}
 
 
 def main(argv=None):
