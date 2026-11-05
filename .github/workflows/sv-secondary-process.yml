@@ -123,9 +123,10 @@ jobs:
               if not p.is_file() or p.stat().st_size!=item['bytes']:
                   raise RuntimeError('Generated asset changed: '+str(p))
               included.append(p)
-          for path in included:
-              subprocess.run(['git','add','-f','--',str(path)],check=True)
-          print('staged',len(included),'verified paths')
+          for start in range(0,len(included),100):
+              group=included[start:start+100]
+              subprocess.run(['git','add','-f','--',*[str(p) for p in group]],check=True)
+          print('staged',len(included),'verified paths in bounded groups')
           PY
       - name: Publish verified bounded derived results to master
         if: steps.process.outcome == 'success' || steps.process.outcome == 'failure'
