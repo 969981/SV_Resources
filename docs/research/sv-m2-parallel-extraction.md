@@ -20,7 +20,7 @@
 
 `[.github/workflows/sv-m2-full.yml](../../.github/workflows/sv-m2-full.yml)`
 
-工作流现在仅允许 `workflow_dispatch`，不会因为脚本更新而自动打断 M2 作业；`cancel-in-progress: false`。保留既有串行工作流与正在运行的任务，**不要从未合并的 feature 分支运行会推送到 master 的批处理**。先将优化分支合并到 master，再按需手动启动。
+工作流现在仅允许 `workflow_dispatch`，不会因为脚本更新而自动打断 M2 作业；`cancel-in-progress: false`。**默认将结果发布到专用分支 `sv-m2-packs-4.0.0`**，避免其他 CI 作业在同一时间推送 `master` 时发生 `fetch first` 冲突。初次运行从现有 master 检查点创建专用分支；后续运行从该分支的最新检查点继续，并保持单一写入者。只有最终审计 COMPLETE 才自动开向 master 的数据 PR，等待审核合并。也可以手动选 `master` 直推，但跨工作流冲突仍可能发生。**不要从未合并的 feature 分支启动会发布解包数据的工作流**。
 
 调度参数：
 
@@ -29,6 +29,7 @@
 | `start_pack` | `2` | 实际会以远端已发布 `nextPack` 为下限 |
 | `batch_packs` | `100` | 每个独立报告/事务窗口的 Pack 数 |
 | `workers` | `2` | 同机独立进程数；允许 1–4 |
+| `publish_branch` | `sv-m2-packs-4.0.0` | 独立输出分支；也可选 `master` 直推 |
 
 直接运行（先将 83 份 7z 恢复为已验证本地来源、完成依赖准备）：
 
@@ -38,6 +39,7 @@ python scripts/Run-SV-FullExtract.py `
   --repo . `
   --workspace "$env:RUNNER_TEMP\SV-4.0.0-Trinity-RomFS" `
   --start-pack 2 --batch-packs 100 --workers 2 `
+  --publish-branch sv-m2-packs-4.0.0 `
   --time-budget-minutes 230
 ```
 
@@ -46,9 +48,10 @@ python scripts/Run-SV-FullExtract.py `
 1. 多个 Windows 进程对同一磁盘中的 8GB TRPFS 随机读取可能争抢 I/O；默认从 `2` 做实际速度对比，不应默认 `8` 或 `16` worker。
 2. 并行仅覆盖 Pack 解包、校验及 7z 归档；Git 推送仍串行。网络/提交占主要耗时的情况下总速度可能提升有限。
 3. 同一报表的重试和已有 7z 分卷可能触发原有的拒绝覆盖防护；需人工核对，**不要删除或覆盖已验证资产**。
-4. 正在执行的 master 任务写入的检查点可能比此分支创建时更新。合并后优先读远端最新 `nextPack`，不可用旧进度覆盖新进度。
+4. 正在执行的 master 任务写入的检查点可能比此分支创建时更新。首次创建隔离分支必须以最新 master 为起点。专用分支创建以后必须从该分支继续运行，避免用 master 的旧检查点覆盖新进度。
 5. 如果出现 `FAILED` 或最终 `REQUIRES_REPAIR`，不得宣称全量完成。核对 `_index/batches/` 报告及 `full-extract-audit.json`。
-6. 这些代码不修改原始 `4.0.0/1/` 来源；不将解包性能的推测值作为实测加速比。
+6. 2026-11-05 的 M2 任务 42023738870 在包 21702 后被并发 `master` 更新导致 Git 推送拒绝，原生解包未报告失败；隔离发布分支用于规避此类写冲突，但最终合并前仍需审查其他工作流对相同产物路径的修改。
+7. 这些代码不修改原始 `4.0.0/1/` 来源；不将解包性能的推测值作为实测加速比。
 
 ## 测试
 
