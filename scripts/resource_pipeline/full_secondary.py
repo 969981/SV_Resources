@@ -159,6 +159,42 @@ def safe_paths_for_checkout(selection):
     return sorted(set(paths))
 
 
+def materialize_selected(repo: Path, selection, batch_size=120):
+    """Materialize exactly the selected Git paths, including Windows sparse gaps.
+
+    'git sparse-checkout add' may report success while individual files remain
+    skip-worktree or absent. Restore missing tracked paths explicitly, then
+    verify every source before running format converters. Never skip silently.
+    """
+    if not 1 <= batch_size <= 500:
+        raise ValueError("Invalid batch size")
+    names=safe_paths_for_checkout(selection)
+    paths=[str(ROOT/"virtual"/name) for name in names]
+    base=(repo/ROOT/"virtual").resolve()
+    for rel in names:
+        target=repo/ROOT/"virtual"/rel
+        if not target.resolve().is_relative_to(base) or target.is_symlink():
+            raise ValueError("Unsafe source path: "+rel)
+    for offset in range(0,len(paths),batch_size):
+        subprocess.run(["git","sparse-checkout","add",*paths[offset:offset+batch_size]],
+                       cwd=repo,check=True)
+    missing=[p for p in paths if not (repo/p).is_file()]
+    # A successful sparse-checkout command is not proof that Windows wrote files.
+    for offset in range(0,len(missing),batch_size):
+        subprocess.run(["git","-c","core.longpaths=true","restore",
+                        "--source=HEAD","--worktree","--ignore-skip-worktree-bits",
+                        "--",*missing[offset:offset+batch_size]],
+                       cwd=repo,check=True)
+    unresolved=[p for p in paths if not (repo/p).is_file()]
+    if unresolved:
+        raise ValueError("Sparse checkout still missing "+str(len(unresolved))+
+                         " files after explicit restore, e.g. "+unresolved[0])
+    return {"fetched_native_paths":len(paths),
+            "recovered_sparse_missing":len(missing),
+            "verified_local_paths":len(paths),
+            "scope":"EXACT_SPARSE_PATH_LIST_VERIFIED"}
+
+
 def choose(repo, group_files, max_tasks, max_files):
     rows = listed_native(repo)
     tasks = build_tasks(rows, group_files)
@@ -294,11 +330,7 @@ def main(argv=None):
         return 0
     elif args.action=="fetch":
         selection=json.loads((repo/ROOT/SELECTION_NAME).read_text("utf-8"))
-        paths=[str(ROOT/"virtual"/x) for x in safe_paths_for_checkout(selection)]
-        for offset in range(0,len(paths),120):
-            subprocess.run(["git","sparse-checkout","add",*paths[offset:offset+120]],
-                           cwd=repo,check=True)
-        result={"fetched_native_paths":len(paths),"scope":"EXACT_SPARSE_PATH_LIST"}
+        result=materialize_selected(repo,selection)
     elif args.action=="execute":
         result=process_batch(repo,args.png_converter,args.model_converter)
     else:
