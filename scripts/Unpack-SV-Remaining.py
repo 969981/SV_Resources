@@ -204,10 +204,20 @@ def main():
     if args.category in ("movies","all"):
         sources.extend(p.with_name(p.name.removesuffix(".7z.001")) for p in
                        (repo/ROOT/"1"/"demo"/"movie").rglob("*.bk2.7z.001"))
+    failed=0
     for src in sorted(set(sources)):
-        result=run(repo,src,args.restored_root,args.max_output_file_bytes,manifest)
-        print(json.dumps({"source":result["source"],"status":result["status"],
-                          "entries":len(result.get("exports",result.get("segments",[])))}))
-    print("PROCESSED",len(set(sources)))
+        try:
+            result=run(repo,src,args.restored_root,args.max_output_file_bytes,manifest)
+            print(json.dumps({"source":result["source"],"status":result["status"],
+                              "entries":len(result.get("exports",result.get("segments",[])))}),flush=True)
+        except Exception as exc:
+            failed+=1
+            relative=src.relative_to(repo)
+            out=repo/DEST/("exefs" if relative.parts[1]=="0" else "romfs")/Path(*relative.parts[2:]).parent/relative.name/"_index"
+            out.mkdir(parents=True,exist_ok=True)
+            issue={"source":relative.as_posix(),"status":"FAILED","error":str(exc)}
+            (out/"error.json").write_text(json.dumps(issue,ensure_ascii=False,indent=2)+"\\n",encoding="utf8")
+            print(json.dumps(issue),flush=True)
+    print(f"PROCESSED={len(set(sources))} FAILED={failed}")
 
 if __name__=="__main__": main()
