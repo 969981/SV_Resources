@@ -1,0 +1,116 @@
+name: SV R3/R4 structural conversion and incremental rebuild
+
+on:
+  push:
+    paths:
+      - 'scripts/resource_pipeline/r34.py'
+      - 'scripts/resource_pipeline/schema.sql'
+      - 'tests/test_sv_r34_pipeline.py'
+      - '.github/workflows/verify-sv-r34-pipeline.yml'
+  pull_request:
+    paths:
+      - 'scripts/resource_pipeline/r34.py'
+      - 'scripts/resource_pipeline/schema.sql'
+      - 'tests/test_sv_r34_pipeline.py'
+      - '.github/workflows/verify-sv-r34-pipeline.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'CI synthetic only; native-run needs a configured private self-hosted runner'
+        required: true
+        type: choice
+        options:
+          - synthetic
+          - native-plan
+          - native-run
+          - native-retry
+      max_tasks:
+        description: 'Maximum native tasks to list (0 = all)'
+        required: false
+        default: '50'
+        type: string
+      shard_index:
+        description: '0-based deterministic shard index'
+        required: false
+        default: '0'
+        type: string
+      shard_count:
+        description: 'Number of stable shards'
+        required: false
+        default: '1'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_r34_pipeline.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test resumable fingerprints, GLB validation and review gate
+        run: python -m unittest discover -s tests -p 'test_sv_r34_pipeline.py' -v
+
+  native-task:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode != 'synthetic'
+    # Private runner only: has locally staged source files and an indexed catalog.
+    # Never fetch game files or publish converted binaries as Actions artifacts.
+    runs-on: [self-hosted, sv-resources]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/resource_pipeline
+          sparse-checkout-cone-mode: false
+      - name: Plan available native resources without converting or publishing
+        env:
+          MAX_TASKS: ${{ inputs.max_tasks }}
+          SHARD_INDEX: ${{ inputs.shard_index }}
+          SHARD_COUNT: ${{ inputs.shard_count }}
+          RUN_MODE: ${{ inputs.mode }}
+          SV_RESOURCE_ROOT: ${{ vars.SV_RESOURCE_ROOT }}
+          SV_R3_CONVERTER: ${{ vars.SV_R3_CONVERTER }}
+          SV_R3_CONVERTER_VERSION: ${{ vars.SV_R3_CONVERTER_VERSION }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$SV_RESOURCE_ROOT" ]]; then
+            echo 'SV_RESOURCE_ROOT must point to a pre-extracted data.trpfs folder on this runner' >&2
+            exit 1
+          fi
+          if ! [[ "$MAX_TASKS" =~ ^[0-9]+$ ]]; then
+            echo 'max_tasks must be a nonnegative integer' >&2
+            exit 1
+          fi
+          if ! [[ "$SHARD_INDEX" =~ ^[0-9]+$ && "$SHARD_COUNT" =~ ^[0-9]+$ ]] || (( SHARD_COUNT < 1 || SHARD_INDEX >= SHARD_COUNT )); then
+            echo 'Invalid shard index/count' >&2
+            exit 1
+          fi
+          args=(--root "$SV_RESOURCE_ROOT" --limit "$MAX_TASKS" --shard-index "$SHARD_INDEX" --shard-count "$SHARD_COUNT")
+          case "$RUN_MODE" in
+            native-plan)
+              python scripts/resource_pipeline/r34.py plan "${args[@]}" > r34-plan.txt
+              echo 'Native plan generated locally; no asset uploaded.'
+              wc -l r34-plan.txt
+              ;;
+            native-run|native-retry)
+              if [[ -z "$SV_R3_CONVERTER" || -z "$SV_R3_CONVERTER_VERSION" ]]; then
+                echo 'Set SV_R3_CONVERTER and SV_R3_CONVERTER_VERSION repository variables' >&2
+                exit 1
+              fi
+              action=run
+              if [[ "$RUN_MODE" == native-retry ]]; then action=retry-failed; fi
+              python scripts/resource_pipeline/r34.py "$action" "${args[@]}" --converter "$SV_R3_CONVERTER" --converter-version "$SV_R3_CONVERTER_VERSION"
+              echo 'Converted output remains on private runner; promotion requires visual review.'
+              ;;
+          esac
