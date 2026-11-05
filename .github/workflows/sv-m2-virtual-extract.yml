@@ -1,8 +1,5 @@
 name: SV M2 - extract Trinity virtual files into Unpack
 on:
-  push:
-    paths:
-      - '.github/workflows/sv-m2-virtual-extract.yml'
   workflow_dispatch:
     inputs:
       start_pack:
@@ -11,16 +8,34 @@ on:
         default: '0'
         required: true
       max_packs:
-        description: 'Maximum packs for this run; start small'
+        description: 'Number of packs (1..200); default 2'
         type: string
         default: '2'
         required: true
+      workers:
+        description: 'Parallel independent .NET decoders (1..4)'
+        type: choice
+        required: true
+        options: ['1', '2', '3', '4']
+        default: '2'
+      window_packs:
+        description: 'Packs per worker window, 0 for auto (recommended)'
+        type: string
+        default: '0'
+        required: true
+      publish_branch:
+        description: 'Isolate manual output from other master writers'
+        type: choice
+        required: true
+        options: ['sv-m2-manual-4.0.0', 'master']
+        default: 'sv-m2-manual-4.0.0'
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
-  group: sv-m2-publish-master
+  group: sv-m2-manual-4-0-0
   cancel-in-progress: false
 
 jobs:
@@ -30,6 +45,10 @@ jobs:
     env:
       START_PACK: ${{ github.event.inputs.start_pack || '0' }}
       MAX_PACKS: ${{ github.event.inputs.max_packs || '2' }}
+      WORKERS: ${{ github.event.inputs.workers || '2' }}
+      WINDOW_PACKS: ${{ github.event.inputs.window_packs || '0' }}
+      PUBLISH_BRANCH: ${{ github.event.inputs.publish_branch || 'sv-m2-manual-4.0.0' }}
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Check that runner has enough disk for 8 GB + source + outputs
         shell: pwsh
@@ -39,7 +58,12 @@ jobs:
           if ($drive.Free -lt 36GB) { throw 'At least 36 GiB free is required for verified TRPFS restore + extraction.' }
           $start = [int]$env:START_PACK
           $max = [int]$env:MAX_PACKS
+          $workers = [int]$env:WORKERS
+          $window = [int]$env:WINDOW_PACKS
           if ($start -lt 0 -or $max -lt 1 -or $max -gt 200) { throw 'Invalid pack window: start >=0, 1 <= max <= 200' }
+          if ($workers -lt 1 -or $workers -gt 4 -or $window -lt 0 -or $window -gt 100) {
+            throw 'Invalid workers/window-packs setting'
+          }
 
       - uses: actions/checkout@v4
         with:
@@ -54,17 +78,69 @@ jobs:
             scripts/Restore-SV-Violet-RomFS.ps1
             scripts/Prepare-SV-Trinity.ps1
             scripts/Run-SV-TrinityDump.ps1
+            scripts/Run-SV-FullExtract.py
+            scripts/Run-SV-M2Window.py
+            scripts/sv_m2_parallel.py
+            tests/test_sv_m2_parallel.py
+            tests/test_sv_m2_manual_window.py
             scripts/deps/oo2core_8_win64.dll
             tools/SV.TrinityDump
             tools/gftool/**
             tools/HashCaches/SV
             Unpack/4.0.0/romfs/arc/data.trpfs
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index
           sparse-checkout-cone-mode: false
           persist-credentials: true
+
+      - name: Prepare isolated manual M2 publication branch
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config core.longpaths true
+          if ($env:PUBLISH_BRANCH -eq 'master') {
+            Write-Host 'Direct master publishing explicitly selected; concurrent master pushes may conflict.'
+            exit 0
+          }
+          if ($env:PUBLISH_BRANCH -ne 'sv-m2-manual-4.0.0') { throw 'Unexpected publication branch' }
+          $remote = git ls-remote --heads origin "refs/heads/$env:PUBLISH_BRANCH"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect the remote publishing branch' }
+          if ([string]::IsNullOrWhiteSpace(($remote | Out-String))) {
+            git switch -c $env:PUBLISH_BRANCH
+            if ($LASTEXITCODE -ne 0) { throw 'Could not create local manual output branch' }
+            git push origin "HEAD:refs/heads/$env:PUBLISH_BRANCH"
+            if ($LASTEXITCODE -ne 0) { throw 'Could not publish initial manual branch' }
+          } else {
+            git fetch origin $env:PUBLISH_BRANCH
+            if ($LASTEXITCODE -ne 0) { throw 'Could not fetch manual branch' }
+            $current = git branch --show-current
+            if ($current -ne $env:PUBLISH_BRANCH) {
+              git show-ref --verify --quiet "refs/heads/$env:PUBLISH_BRANCH"
+              if ($LASTEXITCODE -eq 0) {
+                git switch $env:PUBLISH_BRANCH
+              } else {
+                git switch -c $env:PUBLISH_BRANCH "origin/$env:PUBLISH_BRANCH"
+              }
+              if ($LASTEXITCODE -ne 0) { throw 'Could not switch to manual branch' }
+            }
+            git merge --ff-only "origin/$env:PUBLISH_BRANCH"
+            if ($LASTEXITCODE -ne 0) { throw 'Manual branch diverged; refusing unsafe reconciliation' }
+          }
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile and test native pack scheduling (ROM-free)
+        shell: pwsh
+        run: |
+          python -m py_compile scripts/Run-SV-M2Window.py scripts/sv_m2_parallel.py scripts/Run-SV-FullExtract.py
+          if ($LASTEXITCODE -ne 0) { throw 'Python syntax verification failed' }
+          python -m unittest discover -s tests -p 'test_sv_m2_*py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Native parallel scheduler tests failed' }
 
       - name: Verify that all 83 source volumes and Oodle are checked out
         shell: pwsh
@@ -96,42 +172,37 @@ jobs:
           "ROMFS_WORK=$work" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host 'Native data.trpfs source verified against 8,016,551,536-byte SHA256 manifest.'
 
-      - name: M2 extract real virtual files using GFTool.Core + Oodle
+      - name: M2 parallel native extraction, SHA256 validation and safe Git publishing
         shell: pwsh
         run: |
-          & ./scripts/Run-SV-TrinityDump.ps1 -Workspace $env:ROMFS_WORK -StartPack ([int]$env:START_PACK) -MaxPacks ([int]$env:MAX_PACKS)
-          if (-not $?) { throw 'M2 export encountered errors; inspect index JSONL and Actions logs' }
-          $index = 'Unpack/4.0.0/romfs/arc/data.trpfs/_index/export.jsonl'
-          if (-not (Test-Path $index)) { throw 'No extraction index generated' }
-          $lines = @(Get-Content $index)
-          $success = @($lines | Where-Object { ($_ | ConvertFrom-Json).Status -eq 'OK' }).Count
-          if ($success -eq 0) { throw 'No successful native virtual files exported' }
-          Write-Host "Verified native virtual file export records: $success"
+          python scripts/Run-SV-M2Window.py --repo . --workspace $env:ROMFS_WORK --start-pack $env:START_PACK --max-packs $env:MAX_PACKS --workers $env:WORKERS --window-packs $env:WINDOW_PACKS --publish-branch $env:PUBLISH_BRANCH
+          if ($LASTEXITCODE -ne 0) { throw "Parallel M2 extraction/verification failed: $LASTEXITCODE" }
 
-      - name: Upload extraction evidence separately
+      - name: Upload native manual reports and evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: SV-M2-pack-${{ env.START_PACK }}-count-${{ env.MAX_PACKS }}-evidence
-          path: Unpack/4.0.0/romfs/arc/data.trpfs/_index/export.jsonl
+          name: SV-M2-Manual-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/batches/manual-pack-*.jsonl
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/batches/manual-pack-*-summary.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/batches/manual-pack-*-large.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/batches/manual-window-*-summary.json
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Commit only this batch of extracted files under Unpack
+      - name: Propose isolated verified manual extraction results
+        if: ${{ env.PUBLISH_BRANCH != 'master' }}
         shell: pwsh
         run: |
-          $root = 'Unpack/4.0.0/romfs/arc/data.trpfs'
-          $files = @(Get-ChildItem (Join-Path $root 'virtual') -File -Recurse)
-          if ($files.Count -eq 0) { throw 'No virtual files to commit' }
-          if (@($files | Where-Object Length -ge 100000000).Count -gt 0) {
-            throw 'One extracted file exceeds GitHub 100MB limit; split it or publish via verified 7z volumes.'
+          $pr = gh pr list --base master --head $env:PUBLISH_BRANCH --json number --jq '.[0].number'
+          if ($LASTEXITCODE -ne 0) { throw 'Could not inspect existing manual extraction PR' }
+          if ([string]::IsNullOrWhiteSpace(($pr | Out-String))) {
+            gh pr create --base master --head $env:PUBLISH_BRANCH --title 'data(m2): verified manual Trinity pack ranges' --body 'Manually selected pack ranges were extracted with independent native workers, SHA-256 verification and 7z testing. Review individual native batch reports before merging; the global full-extract-progress.json was not advanced.'
+            if ($LASTEXITCODE -ne 0) {
+              Write-Warning 'Verified files have been pushed, but PR creation was denied by GitHub Actions policy.'
+              Write-Host "Review at https://github.com/$env:GITHUB_REPOSITORY/compare/master...$env:PUBLISH_BRANCH"
+            }
+          } else {
+            Write-Host "Manual extraction PR #$pr already exists, updated automatically by new branch commits."
           }
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- "$root/virtual" "$root/_index/export.jsonl"
-          git diff --cached --quiet
-          if ($LASTEXITCODE -eq 0) { Write-Host 'No new files'; exit 0 }
-          git commit -m "data(m2): extract verified SV TRPFS packs $env:START_PACK count $env:MAX_PACKS"
-          if ($LASTEXITCODE -ne 0) { throw 'Commit failed' }
-          git push origin HEAD:master
-          if ($LASTEXITCODE -ne 0) { throw 'Safe push rejected; master moved or token write failed' }
