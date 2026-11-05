@@ -13,3 +13,7 @@ For CI, explicitly pin tool SHA, dependency and license review; do not auto-upda
 GFPakHashCache binary layout was verified from gftool `GFTool.Core/Cache/GFPakHashCache.cs` (8-byte count; 8-byte hash + BinaryWriter UTF-8 string per entry). SV sources are PokeDocs `SV/Hashlists/FileSystem/hashes_inside_fd.txt` and optionally `hashes_inside_trpak.txt`. Use pinned source hashlists for reproducibility.
 
 **Status:** Source and synthetic cache tests exist; real Windows/M2 bulk extraction remains unverified.
+
+### Prebuilt hash cache from CI (optional)
+
+The [manual/first-run Actions workflow](https://github.com/969981/SV_Resources/actions/workflows/build-sv-hashcache.yml) produces a hash-cache ZIP from pinned PokeDocs Hashlists (both file descriptor and nested TRPAK hashes), with an SHA-256 report. Save its extracted `GFPAKHashCache.bin` to gitignored `tools/_local/` and use `Prepare-SV-Trinity.ps1 -SkipHashBuild`. Avoid copying old caches created by unrelated gftool versions.

@@ -115,3 +115,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-SV-Trinity
 Both scripts are designed to fail closed: refuse source output overlap, missing SHA, invalid paths, stale files or failed decompression, and never overwrite an existing unverified virtual file. Unrecognized name hashes are written under `virtual/_unknown/<16-hex-hash>.bin` and stay unknown. M2 is **implemented but not marked verified** until tested on a Windows host against the real container and audited report. No external executables, copyrighted Oodle DLL or hash-cache binary is committed.
 
 Tool reference: gftool currently exposes a Windows Forms Explorer, not a ready CLI batch dump. The local batch exporter uses the same `GFTool.Core` structures/decoder rather than automating UI clicking.
+
+### Optional hash-cache artifact (without adding large PokeDocs lists to Git)
+
+The [Build SV GFPAK hash cache workflow](https://github.com/969981/SV_Resources/actions/workflows/build-sv-hashcache.yml) checks out pinned PokeDocs and regenerates a BinaryWriter-compatible `GFPAKHashCache.bin` from **both** `hashes_inside_fd.txt` and `hashes_inside_trpak.txt`. Its downloadable Actions artifact includes the binary and a count/SHA-256 JSON report, retained for 7 days. Download it from the successful run's Artifacts, unzip the `bin` into `tools/_local/GFPAKHashCache.bin`, and pass `-SkipHashBuild` to the preparation script. The private Oodle DLL is *not* included. This cache is derived from public hash metadata, not the game itself.

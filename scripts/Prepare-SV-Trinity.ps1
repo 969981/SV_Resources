@@ -6,6 +6,7 @@ param(
   [string]$OodleDllPath,
   [string]$SevenZipPath,
   [switch]$WithTrpakHashes,
+  [switch]$SkipHashBuild,
   [switch]$SkipRestore
 )
 $ErrorActionPreference = 'Stop'
@@ -40,6 +41,7 @@ foreach ($rel in @('arc/data.trpfd', 'arc/data.trpfs')) {
   }
   Write-Host "Verified: $rel ($actual)"
 }
+if (-not $SkipHashBuild) {
 $pokeDocs = Join-Path $RepositoryRoot 'tools\_external\PokeDocs\SV\Hashlists\FileSystem'
 $lists = @((Join-Path $pokeDocs 'hashes_inside_fd.txt'))
 if ($WithTrpakHashes) { $lists += (Join-Path $pokeDocs 'hashes_inside_trpak.txt') }
@@ -55,6 +57,14 @@ $buildArgs += @('--output', (Join-Path $cacheDir 'GFPAKHashCache.bin'), '--overw
                 '--report', (Join-Path $cacheDir 'GFPAKHashCache.report.json'))
 & $python.Source @buildArgs
 if ($LASTEXITCODE -ne 0) { throw 'Hashcache generation failed' }
+}
+else {
+  $existingCache = Join-Path $cacheDir 'GFPAKHashCache.bin'
+  if (-not (Test-Path -LiteralPath $existingCache -PathType Leaf) -or (Get-Item -LiteralPath $existingCache).Length -le 8) {
+    throw "Missing or empty existing GFPAKHashCache.bin: $existingCache"
+  }
+  Write-Host "Reusing locally provided hashcache: $existingCache"
+}
 if ($OodleDllPath) {
   $src = [IO.Path]::GetFullPath($OodleDllPath)
   if (-not (Test-Path -LiteralPath $src -PathType Leaf)) { throw "Oodle library missing: $src" }
