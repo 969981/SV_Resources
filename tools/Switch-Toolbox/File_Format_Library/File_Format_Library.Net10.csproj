@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Experimental, side-by-side .NET 10 port. The .NET Framework 4.8 project is unchanged. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FirstPlugin</RootNamespace>
+    <AssemblyName>FirstPlugin.Plg</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
+    <Reference Include="AampLibraryCSharp"><HintPath>..\Toolbox\Lib\AampLibraryCSharp.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="BarsLibrary"><HintPath>..\Toolbox\Lib\BarsLibrary.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="BcresLibrary"><HintPath>..\Toolbox\Lib\BcresLibrary.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="BfshaLibrary"><HintPath>..\Toolbox\Lib\BfshaLibrary.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="ByamlExt"><HintPath>..\Toolbox\Lib\ByamlExt.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="CSCore"><HintPath>..\Toolbox\Lib\CSCore.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="CsvHelper"><HintPath>..\Toolbox\Lib\CsvHelper.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="EditorCoreCommon"><HintPath>..\Toolbox\Lib\EditorCoreCommon.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="FlatBuffers"><HintPath>..\Toolbox\Lib\FlatBuffers.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Gl_EditorFramework"><HintPath>..\GL_EditorFramework.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="KclLibrary"><HintPath>..\Toolbox\Lib\KclLibrary.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="KclLibraryGUI"><HintPath>..\Toolbox\Lib\KclLibraryGUI.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="NAudio"><HintPath>..\Toolbox\Lib\NAudio.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="ObjectListView"><HintPath>..\Toolbox\Lib\ObjectListView.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="OpenTK"><HintPath>..\Toolbox\Lib\OpenTK.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="OpenTK.GLControl"><HintPath>..\Toolbox\Lib\OpenTK.GLControl.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SARCExt"><HintPath>..\Toolbox\Lib\SARCExt.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SELib"><HintPath>..\Toolbox\Lib\SELib.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SFGraphics"><HintPath>..\Toolbox\Lib\SFGraphics.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SFGraphics.Utils"><HintPath>..\Toolbox\Lib\SFGraphics.Utils.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SharpYaml"><HintPath>..\Toolbox\Lib\SharpYaml.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SPICA"><HintPath>..\Toolbox\Lib\SPICA.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SPICA.Rendering"><HintPath>..\Toolbox\Lib\SPICA.Rendering.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SuperBMDLib"><HintPath>..\Toolbox\Lib\SuperBMDLib.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.BinaryData"><HintPath>..\Toolbox\Lib\Syroot.BinaryData.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.Maths"><HintPath>..\Toolbox\Lib\Syroot.Maths.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.NintenTools.Bfres"><HintPath>..\Toolbox\Lib\Syroot.NintenTools.Bfres.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.NintenTools.MarioKart8"><HintPath>..\Toolbox\Lib\Syroot.NintenTools.MarioKart8.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.NintenTools.NSW.Bfres"><HintPath>..\Toolbox\Lib\Syroot.NintenTools.NSW.Bfres.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.NintenTools.NSW.Bntx"><HintPath>..\Toolbox\Lib\Syroot.NintenTools.NSW.Bntx.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="VGAudio"><HintPath>..\Toolbox\Lib\VGAudio.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="WeifenLuo.WinFormsUI.Docking"><HintPath>..\packages\DockPanelSuite.3.0.6\lib\net40\WeifenLuo.WinFormsUI.Docking.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2015"><HintPath>..\packages\DockPanelSuite.ThemeVS2015.3.0.6\lib\net40\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="ZeldaLib"><HintPath>..\Toolbox\Lib\ZeldaLib.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="ZstdSharp"><HintPath>..\packages\ZstdSharp.Port.0.7.2\lib\net461\ZstdSharp.dll</HintPath><Private>true</Private></Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BrawlboxHelper\BrawlboxHelper.Net10.csproj" />
+    <ProjectReference Include="..\Switch_Toolbox_Library\Toolbox_Library.Net10.csproj" />
+  </ItemGroup>
+</Project>

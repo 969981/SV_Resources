@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Experimental, side-by-side .NET 10 port. The .NET Framework 4.8 project is unchanged. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Toolbox.Library</RootNamespace>
+    <AssemblyName>Toolbox.Library</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.3.8" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.3.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
+    <Reference Include="AssimpNet"><HintPath>..\packages\AssimpNet.4.1.0\lib\net40\AssimpNet.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Be.Windows.Forms.HexBox"><HintPath>..\Toolbox\Lib\Be.Windows.Forms.HexBox.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="CSCore"><HintPath>..\Toolbox\Lib\CSCore.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="CsvHelper"><HintPath>..\packages\CsvHelper.8.0.0\lib\net45\CsvHelper.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Cyotek.Windows.Forms.ImageBox"><HintPath>..\Toolbox\Lib\Cyotek.Windows.Forms.ImageBox.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="DarkUI"><HintPath>..\Toolbox\Lib\DarkUI.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="DirectXTexNet"><HintPath>..\packages\DirectXTexNet.1.0.0-rc3\lib\net40\DirectXTexNet.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Gl_EditorFramework"><HintPath>..\GL_EditorFramework.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="K4os.Hash.xxHash"><HintPath>..\Toolbox\Lib\K4os.Hash.xxHash.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="LZ4"><HintPath>..\packages\lz4net.1.0.15.93\lib\net4-client\LZ4.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="LZ4.Frame"><HintPath>..\Toolbox\Lib\LZ4.Frame.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="NAudio"><HintPath>..\Toolbox\Lib\NAudio.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="ObjectListView"><HintPath>..\Toolbox\Lib\ObjectListView.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Octokit"><HintPath>..\Toolbox\Lib\Octokit.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="OpenTK"><HintPath>..\Toolbox\Lib\OpenTK.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="OpenTK.GLControl"><HintPath>..\Toolbox\Lib\OpenTK.GLControl.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="SARCExt"><HintPath>..\Toolbox\Lib\SARCExt.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="ScintillaNET"><HintPath>..\Toolbox\Lib\ScintillaNET.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="ScintillaNET FindReplaceDialog"><HintPath>..\Toolbox\Lib\ScintillaNET FindReplaceDialog.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SELib"><HintPath>..\Toolbox\Lib\SELib.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SFGraphics"><HintPath>..\Toolbox\Lib\SFGraphics.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="SFGraphics.Utils"><HintPath>..\Toolbox\Lib\SFGraphics.Utils.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.BinaryData"><HintPath>..\Toolbox\Lib\Syroot.BinaryData.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.Maths"><HintPath>..\Toolbox\Lib\Syroot.Maths.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="VGAudio"><HintPath>..\Toolbox\Lib\VGAudio.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="ZstdNet"><HintPath>..\Toolbox\ZstdNet.dll</HintPath><Private>true</Private></Reference>
+  </ItemGroup>
+</Project>

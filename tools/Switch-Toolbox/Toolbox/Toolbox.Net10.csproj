@@ -1,0 +1,121 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Experimental, side-by-side .NET 10 port. The .NET Framework 4.8 project is unchanged. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>false</UseWPF>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Toolbox</RootNamespace>
+    <AssemblyName>Toolbox</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Tool.ico</ApplicationIcon>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
+    <Reference Include="DirectXTexNet"><HintPath>..\packages\DirectXTexNet.1.0.0-rc3\lib\net40\DirectXTexNet.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="GL_EditorFramework"><HintPath>..\GL_EditorFramework.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Octokit"><HintPath>Lib\Octokit.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="OpenTK"><HintPath>..\Toolbox\Lib\OpenTK.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="OpenTK.GLControl"><HintPath>Lib\OpenTK.GLControl.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.NintenTools.NSW.Bntx"><HintPath>..\Toolbox\Lib\Syroot.NintenTools.NSW.Bntx.dll</HintPath><Private>true</Private></Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\File_Format_Library\File_Format_Library.Net10.csproj" />
+    <ProjectReference Include="..\Switch_Toolbox_Library\Toolbox_Library.Net10.csproj" />
+    <ProjectReference Include="..\Updater\Updater.Net10.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="KclMaterialPresets/3D World.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="KclMaterialPresets/Default.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="KclMaterialPresets/Mario Kart 8 Deluxe.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="KclMaterialPresets/Mario Kart 8.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="KclMaterialPresets/Mario Kart Wii.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="KclMaterialPresets/Mario Odyssey.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="KclMaterialPresets/Splatoon 1.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="KclMaterialPresets/Splatoon 2.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="KclMaterialPresets/Twilight Princess.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Lib/MTVertexFormats/M11.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Lib/MTVertexFormats/MHGU.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Lib/SarcHashes/ALBW.saht" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="runtimes/linux-x64/native/libtrueyz.so" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bcres/BCRES.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bcres/BCRES.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/BFRES.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/BFRES.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/BFRESTurboShadow.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/BFRES_Botw.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/BFRES_Debug.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/BFRES_PBR.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/BFRES_utility.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/Normals.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/Normals.geom" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bfres/Normals.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bone.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Bone.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Drawing2D/KCL.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Drawing2D/KCL.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/GFBModel.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/GFBModel.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/HDRSkyBox/HDRSkyBox.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/HDRSkyBox/HDRSkyBox.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/KCL.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/KCL.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Layout/Bflyt.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Layout/Bflyt.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Layout/Legacy/Bflyt.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Layout/Legacy/Bflyt.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Legacy/BFRES.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Legacy/KCL.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/LevelEditor/BfresBasic.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/LevelEditor/BfresBasic.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/LevelEditor/BfresDebug.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/LevelEditor/ProbeSphere.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/LevelEditor/ProbeSphere.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/MKAGPDX/MKAGPDX_Model.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/MKAGPDX/MKAGPDX_Model.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Path/LineShader2.geom" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Path/TriangleShader2.geom" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/PBR/brdf.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/PBR/brdf.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/PBR/HDR.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/PBR/HDR.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/PBR/irradianceShader.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/PBR/irradianceShader.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/PBR/preFilter.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/PBR/preFilter.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/GenericShader.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/GenericShader.vert" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Utility/Utility.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Shader/Utility/Wireframe.frag" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Update.bat" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="App.config" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="runtimes/win-x64/native/trueyz.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="runtimes/win-x86/native/trueyz.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="tegra_swizzle_x64.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="tegra_swizzle_x86.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="trueyz.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="x64/DirectXTexNetImpl.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="x64/libzstd.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="x86/DirectXTexNetImpl.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="x86/libzstd.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="ZstdNet.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Resources/Save.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Switch_Toolbox.csproj.user" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="System.Memory.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="System.Numerics.Vectors.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Tool.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
