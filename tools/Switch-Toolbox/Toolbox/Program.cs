@@ -78,8 +78,16 @@ namespace Toolbox
                 var result = MessageBox.Show("Direct X Tex Failed to load! Make sure to install Visual C++ and Direct X Tex. Do you want to go to the install sites?", "", MessageBoxButtons.YesNo);
                 if (result == DialogResult.Yes)
                 {
+#if NET10_0_OR_GREATER
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads") { UseShellExecute = true });
+#else
                     System.Diagnostics.Process.Start("https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads");
+#endif
+#if NET10_0_OR_GREATER
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://www.microsoft.com/en-us/download/details.aspx?id=35") { UseShellExecute = true });
+#else
                     System.Diagnostics.Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=35");
+#endif
                 }
             }
 
@@ -151,8 +159,17 @@ namespace Toolbox
                 String filePath = Path.Combine(folder, Environment.Is64BitProcess ? "x64" : "x86", "libzstd.dll");
                 if (File.Exists(filePath))
                 {
+#if NET10_0_OR_GREATER
+                    // This is a native Win32 DLL, not a managed assembly.
+                    if (NativeLibrary.TryLoad(filePath, out IntPtr nativeHandle))
+                    {
+                        NativeLibrary.Free(nativeHandle);
+                        return true;
+                    }
+#else
                     Assembly assembly = Assembly.LoadFile(filePath);
                     return true;
+#endif
                 }
             }
             catch (Exception ex)
@@ -170,13 +187,31 @@ namespace Toolbox
                 String filePathLib = Path.Combine(folder, "Lib", Environment.Is64BitProcess ? "x64" : "x86", "DirectXTexNetImpl.dll");
                 if (File.Exists(filePath))
                 {
+#if NET10_0_OR_GREATER
+                    // This is a native Win32 DLL, not a managed assembly.
+                    if (NativeLibrary.TryLoad(filePath, out IntPtr nativeHandle))
+                    {
+                        NativeLibrary.Free(nativeHandle);
+                        return true;
+                    }
+#else
                     Assembly assembly = Assembly.LoadFile(filePath);
                     return true;
+#endif
                 }
                 if (File.Exists(filePathLib))
                 {
+#if NET10_0_OR_GREATER
+                    // This is a native Win32 DLL, not a managed assembly.
+                    if (NativeLibrary.TryLoad(filePathLib, out IntPtr nativeHandle))
+                    {
+                        NativeLibrary.Free(nativeHandle);
+                        return true;
+                    }
+#else
                     Assembly assembly = Assembly.LoadFile(filePathLib);
                     return true;
+#endif
                 }
             }
             catch (Exception ex)
