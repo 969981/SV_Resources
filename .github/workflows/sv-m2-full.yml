@@ -1,0 +1,135 @@
+name: SV M2 FULL - all 23589 Trinity packs
+on:
+  push:
+    paths:
+      - '.github/workflows/sv-m2-full.yml'
+  workflow_dispatch:
+    inputs:
+      start_pack:
+        description: "Minimum native pack index; checkpoint nextPack takes priority"
+        required: true
+        type: string
+        default: "2"
+      batch_packs:
+        description: "Packs per verified Git commit (1..200)"
+        required: true
+        type: string
+        default: "100"
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: sv-trinity-full-4-0-0
+  cancel-in-progress: false
+
+jobs:
+  full-extraction:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      START_PACK: ${{ github.event.inputs.start_pack || '2' }}
+      BATCH_PACKS: ${{ github.event.inputs.batch_packs || '100' }}
+    steps:
+      - name: Free-space and batch limit preflight
+        shell: pwsh
+        run: |
+          $disk = Get-PSDrive D
+          Write-Host "D: free bytes = $($disk.Free)"
+          if ($disk.Free -lt 36GB) { throw 'Need at least 36 GiB of runner disk space' }
+          if ([int]$env:START_PACK -lt 2) { throw 'Full workflow must start after previously completed packs 0-1' }
+          if ([int]$env:BATCH_PACKS -lt 1 -or [int]$env:BATCH_PACKS -gt 200) { throw 'batch_packs outside 1..200' }
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            .gitmodules
+            .github/workflows/sv-m2-full.yml
+            violet_4.0.0_romfs_transfer_manifest.json
+            4.0.0/1/arc/data.trpfd
+            4.0.0/1/arc/data.trpfs.7z.*
+            scripts/SV-RomFS.Transfer.psm1
+            scripts/Restore-SV-Violet-RomFS.ps1
+            scripts/Prepare-SV-Trinity.ps1
+            scripts/deps/oo2core_8_win64.dll
+            scripts/Run-SV-FullExtract.py
+            tools/SV.TrinityDump
+            tools/gftool
+            tools/HashCaches/SV
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index
+            Unpack/4.0.0/romfs/arc/data.trpfs
+          sparse-checkout-cone-mode: false
+          persist-credentials: true
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate input source and pinned tools
+        shell: pwsh
+        run: |
+          git config core.longpaths true
+          if (@(Get-ChildItem '4.0.0/1/arc/data.trpfs.7z.*' -File).Count -ne 83) { throw 'Missing one or more of 83 original 7z volumes' }
+          if (-not (Test-Path 'scripts/deps/oo2core_8_win64.dll')) { throw 'Original owner-provided Oodle dependency missing' }
+          $cacheHash = (Get-FileHash 'tools/HashCaches/SV/GFPAKHashCache.bin' -Algorithm SHA256).Hash
+          $cacheMeta = Get-Content 'tools/HashCaches/SV/hashcache-report.json' -Raw | ConvertFrom-Json
+          if ($cacheHash -ne [string]$cacheMeta.sha256) { throw 'The hashed name cache differs from its provenance' }
+          $desc = Get-Content 'Unpack/4.0.0/romfs/arc/data.trpfd/_index/descriptor_summary.json' -Raw | ConvertFrom-Json
+          if ($desc.packCount -ne 23589 -or $desc.descriptorFiles -ne 408641) { throw 'Native TRPFD inventory differs from verified snapshot' }
+          git submodule update --init --recursive -- tools/gftool
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot initialize pinned GFTool.Core' }
+
+      - name: Restore all 83 parts once, verify native 8 GB TRPFS
+        shell: pwsh
+        run: |
+          $workspace = Join-Path $env:RUNNER_TEMP 'SV-4.0.0-Trinity-RomFS'
+          New-Item -ItemType Directory -Force $workspace | Out-Null
+          New-Item -ItemType Directory -Force 'tools/_local' | Out-Null
+          Copy-Item 'tools/HashCaches/SV/GFPAKHashCache.bin' 'tools/_local/GFPAKHashCache.bin'
+          & ./scripts/Prepare-SV-Trinity.ps1 -Workspace $workspace -SkipHashBuild
+          if (-not $?) { throw 'Native source restoration / SHA-256 check failed' }
+          "ROMFS_WORK=$workspace" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          Write-Host 'All source bytes verified. No original data was altered.'
+
+      - name: Full staged native extraction and Git publishing
+        shell: pwsh
+        run: |
+          python scripts/Run-SV-FullExtract.py --repo . --workspace $env:ROMFS_WORK --start-pack $env:START_PACK --batch-packs $env:BATCH_PACKS --time-budget-minutes 230
+          if ($LASTEXITCODE -ne 0) { throw "Full extraction pipeline failed at a checkpoint. Return code=$LASTEXITCODE" }
+
+      - name: Upload durable last checkpoint (even when a step fails)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV-M2-Full-Checkpoint-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/full-extract-progress.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/full-extract-audit.json
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Continue the next pack range automatically, or verify final completeness
+        shell: pwsh
+        run: |
+          $p = Get-Content 'Unpack/4.0.0/romfs/arc/data.trpfs/_index/full-extract-progress.json' -Raw | ConvertFrom-Json
+          Write-Host "M2 next pack = $($p.nextPack) / $($p.totalPacks); state = $($p.state)"
+          if ($p.nextPack -lt $p.totalPacks) {
+            if ($p.state -ne 'PARTIAL') { throw 'Cannot auto-continue non-partial checkpoint' }
+            gh workflow run sv-m2-full.yml --ref master -f "start_pack=$($p.nextPack)" -f "batch_packs=$env:BATCH_PACKS"
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to dispatch next verified pack window; run manually from the recorded checkpoint' }
+            Write-Host "Next GitHub Actions run dispatched for native pack $($p.nextPack)."
+          }
+          elseif ($p.state -eq 'COMPLETE') {
+            Write-Host 'All native file hash records accounted for, with no failures.'
+          }
+          else {
+            throw "All pack indices visited, but audit found unresolved records. State=$($p.state). Check full-extract-audit.json."
+          }
