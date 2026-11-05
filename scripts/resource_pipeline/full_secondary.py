@@ -160,79 +160,84 @@ def safe_paths_for_checkout(selection):
 
 
 def materialize_selected(repo: Path, selection, batch_size=120, max_parent_files=4000):
-    """Hydrate native files safely in filtered Git checkouts, then verify.
+    """Hydrate selected committed folders using Git's *cone-mode* checkout.
 
-    Git for Windows may accept per-file sparse patterns yet leave their blobs
-    unavailable. Whole-directory sparse patterns successfully hydrate normal
-    DAT/TBL folders. Prefer that strategy for reasonably bounded directories.
-    Use exact file patterns only for oversize directories.
+    The former no-cone, per-file partial-clone checkout left valid tree entries
+    without blob contents on Windows. Cone paths target actual parent folders
+    and ask Git to fetch blobs when the worktree is updated. A fallback restore
+    is attempted only if needed; missing objects are always reported as errors.
     """
     if not 1 <= batch_size <= 500 or max_parent_files < batch_size:
         raise ValueError("Invalid sparse checkout limits")
     names=safe_paths_for_checkout(selection)
+    if not names:
+        raise ValueError("No selected native paths")
     paths=[(ROOT/"virtual"/name).as_posix() for name in names]
     base=(repo/ROOT/"virtual").resolve()
     for rel in names:
         target=repo/ROOT/"virtual"/rel
         if not target.resolve().is_relative_to(base) or target.is_symlink():
-            raise ValueError("Unsafe source path: "+rel)
+            raise ValueError("Unsafe native path: "+rel)
 
-    # One sparse-checkout invocation instead of 13+ expensive worktree updates.
-    # For small complete folders, this also requests Git blobs in a single
-    # parent-directory pattern (proven for English DAT/TBL in earlier CI).
-    patterns=[]
-    full_dir_count=0
-    exact_count=0
+    # Include tooling and checkpointer, as sparse-checkout *set* replaces
+    # previously configured paths. Cone mode operates on directories only.
+    permanent=[
+        "scripts/resource_pipeline",
+        "tests",
+        "tools/gftool",
+        "tools/SV.R3.ModelExport",
+        "tools/PokeDocs/SV/Flatbuffers",
+        ".github/workflows",
+        str(ROOT/"_index/secondary").replace("\\","/"),
+    ]
+    folders=set()
+    oversized=[]
     for task in selection["selected"]:
-        folder=(ROOT/"virtual"/task["prefix"]).as_posix()
-        counted=subprocess.run(
-            ["git","ls-tree","-r","-z","--name-only","HEAD","--",folder],
-            cwd=repo,capture_output=True,check=True
-        )
-        tracked=sum(bool(v) for v in counted.stdout.split(b"\0"))
-        if 0 < tracked <= max_parent_files:
-            patterns.append(folder)
-            full_dir_count+=1
-        else:
-            for name in task["paths"]:
-                patterns.append((ROOT/"virtual"/name).as_posix())
-                exact_count+=1
-    if not patterns:
-        raise ValueError("No native paths selected")
-    stdin="\n".join(sorted(set(patterns)))+"\n"
-    subprocess.run(["git","sparse-checkout","add","--stdin"],cwd=repo,
-                   input=stdin,text=True,check=True)
+        prefix=task.get("prefix")
+        if not prefix:
+            prefix=str(PurePosixPath(task["paths"][0]).parent)
+        folder=(ROOT/"virtual"/cli.safe_path(prefix)).as_posix()
+        count=subprocess.run(["git","ls-tree","-r","-z","--name-only","HEAD","--",folder],
+                              cwd=repo,capture_output=True,check=True)
+        tracked=sum(bool(v) for v in count.stdout.split(b"\0"))
+        if tracked > max_parent_files:
+            oversized.append({"folder":folder,"tracked":tracked})
+        folders.add(folder)
+    # Even oversized leaf directories must be hydrated as complete directories
+    # in cone mode, rather than silently breaking selected model dependencies.
+    requested=sorted(set(permanent)|folders)
+    proc=subprocess.run(
+        ["git","-c","core.longpaths=true","sparse-checkout","set","--cone","--stdin"],
+        cwd=repo,input="\n".join(requested)+"\n",text=True,capture_output=True)
+    if proc.returncode:
+        raise RuntimeError("Cone sparse checkout failed: "+proc.stderr[-1800:])
     missing=[p for p in paths if not (repo/p).is_file()]
-    # Only a final fallback: restore may not work when a partial clone has no
-    # corresponding blob. Capture errors and preserve an explicit missing list.
-    recovery_errors=[]
-    for offset in range(0,len(missing),batch_size):
-        proc=subprocess.run(
-            ["git","-c","core.longpaths=true","restore",
-             "--source=HEAD","--worktree","--ignore-skip-worktree-bits",
-             "--",*missing[offset:offset+batch_size]],
-            cwd=repo,capture_output=True,text=True
-        )
-        if proc.returncode:
-            recovery_errors.append(proc.stderr[-500:])
+    restore_errors=[]
+    for i in range(0,len(missing),batch_size):
+        p=subprocess.run(
+            ["git","-c","core.longpaths=true","restore","--source=HEAD",
+             "--worktree","--ignore-skip-worktree-bits","--",*missing[i:i+batch_size]],
+            cwd=repo,capture_output=True,text=True)
+        if p.returncode:
+            restore_errors.append(p.stderr[-700:])
     unresolved=[p for p in paths if not (repo/p).is_file()]
     if unresolved:
         report=repo/ROOT/"_index/secondary/sparse-missing.json"
         report.parent.mkdir(parents=True,exist_ok=True)
-        report.write_text(json.dumps({
+        cli.store_json(report,{
             "expected":len(paths),"missing":len(unresolved),
-            "paths":unresolved[:2000],"git_restore_errors":recovery_errors[:5],
-            "method":"BOUNDED_PARENT_SPARSE_THEN_EXACT_RESTORE"
-        },indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
-        raise ValueError("Missing "+str(len(unresolved))+
-                         " native Git blobs after bounded parent hydration; "+
-                         "details: "+str(report)+", first: "+unresolved[0])
+            "paths":unresolved[:2000],
+            "restore_errors":restore_errors[:5],
+            "oversized_folders":oversized,
+            "method":"CONE_PARENT_CHECKOUT_AND_VERIFIED_RESTORE"})
+        raise ValueError(f"Still missing {len(unresolved)} native blobs; report={report}")
     return {"fetched_native_paths":len(paths),
             "recovered_sparse_missing":len(missing),
             "verified_local_paths":len(paths),
-            "bounded_parent_patterns":full_dir_count,
-            "exact_file_patterns":exact_count,
-            "scope":"BOUNDED_PARENT_SPARSE_VERIFIED"}
+            "bounded_parent_patterns":len(folders)-len(oversized),
+            "exact_file_patterns":0,
+            "oversized_parent_patterns":len(oversized),
+            "scope":"CONE_PARENT_SPARSE_VERIFIED"}
 
 
 def choose(repo, group_files, max_tasks, max_files):
