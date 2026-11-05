@@ -69,3 +69,18 @@ The restore and planner are distinct: the planner **does not extract containers*
 ## Evidence levels
 
 `CONFIRMED` = native bytes/tool/offset/hash reproduce; `CANDIDATE` = partial relationship; `UNKNOWN` = no grounded mapping; `REJECTED` = disproven with evidence. Keep unknown path hashes without forcing names. Coordinate additions with [provenance policy](resource-provenance.md).
+
+## GitHub issue tracking
+
+M0 is a repository preparation milestone, **completed** by commits [358b3bdd](https://github.com/969981/SV_Resources/commit/358b3bdd25b28874c2ce5f7b0adb43f3c88a6f69) and [f2c4691](https://github.com/969981/SV_Resources/commit/f2c4691ce3e0cd1e6f2f3f68beef3a576fdf9185).
+
+- [M1 — 恢复并校验原始 Trinity 容器](https://github.com/969981/SV_Resources/issues/1)
+- [M2 — gftool 提取虚拟文件系统](https://github.com/969981/SV_Resources/issues/2)
+- [M3 — TRPAK / 内层格式解析](https://github.com/969981/SV_Resources/issues/3)
+- [M4 — FlatBuffers 与 pkNX 对账](https://github.com/969981/SV_Resources/issues/4)
+- [M5 — 图片、文本、模型与音频加工](https://github.com/969981/SV_Resources/issues/5)
+- [M6 — ExeFS 分析](https://github.com/969981/SV_Resources/issues/6)
+- [M7 — 双版本与原生 ID 交叉证据](https://github.com/969981/SV_Resources/issues/7)
+- [M8 — 增量发布、Obsidian 与回归测试](https://github.com/969981/SV_Resources/issues/8)
+
+Synthetic planner tests: [GitHub Actions](https://github.com/969981/SV_Resources/actions/workflows/validate-unpack-plan.yml). This validates script behavior on generated fixtures only, **not actual TRPFS extraction**.

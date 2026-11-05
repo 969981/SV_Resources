@@ -44,3 +44,5 @@ python .\scripts\Plan-SV-Unpack.py --repo . --create-directories
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Sync-SV-Tools.ps1
 python -m unittest discover -s tests -p test_plan_sv_unpack.py
 ```
+
+Task tracker: [SV unpack roadmap and issues](../docs/unpack-roadmap.md). M0 planning tests passed on GitHub Actions; actual TRPFS extraction remains M1/M2 pending.
