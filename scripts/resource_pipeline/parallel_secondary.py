@@ -70,7 +70,7 @@ def worker(repo: Path, task, png_converter: str, model_converter: str, per_task_
     try:
         stage_native(repo, task)
         command = [
-            sys.executable, str(repo / "scripts/resource_pipeline/process_virtual.py"),
+            sys.executable, str(Path(__file__).with_name("process_virtual.py")),
             "--repo", str(repo), "--root", str(work),
             "--prefix", task["prefix"],
             "--paths-file", str(work / "_index" / "allowlist.txt"),
