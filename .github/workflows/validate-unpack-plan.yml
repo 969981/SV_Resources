@@ -1,0 +1,37 @@
+name: Validate SV unpack planning
+on:
+  push:
+    paths:
+      - 'scripts/Plan-SV-Unpack.py'
+      - 'tests/test_plan_sv_unpack.py'
+      - '.github/workflows/validate-unpack-plan.yml'
+  pull_request:
+    paths:
+      - 'scripts/Plan-SV-Unpack.py'
+      - 'tests/test_plan_sv_unpack.py'
+      - '.github/workflows/validate-unpack-plan.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-plan-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            tests
+            .github
+          sparse-checkout-cone-mode: true
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate syntax
+        run: python -m py_compile scripts/Plan-SV-Unpack.py tests/test_plan_sv_unpack.py
+      - name: Run synthetic unpack planner tests
+        run: python -m unittest discover -s tests -p 'test_plan_sv_unpack.py' -v
