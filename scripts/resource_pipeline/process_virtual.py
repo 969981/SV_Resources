@@ -108,10 +108,22 @@ def index_local(root: Path, conn: sqlite3.Connection, files):
     return result
 
 
-def outputs(root: Path, max_output_mb: int):
+def outputs(root: Path, max_output_mb: int, prefix: str = ""):
     """Produce a bounded exact allowlist; never publish undeclared binaries."""
     allow = {".json", ".csv", ".png", ".gltf", ".glb"}
     cap = max_output_mb * 1024 * 1024
+    # Restrict publishing to the selected native scope. A prior batch's
+    # checked-out derivatives must not consume another scope's output budget.
+    output_prefixes = {}
+    if prefix:
+        prefix = cli.safe_path(prefix)
+        selected = PurePosixPath(prefix)
+        local = selected.parent.as_posix() + "/" + selected.stem if selected.suffix else prefix
+        output_prefixes = {"parsed": prefix, "converted": local}
+        if selected.parts[:2] == ("message", "dat"):
+            output_prefixes["resources"] = "messages/" + "/".join(selected.parts[2:])
+        elif selected.parts[0] in ("chara", "pokemon", "field_graphic"):
+            output_prefixes["resources"] = "geometry/source_verified/" + local
     used = 0
     published, deferred = [], []
     for layer in ("parsed", "converted", "resources"):
@@ -122,6 +134,12 @@ def outputs(root: Path, max_output_mb: int):
             if not path.is_file() or path.is_symlink() or path.name == "README.md":
                 continue
             rel = path.relative_to(root).as_posix()
+            inside = path.relative_to(base).as_posix()
+            expected = output_prefixes.get(layer, None)
+            if output_prefixes and (expected is None or
+                                   not (inside == expected or inside.startswith(expected + "/") or
+                                        inside.startswith(expected + "."))):
+                continue
             if path.suffix.lower() not in allow or path.stat().st_size > cap-used:
                 deferred.append({"path": rel, "reason": "UNSUPPORTED_OR_BATCH_LIMIT"})
                 continue
@@ -188,7 +206,7 @@ def main(argv=None):
                     "WHERE status IN ('FAILED','BLOCKED') ORDER BY object_name LIMIT 200"
                 ).fetchall()
             )
-    selected, deferred = outputs(root, opts.max_output_mb)
+    selected, deferred = outputs(root, opts.max_output_mb, opts.prefix)
     batch_id = hashlib.sha256((cli.VERSION + "|" + opts.prefix + "|" + opts.kind).encode()).hexdigest()[:16]
     report = {
         "version": cli.VERSION, "source": "virtual/" + opts.prefix,
