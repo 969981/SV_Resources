@@ -88,6 +88,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Tree-wide native planning failed' }
           $p = Get-Content "$env:SV_ROOT/_index/secondary/full-selection.json" -Raw | ConvertFrom-Json
           "count=$($p.selected_count)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "needs_bntx=$($p.needs_bntx.ToString().ToLowerInvariant())" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "needs_models=$($p.needs_models.ToString().ToLowerInvariant())" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           Write-Host "Tracked $($p.total_tracked_files), outstanding $($p.remaining_before_batch), selected $($p.selected_files)"
       - name: Sparse materialize only selected original bytes
         if: steps.plan.outputs.count != '0'
@@ -96,7 +98,7 @@ jobs:
           python scripts/resource_pipeline/full_secondary.py --repo . fetch
           if ($LASTEXITCODE -ne 0) { throw 'Sparse checkout selected source failed' }
       - uses: actions/cache@v4
-        if: steps.plan.outputs.count != '0'
+        if: steps.plan.outputs.needs_bntx == 'true'
         with:
           path: ~/.cargo/bin/ultimate_tex_cli.exe
           key: sv-ultimate-tex-cli-win-2ef4f090-v1
@@ -104,20 +106,30 @@ jobs:
         if: steps.plan.outputs.count != '0'
         shell: pwsh
         run: |
-          if (-not (Get-Command ultimate_tex_cli -ErrorAction SilentlyContinue)) {
+          $plan = Get-Content "$env:SV_ROOT/_index/secondary/full-selection.json" -Raw | ConvertFrom-Json
+          if ($plan.needs_bntx -and -not (Get-Command ultimate_tex_cli -ErrorAction SilentlyContinue)) {
             cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac ultimate_tex_cli
             if ($LASTEXITCODE -ne 0) { throw 'BC7 converter unavailable' }
           }
-          dotnet build tools/SV.R3.ModelExport/SV.R3.ModelExport.csproj -c Release --nologo
-          if ($LASTEXITCODE -ne 0) { throw '.NET10 native glTF converter failed' }
+          if ($plan.needs_models) {
+            dotnet build tools/SV.R3.ModelExport/SV.R3.ModelExport.csproj -c Release --nologo
+            if ($LASTEXITCODE -ne 0) { throw '.NET10 native glTF converter failed' }
+          }
+          Write-Host "Pinned converters: BNTX=$($plan.needs_bntx), TRMDL=$($plan.needs_models)"
       - name: Process entire chosen batch using format validators
         if: steps.plan.outputs.count != '0'
         shell: pwsh
         run: |
-          $exe = Join-Path $PWD "tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe"
-          if (-not (Test-Path $exe)) { throw 'Model export binary missing' }
-          $model = '"' + $exe + '" {input} {output}'
-          python scripts/resource_pipeline/parallel_secondary.py --repo . --workers $env:SV_WORKERS --png-converter "ultimate_tex_cli {input} {output}" --model-converter $model --max-output-mb 120
+          $plan = Get-Content "$env:SV_ROOT/_index/secondary/full-selection.json" -Raw | ConvertFrom-Json
+          $arguments = @("scripts/resource_pipeline/parallel_secondary.py","--repo",".","--workers",$env:SV_WORKERS,"--max-output-mb","120")
+          if ($plan.needs_bntx) { $arguments += @("--png-converter","ultimate_tex_cli {input} {output}") }
+          if ($plan.needs_models) {
+            $exe = Join-Path $PWD "tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe"
+            if (-not (Test-Path $exe)) { throw 'Model export binary missing' }
+            $model = '"' + $exe + '" {input} {output}'
+            $arguments += @("--model-converter", $model)
+          }
+          & python @arguments
           if ($LASTEXITCODE -ne 0) { throw 'Native batch processor failed' }
       - name: Save derived outputs and checkpoint on master
         if: steps.plan.outputs.count != '0'
