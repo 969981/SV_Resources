@@ -1,0 +1,217 @@
+name: SV 4.0.0 virtual to virtual_converted - parallel full sweep
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/sv-virtual-converted-full.yml'
+      - 'scripts/resource_pipeline/virtual_converted.py'
+      - 'tests/test_sv_virtual_converted.py'
+  workflow_dispatch:
+    inputs:
+      max_files:
+        description: 'Maximum raw native files per batch (1000..2400)'
+        required: true
+        type: string
+        default: '1600'
+      group_files:
+        description: 'Maximum native files per isolated leaf group (2..1200)'
+        required: true
+        type: string
+        default: '1000'
+      workers:
+        description: 'Concurrent isolated converter subprocesses (1..8)'
+        type: string
+        default: '4'
+      max_tasks:
+        description: 'Maximum independent groups per run (1..12)'
+        type: string
+        default: '8'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: sv-virtual-converted-full
+  cancel-in-progress: false
+
+jobs:
+  convert:
+    if: github.repository == '969981/SV_Resources'
+    runs-on: windows-latest
+    timeout-minutes: 340
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SV_ROOT: Unpack/4.0.0/romfs/arc/data.trpfs
+      MAX_FILES: ${{ inputs.max_files || '1600' }}
+      GROUP_FILES: ${{ inputs.group_files || '1000' }}
+      SV_WORKERS: ${{ inputs.workers || '4' }}
+      SV_MAX_TASKS: ${{ inputs.max_tasks || '8' }}
+    steps:
+      - name: Checkout planner and independent conversion checkpoint
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          filter: blob:none
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_virtual_converted.py
+            tools/gftool
+            tools/SV.R3.ModelExport
+            tools/PokeDocs/SV/Flatbuffers
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary/virtual-converted-state.json
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Check native converters and checkpoint safety
+        shell: pwsh
+        run: |
+          git config core.longpaths true
+          if ([int]$env:MAX_FILES -lt 1000 -or [int]$env:MAX_FILES -gt 2400) { throw 'Invalid MAX_FILES' }
+          if ([int]$env:GROUP_FILES -lt 2 -or [int]$env:GROUP_FILES -gt 1200 -or [int]$env:GROUP_FILES -gt [int]$env:MAX_FILES) { throw 'Invalid GROUP_FILES' }
+          if ([int]$env:SV_WORKERS -lt 1 -or [int]$env:SV_WORKERS -gt 8) { throw 'Invalid SV_WORKERS' }
+          if ([int]$env:SV_MAX_TASKS -lt 1 -or [int]$env:SV_MAX_TASKS -gt 12) { throw 'Invalid SV_MAX_TASKS' }
+          python -m py_compile scripts/resource_pipeline/virtual_converted.py scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/parallel_secondary.py scripts/resource_pipeline/process_virtual.py
+          if ($LASTEXITCODE -ne 0) { throw 'Parser compile failed' }
+          python -m unittest discover -s tests -p test_sv_virtual_converted.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Conversion publisher tests failed' }
+
+      - name: Plan from all committed virtual/ files, not a preselected category
+        id: plan
+        shell: pwsh
+        run: |
+          python scripts/resource_pipeline/virtual_converted.py select --repo . --group-files $env:GROUP_FILES --max-files $env:MAX_FILES --max-tasks $env:SV_MAX_TASKS
+          if ($LASTEXITCODE -ne 0) { throw 'Whole-tree planning failed' }
+          $selection = Get-Content "$env:SV_ROOT/_index/secondary/virtual-converted-selection.json" -Raw | ConvertFrom-Json
+          "count=$($selection.selected_count)" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "needs_bntx=$($selection.needs_bntx.ToString().ToLowerInvariant())" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "needs_models=$($selection.needs_models.ToString().ToLowerInvariant())" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "All tracked native inputs: $($selection.total_tracked_files); pending before batch: $($selection.remaining_before_batch); selected: $($selection.selected_files)"
+
+      - name: Materialize selected native sources via verified sparse checkout
+        if: steps.plan.outputs.count != '0'
+        shell: pwsh
+        run: |
+          python scripts/resource_pipeline/virtual_converted.py fetch --repo .
+          if ($LASTEXITCODE -ne 0) { throw 'Missing selected native blobs' }
+
+      - uses: actions/cache@v4
+        if: steps.plan.outputs.needs_bntx == 'true'
+        with:
+          path: ~/.cargo/bin/ultimate_tex_cli.exe
+          key: sv-ultimate-tex-cli-win-2ef4f090-v1
+
+      - name: Build the actual pinned texture and .NET 10 model decoders
+        if: steps.plan.outputs.count != '0'
+        shell: pwsh
+        run: |
+          if ('${{ steps.plan.outputs.needs_bntx }}' -eq 'true' -and -not (Get-Command ultimate_tex_cli -ErrorAction SilentlyContinue)) {
+            cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac ultimate_tex_cli
+            if ($LASTEXITCODE -ne 0) { throw 'Pinned BNTX PNG decoder unavailable' }
+          }
+          if ('${{ steps.plan.outputs.needs_models }}' -eq 'true') {
+            dotnet build tools/SV.R3.ModelExport/SV.R3.ModelExport.csproj -c Release --nologo
+            if ($LASTEXITCODE -ne 0) { throw 'Native TRMDL model converter did not build' }
+          }
+
+      - name: Convert all selected formats concurrently with isolated workspaces
+        if: steps.plan.outputs.count != '0'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $args = @("scripts/resource_pipeline/virtual_converted.py", "run", "--repo", ".", "--workers", $env:SV_WORKERS, "--max-output-mb", "90")
+          if ('${{ steps.plan.outputs.needs_bntx }}' -eq 'true') {
+            $args += @("--png-converter", "ultimate_tex_cli {input} {output}")
+          }
+          if ('${{ steps.plan.outputs.needs_models }}' -eq 'true') {
+            $exe = Join-Path $PWD "tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe"
+            if (-not (Test-Path $exe)) { throw 'Missing model exporter executable' }
+            $args += @("--model-converter", ('"' + $exe + '" {input} {output}'))
+          }
+          & python @args | Tee-Object -FilePath sv-virtual-converted-run.json
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'Some groups are PARTIAL or ERROR; retain verified successes and checkpoint for retry'
+          }
+          if (-not (Test-Path sv-virtual-converted-publication.json)) {
+            throw 'Missing auditable publication manifest'
+          }
+
+      - name: Stage ONLY audited virtual_converted assets and independent checkpoint
+        if: steps.plan.outputs.count != '0'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path sv-virtual-converted-publication.json)) { throw 'Conversion did not produce an allowlist' }
+          $pub = Get-Content sv-virtual-converted-publication.json -Raw | ConvertFrom-Json
+          $paths = @($pub.paths)
+          if ($paths.Count -eq 0) { throw 'No audited paths in publication manifest' }
+          foreach ($p in $paths) {
+            if (-not ($p.StartsWith("$env:SV_ROOT/virtual_converted/") -or $p.StartsWith("$env:SV_ROOT/_index/secondary/virtual-converted-"))) {
+              throw "Refusing path outside converted output: $p"
+            }
+            if (-not (Test-Path -LiteralPath $p -PathType Leaf)) { throw "Missing audited output: $p" }
+          }
+          for ($i = 0; $i -lt $paths.Count; $i += 80) {
+            $end = [Math]::Min($i+79, $paths.Count-1)
+            git -c advice.updateSparsePath=false add --sparse -f -- $paths[$i..$end]
+            if ($LASTEXITCODE -ne 0) { throw 'Git staging failed' }
+          }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host 'All selected derivatives already up to date'
+            exit 0
+          }
+          git commit -m "data(SV): verified parallel virtual_converted batch"
+          if ($LASTEXITCODE -ne 0) { throw 'Commit failed' }
+          $pushed = $false
+          for ($attempt = 1; $attempt -le 6; $attempt++) {
+            git fetch origin master
+            if ($LASTEXITCODE -ne 0) { throw 'Fetch latest master failed' }
+            git rebase origin/master
+            if ($LASTEXITCODE -ne 0) {
+              git rebase --abort
+              throw 'Rebase conflict: keep conversion evidence artifact'
+            }
+            git push origin HEAD:master
+            if ($LASTEXITCODE -eq 0) { $pushed = $true; break }
+            Start-Sleep -Seconds ([Math]::Min($attempt * 2, 10))
+          }
+          if (-not $pushed) { throw 'Push rejected after six non-forced retries' }
+
+      - name: Enqueue next checkpoint batch until complete or bounded retries exhausted
+        shell: pwsh
+        run: |
+          python scripts/resource_pipeline/virtual_converted.py status --repo . --group-files $env:GROUP_FILES > "$env:RUNNER_TEMP/sv-virtual-converted-status.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Status audit failed' }
+          $state = Get-Content "$env:RUNNER_TEMP/sv-virtual-converted-status.json" -Raw | ConvertFrom-Json
+          Write-Host "Total=$($state.tracked_native_files), inspected=$($state.parsed_inspection_records), pending=$($state.remaining_files), partial=$($state.partial_groups), errors=$($state.error_groups)"
+          if ($state.remaining_groups -gt 0) {
+            gh workflow run sv-virtual-converted-full.yml --ref master -f "max_files=$env:MAX_FILES" -f "group_files=$env:GROUP_FILES" -f "workers=$env:SV_WORKERS" -f "max_tasks=$env:SV_MAX_TASKS"
+            if ($LASTEXITCODE -ne 0) { throw 'Automatic continuation dispatch failed' }
+          } else {
+            Write-Host 'Tracked native sweep attempted; see PARTIAL / ERROR / INSPECTED_UNPARSED counts. No unsupported format is marked converted.'
+          }
+
+      - name: Upload audit evidence (not raw game files)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-virtual-converted-report-${{ github.run_id }}
+          path: |
+            sv-virtual-converted-publication.json
+            sv-virtual-converted-run.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary/virtual-converted-state.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary/virtual-converted-last-run.json
+          if-no-files-found: warn
+          retention-days: 14
