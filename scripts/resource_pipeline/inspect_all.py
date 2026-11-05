@@ -65,9 +65,12 @@ def _parse_known_common(path: Path, rel: str, root: Path):
         try:
             with zipfile.ZipFile(path) as zf:
                 members = zf.infolist()
-                if len(members) <= ZIP_MAX_MEMBERS and zf.testzip() is None:
-                    info = {"format": "ZIP", "members": len(members),
-                            "uncompressed_bytes": sum(x.file_size for x in members)}
+                if len(members) <= ZIP_MAX_MEMBERS:
+                    # Central directory inspection only. Never inflate untrusted
+                    # archive members or expose a decompression-bomb path.
+                    info = {"format": "ZIP", "central_directory_members": len(members),
+                            "declared_uncompressed_bytes": sum(x.file_size for x in members),
+                            "payload_crc_verified": False}
         except (zipfile.BadZipFile, OSError, RuntimeError):
             pass
     elif size <= TEXT_MAX_BYTES and ext in {".json", ".xml", ".csv", ".tsv", ".txt"}:
@@ -77,20 +80,20 @@ def _parse_known_common(path: Path, rel: str, root: Path):
                 value = json.loads(data)
                 info = {"format": "JSON", "root_type": type(value).__name__}
                 if isinstance(value, dict):
-                    info["top_level_keys"] = list(value)[:128]
+                    info["top_level_keys"] = [str(k)[:256] for k in list(value)[:128]]
                     info["top_level_key_count"] = len(value)
                 elif isinstance(value, list):
                     info["top_level_length"] = len(value)
             elif ext == ".xml":
                 node = ET.fromstring(data)
-                info = {"format": "XML", "root_tag": node.tag,
-                        "root_attribute_keys": list(node.attrib)[:128]}
+                info = {"format": "XML", "root_tag": str(node.tag)[:256],
+                        "root_attribute_keys": [str(k)[:256] for k in list(node.attrib)[:128] if isinstance(k, str)]}
             elif ext in {".csv", ".tsv"}:
                 reader = csv.reader(io.StringIO(data), delimiter="\t" if ext == ".tsv" else ",")
                 header = next(reader, [])
                 rows = sum(1 for _ in reader)
                 info = {"format": "TSV" if ext == ".tsv" else "CSV",
-                        "row_count_excluding_header": rows, "header": header[:128]}
+                        "row_count_excluding_header": rows, "header": [s[:256] for s in header[:128]]}
             else:
                 info = {"format": "UTF8_TEXT", "characters": len(data),
                         "lines": data.count("\n") + int(bool(data and not data.endswith("\n")))}
