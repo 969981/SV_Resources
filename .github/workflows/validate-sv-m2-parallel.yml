@@ -4,18 +4,25 @@ on:
   push:
     branches:
       - feature/sv-m2-parallel-extract
+      - feature/sv-m2-manual-parallel
     paths:
       - '.github/workflows/validate-sv-m2-parallel.yml'
       - 'scripts/Run-SV-FullExtract.py'
+      - 'scripts/Run-SV-M2Window.py'
+      - '.github/workflows/sv-m2-virtual-extract.yml'
       - 'scripts/sv_m2_parallel.py'
       - 'tests/test_sv_m2_parallel.py'
+      - 'tests/test_sv_m2_manual_window.py'
   pull_request:
     paths:
       - '.github/workflows/sv-m2-full.yml'
       - '.github/workflows/validate-sv-m2-parallel.yml'
       - 'scripts/Run-SV-FullExtract.py'
+      - 'scripts/Run-SV-M2Window.py'
+      - '.github/workflows/sv-m2-virtual-extract.yml'
       - 'scripts/sv_m2_parallel.py'
       - 'tests/test_sv_m2_parallel.py'
+      - 'tests/test_sv_m2_manual_window.py'
 
 permissions:
   contents: read
@@ -30,13 +37,15 @@ jobs:
           filter: blob:none
           sparse-checkout: |
             scripts/Run-SV-FullExtract.py
+            scripts/Run-SV-M2Window.py
             scripts/sv_m2_parallel.py
             tests/test_sv_m2_parallel.py
+            tests/test_sv_m2_manual_window.py
           sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Compile and run ROM-free scheduler tests
         run: |
-          python -m py_compile scripts/Run-SV-FullExtract.py scripts/sv_m2_parallel.py
-          python -m unittest discover -s tests -p 'test_sv_m2_parallel.py' -v
+          python -m py_compile scripts/Run-SV-FullExtract.py scripts/Run-SV-M2Window.py scripts/sv_m2_parallel.py
+          python -m unittest discover -s tests -p 'test_sv_m2_*py' -v
