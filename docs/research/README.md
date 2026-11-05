@@ -29,3 +29,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## ZA Lua 第二轮可复核证据
 
 - [ZA Lua 完整 Hash 与原始行号/重建源码证据](za-lua-hash-recovery.md) — 578 个精确命中，其中 566 个具第三方固定源码 `@:hashAbi` 对照，原始空白剩 195（S 117、F 75、E 3）；不宣称已原生运行验证。
+
+## SV 4.0.0 whole-file Lua native reverse engineering
+
+- [直接读取 main.blua / main_dynamic.blua 的 C→F 原生关系](sv-lua-native-4.0.0.md) — 23,727 条真实 `prototype` 方法赋值、1,076 个原生 C 方法拥有者、25 个未知 F 的使用上下文，以及 14 个 Gem Setting 窗口回调接收对象；**不拆分大文件**。
