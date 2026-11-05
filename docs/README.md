@@ -57,3 +57,7 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 ## ZA Lua 第四阶段
 
 - [剩余 116 个 S 的第三方调用图、原始行号及只读原生二进制扫描流程](research/za-lua-native-evidence-gap.md) — 258 条引用，未更改已有 611 条 Hash 补全。
+
+## SV Lua 第四轮原生 C/F/S 研究
+
+- [整文件 4.0.0：7 个 C 注册、12 个 F 回调、12 个新 S](research/sv-lua-native-4.0.0-phase4.md) — 严格分离 Hash 精确命中、方法定义、字节码字段引用与未出现的符号。
