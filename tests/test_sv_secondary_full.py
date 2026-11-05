@@ -69,7 +69,7 @@ class FullSecondaryTests(unittest.TestCase):
             git("sparse-checkout","init","--no-cone")
             git("sparse-checkout","set","scripts/resource_pipeline")
             self.assertFalse(source.exists())
-            selection={"selected":[{"paths":[relative]}]}
+            selection={"selected":[{"prefix":"message/dat/English/common","paths":[relative]}]}
             real_run=subprocess.run
             def simulate_sparse_no_materialization(command,*args,**kwargs):
                 if command[:2]==["git","sparse-checkout"]:
