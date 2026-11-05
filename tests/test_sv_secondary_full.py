@@ -114,6 +114,16 @@ class FullSecondaryTests(unittest.TestCase):
                 self.assertEqual((repo/fs.ROOT/"virtual"/item).read_bytes(),
                                  item.encode())
 
+    def test_batch_backfills_small_groups_around_large_siblings(self):
+        tasks=[
+            {"id":"big-a","fingerprint":"A","file_count":1200},
+            {"id":"big-b","fingerprint":"B","file_count":1200},
+            {"id":"small-c","fingerprint":"C","file_count":200},
+        ]
+        selected=fs.select_batch(tasks,{"attempted":{}},3,1500)
+        self.assertEqual([t["id"] for t in selected],["big-a","small-c"])
+        self.assertEqual(sum(t["file_count"] for t in selected),1400)
+
     def test_oversized_family_and_budget_guard(self):
         rows=[("pokemon/large/big.trmdl","a"*40),
               ("pokemon/large/big.trmbf","b"*40),
