@@ -72,7 +72,8 @@ class FullSecondaryTests(unittest.TestCase):
             selection={"selected":[{"prefix":"message/dat/English/common","paths":[relative]}]}
             real_run=subprocess.run
             def simulate_sparse_no_materialization(command,*args,**kwargs):
-                if command[:2]==["git","sparse-checkout"]:
+                if command and command[0]=="git" and "sparse-checkout" in command:
+                    # Simulate cone-mode also returning success without hydrating.
                     return subprocess.CompletedProcess(command,0)
                 return real_run(command,*args,**kwargs)
             with mock.patch.object(fs.subprocess,"run",
