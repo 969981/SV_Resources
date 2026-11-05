@@ -104,6 +104,11 @@ def git_commit_and_push(repo: Path, relative_paths: list[str], message: str, dry
     if dry_run:
         print(f"DRY RUN: would stage {len(relative_paths)} paths, commit & push: {message}")
         return
+    # Other workflows may write unrelated docs while this runner extracts data.
+    # Fast-forward ONLY if remote is a direct descendant of our last pushed commit;
+    # never rewrite, reset, or auto-rebase user's concurrent work.
+    call(["git", "fetch", "origin", "master"], cwd=repo)
+    call(["git", "merge", "--ff-only", "origin/master"], cwd=repo)
     with tempfile.NamedTemporaryFile(prefix="sv-m2-stage-", suffix=".txt", delete=False) as f:
         path_file = Path(f.name)
         f.write(b"".join(p.replace("\\", "/").encode("utf-8") + b"\0"
