@@ -39,8 +39,21 @@ def parse_ahtb(data: bytes):
         pos += 10
         if not size or pos + size > len(data) or data[pos+size-1] != 0:
             raise ValueError("Invalid AHTB string size/terminator")
-        label = data[pos:pos+size-1].decode("utf-8")
-        result.append({"ordinal": index, "hash64": f"{h:016X}", "label": label})
+        raw = data[pos:pos+size-1]
+        try:
+            label = raw.decode("utf-8")
+            encoding_status = "UTF8"
+        except UnicodeDecodeError:
+            # A few native labels contain non-UTF-8 bytes. Preserve the exact
+            # bytes, rather than inventing a Unicode identifier or failing
+            # the entire otherwise structurally valid DAT/TBL pair.
+            label = raw.decode("utf-8", errors="backslashreplace")
+            encoding_status = "INVALID_UTF8_ESCAPED"
+        record = {"ordinal": index, "hash64": f"{h:016X}", "label": label,
+                  "label_encoding_status": encoding_status}
+        if encoding_status != "UTF8":
+            record["label_raw_hex"] = raw.hex().upper()
+        result.append(record)
         pos += size
     if pos != len(data):
         raise ValueError("Trailing AHTB bytes")
@@ -209,8 +222,12 @@ def join_messages(dat_bytes: bytes, tbl_bytes: bytes, language_raw: str, relativ
         language = language_raw  # raw directory is still unambiguous
     entries = []
     for line, label in zip(lines, labels):
-        entries.append({**line, "label": label["label"],
-                        "hash64": label["hash64"]})
+        entry = {**line, "label": label["label"],
+                 "hash64": label["hash64"],
+                 "label_encoding_status": label["label_encoding_status"]}
+        if "label_raw_hex" in label:
+            entry["label_raw_hex"] = label["label_raw_hex"]
+        entries.append(entry)
     return {
         "source": relative_name, "language_raw":language_raw, "language":language,
         "matching": mode, "sentinel": sentinel, "entries": entries,
