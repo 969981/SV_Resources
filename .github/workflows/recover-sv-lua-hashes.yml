@@ -42,8 +42,8 @@ jobs:
 
       - name: Reconstruct exact-hash numeric pattern candidates
         run: |
-          python scripts/Recover-SV-Lua-Hashes.py --min-recovered 32
-          python scripts/Recover-SV-Lua-Hashes.py --verify-only --min-recovered 32
+          python scripts/Recover-SV-Lua-Hashes.py --min-recovered 48
+          python scripts/Recover-SV-Lua-Hashes.py --verify-only --min-recovered 48
 
       - name: Inspect recovered count and source preservation
         run: |
@@ -52,10 +52,11 @@ jobs:
           from pathlib import Path
           p = Path('tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovery-report.json')
           report = json.loads(p.read_text(encoding='utf-8'))
-          assert report['total_recovered'] >= 32
+          assert report['total_recovered'] >= 48
           assert report['source_is_modified'] is False
-          assert report['source_statistics']['c']['recovered'] >= 2
+          assert report['source_statistics']['c']['recovered'] >= 9
           assert report['source_statistics']['s']['recovered'] >= 30
+          assert report['source_statistics']['f']['recovered'] >= 9
           for kind in ('c', 'e', 'f', 's'):
               assert (p.parent/f'lua_{kind}_hashes.merged.txt').is_file()
           print(f"Recovered {report['total_recovered']} exact-hash candidates; "
