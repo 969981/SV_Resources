@@ -38,9 +38,9 @@ explicit list of missing required assets.
 
 The pre-existing tools/gftool/TrinityModelViewer/Export/GltfExporter.cs
 implements glTF 2.0 with geometry, materials, textures, skinning and optional
-bone animation. R3 adds a command-line entry point to the same viewer:
+bone animation. R3 adds an independent command-line executable that compiles the upstream\nexporter source unchanged:
 
-    TrinityModelViewer.exe --export-gltf input.trmdl output.gltf
+    SV.R3.ModelExport.exe input.trmdl output.gltf
 
 Full model extraction is not the same as simply parsing its TRMDL header.
 When GLTF has been exported, run the structural verifier to check:

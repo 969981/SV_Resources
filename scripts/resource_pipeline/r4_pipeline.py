@@ -38,7 +38,8 @@ def tool_digest(repo):
     paths=[
         Path(__file__),Path(r3.__file__),
         repo/SOURCE_ROOT/"model/trmdl.fbs",
-        repo/"tools/gftool/TrinityModelViewer/Export/GltfExporter.cs"
+        repo/"tools/gftool/TrinityModelViewer/Export/GltfExporter.cs",
+        repo/"tools/SV.R3.ModelExport/Program.cs"
     ]
     h=hashlib.sha256()
     for path in paths:

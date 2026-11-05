@@ -3,7 +3,7 @@ name: Verify native SV TRMDL to glTF on Windows
 on:
   pull_request:
     paths:
-      - 'tools/gftool/TrinityModelViewer/**'
+      - 'tools/SV.R3.ModelExport/**'
       - 'scripts/resource_pipeline/r3_objects.py'
       - '.github/workflows/verify-sv-r3-native-gltf.yml'
   push:
@@ -26,6 +26,7 @@ jobs:
         with:
           sparse-checkout: |
             tools/gftool
+            tools/SV.R3.ModelExport
             scripts/resource_pipeline/r3_objects.py
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/chara/model_pc/p0_bag0000_schoolbackpack
           sparse-checkout-cone-mode: false
@@ -35,17 +36,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build unmodified glTF exporter with R3 headless entry
+      - name: Build standalone glTF exporter referencing unchanged gftool
         shell: pwsh
-        run: dotnet build tools/gftool/TrinityModelViewer/TrinityModelViewer.csproj -c Release --nologo
+        run: dotnet build tools/SV.R3.ModelExport/SV.R3.ModelExport.csproj -c Release --nologo
       - name: Export a real SV backpack model including LODs
         shell: pwsh
         run: |
           $folder = Join-Path $PWD 'Unpack/4.0.0/romfs/arc/data.trpfs/virtual/chara/model_pc/p0_bag0000_schoolbackpack'
           $model = Join-Path $folder 'p0_bag0000_00_bag00.trmdl'
           $dest = Join-Path $env:RUNNER_TEMP 'sv-r3-sample.gltf'
-          $exe = Join-Path $PWD 'tools/gftool/TrinityModelViewer/bin/Release/net10.0-windows/TrinityModelViewer.exe'
-          & $exe --export-gltf $model $dest
+          $exe = Join-Path $PWD 'tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe'
+          & $exe $model $dest
           if ($LASTEXITCODE -ne 0) { throw "Model exporter exited with code $LASTEXITCODE" }
           if (!(Test-Path $dest)) { throw "No glTF generated" }
           python -c "import pathlib,sys;sys.path.insert(0,'scripts/resource_pipeline');from r3_objects import validate_gltf; p=pathlib.Path(sys.argv[1]); print(validate_gltf(p,require_skin=True,require_lods=3))" "$dest"

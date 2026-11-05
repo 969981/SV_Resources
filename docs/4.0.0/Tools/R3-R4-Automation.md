@@ -15,9 +15,9 @@ Run from repo root with Python 3.10+.
     python scripts/resource_pipeline/r4_pipeline.py run --retry-failed --limit 100
     python scripts/resource_pipeline/r4_pipeline.py pack-reports --max-mb 50
 
-When a compatible headless converter is verified on Windows:
+Build tools/SV.R3.ModelExport/SV.R3.ModelExport.csproj on Windows .NET 10.\nWhen the standalone headless converter is verified on Windows:
 
-    python scripts/resource_pipeline/r4_pipeline.py run --prefix chara/model_pc --converter '"C:\path\TrinityModelViewer.exe" --export-gltf {input} {output}' --converter-version gftool-commit-hash
+    python scripts/resource_pipeline/r4_pipeline.py run --prefix chara/model_pc --converter '"C:\path\SV.R3.ModelExport.exe" {input} {output}' --converter-version gftool-commit-hash
 
 The converter's version is part of the object fingerprint, so a tool upgrade
 invalidates only work with changed inputs and parameters. All dependencies,

@@ -17,7 +17,7 @@ R3:
 - parse each .trmsh to obtain true .trmbf dependency
 - list materials, skeleton, LOD meshes and candidate texture/animations
 - save graph and evidence in parsed/; do not modify virtual/
-- use optional prebuilt TrinityModelViewer --export-gltf converter
+- use optional prebuilt SV.R3.ModelExport CLI, which compiles the unchanged gftool exporter
 - validate model glTF and references before considering promotion
 
 R4:
