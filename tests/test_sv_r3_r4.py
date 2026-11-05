@@ -107,6 +107,10 @@ class R3R4Tests(unittest.TestCase):
                 self.assertEqual(row[1],1)
                 count=conn.execute("SELECT COUNT(*) FROM r4_object_dependencies").fetchone()[0]
                 self.assertGreaterEqual(count,10)
+                counts=cli.export_tables(root,conn,root/"_index"/"exports",False)
+                self.assertEqual(counts["r4_object_jobs"],1)
+                self.assertGreaterEqual(counts["r4_object_dependencies"],10)
+                self.assertTrue((root/"_index/exports/r4_job_summary.csv").exists())
                 second=r4.process(root,conn,REPO,discover=True,tool_sha="FAKE_SHA")
                 self.assertEqual(second["counts"]["skipped"],1,second)
                 self.assertEqual(conn.execute("SELECT attempts FROM r4_object_jobs").fetchone()[0],1)

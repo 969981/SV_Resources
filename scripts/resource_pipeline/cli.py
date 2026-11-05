@@ -507,6 +507,10 @@ def export_tables(root, conn, directory, json_export=False):
               "semantic_entities","resource_links","localized_names",
               "conversion_jobs","evidence","resource_catalog",
               "message_entries","message_catalog"]
+    optional_r4 = ["r4_object_jobs", "r4_object_dependencies", "r4_hash_cache", "r4_job_summary"]
+    existing = {name for (name,) in conn.execute(
+        "SELECT name FROM sqlite_master WHERE type IN ('table','view')")}
+    tables.extend(name for name in optional_r4 if name in existing)
     outcomes = {}
     for table in tables:
         cur = conn.execute(f"SELECT * FROM {table}")
