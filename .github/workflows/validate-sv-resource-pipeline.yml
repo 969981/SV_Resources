@@ -1,0 +1,38 @@
+name: Validate SV Trinity Resource Pipeline R0/R1
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/resource_pipeline/**'
+      - 'tests/test_sv_resource_pipeline.py'
+      - '.github/workflows/validate-sv-resource-pipeline.yml'
+  push:
+    branches:
+      - 'feature/sv-trpfs-resource-pipeline-r0-r1'
+    paths:
+      - 'scripts/resource_pipeline/**'
+      - 'tests/test_sv_resource_pipeline.py'
+      - '.github/workflows/validate-sv-resource-pipeline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  r0-r1-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_resource_pipeline.py
+            .github/workflows/validate-sv-resource-pipeline.yml
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile pipeline
+        run: python -m py_compile scripts/resource_pipeline/cli.py
+      - name: Run synthetic conversion and schema tests
+        run: python -m unittest discover -s tests -p 'test_sv_resource_pipeline.py' -v
