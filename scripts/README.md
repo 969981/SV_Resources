@@ -74,3 +74,15 @@ py -3 -m unittest discover -s tests -p "test_*.py" -v
 ```
 
 原始 PokeDocs **完整实体快照**在 `tools/PokeDocs/`，不是 submodule。CI 中完整镜像、生成及提交的 YAML 位于 `.github/workflows/vendor-pokedocs.yml`；单 SV Artifact 工作流是 `build-sv-hashcache.yml`。Obsidian 技术说明：[docs/hashcache/README.md](../docs/hashcache/README.md)。
+
+## SV Lua Hash 空行补全
+
+`Recover-SV-Lua-Hashes.py`：使用固定源 `tools/PokeDocs/SV/Hashlists/Lua`，对已知名称进行数字替换、道馆类别替换及首字母大小写变化，再用 **完整 FNV-1a-64** 匹配未命名目标。产物包括 `recovered.tsv`、每种 C/E/F/S 的 `*.merged.txt` 和 `recovery-report.json`，写入独立 `tools/PokeDocs-Supplement/SV/Hashlists/Lua/`，原始 PokeDocs 不会被覆盖。
+
+```powershell
+py -3 .\scripts\Recover-SV-Lua-Hashes.py --min-recovered 48
+py -3 .\scripts\Recover-SV-Lua-Hashes.py --verify-only --min-recovered 48
+py -3 -m unittest discover -s tests -p "test_sv_lua_hash_recovery.py" -v
+```
+
+GitHub Actions：[recover-sv-lua-hashes.yml](../.github/workflows/recover-sv-lua-hashes.yml)；Obsidian 技术文档：[sv-lua-hash-recovery.md](../docs/research/sv-lua-hash-recovery.md)。
