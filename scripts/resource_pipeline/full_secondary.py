@@ -159,40 +159,80 @@ def safe_paths_for_checkout(selection):
     return sorted(set(paths))
 
 
-def materialize_selected(repo: Path, selection, batch_size=120):
-    """Materialize exactly the selected Git paths, including Windows sparse gaps.
+def materialize_selected(repo: Path, selection, batch_size=120, max_parent_files=4000):
+    """Hydrate native files safely in filtered Git checkouts, then verify.
 
-    'git sparse-checkout add' may report success while individual files remain
-    skip-worktree or absent. Restore missing tracked paths explicitly, then
-    verify every source before running format converters. Never skip silently.
+    Git for Windows may accept per-file sparse patterns yet leave their blobs
+    unavailable. Whole-directory sparse patterns successfully hydrate normal
+    DAT/TBL folders. Prefer that strategy for reasonably bounded directories.
+    Use exact file patterns only for oversize directories.
     """
-    if not 1 <= batch_size <= 500:
-        raise ValueError("Invalid batch size")
+    if not 1 <= batch_size <= 500 or max_parent_files < batch_size:
+        raise ValueError("Invalid sparse checkout limits")
     names=safe_paths_for_checkout(selection)
-    paths=[str(ROOT/"virtual"/name) for name in names]
+    paths=[(ROOT/"virtual"/name).as_posix() for name in names]
     base=(repo/ROOT/"virtual").resolve()
     for rel in names:
         target=repo/ROOT/"virtual"/rel
         if not target.resolve().is_relative_to(base) or target.is_symlink():
             raise ValueError("Unsafe source path: "+rel)
-    for offset in range(0,len(paths),batch_size):
-        subprocess.run(["git","sparse-checkout","add",*paths[offset:offset+batch_size]],
-                       cwd=repo,check=True)
+
+    # One sparse-checkout invocation instead of 13+ expensive worktree updates.
+    # For small complete folders, this also requests Git blobs in a single
+    # parent-directory pattern (proven for English DAT/TBL in earlier CI).
+    patterns=[]
+    full_dir_count=0
+    exact_count=0
+    for task in selection["selected"]:
+        folder=(ROOT/"virtual"/task["prefix"]).as_posix()
+        counted=subprocess.run(
+            ["git","ls-tree","-r","-z","--name-only","HEAD","--",folder],
+            cwd=repo,capture_output=True,check=True
+        )
+        tracked=sum(bool(v) for v in counted.stdout.split(b"\\0"))
+        if 0 < tracked <= max_parent_files:
+            patterns.append(folder)
+            full_dir_count+=1
+        else:
+            for name in task["paths"]:
+                patterns.append((ROOT/"virtual"/name).as_posix())
+                exact_count+=1
+    if not patterns:
+        raise ValueError("No native paths selected")
+    stdin="\\n".join(sorted(set(patterns)))+"\\n"
+    subprocess.run(["git","sparse-checkout","add","--stdin"],cwd=repo,
+                   input=stdin,text=True,check=True)
     missing=[p for p in paths if not (repo/p).is_file()]
-    # A successful sparse-checkout command is not proof that Windows wrote files.
+    # Only a final fallback: restore may not work when a partial clone has no
+    # corresponding blob. Capture errors and preserve an explicit missing list.
+    recovery_errors=[]
     for offset in range(0,len(missing),batch_size):
-        subprocess.run(["git","-c","core.longpaths=true","restore",
-                        "--source=HEAD","--worktree","--ignore-skip-worktree-bits",
-                        "--",*missing[offset:offset+batch_size]],
-                       cwd=repo,check=True)
+        proc=subprocess.run(
+            ["git","-c","core.longpaths=true","restore",
+             "--source=HEAD","--worktree","--ignore-skip-worktree-bits",
+             "--",*missing[offset:offset+batch_size]],
+            cwd=repo,capture_output=True,text=True
+        )
+        if proc.returncode:
+            recovery_errors.append(proc.stderr[-500:])
     unresolved=[p for p in paths if not (repo/p).is_file()]
     if unresolved:
-        raise ValueError("Sparse checkout still missing "+str(len(unresolved))+
-                         " files after explicit restore, e.g. "+unresolved[0])
+        report=repo/ROOT/"_index/secondary/sparse-missing.json"
+        report.parent.mkdir(parents=True,exist_ok=True)
+        report.write_text(json.dumps({
+            "expected":len(paths),"missing":len(unresolved),
+            "paths":unresolved[:2000],"git_restore_errors":recovery_errors[:5],
+            "method":"BOUNDED_PARENT_SPARSE_THEN_EXACT_RESTORE"
+        },indent=2,ensure_ascii=False)+"\\n",encoding="utf-8")
+        raise ValueError("Missing "+str(len(unresolved))+
+                         " native Git blobs after bounded parent hydration; "+
+                         "details: "+str(report)+", first: "+unresolved[0])
     return {"fetched_native_paths":len(paths),
             "recovered_sparse_missing":len(missing),
             "verified_local_paths":len(paths),
-            "scope":"EXACT_SPARSE_PATH_LIST_VERIFIED"}
+            "bounded_parent_patterns":full_dir_count,
+            "exact_file_patterns":exact_count,
+            "scope":"BOUNDED_PARENT_SPARSE_VERIFIED"}
 
 
 def choose(repo, group_files, max_tasks, max_files):
