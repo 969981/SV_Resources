@@ -16,7 +16,8 @@
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <NoWarn>$(NoWarn);NU1701</NoWarn>
+    <NoWarn>$(NoWarn);NU1701;SYSLIB0011</NoWarn>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -728,5 +729,6 @@
   <ItemGroup>
     <Reference Include="DirectXTexNet"><HintPath>Lib\Plugins\DirectXTexNet.dll</HintPath><Private>true</Private></Reference>
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="10.0.0" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="10.0.14" />
   </ItemGroup>
 </Project>

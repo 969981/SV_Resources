@@ -33,3 +33,6 @@ The first build restored dependencies successfully but failed on updater directo
 
 ## Second CI iteration
 The next Windows build found .NET 10 API differences: arrays' Reverse resolution in ToFixedString, the old LZ4Codec reference, an outdated ClickOnce GenerateTrustInfo target, and WinForms designer WFO1000 diagnostics. The source was simplified for equivalent trimming behavior; the original bundled LZ4 assembly was re-referenced and ClickOnce manifest generation disabled for the standalone updater. WFO1000 is temporarily suppressed during runtime compilation only; designer serialization must be audited and tested before final acceptance.
+
+## Third CI iteration: BinaryFormatter blocker (security risk)
+The next build exposed three legacy generic helpers using BinaryFormatter. Microsoft removed its runtime implementation from .NET 9 onward. A *temporary, unsafe* compatibility dependency (`System.Runtime.Serialization.Formatters` 10.0.14, application opt-in) was added for behavior preservation during migration. The package is unsupported and introduces untrusted-deserialization risks. DO NOT distribute the migrated application for opening untrusted files, or merge to master, until those call sites and any binary .resx resources are replaced with reviewed safe formats and verified by real round-trip tests. This is not a security-complete migration.
