@@ -1,0 +1,56 @@
+name: Cleanup reviewed merged SV resource branches
+
+# Only branches explicitly listed below and linked to merged same-repo PRs
+# can be deleted. This job runs after the PR's squash merge to master.
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/resource_pipeline/**'
+      - '.github/workflows/cleanup-merged-sv-resource-branches.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  remove-merged-resource-feature-branches:
+    if: github.repository == '969981/SV_Resources'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete only approved merged PR source branches
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner,repo} = context.repo;
+            const approved = [
+              {pr: 15, ref: 'feature/sv-trpfs-resource-pipeline-r0-r1'},
+              {pr: 17, ref: 'feature/sv-trpfs-r1-full-decode'},
+            ];
+            for (const {pr,ref} of approved) {
+              const response = await github.rest.pulls.get({owner,repo,pull_number:pr});
+              const data = response.data;
+              if (!data.merged || data.head.ref !== ref ||
+                  data.head.repo?.full_name !== context.repo.owner + '/' + context.repo.repo) {
+                core.info('Skip ' + ref + ': PR is not a merged same-repo PR');
+                continue;
+              }
+              const gitRef = 'heads/' + ref;
+              let current;
+              try {
+                current = await github.rest.git.getRef({owner,repo,ref:gitRef});
+              } catch (e) {
+                if (e.status === 404) {
+                  core.info('Already deleted: ' + ref);
+                  continue;
+                }
+                throw e;
+              }
+              if (current.data.object.sha !== data.head.sha) {
+                core.warning('Skip ' + ref + ': branch advanced since PR merged');
+                continue;
+              }
+              await github.rest.git.deleteRef({owner,repo,ref:gitRef});
+              core.info('Deleted merged source branch: ' + ref);
+            }
