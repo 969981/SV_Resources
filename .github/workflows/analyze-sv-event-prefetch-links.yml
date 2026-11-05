@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/Analyze-SV-EventPrefetch-Links.py'
       - 'scripts/Investigate-SV-EventPrefetch-Gaps.py'
+      - 'scripts/Recover-SV-Prefetch-Missing.py'
       - '.github/workflows/analyze-sv-event-prefetch-links.yml'
   workflow_dispatch:
 
@@ -28,6 +29,7 @@ jobs:
             4.0.0/0
             4.0.0/1/event
             4.0.0/1/system
+            tools/PokeDocs/SV/Hashlists/FileSystem
             Unpack/4.0.0/romfs/event
             Unpack/4.0.0/romfs/system
             Unpack/4.0.0/romfs/arc/data.trpfd
@@ -38,13 +40,15 @@ jobs:
       - name: Verify the independently decoded TREVT and TRPRE files
         run: python scripts/Unpack-SV-EventPrefetch.py --repo . --verify-only
       - name: Check analysis syntax
-        run: python -m py_compile scripts/Analyze-SV-EventPrefetch-Links.py scripts/Investigate-SV-EventPrefetch-Gaps.py
+        run: python -m py_compile scripts/Analyze-SV-EventPrefetch-Links.py scripts/Investigate-SV-EventPrefetch-Gaps.py scripts/Recover-SV-Prefetch-Missing.py
       - name: Install disassembly-only dependency
         run: python -m pip install 'capstone==5.0.6'
       - name: Run native exact-match and NSO scanning
         run: python scripts/Analyze-SV-EventPrefetch-Links.py --repo .
       - name: Inspect remaining unmapped 64-bit keys and disassemble native callsites
         run: python scripts/Investigate-SV-EventPrefetch-Gaps.py --repo .
+      - name: Recover remaining prefetch names using independent PokeDocs hash lists
+        run: python scripts/Recover-SV-Prefetch-Missing.py --repo .
       - name: Commit only reproducible evidence, without rewriting upstream
         shell: bash
         run: |
@@ -60,7 +64,9 @@ jobs:
             Unpack/4.0.0/romfs/system/prefetch/data/_index/prefetch_trpfd_audit.json \
             Unpack/4.0.0/romfs/system/prefetch/data/_index/prefetch_trpfd_unmatched.csv \
             Unpack/4.0.0/romfs/system/prefetch/data/_index/prefetch_match_categories.json \
-            Unpack/4.0.0/romfs/event/trevt/bin/event.trevt/_index/native_callsite_disassembly.json
+            Unpack/4.0.0/romfs/event/trevt/bin/event.trevt/_index/native_callsite_disassembly.json \
+            Unpack/4.0.0/romfs/system/prefetch/data/_index/prefetch_unmatched_pokedocs.csv \
+            Unpack/4.0.0/romfs/system/prefetch/data/_index/prefetch_unmatched_pokedocs_audit.json
           if git diff --cached --quiet; then
             echo "Native evidence unchanged; no commit."
             exit 0
