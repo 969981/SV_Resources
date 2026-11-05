@@ -1,0 +1,94 @@
+name: SV Lua C/F source context (older decompile evidence)
+
+on:
+  push:
+    paths:
+      - '.github/workflows/index-sv-lua-context.yml'
+      - 'scripts/Index-SV-Lua-CallGraph.py'
+      - 'tests/test_sv_lua_callgraph.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-lua-context-master
+  cancel-in-progress: false
+
+jobs:
+  build-callgraph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout source Hashlists, indexer and tests
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout: |
+            .github
+            scripts
+            tests
+            tools/PokeDocs/SV/Hashlists/Lua
+            tools/PokeDocs-Supplement/SV/Hashlists/Lua
+          sparse-checkout-cone-mode: true
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Test the parser using synthetic Lua classes
+        run: |
+          python -m py_compile scripts/Index-SV-Lua-CallGraph.py tests/test_sv_lua_callgraph.py
+          python -m unittest discover -s tests -p 'test_sv_lua_callgraph.py' -v
+
+      - name: Acquire pinned historical SV Lua decompilation (temporary checkout)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none --sparse --no-checkout \
+            https://github.com/Martmists-GH/SV-Script-RE.git "$RUNNER_TEMP/SV-Script-RE"
+          git -C "$RUNNER_TEMP/SV-Script-RE" sparse-checkout set decompiled split
+          git -C "$RUNNER_TEMP/SV-Script-RE" checkout --detach 1f843bd2517c707fbb47491dad58856eaa2c2cc7
+          test "$(git -C "$RUNNER_TEMP/SV-Script-RE" rev-parse HEAD)" = "1f843bd2517c707fbb47491dad58856eaa2c2cc7"
+          test -d "$RUNNER_TEMP/SV-Script-RE/decompiled"
+          test -d "$RUNNER_TEMP/SV-Script-RE/split"
+
+      - name: Extract class-method provenance and annotation candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Index-SV-Lua-CallGraph.py --external "$RUNNER_TEMP/SV-Script-RE"
+          python scripts/Index-SV-Lua-CallGraph.py --external "$RUNNER_TEMP/SV-Script-RE" --verify-only
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("tools/PokeDocs-Supplement/SV/Hashlists/Lua/context")
+          j = json.loads((root / "context-report.json").read_text())
+          assert j["external_sha"] == "1f843bd2517c707fbb47491dad58856eaa2c2cc7"
+          assert j["classes_in_external_corpus"] >= 2500, j
+          assert j["methods_defined_in_external_corpus"] > 5000, j
+          assert j["unknown_c_target_count"] == 1375, j
+          assert j["unknown_f_target_count"] == 116, j
+          assert not j["original_pokedocs_files_modified"], j
+          assert not j["proposed_merged_changes"], j
+          print(json.dumps({k:v for k,v in j.items() if k not in ("source_hashlists_sha256","editor_annotation_collisions")}, indent=2))
+          PY
+          git diff --exit-code -- tools/PokeDocs/SV/Hashlists/Lua
+
+      - name: Commit derived evidence tables only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- tools/PokeDocs-Supplement/SV/Hashlists/Lua/context
+          if git diff --cached --quiet; then
+            echo 'No new context data.'
+            exit 0
+          fi
+          git diff --cached --stat
+          git commit -m 'Index older SV Lua C/F assignments and exact editor-comment candidates'
+          git push origin HEAD:refs/heads/master
