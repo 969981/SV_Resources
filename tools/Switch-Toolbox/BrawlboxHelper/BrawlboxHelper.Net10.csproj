@@ -15,12 +15,12 @@
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <PlatformTarget>x64</PlatformTarget>
-    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <Deterministic>true</Deterministic>
     <NoWarn>$(NoWarn);NU1701</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
     <Reference Include="BrawlLib"><HintPath>..\Toolbox\Lib\BrawlLib.dll</HintPath><Private>true</Private></Reference>
     <Reference Include="Gl_EditorFramework"><HintPath>..\GL_EditorFramework.dll</HintPath><Private>true</Private></Reference>
     <Reference Include="Syroot.BinaryData"><HintPath>..\Toolbox\Lib\Syroot.BinaryData.dll</HintPath><Private>true</Private></Reference>
@@ -30,5 +30,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Switch_Toolbox_Library\Toolbox_Library.Net10.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Match the original project Compile / EmbeddedResource lists exactly. -->
+    <Compile Include="BrawlHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+
   </ItemGroup>
 </Project>

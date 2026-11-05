@@ -15,7 +15,8 @@
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <PlatformTarget>x64</PlatformTarget>
-    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <Deterministic>true</Deterministic>
     <NoWarn>$(NoWarn);NU1701</NoWarn>
   </PropertyGroup>
@@ -24,7 +25,6 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
     <Reference Include="DirectXTexNet"><HintPath>..\packages\DirectXTexNet.1.0.0-rc3\lib\net40\DirectXTexNet.dll</HintPath><Private>true</Private></Reference>
     <Reference Include="GL_EditorFramework"><HintPath>..\GL_EditorFramework.dll</HintPath><Private>true</Private></Reference>
     <Reference Include="Octokit"><HintPath>Lib\Octokit.dll</HintPath><Private>true</Private></Reference>
@@ -117,5 +117,48 @@
     <None Update="System.Memory.dll" CopyToOutputDirectory="PreserveNewest" />
     <None Update="System.Numerics.Vectors.dll" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Tool.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Match the original project Compile / EmbeddedResource lists exactly. -->
+    <Compile Include="GUI\AF_FileAssociations.cs" />
+    <Compile Include="GUI\ApplicationCloseDialog.cs" />
+    <Compile Include="GUI\ApplicationCloseDialog.Designer.cs" />
+    <Compile Include="GUI\Credits.cs" />
+    <Compile Include="GUI\Credits.Designer.cs" />
+    <Compile Include="GUI\FileAssociationForm.cs" />
+    <Compile Include="GUI\FileAssociationForm.Designer.cs" />
+    <Compile Include="GUI\GithubIssueDialog.cs" />
+    <Compile Include="GUI\GithubIssueDialog.Designer.cs" />
+    <Compile Include="GUI\GithubUpdateDialog.cs" />
+    <Compile Include="GUI\GithubUpdateDialog.Designer.cs" />
+    <Compile Include="GUI\HashCalculatorForm.cs" />
+    <Compile Include="GUI\HashCalculatorForm.Designer.cs" />
+    <Compile Include="GUI\NodeWrappers.cs" />
+    <Compile Include="GUI\PluginManager.cs" />
+    <Compile Include="GUI\PluginManager.Designer.cs" />
+    <Compile Include="GUI\Settings.cs" />
+    <Compile Include="GUI\Settings.Designer.cs" />
+    <Compile Include="GUI\Startup Window.cs" />
+    <Compile Include="GUI\Startup Window.Designer.cs" />
+    <Compile Include="MainForm.cs" />
+    <Compile Include="MainForm.Designer.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UpdateProgram.cs" />
+    <Compile Include="VersionCheck.cs" />
+    <Compile Include="WindowsExplorer\ExplorerContextMeny.cs" />
+    <Compile Include="Properties\Resources.Designer.cs" />
+    <Compile Include="Properties\Settings.Designer.cs" />
+    <EmbeddedResource Include="GUI\ApplicationCloseDialog.resx" />
+    <EmbeddedResource Include="GUI\Credits.resx" />
+    <EmbeddedResource Include="GUI\FileAssociationForm.resx" />
+    <EmbeddedResource Include="GUI\GithubIssueDialog.resx" />
+    <EmbeddedResource Include="GUI\GithubUpdateDialog.resx" />
+    <EmbeddedResource Include="GUI\HashCalculatorForm.resx" />
+    <EmbeddedResource Include="GUI\PluginManager.resx" />
+    <EmbeddedResource Include="GUI\Settings.resx" />
+    <EmbeddedResource Include="GUI\Startup Window.resx" />
+    <EmbeddedResource Include="MainForm.resx" />
+    <EmbeddedResource Include="Properties\Resources.resx" />
   </ItemGroup>
 </Project>
