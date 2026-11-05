@@ -217,6 +217,10 @@ def main_run(repo: Path, max_workers: int, png: str, model: str, output_mb: int)
                  "unresolved":unresolved,"returncode":item["returncode"],
                  "formats":data["index"]["formats"],
                  "stages":statuses,"outputs":len(data.get("outputs",[])),
+                 "parsed_records":data["inspection"]["inspection_records"],
+                 "structurally_parsed":data["inspection"]["by_status"].get("STRUCTURE_PARSED",0),
+                 "inspected_unparsed":data["inspection"]["by_status"].get("INSPECTED_UNPARSED",0),
+                 "hash_mismatches":data["inspection"]["by_status"].get("SOURCE_HASH_MISMATCH",0),
                  "published":len(files)}
         else:
             row={"task":task["id"],"fingerprint":task["fingerprint"],
@@ -252,6 +256,9 @@ def main_run(repo: Path, max_workers: int, png: str, model: str, output_mb: int)
          "files_per_second":round(
              sum(t["file_count"] for t in tasks)/max(0.001,time.monotonic()-started),2),
          "completed_count":sum(s["status"]!="ERROR" for s in summaries),
+         "parsed_records":sum(s.get("parsed_records",0) for s in summaries),
+         "structurally_parsed":sum(s.get("structurally_parsed",0) for s in summaries),
+         "inspected_unparsed":sum(s.get("inspected_unparsed",0) for s in summaries),
          "error_count":sum(s["status"]=="ERROR" for s in summaries),
          "partial_count":sum(s["status"]=="PARTIAL" for s in summaries),
          "attempts":summaries,"updated_utc":cli.utcnow(),
