@@ -7,6 +7,7 @@ on:
       - '.github/workflows/sv-secondary-full.yml'
       - 'scripts/resource_pipeline/full_secondary.py'
       - 'scripts/resource_pipeline/parallel_secondary.py'
+      - 'tests/test_sv_secondary_parallel.py'
       - 'tests/test_sv_secondary_full.py'
       - 'tests/test_sv_virtual_second_stage.py'
   workflow_dispatch:
@@ -51,6 +52,7 @@ jobs:
           sparse-checkout: |
             scripts/resource_pipeline
             tests/test_sv_secondary_full.py
+            tests/test_sv_secondary_parallel.py
             tests/test_sv_virtual_second_stage.py
             tools/gftool
             tools/SV.R3.ModelExport
@@ -76,6 +78,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Full-sweep tests failed' }
           python -m unittest discover -s tests -p test_sv_virtual_second_stage.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Native pipeline tests failed' }
+          python -m unittest discover -s tests -p test_sv_secondary_parallel.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Parallel isolated worker tests failed' }
       - name: Discover whole tracked native virtual tree
         id: plan
         shell: pwsh
