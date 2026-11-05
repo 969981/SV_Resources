@@ -157,7 +157,8 @@ def converter_command(template,src,out):
     if "{input}" not in template or "{output}" not in template:
         raise ValueError("--converter requires {input} and {output}")
     args=shlex.split(template,posix=(os.name!="nt"))
-    return [p.replace("{input}",str(src)).replace("{output}",str(out))
+    # On Windows shlex(posix=False) retains surrounding double quotes.
+    return [p.strip('"').replace("{input}",str(src)).replace("{output}",str(out))
             for p in args]
 
 
@@ -206,12 +207,36 @@ def promote(root,name,fp,gltf_path,validation,approval_file):
     return dest
 
 
+def load_animation_map(source):
+    """Explicit per-object animation selections. A filename alone proves no ID."""
+    if not source:
+        return {}
+    raw=json.loads(Path(source).read_text("utf-8"))
+    if not isinstance(raw,dict):
+        raise ValueError("Animation map must be object_path -> [animation.tranm,...]")
+    out={}
+    for key,values in raw.items():
+        key=r3.checked_relative(key)
+        if not key.endswith(".trmdl") or not isinstance(values,list):
+            raise ValueError("Invalid animation map model/array")
+        selected=[]
+        for value in values:
+            value=r3.checked_relative(value)
+            if not value.lower().endswith(".tranm"):
+                raise ValueError("Animation source must be .tranm")
+            if value not in selected:
+                selected.append(value)
+        out[key]=selected
+    return out
+
+
 def process(root,conn,repo,*,prefix="",limit=0,resume=False,retry_failed=False,
             discover=False,converter="",converter_version="not-configured",
-            approval_dir=None,approve=False,tool_sha=None):
+            approval_dir=None,approve=False,tool_sha=None,animation_map=None):
     if approve and not approval_dir:
         raise ValueError("Cannot promote without --approval-dir")
     tool_sha=tool_sha or tool_digest(repo)
+    animation_map=animation_map or {}
     sources=object_sources(conn,root,prefix,discover)
     last=load_checkpoint(root) if resume else None
     if last:
@@ -238,8 +263,25 @@ def process(root,conn,repo,*,prefix="",limit=0,resume=False,retry_failed=False,
         try:
             known=known_inputs(conn,root,name,discover,indexed=indexed)
             graph=r3.classify_model(name,root/"virtual",known)
+            selected_animations=animation_map.get(name,[])
+            for anim in selected_animations:
+                existing=next((d for d in graph["dependencies"] if d["path"]==anim),None)
+                path=r3.local_source(root/"virtual",anim)
+                if existing:
+                    existing["required"]=True
+                    existing["evidence"]="EXPLICIT_ANIMATION_MAP"
+                else:
+                    existing={"path":anim,"role":"bone_animation",
+                              "evidence":"EXPLICIT_ANIMATION_MAP","required":True,
+                              "exists":path.is_file(),
+                              "size_bytes":path.stat().st_size if path.is_file() else None}
+                    graph["dependencies"].append(existing)
+                if not existing["exists"] and anim not in graph["missing_required"]:
+                    graph["missing_required"].append(anim)
+            graph["selected_animations"]=selected_animations
             params={"converter":converter,"converter_version":converter_version,
-                    "file_type":"gltf","promotion":bool(approve)}
+                    "file_type":"gltf","promotion":bool(approve),
+                    "animations":selected_animations}
             fp,inputs=fingerprint(conn,root,graph,tool_sha,params)
             graph.update({"fingerprint":fp,"pipeline_version":PIPELINE_VERSION,
                           "tool_sha256":tool_sha,"source_hashes":inputs})
@@ -252,8 +294,7 @@ def process(root,conn,repo,*,prefix="",limit=0,resume=False,retry_failed=False,
                 if gltf_path.is_file():
                     try:
                         r3.validate_gltf(gltf_path,
-                            require_animations=any(d["role"]=="bone_animation" and
-                                d["exists"] for d in graph["dependencies"]),
+                            require_animations=bool(selected_animations),
                             require_skin=bool(graph["model"]["skeleton"]),
                             require_lods=len(graph["model"]["meshes"]))
                         counts["skipped"]+=1
@@ -285,11 +326,12 @@ def process(root,conn,repo,*,prefix="",limit=0,resume=False,retry_failed=False,
                 if converter:
                     gltf_path.parent.mkdir(parents=True,exist_ok=True)
                     cmd=converter_command(converter,root/"virtual"/name,gltf_path)
+                    for anim in selected_animations:
+                        cmd.extend(["--animation",str(r3.local_source(root/"virtual",anim))])
                     result=subprocess.run(cmd,capture_output=True,text=True,timeout=600)
                     if result.returncode:
                         raise RuntimeError("Exporter failed: "+result.stderr[-1000:])
-                anim=any(d["role"]=="bone_animation" and d["exists"]
-                         for d in graph["dependencies"])
+                anim=bool(selected_animations)
                 skeleton=bool(graph["model"]["skeleton"])
                 lods=len(graph["model"]["meshes"])
                 quality=r3.validate_gltf(gltf_path,require_animations=anim,
@@ -383,6 +425,8 @@ def main(argv=None):
                        help="Allow local unindexed model files, e.g. test fixtures")
     index.add_argument("--converter",default="",help="Trusted headless model CLI with {input} {output}")
     index.add_argument("--converter-version",default="not-configured")
+    index.add_argument("--animation-map",type=Path,
+                       help="JSON object virtual model path -> list of explicit .tranm paths")
     index.add_argument("--approval-dir",type=Path)
     index.add_argument("--promote-reviewed",action="store_true")
     pack=sub.add_parser("pack-reports")
@@ -401,7 +445,8 @@ def main(argv=None):
                            discover=options.discover,converter=options.converter,
                            converter_version=options.converter_version,
                            approval_dir=options.approval_dir,
-                           approve=options.promote_reviewed)
+                           approve=options.promote_reviewed,
+                           animation_map=load_animation_map(options.animation_map))
     else:
         result=pack_reports(root,(options.output or root/"_index"/"r4-archives").resolve(),
                             options.max_mb)

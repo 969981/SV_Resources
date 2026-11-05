@@ -126,6 +126,21 @@ class R3R4Tests(unittest.TestCase):
                 self.assertEqual(len(packs["archives"]),1)
                 self.assertTrue(packs["no_game_assets"])
 
+
+    def test_explicit_animation_map_provenance(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/"map.json"
+            filename=REL.as_posix()
+            selected="pokemon/data/pm0025/pm0025_00_00/pm0025_00_00_00000_defaultwait01_loop.tranm"
+            path.write_text(json.dumps({filename:[selected,selected]}),encoding="utf-8")
+            self.assertEqual(r4.load_animation_map(path),{filename:[selected]})
+            path.write_text(json.dumps({filename:["../unsafe.tranm"]}),encoding="utf-8")
+            with self.assertRaises(ValueError):
+                r4.load_animation_map(path)
+            path.write_text(json.dumps({filename:["safe.txt"]}),encoding="utf-8")
+            with self.assertRaises(ValueError):
+                r4.load_animation_map(path)
+
     def test_no_unreviewed_promotion(self):
         with tempfile.TemporaryDirectory() as t:
             gltf=Path(t)/"toy.gltf"

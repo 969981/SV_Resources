@@ -56,3 +56,37 @@ should not be stored as ordinary Git objects.
 For large SV inventories, prefer persistent self-hosted runner storage and
 scope-based invocation; GitHub-hosted runners are ephemeral and cannot
 magically resume the prior job without restoring the checkpoint/database.
+
+## Explicit animation selection
+
+R4 does not automatically bind all same-prefix actions to a game object.
+Select required animations in a UTF-8 JSON file keyed by exact native model
+path; each value is a list of original .tranm paths:
+
+    {
+      "pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trmdl": [
+        "pokemon/data/pm0025/pm0025_00_00/pm0025_00_00_00000_defaultwait01_loop.tranm"
+      ]
+    }
+
+Then pass --animation-map my-map.json along with a compatible
+--converter. This adds the explicit .tranm files to the SHA fingerprint,
+appends --animation arguments to the command and requires animation tracks
+in the produced glTF. File-name proximity alone is not native identity
+evidence.
+
+## User-triggered GitHub Actions batches
+
+Use the SV R4 bounded incremental object processing workflow with:
+- prefix: a small, safe pokemon/chara/field_graphic/effect subtree
+- limit: 1–100 objects per run
+- resume, retry_failed: preserve database/checkpoint via scope-specific
+  Actions caches, with blocked objects retried only on request
+- convert_models: Windows .NET10, otherwise metadata-only Ubuntu parsing
+
+Artifacts contain only manifest JSON and bounded metadata archives; no
+raw files, PNGs, animations, glTFs, or game models are uploaded.
+Workflow caches include the SQLite job state and checkpoint but not raw assets.
+For very large full scans and permanent converted outputs, use a persistent
+Windows runner or local deployment; hosted runners have ephemeral output
+storage and are not a substitute for a durable resource store.

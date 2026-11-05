@@ -35,3 +35,8 @@ Output directories:
 
 No semantic IDs or publishable game assets inferred from names. Actions
 do not upload extracted models, PNGs or animations.
+
+R4 also supports --animation-map <file.json> for explicitly selected
+.tranm sources, with SHA-256 inclusion and glTF animation validation.
+The GitHub workflow sv-r4-incremental.yml provides bounded on-demand
+processing and metadata-only status artifacts.

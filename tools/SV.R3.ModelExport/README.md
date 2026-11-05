@@ -13,3 +13,13 @@ Optional repeated --animation <file.tranm> arguments are supported.
 No GUI is launched. Output is glTF + .bin + PNG textures in a subdirectory.
 The separate Python R3 verifier must pass before any publication;
 visual quality is NOT guaranteed by successful export.
+
+## Redistribution
+
+The linked original gftool/GltfExporter implementation comes from the
+vendored GPL-2.0 gftool source (see tools/gftool/LICENSE). A redistribution
+of this combined model converter should comply with GPL-2.0 obligations,
+including relevant source and license notices. The upstream vendor snapshot
+is not changed by this wrapper. The license of game assets is separate;
+do not redistribute Nintendo/Game Freak resources merely because the
+converter can decode them. This is technical guidance, not legal advice.

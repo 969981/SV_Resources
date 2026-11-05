@@ -5,12 +5,13 @@ on:
     paths:
       - 'tools/SV.R3.ModelExport/**'
       - 'scripts/resource_pipeline/r3_objects.py'
+      - 'scripts/resource_pipeline/r4_pipeline.py'
       - '.github/workflows/verify-sv-r3-native-gltf.yml'
   push:
     branches:
       - feature/sv-r3-r4-object-pipeline
     paths:
-      - 'tools/gftool/TrinityModelViewer/**'
+      - 'tools/SV.R3.ModelExport/**'
       - '.github/workflows/verify-sv-r3-native-gltf.yml'
   workflow_dispatch:
 
@@ -27,7 +28,8 @@ jobs:
           sparse-checkout: |
             tools/gftool
             tools/SV.R3.ModelExport
-            scripts/resource_pipeline/r3_objects.py
+            scripts/resource_pipeline
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/chara/model_pc/p0_bag0000_schoolbackpack
           sparse-checkout-cone-mode: false
       - uses: actions/setup-dotnet@v4
@@ -50,4 +52,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Model exporter exited with code $LASTEXITCODE" }
           if (!(Test-Path $dest)) { throw "No glTF generated" }
           python -c "import pathlib,sys;sys.path.insert(0,'scripts/resource_pipeline');from r3_objects import validate_gltf; p=pathlib.Path(sys.argv[1]); print(validate_gltf(p,require_skin=True,require_lods=3))" "$dest"
+      - name: Export a native SV Pokemon model with bone animation
+        shell: pwsh
+        run: |
+          $folder = Join-Path $PWD 'Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00'
+          $model = Join-Path $folder 'pm0025_00_00.trmdl'
+          $anim = Join-Path $folder 'pm0025_00_00_00000_defaultwait01_loop.tranm'
+          $dest = Join-Path $env:RUNNER_TEMP 'sv-r3-pm0025-animation.gltf'
+          $exe = Join-Path $PWD 'tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe'
+          & $exe $model $dest --animation $anim
+          if ($LASTEXITCODE -ne 0) { throw "Animation export exited with code $LASTEXITCODE" }
+          python -c "import pathlib,sys;sys.path.insert(0,'scripts/resource_pipeline');from r3_objects import validate_gltf; p=pathlib.Path(sys.argv[1]); print(validate_gltf(p,require_skin=True,require_animations=True))" "$dest"
       # Do not upload potentially copyrighted game models, textures, or glTF outputs.
