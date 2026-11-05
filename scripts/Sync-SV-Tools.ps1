@@ -48,7 +48,7 @@ foreach ($item in $config.tools) {
                 if (-not (Test-Path -LiteralPath (Join-Path $dest $file) -PathType Leaf)) { throw "Missing vendored nx2elf file: $file" }
             }
         } elseif ($item.name -eq 'gftool') {
-            foreach ($relative in @('GFTool.Core/GFTool.Core.csproj', 'NxMiddleware/BnTxx/BnTxx.csproj', 'TrinityModLoader.sln', 'LICENSE')) {
+            foreach ($relative in @('GFTool.Core/GFTool.Core.csproj', 'NxMiddleware/BnTxx/BnTxx.csproj', 'TrinityModLoader.slnx', 'NxMiddleware/NxMiddleware.slnx', 'LICENSE')) {
                 if (-not (Test-Path -LiteralPath (Join-Path $dest $relative) -PathType Leaf)) { throw "Missing vendored gftool file: $relative" }
             }
         } elseif ($item.name -eq 'pkNX') {

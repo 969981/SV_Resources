@@ -49,11 +49,16 @@ class TestToolSubmodules(unittest.TestCase):
                                             cwd=ROOT, capture_output=True, text=True, check=True)
                     self.assertEqual(len(actual.stdout.splitlines()), 13)
                 elif item["name"] == "gftool":
-                    for rel in ("GFTool.Core/GFTool.Core.csproj", "NxMiddleware/BnTxx/BnTxx.csproj", "TrinityModLoader.sln", "LICENSE"):
+                    for rel in ("GFTool.Core/GFTool.Core.csproj", "NxMiddleware/BnTxx/BnTxx.csproj", "TrinityModLoader.slnx", "NxMiddleware/NxMiddleware.slnx", "LICENSE"):
                         self.assertTrue((ROOT / path / rel).is_file(), f"Missing: {path}/{rel}")
                     tree = subprocess.run(["git", "ls-tree", "-r", "HEAD", "--", path], cwd=ROOT,
                                           capture_output=True, text=True, check=True)
                     self.assertNotIn("160000 commit", tree.stdout)
+                    for project in (ROOT / path).rglob("*.csproj"):
+                        source = project.read_text(encoding="utf-8-sig")
+                        self.assertIn("<TargetFramework>net10.0", source, str(project))
+                    self.assertFalse((ROOT / path / "TrinityModLoader.sln").exists())
+                    self.assertFalse((ROOT / path / "NxMiddleware/NxMiddleware.sln").exists())
                 elif item["name"] in ("pkNX", "Switch-Toolbox"):
                     solution = "pkNX.sln" if item["name"] == "pkNX" else "Toolbox.sln"
                     self.assertTrue((ROOT / path / solution).is_file())

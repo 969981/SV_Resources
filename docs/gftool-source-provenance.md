@@ -11,3 +11,7 @@ Nested sources:
  aa6ab40e41118d2d025e7c34b604aeca3be1ccc2 NxMiddleware (aa6ab40)
 
 All files SHA-256 compared with recursive upstream checkout. No ROM or Oodle files imported.
+
+## .NET 10 local port
+
+The original upstream commit remains pinned, while project targets, the two solutions and the System.Drawing.Common package were migrated locally. The upstreamTreeSha field preserves the imported original and sourceTreeSha tracks the patched vendored source. See the NET10 build workflow for reproducible evidence.

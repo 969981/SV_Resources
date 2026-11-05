@@ -47,3 +47,7 @@ The pinned `tools/nx2elf` tree is identical to upstream commit `a1760ba54e2aefb4
 - CI compiles `SV.TrinityDump` using the pinned vendored gftool source; no Oodle or ROM files required.
 - CI can build GFPAKHashCache from pinned PokeDocs (downloadable Actions artifact).
 - Actual 8 GiB `data.trpfs` extraction remains a local Windows validation step; no source extraction is claimed from submodule initialization alone.
+
+## NET10 and SLNX port
+
+All 11 gftool and NxMiddleware C# projects now target .NET 10. Use TrinityModLoader.slnx (11 projects) or NxMiddleware/NxMiddleware.slnx (3 projects). The former .sln files were removed. The SV.TrinityDump consumer also targets .NET 10. System.Drawing.Common has been updated to 10.0.14; other third-party packages remain pinned. The manifest records both original upstream and locally modified source-tree SHAs. Windows CI compile success does not establish graphical UI or original ROM runtime correctness.

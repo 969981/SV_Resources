@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -21,6 +21,7 @@ namespace TrinityModLoader.UI
             CheckOnClick = false;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ModPack? ModPack
         {
             get => _modPack;
