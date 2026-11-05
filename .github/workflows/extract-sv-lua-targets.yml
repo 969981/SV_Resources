@@ -34,7 +34,7 @@ jobs:
             scripts
             tests/test_sv_lua_bytecode_audit.py
             tools/SV.TrinityDump
-            tools/gftool
+            tools/gftool/**
             tools/HashCaches/SV
             tools/PokeDocs/SV/Hashlists/Lua
             tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv
@@ -43,7 +43,7 @@ jobs:
           sparse-checkout-cone-mode: false
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -60,8 +60,8 @@ jobs:
           $cacheHash = (Get-FileHash 'tools/HashCaches/SV/GFPAKHashCache.bin' -Algorithm SHA256).Hash.ToLower()
           $cacheMeta = Get-Content 'tools/HashCaches/SV/hashcache-report.json' -Raw | ConvertFrom-Json
           if ($cacheHash -ne $cacheMeta.sha256.ToLower()) { throw 'GFPak hash cache mismatch' }
-          git submodule update --init --recursive -- tools/gftool
-          if ($LASTEXITCODE -ne 0) { throw 'Pinned gftool checkout failed' }
+          if (-not (Test-Path 'tools/gftool/GFTool.Core/GFTool.Core.csproj')) { throw 'Vendored GFTool.Core is missing' }
+          if (-not (Test-Path 'tools/gftool/NxMiddleware/BnTxx/BnTxx.csproj')) { throw 'Vendored NxMiddleware is missing' }
       - name: Restore original source (read-only verification)
         shell: pwsh
         run: |

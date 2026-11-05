@@ -51,7 +51,7 @@ Task tracker: [SV unpack roadmap and issues](../docs/unpack-roadmap.md). M0 plan
 
 - `Prepare-SV-Trinity.ps1`: restore/verify `arc/data.trpfd` and `data.trpfs` to outside-repo workdir; regenerate hash cache from PokeDocs; optionally stage a user-provided Oodle DLL privately.
 - `Build-SV-GFPAKHashCache.py`: deterministic Python writer for the .NET BinaryWriter cache format; accepts multiple `--hashlist` files and writes ignored `tools/_local/GFPAKHashCache.bin`.
-- `Run-SV-TrinityDump.ps1`: run the `tools/SV.TrinityDump/` net8.0 CLI linked to pinned gftool Core. `-DryRun` enumerates descriptors; `-MaxPacks 2` smoke test; omit for full extraction. `_index/export.jsonl` is append-only for resumability.
+- `Run-SV-TrinityDump.ps1`: run the `tools/SV.TrinityDump/` net10.0 CLI linked to pinned gftool Core. `-DryRun` enumerates descriptors; `-MaxPacks 2` smoke test; omit for full extraction. `_index/export.jsonl` is append-only for resumability.
 
 See exact commands in [M1/M2 execution guide](../docs/unpack-roadmap.md#m1m2-local-execution--implementation-status-2026-11-05). Do not upload your private DLL to this public repository.
 

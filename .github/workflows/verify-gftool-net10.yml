@@ -1,0 +1,66 @@
+name: Verify gftool and NxMiddleware .NET 10
+
+on:
+  push:
+    paths:
+      - 'tools/gftool/**'
+      - 'tools/SV.TrinityDump/**'
+      - 'tools/upstream.json'
+      - 'tests/test_sv_tool_submodules.py'
+      - '.github/workflows/verify-gftool-net10.yml'
+  pull_request:
+    paths:
+      - 'tools/gftool/**'
+      - 'tools/SV.TrinityDump/**'
+      - 'tools/upstream.json'
+      - '.github/workflows/verify-gftool-net10.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools
+            scripts
+            tests
+          sparse-checkout-cone-mode: true
+          submodules: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate vendored .NET 10 solution structure
+        shell: pwsh
+        run: |
+          dotnet --info
+          $full = @(dotnet sln tools/gftool/TrinityModLoader.slnx list | Select-String '\.csproj$')
+          $nx = @(dotnet sln tools/gftool/NxMiddleware/NxMiddleware.slnx list | Select-String '\.csproj$')
+          if ($full.Count -ne 11 -or $nx.Count -ne 3) { throw "Unexpected project counts: $($full.Count), $($nx.Count)" }
+          if (Test-Path tools/gftool/TrinityModLoader.sln) { throw 'Legacy .sln exists' }
+          if (Test-Path tools/gftool/NxMiddleware/NxMiddleware.sln) { throw 'Legacy NxMiddleware .sln exists' }
+          $links = @(git ls-tree -r HEAD -- tools/gftool | Select-String '^160000 ')
+          if ($links.Count -ne 0) { throw 'Gitlinks remain' }
+          $projects = @(Get-ChildItem tools/gftool -Recurse -Filter '*.csproj')
+          if ($projects.Count -ne 11) { throw "Expected 11 projects: found $($projects.Count)" }
+          foreach ($p in $projects) {
+            if (-not ((Get-Content $p.FullName -Raw) -match '<TargetFramework>net10\.0(-windows)?</TargetFramework>')) { throw "Wrong framework: $($p.FullName)" }
+          }
+      - name: Validate pinned source trees
+        run: python -m unittest discover -s tests -p test_sv_tool_submodules.py -v
+      - name: Build NxMiddleware Release
+        run: dotnet build tools/gftool/NxMiddleware/NxMiddleware.slnx -c Release --nologo
+      - name: Build gftool full solution Release
+        run: dotnet build tools/gftool/TrinityModLoader.slnx -c Release --nologo
+      - name: Build gftool full solution Debug
+        run: dotnet build tools/gftool/TrinityModLoader.slnx -c Debug --nologo
+      - name: Build SV.TrinityDump Release
+        run: dotnet build tools/SV.TrinityDump/SV.TrinityDump.csproj -c Release --nologo

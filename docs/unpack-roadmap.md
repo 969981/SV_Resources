@@ -90,7 +90,7 @@ Synthetic planner tests: [GitHub Actions](https://github.com/969981/SV_Resources
 
 **Repository evidence:** `docs/verification/violet_4.0.0_romfs_verification.json` recorded Full mode with 326/326 checks passed, 0 failures, source comparison enabled, before this M2 pipeline was introduced. This proves the archived originals were previously verified; it does **not** mean restored contiguous files or the new gftool-based extractor have been run.
 
-**Added:** `scripts/Prepare-SV-Trinity.ps1` verifies and restores only `arc/data.trpfd` / `arc/data.trpfs` outside this repo (M1), builds the hash cache from pinned PokeDocs using `scripts/Build-SV-GFPAKHashCache.py`, and optionally copies a *user-supplied local* Oodle DLL to ignored `tools/_local/`. `scripts/Run-SV-TrinityDump.ps1` invokes `tools/SV.TrinityDump` (.NET 8 + pinned gftool `GFTool.Core`) to enumerate and extract files. Output is strictly `Unpack/4.0.0/romfs/arc/data.trpfs/virtual/`. `_index/export.jsonl` records each output hash, source pack name/offset, error, and status for resume.
+**Added:** `scripts/Prepare-SV-Trinity.ps1` verifies and restores only `arc/data.trpfd` / `arc/data.trpfs` outside this repo (M1), builds the hash cache from pinned PokeDocs using `scripts/Build-SV-GFPAKHashCache.py`, and optionally copies a *user-supplied local* Oodle DLL to ignored `tools/_local/`. `scripts/Run-SV-TrinityDump.ps1` invokes `tools/SV.TrinityDump` (.NET 10 + vendored gftool `GFTool.Core`) to enumerate and extract files. Output is strictly `Unpack/4.0.0/romfs/arc/data.trpfs/virtual/`. `_index/export.jsonl` records each output hash, source pack name/offset, error, and status for resume.
 
 ```powershell
 # Once on your own Windows computer, under the cloned repository:

@@ -65,7 +65,7 @@ jobs:
           sparse-checkout-cone-mode: true
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
       - name: Verify gftool and nested NxMiddleware are local source trees
         shell: pwsh
         run: |
@@ -88,5 +88,5 @@ jobs:
               throw "PowerShell parse failed: $path"
             }
           }
-      - name: Compile net8 CLI against pinned GFTool.Core
+      - name: Compile net10 CLI against vendored GFTool.Core
         run: dotnet build tools/SV.TrinityDump/SV.TrinityDump.csproj -c Release --nologo

@@ -31,7 +31,7 @@ The pinned `tools/nx2elf` tree is identical to upstream commit `a1760ba54e2aefb4
 
 ## Existing SV.TrinityDump batch extractor
 
-[SV.TrinityDump](SV.TrinityDump) targets .NET 8 and references **`tools/gftool/GFTool.Core/GFTool.Core.csproj`** directly. The wrapper `scripts/Run-SV-TrinityDump.ps1` exports to `Unpack/4.0.0/romfs/arc/data.trpfs/virtual`. GUI tools may require a different SDK and their upstream-specific setup; cloning does not equal building or launching them.
+[SV.TrinityDump](SV.TrinityDump) targets .NET 10 and references **`tools/gftool/GFTool.Core/GFTool.Core.csproj`** directly. The wrapper `scripts/Run-SV-TrinityDump.ps1` exports to `Unpack/4.0.0/romfs/arc/data.trpfs/virtual`. GUI tools may require a different SDK and their upstream-specific setup; cloning does not equal building or launching them.
 
 `scripts/Prepare-SV-Trinity.ps1`:
 - Restores/validates original TRPFS/TRPFD to a working directory **outside the repository**.
@@ -48,6 +48,9 @@ The pinned `tools/nx2elf` tree is identical to upstream commit `a1760ba54e2aefb4
 - CI can build GFPAKHashCache from pinned PokeDocs (downloadable Actions artifact).
 - Actual 8 GiB `data.trpfs` extraction remains a local Windows validation step; no source extraction is claimed from submodule initialization alone.
 
-## NET10 and SLNX port
+## .NET 10 and SLNX port
 
 All 11 gftool and NxMiddleware C# projects now target .NET 10. Use TrinityModLoader.slnx (11 projects) or NxMiddleware/NxMiddleware.slnx (3 projects). The former .sln files were removed. The SV.TrinityDump consumer also targets .NET 10. System.Drawing.Common has been updated to 10.0.14; other third-party packages remain pinned. The manifest records both original upstream and locally modified source-tree SHAs. Windows CI compile success does not establish graphical UI or original ROM runtime correctness.
+
+
+Continuous Windows build verification: [Verify gftool and NxMiddleware .NET 10](../.github/workflows/verify-gftool-net10.yml). Original migration completed with [GitHub Actions run 41994642367](https://github.com/969981/SV_Resources/actions/runs/41994642367). Builds verify compilation, not all UI and ROM extraction operations.
