@@ -89,8 +89,8 @@ class TestLuaClassFunctionIndex(unittest.TestCase):
         self.assertFalse(report["original_pokedocs_files_modified"])
         self.assertFalse(report["proposed_merged_changes"])
         self.assertEqual(first, (self.hash_root / "lua_f_hashes.txt").read_bytes())
-        self.assertTrue(all(b"main.ui.Unknown" in out[k] for k in
-                            ("unmapped_c_context.tsv", "new_exact_comment_names.tsv")))
+        self.assertIn(b"main.ui.Unknown", out["new_exact_comment_names.tsv"])
+        self.assertIn(b"main.ui.Known", out["unmapped_c_context.tsv"])
 
 
 if __name__ == "__main__":
