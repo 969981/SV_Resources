@@ -50,9 +50,9 @@ Preserve original path case, extension and variant. Avoid path traversal and col
 | gftool | https://github.com/pkZukan/gftool | TrinityFileExplorer + GFTool.Core | Main TRPFS/TRPFD extraction; current Explorer requires GFPAKHashCache.bin and oo2core_8_win64.dll |
 | pkNX | https://github.com/kwsch/pkNX | SV 4.0.0 data export, cross-check | SV: dump only, not editing; Windows/.NET 10 |
 | Switch-Toolbox | https://github.com/KillzXGaming/Switch-Toolbox | General supported Switch models, textures, formats | Inspect support per file before converting |
-| SCVI_Extract | https://github.com/psthrn42/SCVI_Extract | Legacy Python comparison | Code is imported as a submodule but not selected as default extractor |
+| SCVI_Extract | https://github.com/psthrn42/SCVI_Extract | Legacy Python comparison | Full 10-file upstream source snapshot (not a submodule); not selected as default extractor |
 
-`scripts/Sync-SV-Tools.ps1` pins the source revisions into an ignored `tools/_external` folder. Building/running GUI tools is **not** implied by checkout. Do not commit external source trees, Oodle DLLs, ROM keys or redistributed game files by default.
+`scripts/Sync-SV-Tools.ps1` verifies the two complete vendored trees (PokeDocs and SCVI_Extract) and initializes three remaining Git submodules. The vendored `tools/SCVI_Extract/` tree matches upstream commit `0d4f817d0756257cd5ec1c8a680ae201e8b4eec5` exactly (tree `33d0fd99e9a0787054b72b0593457161e2453bfa`). Building/running GUI tools is **not** implied by checkout. Do not commit unrelated third-party sources, Oodle DLLs, ROM keys or redistributed game files by default.
 
 ## Reproducible commands (Windows, repo root)
 

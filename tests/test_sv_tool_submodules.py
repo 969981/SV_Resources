@@ -27,8 +27,21 @@ class TestToolSubmodules(unittest.TestCase):
             section = f'submodule "{path}"'
             if item["importMethod"] == "vendor-tree":
                 self.assertFalse(config.has_section(section), path)
+                self.assertFalse(item["submodules"], path)
                 self.assertIn(f"040000 tree {item['sourceTreeSha']}\t{path}", recursive.stdout)
-                self.assertTrue((ROOT / path / "SV/Hashlists/FileSystem/hashes_inside_fd.txt").is_file())
+                if item["name"] == "PokeDocs":
+                    self.assertTrue((ROOT / path / "SV/Hashlists/FileSystem/hashes_inside_fd.txt").is_file())
+                elif item["name"] == "SCVI_Extract":
+                    for rel in ["README.md", "full_extract.py", "trpfs_extract.py",
+                                "trpak_extract.py", "schemas/trpfs.fbs", "schemas/trpfd.fbs",
+                                "schemas/trpak.fbs", "info/names_original.txt",
+                                "info/names_changed.txt", ".gitignore"]:
+                        self.assertTrue((ROOT / path / rel).is_file(), f"{path}/{rel}")
+                    actual = subprocess.run(["git", "ls-tree", "-r", "--name-only", "HEAD", "--", path],
+                                            cwd=ROOT, capture_output=True, text=True, check=True)
+                    self.assertEqual(len(actual.stdout.splitlines()), 10)
+                else:
+                    self.fail(f"Unexpected vendored tool: {item['name']}")
             else:
                 self.assertTrue(config.has_section(section), path)
                 self.assertEqual(config[section]["path"], path)

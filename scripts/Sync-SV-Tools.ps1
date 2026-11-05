@@ -1,10 +1,10 @@
-# Verify PokeDocs vendored source and initialize four pinned Git submodules under tools/.
+# Verify two complete vendored source trees and initialize three pinned Git submodules under tools/.
 # Preserves local changes: git submodule update stops rather than overwriting conflicts.
 [CmdletBinding()]
 param(
     [string]$RepositoryRoot = (Split-Path -Parent $PSScriptRoot),
     [switch]$VerifyOnly,
-    [switch]$IncludeLegacy  # Kept for old callers; legacy SCVI_Extract is now always included.
+    [switch]$IncludeLegacy  # Kept for old callers; legacy SCVI_Extract is a vendored tree.
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -28,13 +28,27 @@ foreach ($item in $config.tools) {
     }
     $dest = Join-Path $RepositoryRoot $path.Replace('/', '\')
     if ($item.importMethod -eq 'vendor-tree') {
-        $hashlist = Join-Path $dest 'SV\Hashlists\FileSystem\hashes_inside_fd.txt'
-        if (-not (Test-Path -LiteralPath $hashlist -PathType Leaf)) {
-            throw "Missing vendored PokeDocs hashlist: $hashlist"
-        }
-        $tree = (& git -C $RepositoryRoot rev-parse 'HEAD:tools/PokeDocs').Trim()
+        $treeSpec = "HEAD:$path"
+        $tree = (& git -C $RepositoryRoot rev-parse $treeSpec).Trim()
         if ($LASTEXITCODE -ne 0 -or $tree -ne [string]$item.sourceTreeSha) {
-            throw "Vendored PokeDocs tree mismatch: expected $($item.sourceTreeSha) actual=$tree"
+            throw "Vendored source tree mismatch: $path expected=$($item.sourceTreeSha) actual=$tree"
+        }
+        if ($item.name -eq 'PokeDocs') {
+            $hashlist = Join-Path $dest 'SV\Hashlists\FileSystem\hashes_inside_fd.txt'
+            if (-not (Test-Path -LiteralPath $hashlist -PathType Leaf)) {
+                throw "Missing vendored PokeDocs hashlist: $hashlist"
+            }
+        } elseif ($item.name -eq 'SCVI_Extract') {
+            foreach ($relative in @('full_extract.py', 'trpfs_extract.py', 'trpak_extract.py',
+                                    'info\names_original.txt', 'info\names_changed.txt',
+                                    'schemas\trpfs.fbs', 'schemas\trpfd.fbs', 'schemas\trpak.fbs')) {
+                $sourceFile = Join-Path $dest $relative
+                if (-not (Test-Path -LiteralPath $sourceFile -PathType Leaf)) {
+                    throw "Missing vendored SCVI_Extract file: $sourceFile"
+                }
+            }
+        } else {
+            throw "Unknown vendored source: $path"
         }
         Write-Host "$path  vendored tree $tree"
         continue
@@ -53,4 +67,4 @@ foreach ($item in $config.tools) {
     }
     Write-Host "$path  $actual"
 }
-Write-Host 'All five tool source locations verified (four submodules + full PokeDocs snapshot). No game data extracted or tool executables run.'
+Write-Host 'All five tool source locations verified (three submodules + two full source snapshots). No game data extracted or tool executables run.'
