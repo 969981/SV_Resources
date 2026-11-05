@@ -86,3 +86,7 @@ py -3 -m unittest discover -s tests -p "test_sv_lua_hash_recovery.py" -v
 ```
 
 GitHub Actions：[recover-sv-lua-hashes.yml](../.github/workflows/recover-sv-lua-hashes.yml)；Obsidian 技术文档：[sv-lua-hash-recovery.md](../docs/research/sv-lua-hash-recovery.md)。
+
+## Event TREVT / Prefetch TRPRE native unpack
+
+`Unpack-SV-EventPrefetch.py` parses the three Violet 4.0.0 files directly as FlatBuffers, with exact source SHA-256 checks, CSV/JSON output, and provenance. Verify published results: `py -3 scripts/Unpack-SV-EventPrefetch.py --repo . --verify-only`. Regenerate: add `--overwrite`. See [TREVT/TRPRE research](../docs/research/trevt-prefetch-format.md).
