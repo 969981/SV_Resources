@@ -1,0 +1,182 @@
+name: SV pkNX full virtual sweep (4.0.0)
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: 'pkNX-decodable source files per batch (1..5000)'
+        required: true
+        default: '1000'
+        type: string
+      workers:
+        description: 'Parallel independent file workers (1..8)'
+        required: true
+        default: '4'
+        type: string
+      restart:
+        description: 'Start a new full sweep from the beginning'
+        required: true
+        default: false
+        type: boolean
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/sv-pknx-full.yml'
+      - 'tools/pkNX/pkNX.VirtualDump/**'
+      - 'scripts/pknx_virtual.py'
+      - 'tests/test_sv_pknx_virtual.py'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: sv-pknx-full-4.0.0
+  cancel-in-progress: false
+
+jobs:
+  pknx-batch:
+    if: github.repository == '969981/SV_Resources'
+    runs-on: windows-latest
+    timeout-minutes: 330
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BATCH_SIZE: ${{ inputs.batch_size || '1000' }}
+      WORKERS: ${{ inputs.workers || '4' }}
+      RESTART: ${{ inputs.restart || 'false' }}
+      SOURCE: Unpack/4.0.0/romfs/arc/data.trpfs/virtual
+      DEST: Unpack/pkNX/4.0.0
+    steps:
+      - name: Sparse checkout with Git-tracked vendor source
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/workflows/sv-pknx-full.yml
+            tools/pkNX/**
+            scripts/pknx_virtual.py
+            tests/test_sv_pknx_virtual.py
+            Unpack/pkNX/README.md
+            Unpack/pkNX/4.0.0/_index/progress.json
+            Unpack/pkNX/4.0.0/_index/inventory.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate planner and parallelism parameters
+        shell: pwsh
+        run: |
+          git config core.longpaths true
+          if ([int]$env:BATCH_SIZE -lt 1 -or [int]$env:BATCH_SIZE -gt 5000) { throw 'batch_size must be 1..5000' }
+          if ([int]$env:WORKERS -lt 1 -or [int]$env:WORKERS -gt 8) { throw 'workers must be 1..8' }
+          python -m py_compile scripts/pknx_virtual.py
+          if ($LASTEXITCODE -ne 0) { throw 'Planner syntax validation failed' }
+          python -m unittest discover -s tests -p 'test_sv_pknx_virtual.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Planner test suite failed' }
+
+      - name: Plan all tracked virtual files and choose next pkNX batch
+        id: plan
+        shell: pwsh
+        run: |
+          $argsList = @('scripts/pknx_virtual.py', 'select', '--work', $env:RUNNER_TEMP, '--batch-size', $env:BATCH_SIZE)
+          if ($env:RESTART -eq 'true') { $argsList += '--restart' }
+          & python @argsList
+          if ($LASTEXITCODE -ne 0) { throw 'Full-tree selection failed' }
+          $s = Get-Content (Join-Path $env:RUNNER_TEMP 'selection.json') -Raw | ConvertFrom-Json
+          "count=$($s.selected_count)" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "remaining=$($s.remaining_after)" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Selected=$($s.selected_count), remaining after batch=$($s.remaining_after)"
+
+      - name: Hydrate only selected original files
+        if: steps.plan.outputs.count != '0'
+        shell: pwsh
+        run: |
+          python scripts/pknx_virtual.py hydrate --work $env:RUNNER_TEMP
+          if ($LASTEXITCODE -ne 0) { throw 'Selected original blobs missing' }
+
+      - uses: actions/setup-dotnet@v4
+        if: steps.plan.outputs.count != '0'
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build actual vendored pkNX native parsers
+        if: steps.plan.outputs.count != '0'
+        shell: pwsh
+        run: |
+          dotnet build tools/pkNX/pkNX.VirtualDump/pkNX.VirtualDump.csproj --configuration Release --nologo
+          if ($LASTEXITCODE -ne 0) { throw 'pkNX parser compilation failed' }
+
+      - name: Decode the batch with bounded parallel workers
+        id: decode
+        if: steps.plan.outputs.count != '0'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $dll = 'tools/pkNX/pkNX.VirtualDump/bin/Release/net10.0/pkNX.VirtualDump.dll'
+          & dotnet $dll $env:SOURCE $env:DEST (Join-Path $env:RUNNER_TEMP 'selection.txt') (Join-Path $env:RUNNER_TEMP 'batch-report.jsonl') $env:WORKERS
+          if ($LASTEXITCODE -ne 0) { throw 'One or more files failed; report will be checkpointed if complete' }
+
+      - name: Validate SHA-256 evidence and durable checkpoint
+        id: finalize
+        if: steps.plan.outputs.count != '0'
+        shell: pwsh
+        run: |
+          python scripts/pknx_virtual.py finalize --work $env:RUNNER_TEMP
+          if ($LASTEXITCODE -ne 0) { throw 'Batch report incomplete or invalid; cursor not advanced' }
+          $p = Get-Content "$env:DEST/_index/progress.json" -Raw | ConvertFrom-Json
+          "remaining=$($p.remaining_candidates)" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "errors=$($p.error_total)" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "pkNX state=$($p.state), decoded=$($p.decoded_total), errors=$($p.error_total)"
+
+      - name: Publish derived outputs on master without force push
+        if: steps.plan.outputs.count != '0'
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse -f -- Unpack/pkNX/4.0.0
+          if ($LASTEXITCODE -ne 0) { throw 'Unable to stage pkNX results' }
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Host 'No new generated files'; exit 0 }
+          git commit -m 'data(pknx): audit and checkpoint SV 4.0.0 virtual batch'
+          if ($LASTEXITCODE -ne 0) { throw 'Unable to commit pkNX results' }
+          $success = $false
+          for ($i = 0; $i -lt 5; $i++) {
+            git fetch origin master
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to fetch master for fast-forward verification' }
+            git rebase origin/master
+            if ($LASTEXITCODE -ne 0) {
+              git rebase --abort
+              throw 'Concurrent changes conflict. Check workflow artifact; no force push.'
+            }
+            git push origin HEAD:master
+            if ($LASTEXITCODE -eq 0) { $success = $true; break }
+            Start-Sleep -Seconds 3
+          }
+          if (-not $success) { throw 'No successful fast-forward push. Check audit artifact.' }
+
+      - name: Continue with next unprocessed pkNX batch
+        if: steps.plan.outputs.count != '0' && steps.finalize.outputs.remaining != '0'
+        shell: pwsh
+        run: |
+          gh workflow run sv-pknx-full.yml --ref master -f "batch_size=$env:BATCH_SIZE" -f "workers=$env:WORKERS" -f 'restart=false'
+          if ($LASTEXITCODE -ne 0) { throw 'Auto-dispatch failed; checkpoint is retained for manual continuation.' }
+
+      - name: Save audit log even when native parser or commit fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-pknx-4.0.0-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/selection.json
+            ${{ runner.temp }}/selection.txt
+            ${{ runner.temp }}/batch-report.jsonl
+            Unpack/pkNX/4.0.0/_index/inventory.json
+            Unpack/pkNX/4.0.0/_index/progress.json
+          if-no-files-found: warn
+          retention-days: 14
