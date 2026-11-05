@@ -21,3 +21,10 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 - [SV 4.0.0 pipeline and milestones](unpack-roadmap.md)
 - [Derived output directory contract](../Unpack/README.md)
 - [Upstream tools and pinned source revisions](../tools/README.md)
+
+## PokeDocs / GFPAK 缓存（Obsidian）
+
+- [GFPAK HashCache 知识库索引](hashcache/README.md) — 支持 Obsidian Wikilink。
+- [来源与 TXT/BIN 二进制格式](hashcache/format-and-sources.md)
+- [SV/ZA 构建步骤与 GitHub Actions](hashcache/build-and-workflows.md)
+- [来源校验、测试与故障排查](hashcache/verification.md)
