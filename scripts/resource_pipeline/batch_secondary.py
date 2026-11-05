@@ -19,7 +19,7 @@ STAGES = {"text": "messages", "images": "bntx", "models": "models"}
 
 
 def safe_scope(scope: str) -> str:
-    if not scope or "\\\\" in scope or "\\x00" in scope:
+    if not scope or chr(92) in scope or chr(0) in scope:
         raise ValueError("Invalid virtual scope")
     p = PurePosixPath(scope)
     if p.is_absolute() or any(x in ("", ".", "..") for x in scope.split("/")):
@@ -38,7 +38,7 @@ def list_git_files(repo: Path, scope: str = "") -> list[str]:
     prefix = BASE + "/virtual/"
     return sorted(
         raw.decode("utf-8", "surrogateescape")[len(prefix):]
-        for raw in result.stdout.split(b"\\x00")
+        for raw in result.stdout.split(bytes([0]))
         if raw and raw.decode("utf-8", "surrogateescape").startswith(prefix)
     )
 
@@ -186,7 +186,7 @@ def main(argv=None):
     if not output.is_relative_to(repo / BASE / "_index" / "secondary"):
         raise ValueError("Batch output must be within _index/secondary/")
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\\n",
+    output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + chr(10),
                       encoding="utf-8")
     result["batch_report_path"] = output.relative_to(repo).as_posix()
     if args.stage:
