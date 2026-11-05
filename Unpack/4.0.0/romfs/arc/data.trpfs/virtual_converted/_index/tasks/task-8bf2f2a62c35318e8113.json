@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task": "appli/tex/icon_item/item_0201#00000",
+  "input_fingerprint": "CF9CDA903DEF913A0206628EBD46AF2DC0F68A54713097F9C47C23D20EDABC3E",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "appli/tex/icon_item/item_0201/item_0201.bntx",
+      "source_sha256": "A2D3DBF870A9D3C1625639F1A8061D31CD98314E0110ED93CD407F8B36892B55",
+      "bytes": 45160,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A00100B0000068B00000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/appli/tex/icon_item/item_0201/item_0201.bntx.json"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/appli/tex/icon_item/item_0201/item_0201.png",
+      "path": "virtual_converted/appli/tex/icon_item/item_0201/item_0201.png",
+      "sha256": "6DAFE1E251F938AB01D36AA1585E4906DAB39AB1A1AF82CB1B15EF7DD1143CF3",
+      "bytes": 30390
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/icon_item/item_0201/_inspection/8e000f89105c507f.jsonl",
+      "path": "virtual_converted/_parsed/appli/tex/icon_item/item_0201/_inspection/8e000f89105c507f.jsonl",
+      "sha256": "CE758860B66FBB5E9BB873FFBD0FE058CBAFDB60CD7A2109A23503AD1E2B9EAB",
+      "bytes": 576
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/icon_item/item_0201/item_0201.bntx.json",
+      "path": "virtual_converted/_parsed/appli/tex/icon_item/item_0201/item_0201.bntx.json",
+      "sha256": "420CC1AEB0A75D273C9884BE22B540DEBC2641CE6E6113E9EF1F819D791BD63D",
+      "bytes": 276
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "appli/tex/icon_item/item_0201",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
