@@ -35,3 +35,8 @@ Keep evidence statuses visible. Do not present planned work as completed.
 - [直接读取 main.blua / main_dynamic.blua 的 C→F 原生关系](sv-lua-native-4.0.0.md) — 23,727 条真实 `prototype` 方法赋值、1,076 个原生 C 方法拥有者、25 个未知 F 的使用上下文，以及 14 个 Gem Setting 窗口回调接收对象；**不拆分大文件**。
 
 - ZA Lua 第三轮：详见 [完整原始行号与事件源证据](za-lua-hash-recovery.md)，累计 611 条、第三轮新增 33、剩余 S 116 / F 43 / E 3。第三方源码不是原生确认。
+
+## SV 4.0.0 Lua：直接读取整文件的 C/S/F 原生进展
+
+- [C 类静态 S 闭包 + F 精确名称恢复（第三轮）](sv-lua-native-4.0.0-followup.md) — 103 个 C 新增静态闭包证据，281 条 C→S；213 个 C 全局注册；4 条新增 F 完整 Hash 命中。原始 `.blua` 和 PokeDocs 均不拆分、不覆盖。
+- [小型原生证据 TSV/JSON](../../tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0/) — 无原始大文件，仅函数赋值、原始 PC 和独立候选。
