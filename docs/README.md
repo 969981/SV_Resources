@@ -37,3 +37,7 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 ## Lua C/F 证据链
 
 - [Lua C→F 旧版源码结构与 4.0.0 验证边界](research/sv-lua-hash-context.md) — 逐条源码赋值、父类关联和未知类上下文。
+
+## ZA Lua Hash 恢复（Obsidian）
+
+- [ZA Lua C/E/F/S 空白 Hash 补全](research/za-lua-hash-recovery.md) — 70 条完整 Hash 精确候选，原未知 773→703，独立补充表与脚本。

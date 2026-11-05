@@ -17,3 +17,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## Lua 方法定义证据（跨版本）
 
 - [C 类与 F 方法源码结构索引](sv-lua-hash-context.md) — 18,948 条旧版原始定义，795 个未命名 C 类的文件定位；不冒充 SV 4.0.0 原生语义证据。
+
+## ZA Lua symbols
+
+- [ZA Lua C/E/F/S 空映射恢复](za-lua-hash-recovery.md) — 70 个 Hash 行精确匹配（69 种名称），完整候选 TSV、merged TXT、测试与 CI；上游 PokeDocs 不变。

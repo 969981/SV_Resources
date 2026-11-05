@@ -96,3 +96,14 @@ GitHub Actions：[recover-sv-lua-hashes.yml](../.github/workflows/recover-sv-lua
 `Index-SV-Lua-CallGraph.py` 通过固定提交 `Martmists-GH/SV-Script-RE@1f843bd...` 扫描 `decompiled/` 与原始 `split/`，构建 C→F 定义、未知 C 类上下文和未知 F 所有者表。**该旧版语料不是 4.0.0 原生代码**，不覆写原始 PokeDocs 或此前 48 条候选。
 
 `python scripts/Index-SV-Lua-CallGraph.py --external <checkout>`；使用 `--verify-only` 检查可重现性。自动化：[`index-sv-lua-context.yml`](../.github/workflows/index-sv-lua-context.yml)，文档：[C/F 证据链](../docs/research/sv-lua-hash-context.md)。
+
+## ZA Lua Hash C/E/F/S 独立候选补全
+
+`Recover-ZA-Lua-Hashes.py` 验证 69 个唯一字符串的完整 FNV-1a-64 Hash；其中一个名称同时命中 F 和 S 两表，共恢复 70 行。原始 PokeDocs 文件不修改，结果在 `tools/PokeDocs-Supplement/ZA/Hashlists/Lua/`。
+
+```powershell
+py -3 .\scripts\Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 70
+py -3 -m unittest discover -s tests -p test_za_lua_hash_recovery.py -v
+```
+
+研究文档：[ZA Lua Hash 恢复](../docs/research/za-lua-hash-recovery.md)。

@@ -1,0 +1,31 @@
+name: Verify ZA Lua Hash recovery
+on:
+  push:
+    paths:
+      - 'scripts/Recover-ZA-Lua-Hashes.py'
+      - 'tests/test_za_lua_hash_recovery.py'
+      - 'tools/PokeDocs-Supplement/ZA/Hashlists/Lua/**'
+      - '.github/workflows/verify-za-lua-hashes.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            tests
+            tools/PokeDocs/ZA/Hashlists/Lua
+            tools/PokeDocs-Supplement/ZA/Hashlists/Lua
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -p test_za_lua_hash_recovery.py -v
+      - run: python scripts/Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 70
+      - run: git diff --exit-code -- tools/PokeDocs/ZA/Hashlists/Lua
