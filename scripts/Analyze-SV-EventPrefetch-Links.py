@@ -139,6 +139,10 @@ def event_edges(repo):
     name_hits = 0
     state_hits = 0
     state_absent_samples = []
+    source_states = Counter()
+    target_states = Counter()
+    field3_values = Counter()
+    referenced_events = set()
     refs = 0
     for event in events:
         for st in event["states"]:
@@ -147,6 +151,10 @@ def event_edges(repo):
                     refs += 1
                     target = c["referenceName"]
                     target_state = c["referenceState"]
+                    source_states[st["name"]] += 1
+                    target_states[target_state] += 1
+                    field3_values[str(c["field3Raw"])] += 1
+                    referenced_events.add(target)
                     name_hit = target in lookup
                     state_hit = name_hit and target_state in lookup[target]
                     name_hits += name_hit
@@ -167,6 +175,10 @@ def event_edges(repo):
         "events": len(events), "conditions": refs,
         "referenceNameExistsInTrevt": name_hits,
         "referenceNameOutsideTrevt": refs - name_hits,
+        "distinctReferencedEventNames": len(referenced_events),
+        "sourceStateCounts": dict(sorted(source_states.items())),
+        "targetStateCounts": dict(sorted(target_states.items())),
+        "conditionField3RawCounts": dict(sorted(field3_values.items())),
         "referenceStateExistsAsDeclaredState": state_hits,
         "knownTargetButUnknownState": name_hits - state_hits,
         "unknownStateSamples": state_absent_samples,
