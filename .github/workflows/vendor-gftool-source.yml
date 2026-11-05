@@ -25,6 +25,11 @@ jobs:
             tools/upstream.json
             .github/workflows/vendor-gftool-source.yml
             docs/gftool-source-provenance.md
+            tools/README.md
+            README.md
+            tests/test_sv_tool_submodules.py
+            scripts/Sync-SV-Tools.ps1
+            .github/workflows/validate-unpack-plan.yml
           sparse-checkout-cone-mode: false
           persist-credentials: true
       - name: Clone and materialize all nested dependencies
@@ -74,18 +79,22 @@ jobs:
           p=Path('.gitmodules');s=p.read_text()
           s,n=re.subn(r'(?m)^\[submodule "tools/gftool"\]\n(?:[ \t]+[^\n]*\n)+\n?','',s)
           assert n==1,'Cannot identify single gftool submodule metadata'
-          p.write_text(s)
+          if s.strip(): p.write_text(s)
+          else: p.unlink()
           p=Path('tools/upstream.json');m=json.loads(p.read_text())
           g=next(x for x in m['tools'] if x['name']=='gftool')
           assert g['ref']=='cac7a210fcbef5ecf1ee108c10d1a1bdddc4cd4c'
+          m['sourceTracking']='vendor-only'
           g['submodules']=False
           g['importMethod']='vendor-tree'
+          g['nestedVendors']=[{'path':'NxMiddleware','repository':'https://github.com/Reisyukaku/NxMiddleware.git','ref':'aa6ab40e41118d2d025e7c34b604aeca3be1ccc2'}]
           git_tree=subprocess.check_output(['git','write-tree'],text=True).strip()
           tree=subprocess.check_output(['git','ls-tree',git_tree,'tools/gftool'],text=True).split()[2]
           g['sourceTreeSha']=tree
           p.write_text(json.dumps(m,indent=2,ensure_ascii=False)+'\n')
           nested=(Path(os.environ['RUNNER_TEMP'])/'gftool-nested.txt').read_text()
           Path('docs').mkdir(parents=True, exist_ok=True)
+          Path('docs').mkdir(parents=True,exist_ok=True)
           Path('docs/gftool-source-provenance.md').write_text(
               '# gftool complete source import\n\n'
               'Upstream: https://github.com/pkZukan/gftool\n\n'
@@ -96,6 +105,79 @@ jobs:
           print('Complete vendored Git tree SHA:',tree)
           PY
           git add -- .gitmodules tools/upstream.json docs/gftool-source-provenance.md
+      - name: Adjust verifier, documentation, and CI after vendoring
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          def change(f,a,b):
+              p=Path(f);s=p.read_text(encoding='utf-8')
+              assert s.count(a)==1,(f,s.count(a),a)
+              p.write_text(s.replace(a,b),encoding='utf-8')
+          f='tests/test_sv_tool_submodules.py'
+          change(f,'"mixed-vendor-and-submodules"','"vendor-only"')
+          change(f,'        self.assertTrue(config.read(ROOT / ".gitmodules", encoding="utf-8"))',
+                 '        if (ROOT / ".gitmodules").exists():\n            config.read(ROOT / ".gitmodules", encoding="utf-8")\n        self.assertFalse(config.sections())')
+          change(f,'                elif item["name"] in ("pkNX", "Switch-Toolbox"):',
+                 '                elif item["name"] == "gftool":\n                    for rel in ("GFTool.Core/GFTool.Core.csproj", "NxMiddleware/BnTxx/BnTxx.csproj", "TrinityModLoader.sln", "LICENSE"):\n                        self.assertTrue((ROOT / path / rel).is_file())\n                elif item["name"] in ("pkNX", "Switch-Toolbox"):')
+          s=Path(f).read_text(encoding='utf-8')
+          start=s.index('            else:\n                self.assertTrue(config.has_section(section)')
+          end=s.index('            self.assertEqual(len(item["ref"]), 40)',start)
+          s=s[:start]+'            else:\n                self.fail(f"Submodules not supported: {path}")\n'+s[end:]
+          Path(f).write_text(s,encoding='utf-8')
+          f='scripts/Sync-SV-Tools.ps1'
+          change(f,"'mixed-vendor-and-submodules'","'vendor-only'")
+          change(f, 'if (-not $VerifyOnly) {\n    & git -C $RepositoryRoot submodule sync --recursive\n    if ($LASTEXITCODE -ne 0) { throw \'git submodule sync failed\' }\n}\n', '')
+          change(f, "        } elseif ($item.name -eq 'pkNX') {",
+                 "        } elseif ($item.name -eq 'gftool') {\n            foreach ($relative in @('GFTool.Core/GFTool.Core.csproj','NxMiddleware/BnTxx/BnTxx.csproj','TrinityModLoader.sln','LICENSE')) {\n                if (-not (Test-Path -LiteralPath (Join-Path $dest $relative) -PathType Leaf)) { throw \"Missing gftool source: $relative\" }\n            }\n        } elseif ($item.name -eq 'pkNX') {")
+          p=Path(f);s=p.read_text(encoding='utf-8')
+          start=s.index("    if ($item.importMethod -ne 'git-submodule')")
+          end=s.index('    Write-Host "$path  $actual"',start)+len('    Write-Host "$path  $actual"')
+          s=s[:start]+'    throw "Submodule import method unsupported: $path"'+s[end:]
+          s=s.replace('Verify five complete vendored source trees and initialize one pinned Git submodule','Verify six fully vendored source trees')
+          s=s.replace('All six tool source locations verified (one submodule + five full source snapshots).','All six tool source locations verified as normal Git trees.')
+          p.write_text(s,encoding='utf-8')
+          f='.github/workflows/validate-unpack-plan.yml'
+          p=Path(f);s=p.read_text(encoding='utf-8')
+          s=s.replace("'tools/gftool'","'tools/gftool/**'")
+          start=s.index('      - name: Initialize pinned gftool submodule')
+          end=s.index('      - name: Parse Windows PowerShell integration scripts',start)
+          block=[
+              '      - name: Verify vendored gftool and nested NxMiddleware',
+              '        shell: pwsh',
+              '        run: |',
+              '          $expected = (Get-Content tools/upstream.json -Raw | ConvertFrom-Json).tools | Where-Object name -eq \'gftool\' | Select-Object -ExpandProperty sourceTreeSha',
+              "          $actual = (git rev-parse 'HEAD:tools/gftool').Trim()",
+              '          if ($actual -ne $expected) { throw "gftool tree SHA mismatch" }',
+              "          $links = @(git ls-tree -r HEAD -- tools/gftool | Select-String '^160000 ')",
+              '          if ($links.Count -ne 0) { throw "Nested gitlink exists" }',
+              "          if (-not (Test-Path tools/gftool/NxMiddleware/BnTxx/BnTxx.csproj)) { throw 'Missing NxMiddleware source' }",
+          ]
+          s=s[:start]+'\n'.join(block)+'\n'+s[end:]
+          p.write_text(s,encoding='utf-8')
+          f='tools/README.md'
+          p=Path(f);s=p.read_text(encoding='utf-8')
+          a=s.index('All six upstream projects are available under')
+          b=s.index('\n\n| Local path',a)
+          s=s[:a]+'All six tools are complete vendored source trees, not gitlinks. The pinned gftool source includes the full NxMiddleware dependency under tools/gftool/NxMiddleware. A normal git clone/pull is enough; submodule initialization is no longer required.'+s[b:]
+          s=s.replace('git clone --recurse-submodules','git clone')
+          s=s.replace('git submodule sync --recursive\ngit submodule update --init --recursive','')
+          s=s.replace('gftool has its own nested `NxMiddleware` submodule, so use `--recursive` for the full source.','gftool/NxMiddleware is a local vendored source directory.')
+          p.write_text(s,encoding='utf-8')
+          f='README.md'
+          p=Path(f);s=p.read_text(encoding='utf-8')
+          a=s.index('Five upstream projects are available under')
+          b=s.index(' The SV.TrinityDump',a)
+          s=s[:a]+'Six complete source trees are available under [tools/](tools/README.md), including gftool and its nested NxMiddleware dependency. All are real files, not Git submodules; after git pull no recursive submodule update is needed.'+s[b:]
+          p.write_text(s,encoding='utf-8')
+          PY
+          git add -A -- README.md tools/README.md tests/test_sv_tool_submodules.py scripts/Sync-SV-Tools.ps1 .github/workflows/validate-unpack-plan.yml
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build vendored GFTool.Core integration
+        run: dotnet build tools/SV.TrinityDump/SV.TrinityDump.csproj -c Release --nologo
       - name: Commit and push the complete source snapshot
         shell: bash
         run: |
@@ -104,4 +186,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git diff --cached --stat
           git commit -m 'vendor: replace gftool submodule with full source and NxMiddleware'
+          python3 -m unittest discover -s tests -p test_sv_tool_submodules.py -v
+          git fetch origin master
+          git rebase origin/master
           git push origin HEAD:refs/heads/master
