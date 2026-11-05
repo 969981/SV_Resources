@@ -1,5 +1,6 @@
 """Regression: every native file must receive a real parsed/ inspection entry."""
 from pathlib import Path
+from contextlib import closing
 import json
 import sys
 import tempfile
@@ -26,7 +27,7 @@ class ExhaustiveInspectionTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(blob)
                 files.append((name, path))
-            with cli.connect(root / "_index" / "resource_catalog.sqlite") as conn:
+            with closing(cli.connect(root / "_index" / "resource_catalog.sqlite")) as conn:
                 result = process_virtual.index_local(root, conn, files)
                 self.assertEqual(result["available"], 3)
                 report = inspect_all.inspect_all(
