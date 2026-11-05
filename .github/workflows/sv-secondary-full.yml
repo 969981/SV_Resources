@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/sv-secondary-full.yml'
       - 'scripts/resource_pipeline/full_secondary.py'
+      - 'scripts/resource_pipeline/parallel_secondary.py'
       - 'tests/test_sv_secondary_full.py'
       - 'tests/test_sv_virtual_second_stage.py'
   workflow_dispatch:
@@ -15,6 +16,10 @@ on:
         type: string
         required: true
         default: '1800'
+      workers:
+        description: Concurrent isolated worker processes (1..4)
+        type: string
+        default: '3'
   schedule:
     - cron: '17 20 * * *'
 
@@ -34,6 +39,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       MAX_FILES: ${{ github.event.inputs.max_files || '1800' }}
+      SV_WORKERS: ${{ github.event.inputs.workers || '3' }}
       SV_ROOT: Unpack/4.0.0/romfs/arc/data.trpfs
     steps:
       - uses: actions/checkout@v4
@@ -62,8 +68,9 @@ jobs:
         shell: pwsh
         run: |
           if ([int]$env:MAX_FILES -lt 400 -or [int]$env:MAX_FILES -gt 2400) { throw 'Bad max_files' }
+          if ([int]$env:SV_WORKERS -lt 1 -or [int]$env:SV_WORKERS -gt 4) { throw 'Bad workers' }
           git config core.longpaths true
-          python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/process_virtual.py
+          python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/process_virtual.py scripts/resource_pipeline/parallel_secondary.py
           if ($LASTEXITCODE -ne 0) { throw 'Python compile failed' }
           python -m unittest discover -s tests -p test_sv_secondary_full.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Full-sweep tests failed' }
@@ -106,7 +113,7 @@ jobs:
           $exe = Join-Path $PWD "tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe"
           if (-not (Test-Path $exe)) { throw 'Model export binary missing' }
           $model = '"' + $exe + '" {input} {output}'
-          python scripts/resource_pipeline/full_secondary.py --repo . --png-converter "ultimate_tex_cli {input} {output}" --model-converter $model execute
+          python scripts/resource_pipeline/parallel_secondary.py --repo . --workers $env:SV_WORKERS --png-converter "ultimate_tex_cli {input} {output}" --model-converter $model --max-output-mb 120
           if ($LASTEXITCODE -ne 0) { throw 'Native batch processor failed' }
       - name: Save derived outputs and checkpoint on master
         if: steps.plan.outputs.count != '0'
@@ -138,7 +145,7 @@ jobs:
           $state = Get-Content "$env:RUNNER_TEMP/full-status.json" -Raw | ConvertFrom-Json
           Write-Host "Native total=$($state.tracked_native_files), pending=$($state.remaining_files), unresolved groups=$($state.unresolved_groups)"
           if ($state.remaining_groups -gt 0) {
-            gh workflow run sv-secondary-full.yml --ref master -f "max_files=$env:MAX_FILES"
+            gh workflow run sv-secondary-full.yml --ref master -f "max_files=$env:MAX_FILES" -f "workers=$env:SV_WORKERS"
             if ($LASTEXITCODE -ne 0) { throw 'Dispatch next batch failed; checkpoint was retained' }
           }
       - name: Upload progress evidence
