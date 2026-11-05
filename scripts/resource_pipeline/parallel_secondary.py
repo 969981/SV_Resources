@@ -125,6 +125,36 @@ def publish_result(repo: Path, completed):
     root = repo / fs.ROOT
     record = completed["data"]
     report_paths = []
+    inspection = record.get("inspection")
+    if not isinstance(inspection, dict):
+        raise ValueError("Native batch omitted mandatory parsed inspection")
+    manifest = cli.safe_path(inspection.get("manifest", ""))
+    if not manifest.startswith("parsed/") or not manifest.endswith(".jsonl"):
+        raise ValueError("Inspection path is not a parsed JSONL manifest")
+    if inspection.get("inspection_records") != len(completed["task"]["paths"]):
+        raise ValueError("Inspection record count differs from selected sources")
+    registered_outputs = {asset.get("path") for asset in record.get("outputs", [])}
+    if manifest not in registered_outputs:
+        raise ValueError("Inspection manifest is absent from the output allowlist")
+    manifest_path = work / manifest
+    if (manifest_path.is_symlink() or not manifest_path.is_file() or
+            not manifest_path.resolve().is_relative_to(work.resolve())):
+        raise ValueError("Inspection manifest is missing or unsafe")
+    if cli.digest(manifest_path) != inspection.get("manifest_sha256"):
+        raise ValueError("Inspection manifest digest mismatch")
+    recorded_paths = set()
+    with manifest_path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            entry = json.loads(line)
+            native = cli.safe_path(entry["source"])
+            if native in recorded_paths:
+                raise ValueError("Duplicate inspection entry " + native)
+            recorded_paths.add(native)
+            if entry.get("parse_status") not in (
+                    "SOURCE_HASH_MISMATCH", "STRUCTURE_PARSED", "INSPECTED_UNPARSED"):
+                raise ValueError("Unrecognized inspection status " + native)
+    if recorded_paths != set(completed["task"]["paths"]):
+        raise ValueError("Inspection omitted or invented virtual source paths")
     allowed = ("parsed", "converted", "resources")
     for asset in record.get("outputs", []):
         rel = cli.safe_path(asset["path"])
