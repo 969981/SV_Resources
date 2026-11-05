@@ -85,6 +85,7 @@ py -3 .\scripts\Recover-ZA-Lua-Hashes.py --min-recovered 578
 py -3 .\scripts\Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 578
 
 # 获取固定重建源码（独立临时目录，不放入 tools/PokeDocs）
+New-Item -ItemType Directory -Force .research | Out-Null
 git clone --filter=blob:none https://github.com/Reisyukaku/ZAScripts.git .research/ZAScripts
 git -C .research/ZAScripts checkout --detach c7bc243ac4d28356dff9f06b6723330ea92247d5
 
