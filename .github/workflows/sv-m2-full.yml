@@ -1,7 +1,12 @@
 # Continue the remaining native packs from the persisted verified checkpoint (full secondary run 2026-11-05).
 name: SV M2 FULL - all 23589 Trinity packs
 on:
-  # Manual only: a workflow edit must not cancel the currently publishing run.
+  # One-time master workflow change can resume the isolated M2 publication
+  # branch from the last verified checkpoint; separate concurrency prevents overlap.
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/sv-m2-full.yml'
   workflow_dispatch:
     inputs:
       start_pack:
