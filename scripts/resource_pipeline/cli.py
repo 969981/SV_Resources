@@ -281,10 +281,8 @@ def convert(root, conn, kind, limit, converter=None, force=False):
     ok = failed = skipped = blocked = 0
     handled = 0
     for rid, virtual, sha_recorded, fmt in conn.execute(query).fetchall():
-        if kind == "bntx" and not (
-            "/icon/" in virtual or virtual.startswith("appli/tex/")
-            or "/pokedex_capture_thum/" in virtual):
-            continue
+        # Full secondary passes include non-UI BNTX as well. Native magic is
+        # checked above, so path-based exclusions would silently miss textures.
         src = root / "virtual" / virtual
         digest_input = sha_recorded or digest(src)
         fingerprint = hashlib.sha256(
