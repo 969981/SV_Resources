@@ -18,7 +18,11 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <Deterministic>true</Deterministic>
-    <NoWarn>$(NoWarn);NU1701</NoWarn>
+    <!-- TEMPORARY COMPILATION TRIAGE ONLY. WFO1000 represents WinForms designer
+         serialization debt, and SYSLIB0011 marks BinaryFormatter APIs that
+         throw on modern .NET. Neither is validated for production.
+         These suppressions must be removed before a release. -->
+    <NoWarn>$(NoWarn);NU1701;WFO1000;SYSLIB0011</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
