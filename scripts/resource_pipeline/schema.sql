@@ -113,3 +113,33 @@ SELECT e.entity_type,e.game_id,e.form_id,ln.name AS name_zh,
  LEFT JOIN resource_assets a ON a.id=rl.asset_id
  LEFT JOIN localized_names ln
    ON ln.semantic_entity_id=e.id AND ln.language='zh-Hans';
+
+-- Verified text keys and decrypted values, without pretending they are game IDs.
+CREATE TABLE IF NOT EXISTS message_entries (
+ id INTEGER PRIMARY KEY,
+ dat_raw_file_id INTEGER NOT NULL REFERENCES raw_files(id) ON DELETE CASCADE,
+ tbl_raw_file_id INTEGER REFERENCES raw_files(id),
+ language TEXT NOT NULL,
+ language_raw TEXT NOT NULL,
+ table_name TEXT NOT NULL,
+ ordinal INTEGER NOT NULL,
+ label TEXT NOT NULL,
+ hash64 TEXT NOT NULL,
+ text_value TEXT NOT NULL,
+ flags INTEGER NOT NULL DEFAULT 0,
+ tokens_json TEXT NOT NULL DEFAULT '[]',
+ code_units_json TEXT NOT NULL DEFAULT '[]',
+ decode_status TEXT NOT NULL CHECK(decode_status IN ('DECODED','CONTROL_PARTIAL')),
+ UNIQUE(dat_raw_file_id,ordinal)
+);
+CREATE INDEX IF NOT EXISTS ix_message_language_key
+ ON message_entries(language,table_name,label);
+CREATE INDEX IF NOT EXISTS ix_message_text ON message_entries(language,decode_status);
+DROP VIEW IF EXISTS message_catalog;
+CREATE VIEW message_catalog AS
+ SELECT m.language,m.language_raw,m.table_name,m.ordinal,m.label,m.hash64,
+   m.text_value,m.flags,m.decode_status,
+   dat.virtual_path AS dat_source,tbl.virtual_path AS tbl_source
+ FROM message_entries m
+ JOIN raw_files dat ON dat.id=m.dat_raw_file_id
+ LEFT JOIN raw_files tbl ON tbl.id=m.tbl_raw_file_id;

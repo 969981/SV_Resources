@@ -1,54 +1,49 @@
-# SV Trinity resource pipeline (R0/R1)
+# SV Trinity Resource Pipeline (R0/R1)
 
-The pipeline operates under:
-Unpack/4.0.0/romfs/arc/data.trpfs/
+All layers are below Unpack/4.0.0/romfs/arc/data.trpfs:
+- virtual/ original immutable bytes
+- parsed/ structural analysis, raw text code units
+- converted/ PNGs and text CSV
+- resources/ verified multilingual message resources
+- _index/ resource_catalog.sqlite and exports
 
-Input is virtual/ plus _index/export.jsonl and _index/batches/*.jsonl.
-The immutable original 4.0.0/1/ and all virtual/ bytes are NEVER rewritten.
+## Usage from the repository root (Python 3.10+)
 
-## Commands (Python 3.10+, standard library only)
-
-From repository root:
-
-    python scripts/resource_pipeline/cli.py scan --limit 1000
     python scripts/resource_pipeline/cli.py scan
     python scripts/resource_pipeline/cli.py scan --verify-sha
-    python scripts/resource_pipeline/cli.py convert-r1 --kind labels --limit 100
-    python scripts/resource_pipeline/cli.py convert-r1 --kind bntx --limit 100
+    python scripts/resource_pipeline/cli.py convert-r1 --kind messages
+    python scripts/resource_pipeline/cli.py convert-r1 --kind labels
+    python scripts/resource_pipeline/cli.py convert-r1 --kind bntx
     python scripts/resource_pipeline/cli.py export --json
 
-The default SQLite database is _index/resource_catalog.sqlite. Large generated
-DB/CSV/JSON files are local derived artifacts, NOT git-tracked. Exported index
-CSV/JSON is written to _index/exports/. The schema is in schema.sql.
+DAT/TBL message conversion is based on the pinned
+tools/pkNX/pkNX.Structures/Text/TextFile.cs XOR+rotate algorithm.
+It preserves controls, raw code units, line flags, and verifies the trailing
+*_max TBL sentinel. Unknown controls are marked CONTROL_PARTIAL.
+Exports:
+  parsed/message/dat/<OriginalLanguage>/{common,script}/<name>.messages.json
+  converted/message/dat/<OriginalLanguage>/{common,script}/<name>.messages.csv
+  resources/messages/<OriginalLanguage>/{common,script}/<name>.json
+  SQLite: message_entries + message_catalog
 
-For an independently verified BNTX-to-PNG command-line converter:
+## PNG decoder dependency
 
-    python scripts/resource_pipeline/cli.py convert-r1 --kind bntx \
-      --converter 'YOUR_CONVERTER --input {input} --output {output}'
+Build the pinned CLI with a recent Rust compiler:
 
-This is a command TEMPLATE, not a working converter provided by the repository.
-The converter must actually produce a PNG; merely detecting BNTX metadata is
-recorded as BLOCKED. Consult the existing Switch-Toolbox vendor source for
-implementation support; its GUI being present does not prove that a CLI exists.
-The script invokes the supplied command without a shell. Use only a trusted
-locally installed executable.
+    cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac ultimate_tex_cli
 
-## State and evidence contract
+On Windows PowerShell run this cargo command on a single line.
+When ultimate_tex_cli is on PATH, convert-r1 --kind bntx auto-detects it.
+Or provide --converter "ultimate_tex_cli {input} {output}".
+Each PNG is checked against BNTX dimensions and signature. Multiple-texture
+BNTX files are currently BLOCKED rather than losing secondary images.
+No converter binary is vendored and no original asset is modified.
 
-- R0 indexes extracted native records, flags missing local files, optionally
-  verifies output SHA-256; the manifest hash is not silently called verified.
-- AHTB .tbl labels and hashes are exported as labels JSON and CSV only.
-  The paired .dat file is NOT decoded. Text is null, NOT_DECODED.
-- BNTX containers are checked for magic, byte order, declared size, and
-  plausible BRTI metadata. PNG extraction requires a tested decoder.
-- The semantic catalog is deliberately empty until game IDs are proven from
-  actual native structures or a verified reference.
-- The job fingerprint includes original hash, tool stage/version and converter
-  command. Use --force only to retry processed inputs. Failures remain visible.
+Native tests:
+    python -m unittest discover -s tests -p "test_sv_r1_native.py" -v
 
-## Tests
+Full BC7 PNG integration CI:
+    .github/workflows/verify-sv-bntx-png.yml
 
-    python -m unittest discover -s tests -p 'test_sv_resource_pipeline.py' -v
-
-No ROM, Oodle dependency, network or third-party Python modules are required
-for R0, parsing AHTB labels, BNTX metadata or synthetic tests.
+Original input hashes must match the extraction manifest. Generated
+databases and assets are gitignored by default.

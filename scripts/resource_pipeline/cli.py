@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path, PurePosixPath
 import sqlite3
 import struct
@@ -328,7 +329,11 @@ def convert(root, conn, kind, limit, converter=None, force=False):
                 out = root / "parsed" / rel.parent / (rel.name + ".json")
                 store_json(out, {"source": virtual, **metadata})
                 add_asset(conn, rid, "BNTX_METADATA", out, root, data, "CONFIRMED")
-                if not converter:
+                if len(metadata["textures"]) != 1:
+                    job(conn, rid, fingerprint, kind, "BLOCKED",
+                        "BNTX has multiple textures; single-image decoder must not drop textures.")
+                    blocked += 1
+                elif not converter:
                     job(conn, rid, fingerprint, kind, "BLOCKED",
                         "PNG decoder not configured; BNTX metadata was parsed.")
                     blocked += 1
@@ -347,6 +352,15 @@ def convert(root, conn, kind, limit, converter=None, force=False):
                     if result.returncode or not valid_png(png):
                         raise RuntimeError("Converter exit or PNG validation failed: " +
                                            result.stderr[-500:])
+                    with png.open("rb") as stream:
+                        ihdr = stream.read(24)
+                    w = int.from_bytes(ihdr[16:20], "big")
+                    h = int.from_bytes(ihdr[20:24], "big")
+                    expected = metadata["textures"][0]
+                    expected_width, expected_height = expected["width"], expected["height"]
+                    if (w, h) != (expected_width, expected_height):
+                        png.unlink(missing_ok=True)
+                        raise ValueError(f"PNG dimensions {w}x{h} != BNTX {expected_width}x{expected_height}")
                     add_asset(conn, rid, "PNG", png, root, data, "CONFIRMED")
                     job(conn, rid, fingerprint, kind, "OK")
                     ok += 1
@@ -360,11 +374,139 @@ def convert(root, conn, kind, limit, converter=None, force=False):
             "skipped": skipped, "failed": failed}
 
 
+def decode_messages(root, conn, limit=0, force=False):
+    """Read paired DAT/TBL with exact-key validation, export multilingual text."""
+    try:
+        from .r1_text import join_messages
+    except ImportError:
+        from r1_text import join_messages
+    query = """SELECT r.id, r.virtual_path, r.sha256_recorded
+      FROM raw_files r JOIN file_formats f ON f.raw_file_id=r.id
+      WHERE r.available=1 AND r.extract_status='OK'
+        AND f.format_name='MESSAGE_DAT_CANDIDATE' AND r.virtual_path LIKE 'message/dat/%.dat'
+      ORDER BY r.virtual_path"""
+    ok = blocked = failed = skipped = handled = 0
+    for rid, virtual, dat_hash in conn.execute(query).fetchall():
+        if limit and handled >= limit:
+            break
+        tbl_virtual = str(PurePosixPath(virtual).with_suffix(".tbl"))
+        label_row = conn.execute(
+            "SELECT id,sha256_recorded,available,extract_status FROM raw_files "
+            "WHERE source_version=? AND virtual_path=?", (VERSION,tbl_virtual)
+        ).fetchone()
+        if not label_row or label_row[2] != 1 or label_row[3] != 'OK':
+            # Not present in the staged extraction; do not silently omit.
+            handled += 1
+            fp = hashlib.sha256(f"{virtual}|unavailable-tbl|r1.2".encode()).hexdigest()
+            job(conn,rid,fp,"messages","BLOCKED","Paired AHTB TBL not extracted/verified.")
+            blocked += 1
+            conn.commit()
+            continue
+        tbl_id, tbl_hash = label_row[:2]
+        input_fp = hashlib.sha256(
+            f"{VERSION}|{virtual}|{dat_hash}|{tbl_virtual}|{tbl_hash}|messages|r1.2".encode()
+        ).hexdigest()
+        prior = conn.execute(
+            "SELECT status FROM conversion_jobs WHERE fingerprint=?", (input_fp,)
+        ).fetchone()
+        if not force and prior and prior[0] == 'OK':
+            skipped += 1
+            continue
+        handled += 1
+        try:
+            dat_src = root / "virtual" / virtual
+            tbl_src = root / "virtual" / tbl_virtual
+            dat_bytes = dat_src.read_bytes()
+            tbl_bytes = tbl_src.read_bytes()
+            if dat_hash and hashlib.sha256(dat_bytes).hexdigest().upper() != dat_hash.upper():
+                raise ValueError("DAT SHA-256 differs from native extraction index")
+            if tbl_hash and hashlib.sha256(tbl_bytes).hexdigest().upper() != tbl_hash.upper():
+                raise ValueError("TBL SHA-256 differs from native extraction index")
+            rel = PurePosixPath(virtual)
+            if rel.parts[:2] != ("message", "dat") or len(rel.parts) < 5:
+                raise ValueError("Invalid localized DAT path")
+            content = join_messages(dat_bytes, tbl_bytes, rel.parts[2], virtual)
+            content["paired_tbl"] = tbl_virtual
+            content["source_sha256"] = hashlib.sha256(dat_bytes).hexdigest().upper()
+            content["paired_tbl_sha256"] = hashlib.sha256(tbl_bytes).hexdigest().upper()
+            parsed = root / "parsed" / rel.parent / (rel.stem + ".messages.json")
+            store_json(parsed, content)
+            add_asset(conn, rid, "DAT_TBL_PARSED_JSON", parsed, root, dat_bytes, "CONFIRMED")
+            # A compact, UTF-8 application-facing resource. No gameplay ID is inferred.
+            compact = {
+                "version": VERSION, "language":content["language"],
+                "language_raw":content["language_raw"], "source":virtual,
+                "paired_tbl":tbl_virtual, "matching":content["matching"],
+                "entries":[{"ordinal":x["ordinal"],"label":x["label"],
+                            "hash64":x["hash64"],"text":x["text"],
+                            "flags":x["flags"],"text_status":x["text_status"],
+                            "tokens":x["tokens"]} for x in content["entries"]]
+            }
+            compact_path = root / "resources/messages" / content["language_raw"] / (
+                "/".join(rel.parts[3:-1])
+            ) / (rel.stem + ".json")
+            store_json(compact_path, compact)
+            add_asset(conn, rid, "LOCALIZED_MESSAGES_JSON", compact_path, root,
+                      dat_bytes, "CONFIRMED")
+            csv_path = root / "converted" / rel.parent / (rel.stem + ".messages.csv")
+            import io
+            output = io.StringIO()
+            writer = csv.writer(output,lineterminator="\n")
+            writer.writerow(["ordinal","label","hash64","language","flags",
+                             "text","text_status","tokens_json"])
+            for x in content["entries"]:
+                writer.writerow([x["ordinal"],x["label"],x["hash64"],
+                                 content["language"],x["flags"],x["text"],
+                                 x["text_status"],json.dumps(x["tokens"],ensure_ascii=False)])
+            write_atomic(csv_path, output.getvalue().encode("utf-8-sig"))
+            add_asset(conn, rid, "LOCALIZED_MESSAGES_CSV", csv_path, root,
+                      dat_bytes, "CONFIRMED")
+            conn.executemany("""INSERT INTO parsed_records(raw_file_id,record_key,
+                ordinal,format_name,content_json) VALUES(?,?,?,?,?)
+                ON CONFLICT(raw_file_id,record_key) DO UPDATE SET
+                ordinal=excluded.ordinal,format_name=excluded.format_name,
+                content_json=excluded.content_json""",
+                ((rid,x["label"]+":"+str(x["ordinal"]),x["ordinal"],"DAT_TBL_MESSAGE",
+                  json.dumps({"flags":x["flags"],"text":x["text"],
+                              "code_units_hex":x["code_units_hex"],
+                              "tokens":x["tokens"]},ensure_ascii=False))
+                for x in content["entries"]))
+            conn.executemany("""INSERT INTO message_entries(dat_raw_file_id,
+                tbl_raw_file_id,language,language_raw,table_name,ordinal,label,
+                hash64,text_value,flags,tokens_json,code_units_json,decode_status)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(dat_raw_file_id,ordinal) DO UPDATE SET
+                tbl_raw_file_id=excluded.tbl_raw_file_id,
+                language=excluded.language,language_raw=excluded.language_raw,
+                table_name=excluded.table_name,label=excluded.label,
+                hash64=excluded.hash64,text_value=excluded.text_value,
+                flags=excluded.flags,tokens_json=excluded.tokens_json,
+                code_units_json=excluded.code_units_json,
+                decode_status=excluded.decode_status""",
+                ((rid,tbl_id,content["language"],content["language_raw"],
+                  "/".join(rel.parts[3:-1])+"/"+rel.stem,
+                  x["ordinal"],x["label"],x["hash64"],x["text"],x["flags"],
+                  json.dumps(x["tokens"],ensure_ascii=False),
+                  json.dumps(x["code_units_hex"]),x["text_status"])
+                for x in content["entries"]))
+            job(conn,rid,input_fp,"messages","OK")
+            conn.commit()
+            ok += 1
+        except Exception as exc:
+            conn.rollback()
+            job(conn,rid,input_fp,"messages","FAILED",str(exc)[:2000])
+            conn.commit()
+            failed += 1
+    return {"kind":"messages","processed":handled,"ok":ok,"blocked":blocked,
+            "skipped":skipped,"failed":failed}
+
+
 def export_tables(root, conn, directory, json_export=False):
     directory.mkdir(parents=True, exist_ok=True)
     tables = ["raw_files","file_formats","parsed_records","resource_assets",
               "semantic_entities","resource_links","localized_names",
-              "conversion_jobs","evidence","resource_catalog"]
+              "conversion_jobs","evidence","resource_catalog",
+              "message_entries","message_catalog"]
     outcomes = {}
     for table in tables:
         cur = conn.execute(f"SELECT * FROM {table}")
@@ -401,9 +543,9 @@ def main(argv=None):
     s.add_argument("--limit", type=int, default=0)
     s.add_argument("--verify-sha", action="store_true")
     c = sub.add_parser("convert-r1", help="R1: labels or BNTX")
-    c.add_argument("--kind", choices=("labels", "bntx"), required=True)
+    c.add_argument("--kind", choices=("labels", "bntx", "messages"), required=True)
     c.add_argument("--limit", type=int, default=0)
-    c.add_argument("--converter", help="External PNG command with {input} and {output} placeholders")
+    c.add_argument("--converter", help="Trusted PNG converter command with {input} and {output}; auto-detects ultimate_tex_cli in PATH")
     c.add_argument("--force", action="store_true")
     e = sub.add_parser("export", help="CSV index, optionally JSON")
     e.add_argument("--output", type=Path)
@@ -414,7 +556,13 @@ def main(argv=None):
         if args.action == "scan":
             result = scan(root, conn, args.limit, args.verify_sha)
         elif args.action == "convert-r1":
-            result = convert(root, conn, args.kind, args.limit, args.converter, args.force)
+            if args.kind == "messages":
+                result = decode_messages(root, conn, args.limit, args.force)
+            else:
+                converter = args.converter
+                if args.kind == "bntx" and not converter and shutil.which("ultimate_tex_cli"):
+                    converter = "ultimate_tex_cli {input} {output}"
+                result = convert(root, conn, args.kind, args.limit, converter, args.force)
         else:
             result = export_tables(root, conn, args.output or root / "_index" / "exports", args.json)
     print(json.dumps(result, indent=2, ensure_ascii=False))
