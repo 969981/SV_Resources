@@ -44,3 +44,5 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## ZA Lua 第四轮：未命名符号与原生证据缺口
 
 - [ZA Lua 剩余 116 条 S 的全部引用位置及原生证据入口](za-lua-native-evidence-gap.md)：85 个核心 Haxe + 5 个事件文件；258 条声明/调用/读写引用；F 43 / E 3 保留未知；没有伪称已原生 Lua 验证。
+
+- [Switch-Toolbox .NET 10 Windows 迁移与风险记录](switch-toolbox-net10-upgrade.md) — CI 编译、运行时插件加载、原始版本回退与剩余 GUI/原生格式风险。

@@ -57,3 +57,7 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 ## ZA Lua 第四阶段
 
 - [剩余 116 个 S 的第三方调用图、原始行号及只读原生二进制扫描流程](research/za-lua-native-evidence-gap.md) — 258 条引用，未更改已有 611 条 Hash 补全。
+
+## Switch-Toolbox .NET 10 迁移与验收
+
+- [Switch-Toolbox Windows SDK 迁移、CI、插件与功能验收记录](research/switch-toolbox-net10-upgrade.md) — Release/Debug、Yaz0 与 win-x64 插件运行检查结果；GUI 与格式回归尚待独立验收。
