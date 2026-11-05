@@ -28,8 +28,8 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 330
     env:
-      GH_TOKEN: \${{ github.token }}
-      MAX_FILES: \${{ github.event.inputs.max_files || '1800' }}
+      GH_TOKEN: ${{ github.token }}
+      MAX_FILES: ${{ github.event.inputs.max_files || '1800' }}
       SV_ROOT: Unpack/4.0.0/romfs/arc/data.trpfs
     steps:
       - uses: actions/checkout@v4
@@ -141,7 +141,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sv-secondary-full-\${{ github.run_id }}
+          name: sv-secondary-full-${{ github.run_id }}
           path: |
             sv-secondary-publication.json
             Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary/full-state.json
