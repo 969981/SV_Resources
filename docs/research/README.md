@@ -44,3 +44,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## ZA Lua 第四轮：未命名符号与原生证据缺口
 
 - [ZA Lua 剩余 116 条 S 的全部引用位置及原生证据入口](za-lua-native-evidence-gap.md)：85 个核心 Haxe + 5 个事件文件；258 条声明/调用/读写引用；F 43 / E 3 保留未知；没有伪称已原生 Lua 验证。
+
+## SV 4.0.0 第四轮 Lua C/F/S 核对
+
+- [7 个 C 类 `SETTABUP` 注册、12 个 F 原生调用、12 个新 S Hash](sv-lua-native-4.0.0-phase4.md) — 含 `GetInt8` 的精确 FNV 计算、S 增量工作流与证据等级。
