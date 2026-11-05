@@ -14,10 +14,11 @@ import sqlite3
 import sys
 
 try:
-    from . import cli, r4_pipeline
+    from . import cli, r4_pipeline, inspect_all
 except ImportError:
     import cli
     import r4_pipeline
+    import inspect_all
 
 
 def scoped_paths(root: Path, prefix: str, max_files: int, only=None):
@@ -110,7 +111,7 @@ def index_local(root: Path, conn: sqlite3.Connection, files):
     return result
 
 
-def outputs(root: Path, max_output_mb: int, prefix: str = ""):
+def outputs(root: Path, max_output_mb: int, prefix: str = "", required_paths=()):
     """Produce a bounded exact allowlist; never publish undeclared binaries."""
     allow = {".json", ".csv", ".png", ".gltf", ".glb"}
     cap = max_output_mb * 1024 * 1024
@@ -129,6 +130,22 @@ def outputs(root: Path, max_output_mb: int, prefix: str = ""):
             output_prefixes["resources"] = "geometry/source_verified/" + local
     used = 0
     published, deferred = [], []
+    required = set()
+    # The one-to-one parsed/ inspection manifest is never silently dropped by
+    # the size cap or a large converter output.
+    for name in required_paths:
+        name = cli.safe_path(name)
+        if not name.startswith("parsed/") or not name.endswith(".jsonl"):
+            raise ValueError("Required inspection artifact must be parsed/*.jsonl")
+        path = root / name
+        if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root.resolve()):
+            raise ValueError("Missing/unsafe required inspection artifact " + name)
+        size = path.stat().st_size
+        if used + size > cap:
+            raise ValueError("Inspection manifest exceeds publication budget")
+        published.append({"path": name, "bytes": size, "sha256": cli.digest(path)})
+        used += size
+        required.add(name)
     for layer in ("parsed", "converted", "resources"):
         base = root / layer
         if not base.exists():
@@ -137,6 +154,8 @@ def outputs(root: Path, max_output_mb: int, prefix: str = ""):
             if not path.is_file() or path.is_symlink() or path.name == "README.md":
                 continue
             rel = path.relative_to(root).as_posix()
+            if rel in required:
+                continue
             inside = path.relative_to(base).as_posix()
             expected = output_prefixes.get(layer, None)
             if output_prefixes and (expected is None or
@@ -242,17 +261,23 @@ def main(argv=None):
                     "WHERE status IN ('FAILED','BLOCKED') ORDER BY object_name LIMIT 200"
                 ).fetchall()
             )
-    selected, deferred = outputs(root, opts.max_output_mb, opts.prefix)
     selection_sha = hashlib.sha256("\n".join(p for p, _ in files).encode()).hexdigest()
     batch_id = hashlib.sha256(
         (cli.VERSION + "|" + opts.prefix + "|" + opts.kind + "|" + selection_sha).encode()
     ).hexdigest()[:16]
+    # Every selected native file gets an evidence-labelled parsed/ record,
+    # even when no semantic format decoder exists yet.
+    with cli.connect(root / "_index" / "resource_catalog.sqlite") as inspection_db:
+        inspection = inspect_all.inspect_all(root, inspection_db, files, opts.prefix, batch_id)
+    selected, deferred = outputs(root, opts.max_output_mb, opts.prefix,
+                                 required_paths=(inspection["manifest"],))
     report = {
         "version": cli.VERSION, "source": "virtual/" + opts.prefix,
         "kind": opts.kind, "completed_utc": cli.utcnow(),
         "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
         "source_files_seen": len(files), "selection_sha256": selection_sha,
         "index": index, "stages": stages, "problems": problems,
+        "inspection": inspection,
         "outputs": selected, "deferred_outputs": deferred,
         "not_proven": ["gameplay species/item/etc identifiers",
                        "undecoded proprietary formats", "visual fidelity of unreviewed models"]
