@@ -30,6 +30,7 @@ jobs:
               {pr: 14, ref: 'exefs/extra-nso-npdm-400'},
               {pr: 15, ref: 'feature/sv-trpfs-resource-pipeline-r0-r1'},
               {pr: 17, ref: 'feature/sv-trpfs-r1-full-decode'},
+              {pr: 18, ref: 'feature/sv-r3-r4-object-pipeline'},
             ];
             for (const {pr,ref} of approved) {
               const response = await github.rest.pulls.get({owner,repo,pull_number:pr});

@@ -1,0 +1,117 @@
+name: SV R4 bounded incremental object processing
+
+on:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: "A small virtual/ subfolder, e.g. chara/model_pc/p0_bag0000_schoolbackpack"
+        required: true
+        default: "chara/model_pc/p0_bag0000_schoolbackpack"
+        type: string
+      limit:
+        description: "Maximum object count per run (1–100)"
+        type: number
+        required: true
+        default: 25
+      resume:
+        description: "Resume after saved checkpoint"
+        type: boolean
+        default: true
+      retry_failed:
+        description: "Retry blocked or failed objects"
+        type: boolean
+        default: false
+      convert_models:
+        description: "Build Windows model exporter and validate glTF (never upload assets)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sv-r4-${{ inputs.prefix }}
+  cancel-in-progress: false
+
+jobs:
+  process:
+    if: github.repository == '969981/SV_Resources'
+    runs-on: ${{ inputs.convert_models && 'windows-latest' || 'ubuntu-latest' }}
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tools/PokeDocs/SV/Flatbuffers
+            tools/gftool
+            tools/SV.R3.ModelExport
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate scope and fetch only requested native objects
+        shell: pwsh
+        env:
+          SV_PREFIX: ${{ inputs.prefix }}
+          SV_LIMIT: ${{ inputs.limit }}
+        run: |
+          python -c "import os,sys;sys.path.insert(0,'scripts/resource_pipeline');from r3_objects import checked_relative;p=checked_relative(os.environ['SV_PREFIX']);n=int(os.environ['SV_LIMIT']);assert 1<=n<=100;assert p.startswith(('pokemon/','chara/','field_graphic/','effect/')), 'Unsupported subtree';print(p)"
+          if ($LASTEXITCODE -ne 0) { throw "Invalid object scope or limit" }
+          git sparse-checkout add "Unpack/4.0.0/romfs/arc/data.trpfs/virtual/$env:SV_PREFIX"
+          if ($LASTEXITCODE -ne 0) { throw "Native subtree checkout failed" }
+          python -c "from pathlib import Path;Path('Unpack/4.0.0/romfs/arc/data.trpfs/_index').mkdir(parents=True,exist_ok=True)"
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/resource_catalog.sqlite
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/r4-checkpoint.json
+          key: sv-r4-${{ runner.os }}-${{ inputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            sv-r4-${{ runner.os }}-${{ inputs.prefix }}-
+      - uses: actions/setup-dotnet@v4
+        if: inputs.convert_models
+        with:
+          dotnet-version: 10.0.x
+      - name: Build native glTF converter
+        if: inputs.convert_models
+        shell: pwsh
+        run: dotnet build tools/SV.R3.ModelExport/SV.R3.ModelExport.csproj -c Release --nologo
+      - name: Process bounded object batch (metadata or verified conversion)
+        shell: pwsh
+        env:
+          SV_PREFIX: ${{ inputs.prefix }}
+          SV_LIMIT: ${{ inputs.limit }}
+          SV_RESUME: ${{ inputs.resume }}
+          SV_RETRY: ${{ inputs.retry_failed }}
+          SV_CONVERT: ${{ inputs.convert_models }}
+        run: |
+          $cli = @("scripts/resource_pipeline/r4_pipeline.py", "run", "--discover", "--prefix", $env:SV_PREFIX, "--limit", $env:SV_LIMIT)
+          if ($env:SV_RESUME -eq "true") { $cli += "--resume" }
+          if ($env:SV_RETRY -eq "true") { $cli += "--retry-failed" }
+          if ($env:SV_CONVERT -eq "true") {
+            $exe = Join-Path $PWD "tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe"
+            $cli += @("--converter", "$exe {input} {output}", "--converter-version", "${{ github.sha }}")
+          }
+          & python @cli
+          if ($LASTEXITCODE -ne 0) { throw "R4 object batch reported failure" }
+          python scripts/resource_pipeline/r4_pipeline.py pack-reports --max-mb 50
+          if ($LASTEXITCODE -ne 0) { throw "Report packaging failed" }
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/resource_catalog.sqlite
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/r4-checkpoint.json
+          key: sv-r4-${{ runner.os }}-${{ inputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv-r4-metadata-${{ github.run_id }}
+          path: |
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/r4-last-run.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/r4-archives/
+          if-no-files-found: warn
+          retention-days: 14
+      # Do NOT upload glTF, textures, animations, virtual binaries or the raw SQLite DB.

@@ -47,3 +47,11 @@ Full BC7 PNG integration CI:
 
 Original input hashes must match the extraction manifest. Generated
 databases and assets are gitignored by default.
+
+## R3/R4 model, animation and incremental processing
+
+See R3-R4-README.md for TRMDL→TRMSH→TRMBF dependency graphs,
+standalone .NET10 Windows glTF export, explicit .tranm animation maps,
+material/UV/LOD/skin checks, SHA-256 fingerprints, retry checkpoints and
+metadata-only archive generation. An on-demand GitHub Actions workflow,
+sv-r4-incremental.yml, processes bounded folders without uploading models.

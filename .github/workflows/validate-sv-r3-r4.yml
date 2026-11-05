@@ -1,0 +1,70 @@
+name: Validate SV R3/R4 resource pipeline
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/resource_pipeline/**'
+      - 'tests/test_sv_r3_r4.py'
+      - 'tools/gftool/TrinityModelViewer/Program.cs'
+      - '.github/workflows/validate-sv-r3-r4.yml'
+  push:
+    branches:
+      - feature/sv-r3-r4-object-pipeline
+    paths:
+      - 'scripts/resource_pipeline/**'
+      - 'tests/test_sv_r3_r4.py'
+      - '.github/workflows/validate-sv-r3-r4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-r3-r4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_r3_r4.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/chara/model_pc/p0_bag0000_schoolbackpack
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile model parser, scheduler and tests
+        run: python -m py_compile scripts/resource_pipeline/r3_objects.py scripts/resource_pipeline/r4_pipeline.py tests/test_sv_r3_r4.py
+      - name: Verify native TRMDL TRMSH and R4 retries
+        env:
+          SV_REQUIRE_NATIVE_FIXTURES: "1"
+        run: python -m unittest discover -s tests -p test_sv_r3_r4.py -v
+      - name: Test bounded R3 object scan without model exporter
+        run: |
+          mkdir -p Unpack/4.0.0/romfs/arc/data.trpfs/_index
+          python scripts/resource_pipeline/r4_pipeline.py run --discover --limit 1 --prefix chara/model_pc/p0_bag0000_schoolbackpack
+          python scripts/resource_pipeline/r4_pipeline.py pack-reports --max-mb 1
+      - name: Verify archive contains metadata only
+        run: |
+          python - <<'PY'
+          import pathlib,tarfile
+          root=pathlib.Path('Unpack/4.0.0/romfs/arc/data.trpfs/_index/r4-archives')
+          archives=list(root.glob('*.tar.gz'))
+          assert archives, 'No report archives'
+          for archive in archives:
+              with tarfile.open(archive) as f:
+                  members=f.getmembers()
+                  assert members, 'Archive must include parsed model reports'
+                  assert all(m.name.endswith('.object.json') for m in members)
+                  assert all(not m.issym() and not m.islnk() for m in members)
+          PY
+      - name: Upload metadata-only research reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-r3-r4-reports
+          path: |
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/r4-last-run.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/r4-archives/
+          retention-days: 7
+
