@@ -40,6 +40,9 @@ class TestToolSubmodules(unittest.TestCase):
                     actual = subprocess.run(["git", "ls-tree", "-r", "--name-only", "HEAD", "--", path],
                                             cwd=ROOT, capture_output=True, text=True, check=True)
                     self.assertEqual(len(actual.stdout.splitlines()), 10)
+                elif item["name"] in ("pkNX", "Switch-Toolbox"):
+                    solution = "pkNX.sln" if item["name"] == "pkNX" else "Toolbox.sln"
+                    self.assertTrue((ROOT / path / solution).is_file())
                 else:
                     self.fail(f"Unexpected vendored tool: {item['name']}")
             else:
