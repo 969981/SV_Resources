@@ -22,7 +22,7 @@ on:
       limit:
         description: 'Maximum inputs per converter stage'
         type: number
-        default: 20
+        default: 200
       decode_png:
         description: 'Build pinned ultimate_tex_cli for verified BNTX PNG'
         type: boolean
@@ -43,7 +43,7 @@ jobs:
     env:
       SV_PREFIX: ${{ inputs.prefix || 'message/dat/Simp_Chinese/common' }}
       SV_KIND: ${{ inputs.kind || 'all' }}
-      SV_LIMIT: ${{ inputs.limit || 20 }}
+      SV_LIMIT: ${{ inputs.limit || 200 }}
       SV_DECODE_PNG: ${{ inputs.decode_png || false }}
       SV_ROOT: Unpack/4.0.0/romfs/arc/data.trpfs
     steps:
@@ -92,7 +92,7 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          args=(--repo . --prefix "$SV_PREFIX" --kind "$SV_KIND" --limit "$SV_LIMIT" --max-source-files 3000 --max-output-mb 25)
+          args=(--repo . --prefix "$SV_PREFIX" --kind "$SV_KIND" --limit "$SV_LIMIT" --max-source-files 3000 --max-output-mb 75)
           if [[ "$SV_DECODE_PNG" == "true" ]]; then
             args+=(--png-converter 'ultimate_tex_cli {input} {output}')
           fi
