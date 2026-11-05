@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert verified SV 4.0.0 NSO main files to ELF, preserving provenance.
+"""Convert verified SV 4.0.0 ExeFS NSO modules to ELF, preserving provenance.
 
 Large ELF files are 7z-volume archived for normal Git; the full ELF remains
 in _work/ for workflow artifact upload when --keep-elf is used.
@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-DEFAULT_NAMES = ("scarlet_main", "violet_main")
+DEFAULT_NAMES = ("scarlet_main", "violet_main", "rtld", "sdk", "subsdk0")
 MAX_GIT_BYTES = 90 * 1024 * 1024
 TOOL_COMMIT = "a1760ba54e2aefb41444933f53b90e6e8b05c399"
 
@@ -55,7 +55,7 @@ def checked(command: list[str], *, cwd: Path | None = None) -> None:
 def export_one(root: Path, converter: Path, name: str,
                sevenzip: str | None, keep_elf: bool) -> dict:
     if name not in DEFAULT_NAMES:
-        raise ValueError(f"Unrecognized main filename: {name}")
+        raise ValueError(f"Unrecognized ExeFS NSO filename: {name}")
     source = root / "4.0.0" / "0" / name
     if not source.is_file():
         raise FileNotFoundError(source)
@@ -124,7 +124,7 @@ def export_one(root: Path, converter: Path, name: str,
         info = {
             "status": "CONFIRMED",
             "version": "4.0.0",
-            "game": "Scarlet" if name == "scarlet_main" else "Violet",
+            "game": ("Scarlet" if name == "scarlet_main" else "Violet" if name == "violet_main" else "Shared"),
             "sourcePath": source.relative_to(root).as_posix(),
             "sourceSize": source_size,
             "sourceSha256": source_hash,
