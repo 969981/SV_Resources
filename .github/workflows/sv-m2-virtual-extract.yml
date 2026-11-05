@@ -199,7 +199,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Could not inspect existing manual extraction PR' }
           if ([string]::IsNullOrWhiteSpace(($pr | Out-String))) {
             gh pr create --base master --head $env:PUBLISH_BRANCH --title 'data(m2): verified manual Trinity pack ranges' --body 'Manually selected pack ranges were extracted with independent native workers, SHA-256 verification and 7z testing. Review individual native batch reports before merging; the global full-extract-progress.json was not advanced.'
-            if ($LASTEXITCODE -ne 0) { throw 'Unable to create manual extraction review PR' }
+            if ($LASTEXITCODE -ne 0) {
+              Write-Warning 'Verified files have been pushed, but PR creation was denied by GitHub Actions policy.'
+              Write-Host "Review at https://github.com/$env:GITHUB_REPOSITORY/compare/master...$env:PUBLISH_BRANCH"
+            }
           } else {
             Write-Host "Manual extraction PR #$pr already exists, updated automatically by new branch commits."
           }
