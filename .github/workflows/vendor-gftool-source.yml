@@ -1,0 +1,106 @@
+name: Vendor full gftool and NxMiddleware
+on:
+  push:
+    paths:
+      - '.github/workflows/vendor-gftool-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: vendor-gftool-master
+  cancel-in-progress: false
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Sparse checkout sources only
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          filter: blob:none
+          sparse-checkout: |
+            .gitmodules
+            tools/gftool
+            tools/upstream.json
+            .github/workflows/vendor-gftool-source.yml
+            docs/gftool-source-provenance.md
+          sparse-checkout-cone-mode: false
+          persist-credentials: true
+      - name: Clone and materialize all nested dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none --no-checkout https://github.com/pkZukan/gftool.git "$RUNNER_TEMP/gftool-source"
+          git -C "$RUNNER_TEMP/gftool-source" checkout --detach cac7a210fcbef5ecf1ee108c10d1a1bdddc4cd4c
+          git -C "$RUNNER_TEMP/gftool-source" submodule update --init --recursive
+          test "$(git -C "$RUNNER_TEMP/gftool-source" rev-parse HEAD)" = cac7a210fcbef5ecf1ee108c10d1a1bdddc4cd4c
+          git -C "$RUNNER_TEMP/gftool-source" submodule status --recursive | tee "$RUNNER_TEMP/gftool-nested.txt"
+          if grep -Eq '^[+-U]' "$RUNNER_TEMP/gftool-nested.txt"; then exit 1; fi
+      - name: Replace gitlink with real files and verify SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git ls-tree HEAD tools/gftool | awk '{print $1}')" = 160000
+          git rm -f --cached -- tools/gftool
+          rm -rf tools/gftool
+          mkdir -p tools/gftool
+          rsync -a --exclude='.git' --exclude='.gitmodules' "$RUNNER_TEMP/gftool-source/" tools/gftool/
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,os
+          a=Path(os.environ['RUNNER_TEMP'])/'gftool-source'
+          b=Path('tools/gftool')
+          def files(p):
+              return {str(x.relative_to(p)):x for x in p.rglob('*') if x.is_file() and not set(x.relative_to(p).parts)&{'.git','.gitmodules'}}
+          src,dst=files(a),files(b)
+          assert src and src.keys()==dst.keys(),f'Source file set differs {len(src)} != {len(dst)}'
+          for rel in src:
+              assert hashlib.sha256(src[rel].read_bytes()).digest()==hashlib.sha256(dst[rel].read_bytes()).digest(),rel
+          assert (b/'GFTool.Core/GFTool.Core.csproj').is_file()
+          assert (b/'NxMiddleware').is_dir() and any((b/'NxMiddleware').rglob('*.cs'))
+          assert (b/'LICENSE').is_file()
+          print('SHA256 validated full source files:',len(src))
+          PY
+          git add -f -A -- tools/gftool
+          if git ls-files --stage -- tools/gftool | grep -q '^160000 '; then echo 'Nested gitlink remains'; exit 1; fi
+      - name: Record imported tree and drop only gftool submodule metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,os,re,subprocess
+          p=Path('.gitmodules');s=p.read_text()
+          s,n=re.subn(r'(?m)^\[submodule "tools/gftool"\]\n(?:[ \t]+[^\n]*\n)+\n?','',s)
+          assert n==1,'Cannot identify single gftool submodule metadata'
+          p.write_text(s)
+          p=Path('tools/upstream.json');m=json.loads(p.read_text())
+          g=next(x for x in m['tools'] if x['name']=='gftool')
+          assert g['ref']=='cac7a210fcbef5ecf1ee108c10d1a1bdddc4cd4c'
+          g['submodules']=False
+          g['importMethod']='vendor-tree'
+          git_tree=subprocess.check_output(['git','write-tree'],text=True).strip()
+          tree=subprocess.check_output(['git','ls-tree',git_tree,'tools/gftool'],text=True).split()[2]
+          g['sourceTreeSha']=tree
+          p.write_text(json.dumps(m,indent=2,ensure_ascii=False)+'\n')
+          nested=(Path(os.environ['RUNNER_TEMP'])/'gftool-nested.txt').read_text()
+          Path('docs/gftool-source-provenance.md').write_text(
+              '# gftool complete source import\n\n'
+              'Upstream: https://github.com/pkZukan/gftool\n\n'
+              'Pinned commit: '+g['ref']+'\n\n'
+              'Full vendored tree SHA: '+tree+'\n\n'
+              'Nested sources: \n\n'+nested+'\n'
+              'All files SHA-256 compared with recursive upstream checkout. No ROM or Oodle files imported.\n')
+          print('Complete vendored Git tree SHA:',tree)
+          PY
+          git add -- .gitmodules tools/upstream.json docs/gftool-source-provenance.md
+      - name: Commit and push the complete source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git diff --cached --stat
+          git commit -m 'vendor: replace gftool submodule with full source and NxMiddleware'
+          git push origin HEAD:refs/heads/master
