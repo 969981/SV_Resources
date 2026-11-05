@@ -167,7 +167,8 @@ def run_cli(argv=None) -> int:
         if not manifest.is_file():
             raise ValueError("Parallel sweep did not produce a publication allowlist")
         publication = json.loads(manifest.read_text("utf-8"))
-        paths = publication["paths"]
+        paths = sorted({p.replace(chr(92), "/") for p in publication["paths"]})
+        publication["paths"] = paths
         allowed = [(fs.ROOT / "virtual_converted").as_posix() + "/",
                    (fs.ROOT / "_index/secondary/virtual-converted-").as_posix()]
         if not paths or any(not p.startswith(tuple(allowed)) for p in paths):
