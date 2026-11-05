@@ -170,6 +170,24 @@ def main(argv=None):
                 root, conn, repo, prefix=opts.prefix, limit=opts.limit,
                 discover=True, retry_failed=opts.retry_failed,
                 converter=opts.model_converter)
+        problem_rows = conn.execute("""
+            SELECT r.virtual_path,j.stage,j.status,j.error_message
+            FROM conversion_jobs j JOIN raw_files r ON r.id=j.raw_file_id
+            WHERE j.status IN ('FAILED','BLOCKED')
+            ORDER BY r.virtual_path,j.stage LIMIT 200
+        """).fetchall()
+        problems = [
+            {"source":p,"stage":stage,"status":status,"error":reason}
+            for p,stage,status,reason in problem_rows
+        ]
+        if opts.kind in ("all","models"):
+            problems.extend(
+                {"source":p,"stage":"models","status":status,"error":reason}
+                for p,status,reason in conn.execute(
+                    "SELECT object_name,status,error_message FROM r4_object_jobs "
+                    "WHERE status IN ('FAILED','BLOCKED') ORDER BY object_name LIMIT 200"
+                ).fetchall()
+            )
     selected, deferred = outputs(root, opts.max_output_mb)
     batch_id = hashlib.sha256((cli.VERSION + "|" + opts.prefix + "|" + opts.kind).encode()).hexdigest()[:16]
     report = {
@@ -177,8 +195,8 @@ def main(argv=None):
         "kind": opts.kind, "completed_utc": cli.utcnow(),
         "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
         "source_files_seen": len(files),
-        "index": index, "stages": stages, "outputs": selected,
-        "deferred_outputs": deferred,
+        "index": index, "stages": stages, "problems": problems,
+        "outputs": selected, "deferred_outputs": deferred,
         "not_proven": ["gameplay species/item/etc identifiers",
                        "undecoded proprietary formats", "visual fidelity of unreviewed models"]
     }
