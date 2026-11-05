@@ -1,5 +1,6 @@
 """Unit tests for bounded second-stage virtual processing (synthetic bytes)."""
 import json
+from contextlib import closing
 from pathlib import Path
 import struct
 import sys
@@ -28,7 +29,7 @@ class ProcessVirtualTests(unittest.TestCase):
 
     def test_labels_real_parser_and_outputs(self):
         files = pv.scoped_paths(self.root, self.prefix, 100)
-        with cli.connect(self.root / "_index" / "resource_catalog.sqlite") as conn:
+        with closing(cli.connect(self.root / "_index" / "resource_catalog.sqlite")) as conn:
             a = pv.index_local(self.root, conn, files)
             self.assertEqual(a["available"], 1)
             self.assertEqual(a["local_only"], 1)
@@ -46,7 +47,7 @@ class ProcessVirtualTests(unittest.TestCase):
             self.assertEqual(db, (0, None))
 
     def test_local_changes_reindex_and_native_manifest_rejects_mismatch(self):
-        with cli.connect(self.root / "_index" / "resource_catalog.sqlite") as conn:
+        with closing(cli.connect(self.root / "_index" / "resource_catalog.sqlite")) as conn:
             files = pv.scoped_paths(self.root, self.prefix, 100)
             pv.index_local(self.root, conn, files)
             old = conn.execute("SELECT sha256_recorded FROM raw_files").fetchone()[0]
