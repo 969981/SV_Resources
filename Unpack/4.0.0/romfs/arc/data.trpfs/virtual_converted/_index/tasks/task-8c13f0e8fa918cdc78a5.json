@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task": "appli/tex/chara_s/chara_npc_04_s_00#00000",
+  "input_fingerprint": "F211D9668E9A4A882F774B764199621F5F8E4BA28563EDCEEB15D96D85FEFD7D",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "appli/tex/chara_s/chara_npc_04_s_00/chara_npc_04_s_00.bntx",
+      "source_sha256": "92FC0167545184F51EAF243268CD07E256F3F58245C56E09893E1F16FC86F28A",
+      "bytes": 16488,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010040000068400000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/appli/tex/chara_s/chara_npc_04_s_00/chara_npc_04_s_00.bntx.json"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/appli/tex/chara_s/chara_npc_04_s_00/chara_npc_04_s_00.png",
+      "path": "virtual_converted/appli/tex/chara_s/chara_npc_04_s_00/chara_npc_04_s_00.png",
+      "sha256": "75C396C3FDCCCBC8D8EABD1F5CF0507F7FB7AC424C16BF7C6A5BA211BD243609",
+      "bytes": 10902
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/chara_s/chara_npc_04_s_00/_inspection/5973d79879d2da55.jsonl",
+      "path": "virtual_converted/_parsed/appli/tex/chara_s/chara_npc_04_s_00/_inspection/5973d79879d2da55.jsonl",
+      "sha256": "611DB4A2265DEF1690E2097B9F245184ADE2D494DBADABE407FB48A75C6BAB51",
+      "bytes": 604
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/chara_s/chara_npc_04_s_00/chara_npc_04_s_00.bntx.json",
+      "path": "virtual_converted/_parsed/appli/tex/chara_s/chara_npc_04_s_00/chara_npc_04_s_00.bntx.json",
+      "sha256": "7EFE5A8AFBCD80AA64BB5F131E721F18A82244D88C9EAB782ACF00066CA5412B",
+      "bytes": 288
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "appli/tex/chara_s/chara_npc_04_s_00",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
