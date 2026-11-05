@@ -28,7 +28,7 @@ class TestToolSubmodules(unittest.TestCase):
             self.assertTrue(config.has_section(section), path)
             self.assertEqual(config[section]["path"], path)
             self.assertEqual(config[section]["url"], item["repository"])
-            self.assertIn(f"160000 commit {item['ref']}\t{path.split('/')[-1]}", recursive.stdout)
+            self.assertIn(f"160000 commit {item['ref']}\t{path}", recursive.stdout)
             self.assertEqual(len(item["ref"]), 40)
 
     def test_project_uses_imported_gftool(self):
