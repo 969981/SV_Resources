@@ -112,10 +112,7 @@ namespace System
             int currlen = value.Length;
             int needed = length == currlen ? 0 : (length - currlen);
 
-            return needed == 0 ? value :
-                (needed > 0 ? value + new string(' ', needed) :
-                    new string(new string(value.ToCharArray().Reverse().ToArray()).
-                        Substring(needed * -1, value.Length - (needed * -1)).ToCharArray().Reverse().ToArray()));
+            return needed == 0 ? value : (needed > 0 ? value + new string(' ', needed) : value.Substring(0, length));
         }
     }
 }
