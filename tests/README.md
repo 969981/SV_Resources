@@ -21,3 +21,7 @@ python -m unittest discover -s tests -p test_plan_sv_unpack.py -v
 ```
 
 The [sparse-checkout CI](../.github/workflows/validate-unpack-plan.yml) runs only these Python synthetic tests, not the many-gigabyte source archive or proprietary binary dependencies.
+
+`test_sv_hashcache.py` checks hashlist parsing, conflict behavior, and byte-exact .NET BinaryWriter-compatible UTF-8 string length encoding on synthetic data (no ROM data).
+
+The M2 .NET CLI can be built in CI with the pinned gftool Core. Build success is not evidence that Oodle decompression of a real SV container passed.

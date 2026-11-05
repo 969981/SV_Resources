@@ -25,7 +25,7 @@ if (-not $SkipRestore) {
     $argsRestore = @{ RepositoryRoot=$RepositoryRoot; OutputDirectory=$Workspace; RelativePath=$rel }
     if ($SevenZipPath) { $argsRestore.SevenZipPath = $SevenZipPath }
     & (Join-Path $PSScriptRoot 'Restore-SV-Violet-RomFS.ps1') @argsRestore
-    if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) { throw "Restore failed: $rel" }
+    if (-not $?) { throw "Restore failed: $rel" }
   }
 }
 $manifest = Get-Content -LiteralPath (Join-Path $RepositoryRoot 'violet_4.0.0_romfs_transfer_manifest.json') -Raw | ConvertFrom-Json

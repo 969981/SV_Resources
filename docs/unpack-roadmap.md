@@ -84,3 +84,34 @@ M0 is a repository preparation milestone, **completed** by commits [358b3bdd](ht
 - [M8 — 增量发布、Obsidian 与回归测试](https://github.com/969981/SV_Resources/issues/8)
 
 Synthetic planner tests: [GitHub Actions](https://github.com/969981/SV_Resources/actions/workflows/validate-unpack-plan.yml). This validates script behavior on generated fixtures only, **not actual TRPFS extraction**.
+
+## M1/M2 local execution — implementation status (2026-11-05)
+
+**Repository evidence:** `docs/verification/violet_4.0.0_romfs_verification.json` recorded Full mode with 326/326 checks passed, 0 failures, source comparison enabled, before this M2 pipeline was introduced. This proves the archived originals were previously verified; it does **not** mean restored contiguous files or the new gftool-based extractor have been run.
+
+**Added:** `scripts/Prepare-SV-Trinity.ps1` verifies and restores only `arc/data.trpfd` / `arc/data.trpfs` outside this repo (M1), builds the hash cache from pinned PokeDocs using `scripts/Build-SV-GFPAKHashCache.py`, and optionally copies a *user-supplied local* Oodle DLL to ignored `tools/_local/`. `scripts/Run-SV-TrinityDump.ps1` invokes `tools/SV.TrinityDump` (.NET 8 + pinned gftool `GFTool.Core`) to enumerate and extract files. Output is strictly `Unpack/4.0.0/romfs/arc/data.trpfs/virtual/`. `_index/export.jsonl` records each output hash, source pack name/offset, error, and status for resume.
+
+```powershell
+# Once on your own Windows computer, under the cloned repository:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Sync-SV-Tools.ps1
+
+# Save your privately supplied oo2core_8_win64.dll somewhere you control.
+# Example work path OUTSIDE the repository (enough free disk space required):
+$work = 'E:\Test\SV_Work\4.0.0\romfs'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Prepare-SV-Trinity.ps1 `
+  -Workspace $work -OodleDllPath 'D:\Private\oo2core_8_win64.dll' -WithTrpakHashes
+
+# Parse descriptors / count expected packs without extracting:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-SV-TrinityDump.ps1 `
+  -Workspace $work -DryRun
+
+# Smoke-test two packs first; then run without MaxPacks for full extraction:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-SV-TrinityDump.ps1 `
+  -Workspace $work -MaxPacks 2
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-SV-TrinityDump.ps1 `
+  -Workspace $work
+```
+
+Both scripts are designed to fail closed: refuse source output overlap, missing SHA, invalid paths, stale files or failed decompression, and never overwrite an existing unverified virtual file. Unrecognized name hashes are written under `virtual/_unknown/<16-hex-hash>.bin` and stay unknown. M2 is **implemented but not marked verified** until tested on a Windows host against the real container and audited report. No external executables, copyrighted Oodle DLL or hash-cache binary is committed.
+
+Tool reference: gftool currently exposes a Windows Forms Explorer, not a ready CLI batch dump. The local batch exporter uses the same `GFTool.Core` structures/decoder rather than automating UI clicking.

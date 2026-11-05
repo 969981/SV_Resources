@@ -1,14 +1,20 @@
-name: Validate SV unpack planning
+name: Validate SV unpack tooling
 on:
   push:
     paths:
       - 'scripts/Plan-SV-Unpack.py'
-      - 'tests/test_plan_sv_unpack.py'
+      - 'scripts/Build-SV-GFPAKHashCache.py'
+      - 'tests/test_*.py'
+      - 'tools/SV.TrinityDump/**'
+      - 'tools/upstream.json'
       - '.github/workflows/validate-unpack-plan.yml'
   pull_request:
     paths:
       - 'scripts/Plan-SV-Unpack.py'
-      - 'tests/test_plan_sv_unpack.py'
+      - 'scripts/Build-SV-GFPAKHashCache.py'
+      - 'tests/test_*.py'
+      - 'tools/SV.TrinityDump/**'
+      - 'tools/upstream.json'
       - '.github/workflows/validate-unpack-plan.yml'
   workflow_dispatch:
 
@@ -16,7 +22,7 @@ permissions:
   contents: read
 
 jobs:
-  synthetic-plan-tests:
+  synthetic-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -27,11 +33,32 @@ jobs:
             tests
             .github
           sparse-checkout-cone-mode: true
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Validate syntax
-        run: python -m py_compile scripts/Plan-SV-Unpack.py tests/test_plan_sv_unpack.py
-      - name: Run synthetic unpack planner tests
-        run: python -m unittest discover -s tests -p 'test_plan_sv_unpack.py' -v
+      - name: Validate Python syntax
+        run: python -m py_compile scripts/Plan-SV-Unpack.py scripts/Build-SV-GFPAKHashCache.py tests/test_plan_sv_unpack.py tests/test_sv_hashcache.py
+      - name: Run synthetic tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+  compile-trinity-dump:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools
+            .github
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Fetch pinned gftool source (never install Oodle)
+        shell: pwsh
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/pkZukan/gftool.git tools/_external/gftool
+          git -C tools/_external/gftool checkout --detach cac7a210fcbef5ecf1ee108c10d1a1bdddc4cd4c
+          git -C tools/_external/gftool submodule update --init --recursive
+      - name: Compile net8 CLI against pinned GFTool.Core
+        run: dotnet build tools/SV.TrinityDump/SV.TrinityDump.csproj -c Release --nologo
