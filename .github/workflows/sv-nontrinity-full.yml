@@ -1,0 +1,136 @@
+name: SV M3 FULL - batch all non-Trinity 4.0.0 assets
+on:
+  push:
+    paths:
+      - '.github/workflows/sv-nontrinity-full.yml'
+  workflow_dispatch:
+    inputs:
+      max_total_output_bytes:
+        description: 'Maximum NEW extracted bytes to publish (0=unlimited, use caution)'
+        required: true
+        default: '300000000'
+        type: string
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: sv-nontrinity-publish-master
+  cancel-in-progress: false
+jobs:
+  unpack:
+    runs-on: windows-latest
+    timeout-minutes: 240
+    env:
+      TOTAL_BYTES: ${{ inputs.max_total_output_bytes || '300000000' }}
+    steps:
+      - name: Sparse checkout of relevant original sources and prior derived outputs
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/workflows/sv-nontrinity-full.yml
+            4.0.0/0/
+            4.0.0/1/audio/
+            4.0.0/1/demo/movie/
+            violet_4.0.0_romfs_transfer_manifest.json
+            scripts/Unpack-SV-Remaining.py
+            tests/test_sv_nontrinity_unpack.py
+            Unpack/4.0.0/exefs/
+            Unpack/4.0.0/romfs/audio/
+            Unpack/4.0.0/romfs/demo/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install NSO decompressor
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check lz4
+      - name: Run synthetic parser tests
+        shell: pwsh
+        run: python -m unittest discover -s tests -p test_sv_nontrinity_unpack.py -v
+      - name: Restore and SHA256-check non-Trinity 7z volume sources
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $seven = (Get-Command 7z.exe -ErrorAction SilentlyContinue).Source
+          if (-not $seven) { $seven = 'C:\Program Files\7-Zip\7z.exe' }
+          if (-not (Test-Path $seven)) { throw '7-Zip unavailable on runner' }
+          $manifest = Get-Content 'violet_4.0.0_romfs_transfer_manifest.json' -Raw | ConvertFrom-Json
+          $root = Join-Path $env:RUNNER_TEMP 'sv-restore'
+          New-Item -ItemType Directory -Force -Path $root | Out-Null
+          $archives = @($manifest.files | Where-Object {
+            $_.storageMethod -eq 'archive' -and $_.relativePath -notlike 'arc/data.trpfs*'
+          })
+          foreach ($entry in $archives) {
+            $volumes = @($entry.artifacts | Sort-Object partNumber)
+            if ($volumes.Count -ne [int]$entry.archiveVolumeCount) {
+              throw "Incomplete manifest volume count for $($entry.relativePath)"
+            }
+            foreach ($v in $volumes) {
+              if (-not (Test-Path $v.path)) { throw "Missing volume $($v.path)" }
+              $hash = (Get-FileHash -LiteralPath $v.path -Algorithm SHA256).Hash
+              if ($hash -ne [string]$v.sha256) { throw "Volume SHA256 mismatch: $($v.path)" }
+            }
+            $first = $volumes[0].path
+            & $seven t $first | Out-Host
+            if ($LASTEXITCODE -ne 0) { throw "7z integrity failed: $first" }
+            $relative = ('4.0.0/1/' + $entry.relativePath).Replace('/', [IO.Path]::DirectorySeparatorChar)
+            $destination = Join-Path $root $relative
+            $folder = Split-Path $destination -Parent
+            New-Item -ItemType Directory -Force -Path $folder | Out-Null
+            & $seven x $first "-o$folder" -y | Out-Host
+            if ($LASTEXITCODE -ne 0) { throw "7z extraction failed: $first" }
+            if (-not (Test-Path $destination)) { throw "Restored source missing: $destination" }
+            $actualSize = (Get-Item $destination).Length
+            $actualHash = (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash
+            if ($actualSize -ne [long]$entry.sourceBytes -or
+                $actualHash -ne [string]$entry.sourceSha256) {
+              throw "Restored source mismatch: $($entry.relativePath)"
+            }
+            Write-Host "Verified $($entry.relativePath): $actualSize bytes"
+          }
+          "SV_RESTORED_ROOT=$root" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Extract all remaining media in resumable 300MB commits on an isolated branch
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          $branch = "sv-nontrinity-full-$env:GITHUB_RUN_ID"
+          $iterations = 12
+          for ($batch = 0; $batch -lt $iterations; $batch++) {
+            Write-Host "Starting full non-Trinity extraction batch $batch on $branch"
+            python scripts/Unpack-SV-Remaining.py --repo . --restored-root "$env:SV_RESTORED_ROOT" --category all --max-output-file-bytes 95000000 --max-total-output-bytes ([long]$env:TOTAL_BYTES)
+            if ($LASTEXITCODE -ne 0) { throw "Native extraction failed at batch $batch" }
+            git add -- Unpack/4.0.0/exefs Unpack/4.0.0/romfs/audio Unpack/4.0.0/romfs/demo
+            if ($LASTEXITCODE -ne 0) { throw "git add failed at batch $batch" }
+            git diff --cached --quiet
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "No additional extracted bytes remain within single-file limit."
+              break
+            }
+            git commit -m "data(nontrinity): verified 4.0.0 extraction batch $batch"
+            if ($LASTEXITCODE -ne 0) { throw "git commit failed at batch $batch" }
+            git push origin "HEAD:refs/heads/$branch"
+            if ($LASTEXITCODE -ne 0) { throw "Verified batch branch push failed at batch $batch" }
+          }
+          "UNPACK_BRANCH=$branch" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Upload provenance even when extraction partially fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-nontrinity-4.0.0-indices
+          path: |
+            Unpack/4.0.0/exefs/**/_index/
+            Unpack/4.0.0/romfs/audio/**/_index/
+            Unpack/4.0.0/romfs/demo/**/_index/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Open a safe merge proposal for fully extracted media
+        if: success()
+        continue-on-error: true
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create --repo 969981/SV_Resources --base master --head "$env:UNPACK_BRANCH" --title "data: verified SV 4.0.0 non-Trinity extraction batches" --body "Contains bounded Git commits from real Wwise media/ExeFS extraction, SHA-256 source validation, and explicit statuses for files that could not be decoded or exceeded GitHub's single-blob limit. Do not confuse the result with M2 Trinity extraction."
