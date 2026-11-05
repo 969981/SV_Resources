@@ -25,7 +25,7 @@ ROOT = Path(cli.BASE)
 STATE_NAME = "_index/secondary/full-state.json"
 SELECTION_NAME = "_index/secondary/full-selection.json"
 RUN_NAME = "_index/secondary/full-last-run.json"
-EPOCH = "full-sweep-v1"  # Bump only when parser semantics/tool chain change.
+EPOCH = "full-sweep-parsed-v2"  # Revisit ALL earlier tasks: parsed coverage is now mandatory.
 MAX_ERROR_ATTEMPTS = 2  # Never let a permanently failing group stall the full sweep.
 
 
