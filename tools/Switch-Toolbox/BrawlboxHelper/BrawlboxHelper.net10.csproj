@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <AssemblyName>BrawlboxHelper</AssemblyName>
+    <RootNamespace>BrawlboxHelper</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="BrawlHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="BrawlLib"><HintPath>..\Toolbox\Lib\BrawlLib.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Gl_EditorFramework"><HintPath>..\Toolbox\Gl_EditorFramework.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.BinaryData"><HintPath>..\Toolbox\Lib\Syroot.BinaryData.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.Maths"><HintPath>..\Toolbox\Lib\Syroot.Maths.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.NintenTools.Bfres"><HintPath>..\Toolbox\Lib\Syroot.NintenTools.Bfres.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Syroot.NintenTools.NSW.Bfres"><HintPath>..\Toolbox\Lib\Syroot.NintenTools.NSW.Bfres.dll</HintPath><Private>true</Private></Reference>
+
+    <ProjectReference Include="..\Switch_Toolbox_Library\Toolbox_Library.net10.csproj" />
+  </ItemGroup>
+</Project>

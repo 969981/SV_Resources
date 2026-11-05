@@ -1,0 +1,44 @@
+name: Verify Switch-Toolbox .NET 10 migration
+on:
+  push:
+    branches: ['upgrade/switch-toolbox-net10']
+    paths:
+      - 'tools/Switch-Toolbox/**'
+      - '.github/workflows/verify-switch-toolbox-net10.yml'
+  pull_request:
+    paths:
+      - 'tools/Switch-Toolbox/**'
+      - '.github/workflows/verify-switch-toolbox-net10.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  win10-build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: tools/Switch-Toolbox
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools/Switch-Toolbox
+            .github
+          sparse-checkout-cone-mode: false
+          submodules: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Check toolchain and five projects
+        shell: pwsh
+        run: |
+          dotnet --info
+          $projects = @(dotnet sln Toolbox.net10.slnx list | Select-String 'net10.csproj$')
+          if ($projects.Count -ne 5) { throw "Expected five NET10 projects, got $($projects.Count)" }
+      - name: Restore .NET 10
+        run: dotnet restore Toolbox.net10.slnx --nologo -v minimal
+      - name: Build .NET 10 Release
+        run: dotnet build Toolbox.net10.slnx -c Release --no-restore --nologo -v minimal
+      - name: Build .NET 10 Debug
+        run: dotnet build Toolbox.net10.slnx -c Debug --no-restore --nologo -v minimal
