@@ -1,0 +1,137 @@
+name: SV M2 - extract Trinity virtual files into Unpack
+on:
+  push:
+    paths:
+      - '.github/workflows/sv-m2-virtual-extract.yml'
+  workflow_dispatch:
+    inputs:
+      start_pack:
+        description: '0-based pack window start (native TRPFD order)'
+        type: string
+        default: '0'
+        required: true
+      max_packs:
+        description: 'Maximum packs for this run; start small'
+        type: string
+        default: '2'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-m2-publish-master
+  cancel-in-progress: false
+
+jobs:
+  restore-and-extract:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    env:
+      START_PACK: ${{ github.event.inputs.start_pack || '0' }}
+      MAX_PACKS: ${{ github.event.inputs.max_packs || '2' }}
+    steps:
+      - name: Check that runner has enough disk for 8 GB + source + outputs
+        shell: pwsh
+        run: |
+          $drive = (Get-PSDrive -Name D)
+          Write-Host "Available D drive: $([Math]::Round($drive.Free/1GB, 1)) GiB"
+          if ($drive.Free -lt 36GB) { throw 'At least 36 GiB free is required for verified TRPFS restore + extraction.' }
+          $start = [int]$env:START_PACK
+          $max = [int]$env:MAX_PACKS
+          if ($start -lt 0 -or $max -lt 1 -or $max -gt 200) { throw 'Invalid pack window: start >=0, 1 <= max <= 200' }
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            .github/workflows/sv-m2-virtual-extract.yml
+            violet_4.0.0_romfs_transfer_manifest.json
+            4.0.0/1/arc/data.trpfd
+            4.0.0/1/arc/data.trpfs.7z.*
+            scripts/SV-RomFS.Transfer.psm1
+            scripts/Restore-SV-Violet-RomFS.ps1
+            scripts/Prepare-SV-Trinity.ps1
+            scripts/Run-SV-TrinityDump.ps1
+            scripts/deps/oo2core_8_win64.dll
+            tools/SV.TrinityDump
+            tools/gftool
+            tools/HashCaches/SV
+            Unpack/4.0.0/romfs/arc/data.trpfs
+          sparse-checkout-cone-mode: false
+          persist-credentials: true
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Verify that all 83 source volumes and Oodle are checked out
+        shell: pwsh
+        run: |
+          $volumes = @(Get-ChildItem '4.0.0/1/arc/data.trpfs.7z.*' -File)
+          if ($volumes.Count -ne 83) { throw "Expected 83 TRPFS 7z volume files, found $($volumes.Count)" }
+          if (-not (Test-Path 'scripts/deps/oo2core_8_win64.dll')) { throw 'Uploaded Oodle DLL missing from checkout' }
+          if (-not (Test-Path 'tools/HashCaches/SV/GFPAKHashCache.bin')) { throw 'Pinned SV HashCache missing' }
+          $meta = Get-Content 'tools/HashCaches/SV/hashcache-report.json' -Raw | ConvertFrom-Json
+          $actual = (Get-FileHash 'tools/HashCaches/SV/GFPAKHashCache.bin' -Algorithm SHA256).Hash
+          if ($actual -ne [string]$meta.sha256) { throw "HashCache SHA256 mismatch: $actual" }
+          Write-Host "83 7z volumes present. HashCache and local Oodle dependency present."
+
+      - name: Initialize pinned gftool parser
+        shell: pwsh
+        run: |
+          git submodule update --init --recursive -- tools/gftool
+          if ($LASTEXITCODE -ne 0) { throw 'gftool source checkout failed' }
+
+      - name: M1 restore and verify complete data.trpfs and data.trpfd
+        shell: pwsh
+        run: |
+          $work = Join-Path $env:RUNNER_TEMP 'SV-Violet-4.0.0-RomFS'
+          New-Item -ItemType Directory -Force $work | Out-Null
+          New-Item -ItemType Directory -Force 'tools/_local' | Out-Null
+          Copy-Item 'tools/HashCaches/SV/GFPAKHashCache.bin' 'tools/_local/GFPAKHashCache.bin'
+          & ./scripts/Prepare-SV-Trinity.ps1 -Workspace $work -SkipHashBuild
+          if (-not $?) { throw 'Native restore/check failed' }
+          "ROMFS_WORK=$work" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host 'Native data.trpfs source verified against 8,016,551,536-byte SHA256 manifest.'
+
+      - name: M2 extract real virtual files using GFTool.Core + Oodle
+        shell: pwsh
+        run: |
+          & ./scripts/Run-SV-TrinityDump.ps1 -Workspace $env:ROMFS_WORK -StartPack ([int]$env:START_PACK) -MaxPacks ([int]$env:MAX_PACKS)
+          if (-not $?) { throw 'M2 export encountered errors; inspect index JSONL and Actions logs' }
+          $index = 'Unpack/4.0.0/romfs/arc/data.trpfs/_index/export.jsonl'
+          if (-not (Test-Path $index)) { throw 'No extraction index generated' }
+          $lines = @(Get-Content $index)
+          $success = @($lines | Where-Object { ($_ | ConvertFrom-Json).Status -eq 'OK' }).Count
+          if ($success -eq 0) { throw 'No successful native virtual files exported' }
+          Write-Host "Verified native virtual file export records: $success"
+
+      - name: Upload extraction evidence separately
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV-M2-pack-${{ env.START_PACK }}-count-${{ env.MAX_PACKS }}-evidence
+          path: Unpack/4.0.0/romfs/arc/data.trpfs/_index/export.jsonl
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Commit only this batch of extracted files under Unpack
+        shell: pwsh
+        run: |
+          $root = 'Unpack/4.0.0/romfs/arc/data.trpfs'
+          $files = @(Get-ChildItem (Join-Path $root 'virtual') -File -Recurse)
+          if ($files.Count -eq 0) { throw 'No virtual files to commit' }
+          if (@($files | Where-Object Length -ge 100000000).Count -gt 0) {
+            throw 'One extracted file exceeds GitHub 100MB limit; split it or publish via verified 7z volumes.'
+          }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- "$root/virtual" "$root/_index/export.jsonl"
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Host 'No new files'; exit 0 }
+          git commit -m "data(m2): extract verified SV TRPFS packs $env:START_PACK count $env:MAX_PACKS"
+          if ($LASTEXITCODE -ne 0) { throw 'Commit failed' }
+          git push origin HEAD:master
+          if ($LASTEXITCODE -ne 0) { throw 'Safe push rejected; master moved or token write failed' }
