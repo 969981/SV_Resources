@@ -2,7 +2,7 @@
   "version": "4.0.0",
   "source": "virtual/message/dat/German/common",
   "kind": "all",
-  "completed_utc": "2026-11-05T12:40:03.377572+00:00",
+  "completed_utc": "2026-11-05T13:06:59.573775+00:00",
   "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
   "source_files_seen": 292,
   "selection_sha256": "e283a6a6d33368a85960dad908bbc620cb1d475c49bcfc87738aa179e4b1c5fe",
@@ -59,7 +59,22 @@
     }
   },
   "problems": [],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/message/dat/German/common/_inspection/f5a488859e2f45d9.jsonl",
+    "source_files": 292,
+    "inspection_records": 292,
+    "by_status": {
+      "STRUCTURE_PARSED": 292
+    },
+    "manifest_sha256": "C63C8C7F18597566A455A00700411B8FF5047D67090E1BC24F54D5AFB2F52F78"
+  },
   "outputs": [
+    {
+      "path": "parsed/message/dat/German/common/_inspection/f5a488859e2f45d9.jsonl",
+      "bytes": 171533,
+      "sha256": "C63C8C7F18597566A455A00700411B8FF5047D67090E1BC24F54D5AFB2F52F78"
+    },
     {
       "path": "parsed/message/dat/German/common/another_name.labels.json",
       "bytes": 22845,
@@ -3679,14 +3694,14 @@
       "path": "resources/messages/German/common/zukan_comment_A.json",
       "bytes": 618762,
       "sha256": "04C9A5EE12C1C7FB34646E006A52A9591D9B453F305016F1E8A748D831562D4D"
-    },
-    {
-      "path": "resources/messages/German/common/zukan_comment_B.json",
-      "bytes": 618268,
-      "sha256": "6ABE080668B1714F160FDF1BF03BA546B5182C415E3E4E5F3D3E2411D20537A9"
     }
   ],
-  "deferred_outputs": [],
+  "deferred_outputs": [
+    {
+      "path": "resources/messages/German/common/zukan_comment_B.json",
+      "reason": "BATCH_SIZE_LIMIT"
+    }
+  ],
   "not_proven": [
     "gameplay species/item/etc identifiers",
     "undecoded proprietary formats",
