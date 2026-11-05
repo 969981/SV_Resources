@@ -47,3 +47,5 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 ## ZA Lua 第二轮（Obsidian）
 
 - [ZA Lua Hash/固定源码和原始行号对照](research/za-lua-hash-recovery.md) — 578 条合并候选、566 条具名重建证据、完整 1-based 原始行号索引及可复核命令。
+
+- [ZA Lua 第三轮补全与原始行号](research/za-lua-hash-recovery.md) — 611 条 Hash 候选（599 条第三方 Haxe 注解证据），仍未知 162 条。

@@ -127,3 +127,13 @@ py -3 .\scripts\Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 578
 py -3 .\scripts\Verify-ZA-Lua-Sources.py --verify-only --reconstruction-root .research/ZAScripts
 py -3 -m unittest discover -s tests -p test_za_lua_source_evidence.py -v
 ```
+
+## ZA Lua 第三轮（611 条精确 Hash）
+
+恢复记录存于 `tools/PokeDocs-Supplement/ZA/Hashlists/Lua/`，重建源版本固定为 `Reisyukaku/ZAScripts@c7bc243ac4d28356dff9f06b6723330ea92247d5`。执行：
+
+```powershell
+py -3 .\scripts\Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 611
+py -3 .\scripts\Verify-ZA-Lua-Sources.py --verify-only --reconstruction-root .research/ZAScripts
+py -3 .\scripts\Verify-ZA-Lua-Sources.py --scan-reconstruction --reconstruction-root .research/ZAScripts
+```

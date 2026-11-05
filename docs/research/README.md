@@ -33,3 +33,5 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## SV 4.0.0 whole-file Lua native reverse engineering
 
 - [直接读取 main.blua / main_dynamic.blua 的 C→F 原生关系](sv-lua-native-4.0.0.md) — 23,727 条真实 `prototype` 方法赋值、1,076 个原生 C 方法拥有者、25 个未知 F 的使用上下文，以及 14 个 Gem Setting 窗口回调接收对象；**不拆分大文件**。
+
+- ZA Lua 第三轮：详见 [完整原始行号与事件源证据](za-lua-hash-recovery.md)，累计 611 条、第三轮新增 33、剩余 S 116 / F 43 / E 3。第三方源码不是原生确认。

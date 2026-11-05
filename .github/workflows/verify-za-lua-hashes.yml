@@ -51,8 +51,8 @@ jobs:
           python -m unittest discover -s tests -p 'test_za_lua_hash_recovery.py' -v
           python -m unittest discover -s tests -p 'test_za_lua_source_evidence.py' -v
 
-      - name: Verify original-to-merged hashes and 578 candidates
-        run: python scripts/Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 578
+      - name: Verify original-to-merged hashes and 611 candidates
+        run: python scripts/Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 611
 
       - name: Verify pinned source annotations and original line numbers
         run: python scripts/Verify-ZA-Lua-Sources.py --verify-only --reconstruction-root .research/zascripts
