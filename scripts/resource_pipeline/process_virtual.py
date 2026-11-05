@@ -20,7 +20,7 @@ except ImportError:
     import r4_pipeline
 
 
-def scoped_paths(root: Path, prefix: str, max_files: int):
+def scoped_paths(root: Path, prefix: str, max_files: int, only=None):
     prefix = cli.safe_path(prefix)
     if prefix.startswith(("parsed/", "converted/", "resources/", "_index/")):
         raise ValueError("Prefix must be relative to virtual/")
@@ -36,6 +36,8 @@ def scoped_paths(root: Path, prefix: str, max_files: int):
         if not path.resolve().is_relative_to(base.resolve()):
             raise ValueError("Virtual entry escapes root")
         rel = cli.safe_path(path.relative_to(base).as_posix())
+        if only is not None and rel not in only:
+            continue
         selected.append((rel, path))
         if len(selected) > max_files:
             raise ValueError(f"Scope has more than {max_files} native files; choose a smaller --prefix")
@@ -174,6 +176,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--prefix", required=True, help="Bounded path below virtual/, not a glob")
+    parser.add_argument("--paths-file", type=Path,
+                        help="Optional exact relative virtual file allowlist, one path per line")
     parser.add_argument("--max-source-files", type=int, default=3000)
     parser.add_argument("--max-output-mb", type=int, default=25)
     parser.add_argument("--limit", type=int, default=20, help="Max files per conversion stage")
@@ -183,14 +187,22 @@ def main(argv=None):
     parser.add_argument("--model-converter", default="")
     parser.add_argument("--retry-failed", action="store_true")
     opts = parser.parse_args(argv)
-    if not (1 <= opts.limit <= 1000 and 1 <= opts.max_source_files <= 100000
+    if not (1 <= opts.limit <= 5000 and 1 <= opts.max_source_files <= 100000
             and 1 <= opts.max_output_mb <= 200):
         parser.error("Invalid nonzero batch limits")
     repo = opts.repo.resolve()
     root = repo / cli.BASE
     if not (root / "virtual").is_dir():
         parser.error("Missing native virtual/ directory")
-    files = scoped_paths(root, opts.prefix, opts.max_source_files)
+    only = None
+    if opts.paths_file:
+        selected_names = opts.paths_file.read_text("utf-8").splitlines()
+        only = {cli.safe_path(x) for x in selected_names if x}
+        if len(only) != len(selected_names) or not only:
+            raise ValueError("Paths allowlist must contain unique, nonempty paths")
+    files = scoped_paths(root, opts.prefix, opts.max_source_files, only=only)
+    if only is not None and {name for name, _ in files} != only:
+        raise ValueError("One or more explicitly selected native paths are not present locally")
     with cli.connect(root / "_index" / "resource_catalog.sqlite") as conn:
         index = index_local(root, conn, files)
         stages = {}
@@ -228,12 +240,15 @@ def main(argv=None):
                 ).fetchall()
             )
     selected, deferred = outputs(root, opts.max_output_mb, opts.prefix)
-    batch_id = hashlib.sha256((cli.VERSION + "|" + opts.prefix + "|" + opts.kind).encode()).hexdigest()[:16]
+    selection_sha = hashlib.sha256("\n".join(p for p, _ in files).encode()).hexdigest()
+    batch_id = hashlib.sha256(
+        (cli.VERSION + "|" + opts.prefix + "|" + opts.kind + "|" + selection_sha).encode()
+    ).hexdigest()[:16]
     report = {
         "version": cli.VERSION, "source": "virtual/" + opts.prefix,
         "kind": opts.kind, "completed_utc": cli.utcnow(),
         "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
-        "source_files_seen": len(files),
+        "source_files_seen": len(files), "selection_sha256": selection_sha,
         "index": index, "stages": stages, "problems": problems,
         "outputs": selected, "deferred_outputs": deferred,
         "not_proven": ["gameplay species/item/etc identifiers",
