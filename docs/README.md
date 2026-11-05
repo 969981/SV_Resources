@@ -19,6 +19,8 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 ## Unpack and conversion
 
 - [SV 4.0.0 pipeline and milestones](unpack-roadmap.md)
+- [SV 4.0.0 非 Trinity 解包：Wwise、NSO、Bink 与状态证据](research/sv-nontrinity-unpack.md) — 实际输出、7z 恢复、可重入批处理和未支持格式。
+
 - [Derived output directory contract](../Unpack/README.md)
 - [Upstream tools and pinned source revisions](../tools/README.md)
 
