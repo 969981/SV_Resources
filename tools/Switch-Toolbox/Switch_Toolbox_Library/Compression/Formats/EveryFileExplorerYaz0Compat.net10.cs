@@ -7,7 +7,7 @@ using System.IO;
 
 namespace EveryFileExplorer
 {
-    public static class YAZ0
+    internal static class YAZ0
     {
         private const int MaxRun = 0x111;
         private const int WindowSize = 0x1000;
