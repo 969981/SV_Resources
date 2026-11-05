@@ -1,0 +1,119 @@
+name: Extract native SV 4.0.0 main and main_dynamic Lua
+on:
+  push:
+    paths:
+      - '.github/workflows/extract-sv-lua-targets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: sv-4-0-0-target-lua
+  cancel-in-progress: false
+jobs:
+  extract:
+    runs-on: windows-latest
+    timeout-minutes: 180
+    steps:
+      - name: Native source preflight
+        shell: pwsh
+        run: |
+          $drive = Get-PSDrive D
+          if ($drive.Free -lt 36GB) { throw 'Need >=36GiB free to verify native TRPFS' }
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout: |
+            .github/workflows/extract-sv-lua-targets.yml
+            .gitmodules
+            4.0.0/1/arc/data.trpfd
+            4.0.0/1/arc/data.trpfs.7z.*
+            violet_4.0.0_romfs_transfer_manifest.json
+            scripts
+            tests/test_sv_lua_bytecode_audit.py
+            tools/SV.TrinityDump
+            tools/gftool
+            tools/HashCaches/SV
+            tools/PokeDocs/SV/Hashlists/Lua
+            tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index/lua_pack_locations.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify source provenance and test audit
+        shell: pwsh
+        run: |
+          git config core.longpaths true
+          python -m py_compile scripts/Audit-SV-Lua-Bytecode.py
+          python -m unittest discover -s tests -p 'test_sv_lua_bytecode_audit.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Synthetic Lua audit failed' }
+          if (@(Get-ChildItem '4.0.0/1/arc/data.trpfs.7z.*' -File).Count -ne 83) { throw 'Missing original TRPFS 7z volumes' }
+          $loc = Get-Content 'Unpack/4.0.0/romfs/arc/data.trpfd/_index/lua_pack_locations.json' -Raw | ConvertFrom-Json
+          if (-not $loc.all_unique -or [int]$loc.targets.main.matches[0].pack_index -ne 21977 -or [int]$loc.targets.main_dynamic.matches[0].pack_index -ne 21978) { throw 'Unexpected Lua native pack indices' }
+          $cacheHash = (Get-FileHash 'tools/HashCaches/SV/GFPAKHashCache.bin' -Algorithm SHA256).Hash.ToLower()
+          $cacheMeta = Get-Content 'tools/HashCaches/SV/hashcache-report.json' -Raw | ConvertFrom-Json
+          if ($cacheHash -ne $cacheMeta.sha256.ToLower()) { throw 'GFPak hash cache mismatch' }
+          git submodule update --init --recursive -- tools/gftool
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned gftool checkout failed' }
+      - name: Restore original source (read-only verification)
+        shell: pwsh
+        run: |
+          $work = Join-Path $env:RUNNER_TEMP 'SV-4.0.0-Lua-Work'
+          New-Item -ItemType Directory -Force -Path $work | Out-Null
+          New-Item -ItemType Directory -Force -Path 'tools/_local' | Out-Null
+          Copy-Item 'tools/HashCaches/SV/GFPAKHashCache.bin' 'tools/_local/GFPAKHashCache.bin'
+          & ./scripts/Prepare-SV-Trinity.ps1 -Workspace $work -SkipHashBuild
+          if (-not $?) { throw 'Native TRPFS restore failed' }
+          "ROMFS_WORK=$work" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+      - name: Extract only native pack 21977 and 21978
+        shell: pwsh
+        run: |
+          & ./scripts/Run-SV-TrinityDump.ps1 -Workspace $env:ROMFS_WORK -StartPack 21977 -MaxPacks 2
+          if (-not $?) { throw 'Trinity two-pack extraction failed' }
+          foreach ($rel in @('script/lua/bin/release/main/main.blua', 'script/lua/bin/release/main_dynamic/main_dynamic.blua')) {
+            $f = Join-Path 'Unpack/4.0.0/romfs/arc/data.trpfs/virtual' $rel
+            if (-not (Test-Path $f -PathType Leaf)) { throw "Missing decoded $f" }
+            Write-Host "$rel $((Get-Item $f).Length) bytes"
+          }
+      - name: Audit real 4.0.0 Lua C/F hash tokens
+        shell: pwsh
+        run: |
+          python scripts/Audit-SV-Lua-Bytecode.py
+          if ($LASTEXITCODE -ne 0) { throw 'Raw bytecode audit failed' }
+          python scripts/Audit-SV-Lua-Bytecode.py --verify-only
+          if ($LASTEXITCODE -ne 0) { throw 'Raw bytecode audit verification failed' }
+      - name: Save owner artifact even if publish fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV-4.0.0-Lua-Native-${{ github.run_id }}
+          path: |
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/lua_bytecode_audit.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Commit only the two source Lua files and native analysis
+        shell: pwsh
+        run: |
+          $base = 'Unpack/4.0.0/romfs/arc/data.trpfs'
+          $paths = @("$base/virtual/script/lua/bin/release/main/main.blua", "$base/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua", "$base/_index/lua_bytecode_audit.json")
+          foreach ($file in $paths) {
+            if ((Get-Item $file).Length -ge 100000000) { throw "Oversize Git blob $file" }
+          }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- $paths
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Host 'Already published'; exit 0 }
+          git commit -m 'Extract verified native SV 4.0.0 main and dynamic Lua bytecode'
+          if ($LASTEXITCODE -ne 0) { throw 'Commit failed' }
+          git push origin HEAD:refs/heads/master
+          if ($LASTEXITCODE -ne 0) { throw 'Safe push rejected by advanced master; no force-push' }
