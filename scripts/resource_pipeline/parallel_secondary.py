@@ -195,10 +195,17 @@ def main_run(repo: Path, max_workers: int, png: str, model: str, output_mb: int)
         row["elapsed_seconds"]=item.get("elapsed_seconds")
         row["updated_utc"]=cli.utcnow()
         summaries.append(row)
-        # Do not checkpoint ERROR as success: it must be selectable on retry.
-        if row["status"]!="ERROR":
-            state["attempted"][task["id"]]=row
-            state["totals"]["source_files_attempted"]+=task["file_count"]
+        # Preserve ERROR as an unresolved attempt, not a success. The planner
+        # retries it a bounded number of times before moving to other folders.
+        # This avoids an infinite dispatch loop on one permanently broken input.
+        previous = state["attempted"].get(task["id"], {})
+        if row["status"] == "ERROR":
+            row["error_attempts"] = (
+                int(previous.get("error_attempts", 0)) + 1
+                if previous.get("fingerprint") == task["fingerprint"] else 1
+            )
+        state["attempted"][task["id"]] = row
+        state["totals"]["source_files_attempted"] += task["file_count"]
         try:
             shutil.rmtree(item["work"].parent)
         except OSError:
