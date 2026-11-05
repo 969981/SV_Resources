@@ -36,3 +36,6 @@ The next Windows build found .NET 10 API differences: arrays' Reverse resolution
 
 ## Third CI iteration: BinaryFormatter blocker (security risk)
 The next build exposed three legacy generic helpers using BinaryFormatter. Microsoft removed its runtime implementation from .NET 9 onward. A *temporary, unsafe* compatibility dependency (`System.Runtime.Serialization.Formatters` 10.0.14, application opt-in) was added for behavior preservation during migration. The package is unsupported and introduces untrusted-deserialization risks. DO NOT distribute the migrated application for opening untrusted files, or merge to master, until those call sites and any binary .resx resources are replaced with reviewed safe formats and verified by real round-trip tests. This is not a security-complete migration.
+
+## Fourth CI iteration: Windows Media Player COM reference
+A legacy `COMReference Include="AxWMPLib"` invoked ResolveComReference, which the .NET SDK's MSBuild cannot run. This migration references the repository's existing AxInterop.WMPLib and Interop.WMPLib generated wrappers. COM activation and WMP audio playback still require Windows runtime testing.

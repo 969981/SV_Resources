@@ -2226,15 +2226,8 @@
     <None Include="Resources\White.dds" />
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="AxWMPLib">
-      <Guid>{6BF52A50-394A-11D3-B153-00C04F79FAA6}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>aximp</WrapperTool>
-      <Isolated>False</Isolated>
-      <Private>False</Private>
-    </COMReference>
+    <Reference Include="AxInterop.WMPLib"><HintPath>..\Toolbox\Lib\Plugins\AxInterop.WMPLib.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Interop.WMPLib"><HintPath>..\Toolbox\Lib\Plugins\Interop.WMPLib.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Basic_Bake_st0.dds" />
