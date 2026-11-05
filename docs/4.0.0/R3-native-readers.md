@@ -36,3 +36,13 @@ python scripts/resource_pipeline/native_sv.py audit-bundle --root Unpack/4.0.0/r
 ## 自动 CI
 
 `.github/workflows/verify-sv-native-model.yml` 在 PR/变更提交上只稀疏检出指定的六个原生输入，执行合成数据单元测试和真实样本的只读解析、材质/骨骼名称匹配诊断。若真实样本 schema 与读取器不一致会直接失败，并显示精确失败项目。该工作流不会生成或上传 `.glb`、贴图、原生资源归档。
+
+## R4 增量任务对接
+
+`r34.py` 的 `load_tasks` 现在会从 TRMDL 真实字符串引用收集 TRMSH、TRMTR、TRSKL、TRMBF；对于同目录恰好存在一个 TRMDL 的 TRANM，将模型依赖也计入动画任务指纹。指纹同时包含 `native_sv.py` 的内容 SHA-256 和当前可用 PokeDocs FlatBuffers `.fbs` 的 SHA-256，不能用同名文件替代原生引用确认。
+
+```sh
+python scripts/resource_pipeline/r34.py native-audit --root Unpack/4.0.0/romfs/arc/data.trpfs --limit 10
+```
+
+该命令的结果写入 `parsed/r3/*.native-evidence.json` 和 SQLite `R3_NATIVE_EVIDENCE`，仍保持 `PENDING`，不能自动进入 `resources/`。`verify-sv-r34-pipeline.yml` 已增加 `native-audit` 模式，实际转换继续依赖专用 runner 上的已授权转换器。
