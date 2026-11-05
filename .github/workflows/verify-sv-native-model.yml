@@ -31,6 +31,10 @@ jobs:
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trmdl
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trmsh
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trmbf
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00_lod1.trmsh
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00_lod1.trmbf
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00_lod2.trmsh
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00_lod2.trmbf
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trmtr
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00.trskl
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0025/pm0025_00_00/pm0025_00_00_00010_defaultidle01.tranm
@@ -61,6 +65,10 @@ jobs:
           print('Native link checks:', json.dumps(report['checks'], ensure_ascii=False)[:6000], flush=True)
           print('Resolved references:', json.dumps(report['references'], ensure_ascii=False)[:3500], flush=True)
           assert len(report['model']['data']['mesh_references']) > 0
+          assert report['checks']['model_dependencies'] == 'PASS'
+          assert report['checks']['materials']['status'] == 'PASS'
+          assert report['checks']['animation_binding']['status'] == 'PASS'
+          assert len(report['model']['data']['mesh_references']) == 3
           assert report['checks']['geometry']['mesh_count'] > 0
           assert report['checks']['skeleton']['nodes'] > 0
           assert len(clip['data']['tracks']) > 0
