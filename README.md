@@ -27,3 +27,7 @@ See [the Violet 4.0.0 RomFS transfer guide](docs/romfs-transfer.md) for the mani
 ## New: SV 4.0.0 unpack pipeline
 
 See [Unpack/](Unpack/README.md), [milestone roadmap](docs/unpack-roadmap.md), and [upstream tools](tools/README.md). `scripts/Plan-SV-Unpack.py` creates a safe per-source-file task inventory; it does not unpack actual game archives. Use existing verification and restore scripts before running gftool against local, hash-validated files.
+
+## Pinned external tool sources
+
+Five complete upstream tool sources can be checked out under [tools/](tools/README.md) via Git submodules: gftool, PokeDocs, pkNX, Switch-Toolbox and SCVI_Extract. After `git pull`, run `git submodule update --init --recursive` (or `scripts/Sync-SV-Tools.ps1`). The SV.TrinityDump .NET wrapper links to `tools/gftool`; do not use obsolete `tools/_external` paths. The already tracked `scripts/deps/oo2core_8_win64.dll` is not automatically redistributed or modified by this integration.

@@ -7,6 +7,10 @@ on:
       - 'tests/test_*.py'
       - 'tools/SV.TrinityDump/**'
       - 'tools/upstream.json'
+      - 'tools/gftool'
+      - '.gitmodules'
+      - 'scripts/Sync-SV-Tools.ps1'
+      - 'scripts/Prepare-SV-Trinity.ps1'
       - '.github/workflows/validate-unpack-plan.yml'
   pull_request:
     paths:
@@ -15,6 +19,10 @@ on:
       - 'tests/test_*.py'
       - 'tools/SV.TrinityDump/**'
       - 'tools/upstream.json'
+      - 'tools/gftool'
+      - '.gitmodules'
+      - 'scripts/Sync-SV-Tools.ps1'
+      - 'scripts/Prepare-SV-Trinity.ps1'
       - '.github/workflows/validate-unpack-plan.yml'
   workflow_dispatch:
 
@@ -32,6 +40,7 @@ jobs:
             scripts
             tests
             .github
+            tools
           sparse-checkout-cone-mode: true
       - uses: actions/setup-python@v5
         with:
@@ -55,12 +64,15 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Fetch pinned gftool source (never install Oodle)
+      - name: Initialize pinned gftool submodule (never install Oodle)
         shell: pwsh
         run: |
-          git clone --filter=blob:none --no-checkout https://github.com/pkZukan/gftool.git tools/_external/gftool
-          git -C tools/_external/gftool checkout --detach cac7a210fcbef5ecf1ee108c10d1a1bdddc4cd4c
-          git -C tools/_external/gftool submodule update --init --recursive
+          git submodule sync --recursive
+          git submodule update --init --recursive -- tools/gftool
+          if ($LASTEXITCODE -ne 0) { throw 'gftool submodule checkout failed' }
+          $expected = (Get-Content tools/upstream.json -Raw | ConvertFrom-Json).tools | Where-Object name -eq 'gftool' | Select-Object -ExpandProperty ref
+          $actual = git -C tools/gftool rev-parse HEAD
+          if ($actual.Trim() -ne $expected) { throw "gftool SHA mismatch: $actual" }
       - name: Parse Windows PowerShell integration scripts
         shell: pwsh
         run: |

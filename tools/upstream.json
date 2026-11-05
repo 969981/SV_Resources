@@ -1,37 +1,56 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "checkedOn": "2026-11-05",
+  "sourceTracking": "git-submodule",
   "tools": [
     {
-      "name": "PokeDocs",
-      "repository": "https://github.com/pkZukan/PokeDocs.git",
-      "ref": "242039cbcd9de3f5a424de5b68ae581f7bed2b23",
-      "role": "SV Hashlists / FlatBuffers reference",
-      "optional": false,
-      "submodules": false
-    },
-    {
       "name": "gftool",
+      "path": "tools/gftool",
       "repository": "https://github.com/pkZukan/gftool.git",
       "ref": "cac7a210fcbef5ecf1ee108c10d1a1bdddc4cd4c",
-      "role": "Trinity TRPFS/TRPFD primary reader; GUI and library",
+      "upstreamBranch": "main",
+      "role": "P0 Trinity TRPFS/TRPFD extraction, models and GFTool.Core",
       "optional": false,
       "submodules": true
     },
     {
+      "name": "PokeDocs",
+      "path": "tools/PokeDocs",
+      "repository": "https://github.com/pkZukan/PokeDocs.git",
+      "ref": "242039cbcd9de3f5a424de5b68ae581f7bed2b23",
+      "upstreamBranch": "main",
+      "role": "P0 SV Hashlists + FlatBuffers schemas",
+      "optional": false,
+      "submodules": false
+    },
+    {
       "name": "pkNX",
+      "path": "tools/pkNX",
       "repository": "https://github.com/kwsch/pkNX.git",
       "ref": "d191cd0e5c05f2af81d9a41c1f1d82e6621b351a",
-      "role": "SV 4.0.0 data dump / independent validation",
+      "upstreamBranch": "master",
+      "role": "P1 SV 4.0.0 data dump / cross-check",
+      "optional": false,
+      "submodules": false
+    },
+    {
+      "name": "Switch-Toolbox",
+      "path": "tools/Switch-Toolbox",
+      "repository": "https://github.com/KillzXGaming/Switch-Toolbox.git",
+      "ref": "3a3279140ca0fa54ce804a8d56d4653a491de613",
+      "upstreamBranch": "master",
+      "role": "P1 inspection and conversion of supported Switch formats",
       "optional": false,
       "submodules": false
     },
     {
       "name": "SCVI_Extract",
+      "path": "tools/SCVI_Extract",
       "repository": "https://github.com/psthrn42/SCVI_Extract.git",
       "ref": "0d4f817d0756257cd5ec1c8a680ae201e8b4eec5",
-      "role": "legacy optional comparison only",
-      "optional": true,
+      "upstreamBranch": "master",
+      "role": "P2 legacy Python TRPFS extraction comparison",
+      "optional": false,
       "submodules": false
     }
   ]

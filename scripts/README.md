@@ -36,7 +36,7 @@ Use `-NoPush` to complete local verification and commits while a remote is unava
 ## SV extraction planning and external tool source
 
 - `Plan-SV-Unpack.py`: generate `Unpack/4.0.0/_index/unpack_plan.json` and, optionally, empty per-file output directories from the exact existing manifest. It **does not extract any resources**. Use `--dry-run` first, then `--create-directories`; `--force` is required to overwrite a prior plan.
-- `Sync-SV-Tools.ps1`: clone pinned PokeDocs/gftool/pkNX source into ignored `tools/_external`; `-IncludeLegacy` includes SCVI_Extract. This does not build or run tools.
+- `Sync-SV-Tools.ps1`: initialize and verify five pinned Git submodules under `tools/`; `-IncludeLegacy` includes SCVI_Extract. This does not build or run tools.
 
 ```powershell
 python .\scripts\Plan-SV-Unpack.py --repo . --dry-run
@@ -54,3 +54,9 @@ Task tracker: [SV unpack roadmap and issues](../docs/unpack-roadmap.md). M0 plan
 - `Run-SV-TrinityDump.ps1`: run the `tools/SV.TrinityDump/` net8.0 CLI linked to pinned gftool Core. `-DryRun` enumerates descriptors; `-MaxPacks 2` smoke test; omit for full extraction. `_index/export.jsonl` is append-only for resumability.
 
 See exact commands in [M1/M2 execution guide](../docs/unpack-roadmap.md#m1m2-local-execution--implementation-status-2026-11-05). Do not upload your private DLL to this public repository.
+
+## Five upstream tools now live in tools/ (Git submodules)
+
+`Sync-SV-Tools.ps1` now initializes/verifies `tools/gftool`, `tools/PokeDocs`, `tools/pkNX`, `tools/Switch-Toolbox`, and `tools/SCVI_Extract`. The old `tools/_external` location is obsolete. Run `git submodule update --init --recursive` after pulling to get complete source; use `-VerifyOnly` to inspect pinned SHAs without downloads. `-IncludeLegacy` is accepted for backward compatibility but the SCVI_Extract submodule is always included.
+
+`Prepare-SV-Trinity.ps1` can automatically take the **existing** `scripts/deps/oo2core_8_win64.dll` as runtime input if `-OodleDllPath` is omitted. It stages a copy under ignored `tools/_local/` while leaving `scripts/deps` unchanged.

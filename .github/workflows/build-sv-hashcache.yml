@@ -4,6 +4,8 @@ on:
     paths:
       - '.github/workflows/build-sv-hashcache.yml'
       - 'scripts/Build-SV-GFPAKHashCache.py'
+      - 'tools/PokeDocs'
+      - '.gitmodules'
   workflow_dispatch:
 
 permissions:
@@ -19,20 +21,21 @@ jobs:
           sparse-checkout: |
             scripts
             .github
+            tools
           sparse-checkout-cone-mode: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Obtain pinned PokeDocs hashlist source
+      - name: Checkout pinned PokeDocs submodule
         run: |
-          git clone --filter=blob:none --no-checkout https://github.com/pkZukan/PokeDocs.git /tmp/PokeDocs
-          git -C /tmp/PokeDocs checkout --detach 242039cbcd9de3f5a424de5b68ae581f7bed2b23
+          git submodule update --init -- tools/PokeDocs
+          test "$(git -C tools/PokeDocs rev-parse HEAD)" = '242039cbcd9de3f5a424de5b68ae581f7bed2b23'
       - name: Build binary GFPAKHashCache
         run: |
           mkdir -p dist
           python scripts/Build-SV-GFPAKHashCache.py \
-            --hashlist /tmp/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_fd.txt \
-            --hashlist /tmp/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_trpak.txt \
+            --hashlist tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_fd.txt \
+            --hashlist tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_trpak.txt \
             --output dist/GFPAKHashCache.bin \
             --report dist/hashcache-report.json
       - name: Verify cache binary header and content

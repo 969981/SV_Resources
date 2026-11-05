@@ -42,7 +42,7 @@ foreach ($rel in @('arc/data.trpfd', 'arc/data.trpfs')) {
   Write-Host "Verified: $rel ($actual)"
 }
 if (-not $SkipHashBuild) {
-$pokeDocs = Join-Path $RepositoryRoot 'tools\_external\PokeDocs\SV\Hashlists\FileSystem'
+$pokeDocs = Join-Path $RepositoryRoot 'tools\PokeDocs\SV\Hashlists\FileSystem'
 $lists = @((Join-Path $pokeDocs 'hashes_inside_fd.txt'))
 if ($WithTrpakHashes) { $lists += (Join-Path $pokeDocs 'hashes_inside_trpak.txt') }
 foreach ($p in $lists) {
@@ -64,6 +64,13 @@ else {
     throw "Missing or empty existing GFPAKHashCache.bin: $existingCache"
   }
   Write-Host "Reusing locally provided hashcache: $existingCache"
+}
+if (-not $OodleDllPath) {
+  $uploadedDll = Join-Path $RepositoryRoot 'scripts\deps\oo2core_8_win64.dll'
+  if (Test-Path -LiteralPath $uploadedDll -PathType Leaf) {
+    $OodleDllPath = $uploadedDll
+    Write-Host 'Found existing scripts/deps/oo2core_8_win64.dll; staging local runtime copy.'
+  }
 }
 if ($OodleDllPath) {
   $src = [IO.Path]::GetFullPath($OodleDllPath)

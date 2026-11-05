@@ -21,7 +21,7 @@ Unpack/4.0.0/romfs/arc/data.trpfs/
     parsed/<virtual original path>/<file>/    # nested unpack / records
     converted/<virtual original path>/<file>/ # PNG, JSON, CSV etc.
 Unpack/4.0.0/_index/                          # task/status/provenance manifests
-tools/_external/                              # ignored, pinned upstream tool checkouts
+tools/                              # pinned git submodules; full source after recursive checkout
 ```
 
 Preserve original path case, extension and variant. Avoid path traversal and collisions. Add `_provenance.json` or a central JSONL record with input hash, archive entry offset where available, output hash, tool SHA, command, and validation evidence.
@@ -49,7 +49,8 @@ Preserve original path case, extension and variant. Avoid path traversal and col
 | PokeDocs | https://github.com/pkZukan/PokeDocs | `SV/Hashlists`, `SV/Flatbuffers` | Reference data; hash hit alone is not verified field semantics |
 | gftool | https://github.com/pkZukan/gftool | TrinityFileExplorer + GFTool.Core | Main TRPFS/TRPFD extraction; current Explorer requires GFPAKHashCache.bin and oo2core_8_win64.dll |
 | pkNX | https://github.com/kwsch/pkNX | SV 4.0.0 data export, cross-check | SV: dump only, not editing; Windows/.NET 10 |
-| SCVI_Extract | https://github.com/psthrn42/SCVI_Extract | Legacy Python comparison | Upstream directs users to gftool; enable separately, do not use by default |
+| Switch-Toolbox | https://github.com/KillzXGaming/Switch-Toolbox | General supported Switch models, textures, formats | Inspect support per file before converting |
+| SCVI_Extract | https://github.com/psthrn42/SCVI_Extract | Legacy Python comparison | Code is imported as a submodule but not selected as default extractor |
 
 `scripts/Sync-SV-Tools.ps1` pins the source revisions into an ignored `tools/_external` folder. Building/running GUI tools is **not** implied by checkout. Do not commit external source trees, Oodle DLLs, ROM keys or redistributed game files by default.
 
@@ -119,3 +120,7 @@ Tool reference: gftool currently exposes a Windows Forms Explorer, not a ready C
 ### Optional hash-cache artifact (without adding large PokeDocs lists to Git)
 
 The [Build SV GFPAK hash cache workflow](https://github.com/969981/SV_Resources/actions/workflows/build-sv-hashcache.yml) checks out pinned PokeDocs and regenerates a BinaryWriter-compatible `GFPAKHashCache.bin` from **both** `hashes_inside_fd.txt` and `hashes_inside_trpak.txt`. Its downloadable Actions artifact includes the binary and a count/SHA-256 JSON report, retained for 7 days. Download it from the successful run's Artifacts, unzip the `bin` into `tools/_local/GFPAKHashCache.bin`, and pass `-SkipHashBuild` to the preparation script. The private Oodle DLL is *not* included. This cache is derived from public hash metadata, not the game itself.
+
+## Five upstream tools pinned under tools/ (2026-11-05)
+
+The five sources are Git submodules (`.gitmodules`, `tools/upstream.json`), **not duplicated source snapshots**. After a `git pull`, run `git submodule update --init --recursive`. The existing M2 .NET CLI project references `tools/gftool/GFTool.Core`; Hashlist generation reads `tools/PokeDocs`. See [tools README](../tools/README.md). The owner-uploaded `scripts/deps/oo2core_8_win64.dll` is used as local input and copied to ignored `tools/_local/` when no explicit DLL path is supplied. Its licensing and public repository visibility require separate attention.

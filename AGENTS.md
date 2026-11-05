@@ -32,3 +32,8 @@ Read `README.md`, `docs/README.md`, `docs/repository-layout.md`, and `docs/resou
 - Restore 7z volumes to a hash-checked temporary directory outside the repository before processing. No extracted/converted data is considered validated without provenance. Do not silently replace `PLANNED` with `CONFIRMED`.
 - Upstream source checkouts belong to ignored `tools/_external/`; pin and attribute them in `tools/upstream.json`; do not vendor or redistribute dependencies, Oodle DLLs, ROM keys, or executables.
 - For a new converter, add tests with synthetic fixture bytes and document tool version, source SHA-256, byte offsets, file count and failure cases.
+
+## Imported upstream Git submodules
+- All five external tools are tracked as **Git submodules** inside `tools/`, with pin SHA and upstream metadata in `tools/upstream.json` and URLs in `.gitmodules`. When working on them, run `git submodule update --init --recursive` instead of maintaining duplicate `tools/_external` clones.
+- Do not commit generated build outputs, automatic upstream branch updates, or unrelated content. Preserve pinned SHAs unless a reproducible update is explicitly requested and compatibility tests pass.
+- `SV.TrinityDump` links to `tools/gftool/GFTool.Core`. `Prepare-SV-Trinity.ps1` consumes hashes from `tools/PokeDocs/` and may detect the already tracked `scripts/deps/oo2core_8_win64.dll`. Review licensing before public redistribution of a proprietary DLL; no extra copy is committed by the script.
