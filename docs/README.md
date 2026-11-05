@@ -33,3 +33,7 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 
 - [SV Lua C/E/F/S 未命名 Hash 补全](research/sv-lua-hash-recovery.md) — 48 条 FNV-1a-64 精确候选、证据与剩余 UNKNOWN 追踪。
 - [独立补充列表与 merged TXT](../tools/PokeDocs-Supplement/SV/Hashlists/Lua/) — 源 PokeDocs 文件保持不变。
+
+## Lua C/F 证据链
+
+- [Lua C→F 旧版源码结构与 4.0.0 验证边界](research/sv-lua-hash-context.md) — 逐条源码赋值、父类关联和未知类上下文。
