@@ -8,7 +8,7 @@ status: implemented-batch-pipeline
 
 源目录：[`virtual/`](https://github.com/969981/SV_Resources/tree/master/Unpack/4.0.0/romfs/arc/data.trpfs/virtual)
 
-执行程序：[`scripts/resource_pipeline/process_virtual.py`](../../../../scripts/resource_pipeline/process_virtual.py)
+执行程序：[`scripts/resource_pipeline/process_virtual.py`](https://github.com/969981/SV_Resources/blob/master/scripts/resource_pipeline/process_virtual.py)
 
 ## 分层约定
 
@@ -47,10 +47,14 @@ py -3 -m unittest discover -s tests -p test_sv_virtual_second_stage.py -v
 
 工作流：[SV virtual secondary processing](https://github.com/969981/SV_Resources/actions/workflows/sv-secondary-process.yml)
 
-提交工作流时先尝试中文常用表 `message/dat/Simp_Chinese/common` 的小批次；之后可通过 `Run workflow` 输入 `prefix`、`kind`、`limit`、`decode_png` 分目录执行。不会在单次 workflow 中扫描全部 408,641 个原生条目。
+首次已在 2026-11-05 完成 `message/dat/Simp_Chinese/common` 的完整可用目录批次：292 个输入、141 组 DAT/TBL 文本和 151 组 AHTB 标签全部成功，生成 725 个派生输出，0 个失败、0 个延期发布项。之后可通过 `Run workflow` 输入 `prefix`、`kind`、`limit`、`decode_png` 分目录执行。不会在单次 workflow 中扫描全部 408,641 个原生条目。
 
 脚本对本地字节计算 SHA-256：如 SQLite 已存在 TRPFD 原始摘要则必须吻合；若只有本地文件，明确标注 `local_only`，不声称经过独立原生清单核验。成功输出及每批次清单会在大小限制内尝试提交主分支；失败/阻塞项目保留说明。
 
 ## 未完成
 
 本工作流不是全格式万能解包器。剩余 FlatBuffers、Lua、纹理/动画格式必须补充对应版本的实证解析器，且模型资源需额外的结构与视觉复核。以 `_index/secondary/*.json`、`conversion_jobs`、`r4_object_jobs` 为可验证进度，不以目录存在作为完成证明。
+
+## 非 UTF-8 原生键名
+
+真实 `message/dat/Simp_Chinese/common/bag.tbl` 中第 95 号键存在 `82 92` 字节（非合法 UTF-8），但 AHTB 结构、记录边界与 DAT 对齐均有效。解析器保留原始键十六进制值与 `INVALID_UTF8_ESCAPED` 状态，显示为转义占位符，不误认成原始 Unicode 名称。其他表项的正常 UTF-8 键名不受影响。
