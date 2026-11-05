@@ -35,7 +35,7 @@ python scripts/resource_pipeline/native_sv.py audit-bundle --root Unpack/4.0.0/r
 
 ## 自动 CI
 
-`.github/workflows/verify-sv-native-model.yml` 在 PR/变更提交上只稀疏检出指定的六个原生输入，执行合成数据单元测试和真实样本的只读解析、材质/骨骼名称匹配诊断。若真实样本 schema 与读取器不一致会直接失败，并显示精确失败项目。该工作流不会生成或上传 `.glb`、贴图、原生资源归档。
+`.github/workflows/verify-sv-native-model.yml` 在 PR/变更提交上稀疏检出模型、3 级 LOD 对应的 Mesh/Buffer、材质、骨骼与动画样本，执行合成数据单元测试和真实样本的只读解析、材质/骨骼名称匹配诊断。若真实样本 schema 与读取器不一致会直接失败，并显示精确失败项目。该工作流不会生成或上传 `.glb`、贴图、原生资源归档。
 
 ## R4 增量任务对接
 
@@ -46,3 +46,12 @@ python scripts/resource_pipeline/r34.py native-audit --root Unpack/4.0.0/romfs/a
 ```
 
 该命令的结果写入 `parsed/r3/*.native-evidence.json` 和 SQLite `R3_NATIVE_EVIDENCE`，仍保持 `PENDING`，不能自动进入 `resources/`。`verify-sv-r34-pipeline.yml` 已增加 `native-audit` 模式，实际转换继续依赖专用 runner 上的已授权转换器。
+
+## 2026-11-05 真实原生样本验证
+
+GitHub Actions [42020385450](https://github.com/969981/SV_Resources/actions/runs/42020385450) 完成 SV 4.0.0 `pm0025_00_00` 的真实原生结构验证：
+
+- TRMDL 引用基础 / LOD1 / LOD2 三份 TRMSH，对应三份 TRMBF 全部找到并解析：总 Mesh 15、buffer set 15。
+- TRMSH 的材质名 body_a、body_b、body_c、l_eye、r_eye 全部出现在 TRMTR；读到 15 组 UV 属性声明，但未还原 UV 数值或纹理表现。
+- TRSKL 有 81 个变换节点；TRANM 有 38 条唯一骨骼轨道，全部名称与骨架匹配。某些原生帧索引并非严格递增，读取器保留原顺序并记录重复/回退，**不擅自排序**。
+- `model_dependencies: PASS`、`materials: PASS`、`animation_binding: PASS`。未完成 TRMBF 顶点数值解码、蒙皮重放、纹理像素或 GLB 视觉比对，不可因此提升到 `resources/`。
