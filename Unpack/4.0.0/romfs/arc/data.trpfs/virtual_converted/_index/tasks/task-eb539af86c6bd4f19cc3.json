@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task": "appli/tex/icon_ribbon/icon_ribbon_004#00000",
+  "input_fingerprint": "924FF6B21E85F4E627C6FF658E14A40F3A1C31B8546B7C1445AC08E3CF88FB82",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "appli/tex/icon_ribbon/icon_ribbon_004/icon_ribbon_004.bntx",
+      "source_sha256": "E5262B2B95F204A4EDEDBE553E10434A6532901D245C32A6AD1892B646A89188",
+      "bytes": 20584,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010050000068500000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/appli/tex/icon_ribbon/icon_ribbon_004/icon_ribbon_004.bntx.json"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/appli/tex/icon_ribbon/icon_ribbon_004/icon_ribbon_004.png",
+      "path": "virtual_converted/appli/tex/icon_ribbon/icon_ribbon_004/icon_ribbon_004.png",
+      "sha256": "256F5FCEF84F3E3B7DE1C9E4960A2F9C3C0045C1DD424E6398357ACE45B5C637",
+      "bytes": 17544
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/icon_ribbon/icon_ribbon_004/_inspection/f1fa512ef9090794.jsonl",
+      "path": "virtual_converted/_parsed/appli/tex/icon_ribbon/icon_ribbon_004/_inspection/f1fa512ef9090794.jsonl",
+      "sha256": "A207D32738243F69EFC208F10359C21E79E374C3212D08ECB6A1FA922CB7362F",
+      "bytes": 604
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/icon_ribbon/icon_ribbon_004/icon_ribbon_004.bntx.json",
+      "path": "virtual_converted/_parsed/appli/tex/icon_ribbon/icon_ribbon_004/icon_ribbon_004.bntx.json",
+      "sha256": "22B818A33AE954644DBF088F832980F2160903C155E678F879A8913D2539F9B1",
+      "bytes": 290
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "appli/tex/icon_ribbon/icon_ribbon_004",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
