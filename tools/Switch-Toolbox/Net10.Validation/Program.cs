@@ -61,4 +61,22 @@ using (var negative = Bytes("NONE"))
     Check(format.Identify(positive), "BYML/BYAML magic");
     Check(!format.Identify(negative), "BYML/BYAML rejects unknown header");
 }
-Console.WriteLine("Basic managed-runtime smoke tests passed. OpenGL and file roundtrips still require separate validation.");
+// Real encode/decode of synthetic (non-copyrighted) SARC bytes, using the
+// original SARCExt dependency under the .NET 10 runtime.
+foreach (var byteOrder in new[] { Syroot.BinaryData.ByteOrder.LittleEndian, Syroot.BinaryData.ByteOrder.BigEndian })
+{
+    var expected = new byte[] { 0x00, 0x7F, 0x42, 0x53, 0xFF };
+    var data = new SARCExt.SarcData
+    {
+        HashOnly = false,
+        endianness = byteOrder,
+        Files = new System.Collections.Generic.Dictionary<string, byte[]> { ["test/path.bin"] = expected }
+    };
+    var packed = SARCExt.SARC.PackN(data);
+    Check(packed.Item2.Length > expected.Length, $"SARC {byteOrder} physical archive");
+    using var stream = new MemoryStream(packed.Item2);
+    var restored = SARCExt.SARC.UnpackRamN(stream);
+    Check(restored.Files.TryGetValue("test/path.bin", out var actual) && actual.SequenceEqual(expected),
+          $"SARC {byteOrder} complete pack/unpack roundtrip");
+}
+Console.WriteLine("Managed-runtime and synthetic SARC roundtrip smoke tests passed. OpenGL, complex formats and GUI editing still require validation.");
