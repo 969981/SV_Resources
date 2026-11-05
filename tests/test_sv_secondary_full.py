@@ -43,7 +43,8 @@ class FullSecondaryTests(unittest.TestCase):
         chosen=fs.select_batch(tasks,state,1,2)
         self.assertEqual(len(chosen),1)
         state["attempted"][chosen[0]["id"]]={"fingerprint":chosen[0]["fingerprint"],
-                                              "status":"ATTEMPTED"}
+                                              "status":"ATTEMPTED",
+                                              "parsed_records":chosen[0]["file_count"]}
         remaining=fs.select_batch(tasks,state,10,10)
         self.assertEqual(len(remaining),1)
         newrows=[(p,"9"*40 if p.endswith("a.dat") else sha) for p,sha in rows]
@@ -60,6 +61,29 @@ class FullSecondaryTests(unittest.TestCase):
         self.assertEqual(fs.select_batch([task], state, 2, 10), [])
         changed = dict(task, fingerprint="new-source-fingerprint")
         self.assertEqual(fs.select_batch([changed], state, 2, 10), [changed])
+
+    def test_partial_retries_are_bounded_but_remain_unresolved(self):
+        task = {"id": "partial#00000", "fingerprint": "source", "file_count": 4}
+        row = {"fingerprint": "source", "status": "PARTIAL",
+               "parsed_records": 4, "partial_attempts": 1, "unresolved": 3}
+        state = {"attempted": {task["id"]: row}}
+        self.assertFalse(fs.is_terminal(task, state))
+        self.assertEqual(fs.select_batch([task], state, 1, 4), [task])
+        row["partial_attempts"] = fs.MAX_PARTIAL_ATTEMPTS
+        self.assertTrue(fs.is_terminal(task, state))
+        self.assertEqual(fs.select_batch([task], state, 1, 4), [])
+        self.assertEqual(row["status"], "PARTIAL")
+        self.assertFalse(fs.is_terminal(dict(task, fingerprint="new"), state))
+
+    def test_legacy_attempted_without_inspection_is_revisited(self):
+        task = {"id": "legacy#00000", "fingerprint": "source", "file_count": 2}
+        state = {"attempted": {task["id"]: {
+            "fingerprint": "source", "status": "ATTEMPTED"}}}
+        self.assertFalse(fs.is_terminal(task, state))
+        state["attempted"][task["id"]]["parsed_records"] = 1
+        self.assertFalse(fs.is_terminal(task, state))
+        state["attempted"][task["id"]]["parsed_records"] = 2
+        self.assertTrue(fs.is_terminal(task, state))
 
     def test_windows_sparse_checkout_missing_files_are_restored(self):
         # Reproduce Git reporting success without materializing a selected path.

@@ -26,7 +26,8 @@ STATE_NAME = "_index/secondary/full-state.json"
 SELECTION_NAME = "_index/secondary/full-selection.json"
 RUN_NAME = "_index/secondary/full-last-run.json"
 EPOCH = "full-sweep-parsed-v2"  # Revisit ALL earlier tasks: parsed coverage is now mandatory.
-MAX_ERROR_ATTEMPTS = 2  # Never let a permanently failing group stall the full sweep.
+MAX_ERROR_ATTEMPTS = 2  # Keep failed tasks visible, but never dispatch forever.
+MAX_PARTIAL_ATTEMPTS = 2  # Retry incomplete outputs, then retain unresolved evidence.
 
 
 def repo_root(path):
@@ -137,12 +138,25 @@ def load_state(repo):
 
 
 def is_terminal(task, state):
-    """A matching successful/partial attempt is final; errors get bounded retries."""
+    """Only complete inspections or retry-exhausted failures are terminal.
+
+    ATTEMPTED without full parsed inspection is a legacy checkpoint, not
+    proof of coverage. PARTIAL remains unresolved even after retries.
+    """
     previous = state["attempted"].get(task["id"], {})
     if previous.get("fingerprint") != task["fingerprint"]:
         return False
-    return (previous.get("status") != "ERROR" or
-            int(previous.get("error_attempts", 0)) >= MAX_ERROR_ATTEMPTS)
+    status = previous.get("status")
+    inspected = (int(previous.get("parsed_records", -1)) ==
+                 int(task["file_count"]))
+    if status == "ATTEMPTED":
+        return inspected and int(previous.get("hash_mismatches", 0)) == 0
+    if status == "PARTIAL":
+        return inspected and (int(previous.get("partial_attempts", 0)) >=
+                              MAX_PARTIAL_ATTEMPTS)
+    if status == "ERROR":
+        return int(previous.get("error_attempts", 0)) >= MAX_ERROR_ATTEMPTS
+    return False
 
 
 def select_batch(tasks, state, max_tasks=20, max_files=2400):
@@ -361,6 +375,9 @@ def status(repo, group_files):
     exhausted_errors = sum(x.get("status") == "ERROR" and
                            int(x.get("error_attempts", 0)) >= MAX_ERROR_ATTEMPTS
                            for x in matching)
+    exhausted_partials = sum(x.get("status") == "PARTIAL" and
+                            int(x.get("partial_attempts", 0)) >= MAX_PARTIAL_ATTEMPTS
+                            for x in matching)
     phase = ("PARTIAL" if pending else
              "SWEEP_ATTEMPTED_WITH_ERRORS" if error_groups else
              "SWEEP_ATTEMPTED_WITH_PARTIAL" if partial_groups else
@@ -379,6 +396,7 @@ def status(repo, group_files):
             "attempted_groups": len(tasks) - len(pending),
             "error_groups": error_groups,
             "exhausted_error_groups": exhausted_errors,
+            "exhausted_partial_groups": exhausted_partials,
             "partial_groups": partial_groups,
             "unresolved_groups": error_groups + partial_groups,
             "state": phase,
