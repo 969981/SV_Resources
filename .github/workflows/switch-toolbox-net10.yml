@@ -1,0 +1,53 @@
+name: Switch-Toolbox .NET 10 migration validation
+on:
+  pull_request:
+    paths:
+      - 'tools/Switch-Toolbox/**'
+      - '.github/workflows/switch-toolbox-net10.yml'
+  push:
+    branches:
+      - 'feature/switch-toolbox-net10'
+    paths:
+      - 'tools/Switch-Toolbox/**'
+      - '.github/workflows/switch-toolbox-net10.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools/Switch-Toolbox
+            .github/workflows/switch-toolbox-net10.yml
+          sparse-checkout-cone-mode: false
+          submodules: false
+          lfs: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify project configuration and offline vendor asset inventory
+        shell: pwsh
+        run: |
+          python tools/Switch-Toolbox/scripts/check_net10.py
+      - name: Restore
+        shell: pwsh
+        run: |
+          dotnet restore tools/Switch-Toolbox/Toolbox.sln -p:Platform="Any CPU" --verbosity normal
+      - name: Build complete solution
+        shell: pwsh
+        run: |
+          dotnet build tools/Switch-Toolbox/Toolbox.sln -c Release --no-restore -p:Platform="Any CPU" --verbosity normal
+      - name: Publish Windows x64 application
+        shell: pwsh
+        run: |
+          dotnet publish tools/Switch-Toolbox/Toolbox/Toolbox.csproj -c Release -r win-x64 --self-contained false -p:Platform="Any CPU" -o artifact/switch-toolbox
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: switch-toolbox-net10-win-x64
+          path: artifact/switch-toolbox
+          retention-days: 7
