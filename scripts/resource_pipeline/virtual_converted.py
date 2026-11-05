@@ -96,7 +96,7 @@ def publish_virtual_converted(repo: Path, completed: dict) -> list[str]:
             raise ValueError("Published derivative differs from worker: " + rel)
         output_records.append({"pipeline_path": name, "path": rel,
                                "sha256": expected, "bytes": asset["bytes"]})
-        published.append(str(fs.ROOT / rel))
+        published.append((fs.ROOT / rel).as_posix())
 
     # Preserve complete evidence for every original path, even if proprietary,
     # unsupported, blocked, or too large to publish as a derived binary.
@@ -168,8 +168,8 @@ def run_cli(argv=None) -> int:
             raise ValueError("Parallel sweep did not produce a publication allowlist")
         publication = json.loads(manifest.read_text("utf-8"))
         paths = publication["paths"]
-        allowed = [str(fs.ROOT / "virtual_converted") + "/",
-                   str(fs.ROOT / "_index/secondary/virtual-converted-")]
+        allowed = [(fs.ROOT / "virtual_converted").as_posix() + "/",
+                   (fs.ROOT / "_index/secondary/virtual-converted-").as_posix()]
         if not paths or any(not p.startswith(tuple(allowed)) for p in paths):
             raise ValueError("Publication contains paths outside virtual_converted checkpoint")
         cli.store_json(repo / "sv-virtual-converted-publication.json", publication)
