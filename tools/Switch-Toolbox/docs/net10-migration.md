@@ -45,3 +45,6 @@ The .NET 10 compilation found three old TreeNode.ContextMenu sites (BNSH, SHARCF
 
 ## Plugin distribution layout check
 The existing `PluginLoader.LoadPlugins()` scans `Lib/Plugins/*.Plg.dll` at runtime. Merely compiling the `File_Format_Library` project and copying its managed DLL into the app's root is insufficient. The application project's `AfterTargets=Publish` target now stages the freshly built `FirstPlugin.Plg.dll` in `Lib/Plugins`. CI validates the staged DLL's SHA-256 equals the newly compiled root assembly. Loading the plugin and exercising its format handlers must still be verified at runtime.
+
+## Publish conflict resolution
+The first win-x64 publish surfaced `NETSDK1152` due to competing legacy `ZstdNet.dll` root content and the freshly built project's dependency. The historic root content entries `ZstdNet.dll`, `System.Buffers.dll`, `System.Memory.dll` and `System.Numerics.Vectors.dll` are excluded from the new publish inputs; the SDK and resolved project/package assets own these dependencies. The archived files remain in the repository for reproducibility.
