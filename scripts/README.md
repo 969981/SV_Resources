@@ -36,7 +36,7 @@ Use `-NoPush` to complete local verification and commits while a remote is unava
 ## SV extraction planning and external tool source
 
 - `Plan-SV-Unpack.py`: generate `Unpack/4.0.0/_index/unpack_plan.json` and, optionally, empty per-file output directories from the exact existing manifest. It **does not extract any resources**. Use `--dry-run` first, then `--create-directories`; `--force` is required to overwrite a prior plan.
-- `Sync-SV-Tools.ps1`: initialize/verify the remaining gftool submodule and verify four complete vendored source trees under `tools/`; `-IncludeLegacy` is a backward-compatible no-op. This does not build or run tools.
+- `Sync-SV-Tools.ps1`: verify all six complete vendored source trees, including gftool/NxMiddleware, under `tools/` without downloads; `-IncludeLegacy` is a backward-compatible no-op. This does not build or run tools.
 
 ```powershell
 python .\scripts\Plan-SV-Unpack.py --repo . --dry-run
@@ -55,9 +55,9 @@ Task tracker: [SV unpack roadmap and issues](../docs/unpack-roadmap.md). M0 plan
 
 See exact commands in [M1/M2 execution guide](../docs/unpack-roadmap.md#m1m2-local-execution--implementation-status-2026-11-05). Do not upload your private DLL to this public repository.
 
-## Five upstream tools under tools/ (one submodule, four vendored trees)
+## Six fully vendored upstream tools under tools/
 
-`Sync-SV-Tools.ps1` initializes/verifies only `tools/gftool` as a submodule and verifies four full vendored trees (`tools/PokeDocs`, `tools/SCVI_Extract`, `tools/pkNX`, `tools/Switch-Toolbox`) by exact Git tree SHA. Run `git submodule update --init --recursive` after pulling only for gftool. `-VerifyOnly` validates pinned sources without downloads; `-IncludeLegacy` remains a no-op for backward compatibility.
+`Sync-SV-Tools.ps1` validates all six local source trees using the pinned Git tree SHAs. The nested `tools/gftool/NxMiddleware` files are already tracked normally. The operation is read-only and requires no submodule commands or downloads. `-VerifyOnly` and `-IncludeLegacy` remain accepted for backward compatibility.
 
 `Prepare-SV-Trinity.ps1` can automatically take the **existing** `scripts/deps/oo2core_8_win64.dll` as runtime input if `-OodleDllPath` is omitted. It stages a copy under ignored `tools/_local/` while leaving `scripts/deps` unchanged.
 

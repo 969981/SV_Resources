@@ -32,7 +32,8 @@ jobs:
             violet_4.0.0_romfs_transfer_manifest.json
             4.0.0/1/arc/data.trpfd
             tools/SV.TrinityDump
-            tools/gftool
+            tools/gftool/**
+            tools/upstream.json
             tools/HashCaches/SV
             Unpack/4.0.0/romfs/arc/data.trpfd
           sparse-checkout-cone-mode: false
@@ -42,11 +43,15 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Initialize pinned gftool Core
+      - name: Verify vendored gftool Core and nested NxMiddleware
         shell: pwsh
         run: |
-          git submodule update --init --recursive -- tools/gftool
-          if ($LASTEXITCODE -ne 0) { throw 'gftool submodule initialization failed' }
+          $gftool = (Get-Content tools/upstream.json -Raw | ConvertFrom-Json).tools | Where-Object name -eq 'gftool'
+          if ($gftool.importMethod -ne 'vendor-tree' -or $gftool.submodules) { throw 'gftool must be vendored' }
+          $actual = (git rev-parse 'HEAD:tools/gftool').Trim()
+          if ($LASTEXITCODE -ne 0 -or $actual -ne $gftool.sourceTreeSha) { throw "gftool tree mismatch: $actual" }
+          if (-not (Test-Path 'tools/gftool/GFTool.Core/GFTool.Core.csproj')) { throw 'GFTool.Core source missing' }
+          if (-not (Test-Path 'tools/gftool/NxMiddleware/BnTxx/BnTxx.csproj')) { throw 'NxMiddleware source missing' }
 
       - name: Verify native data.trpfd against transfer manifest
         shell: pwsh

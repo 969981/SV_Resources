@@ -1,5 +1,5 @@
 # Verify six complete vendored source trees, with gftool/NxMiddleware included locally.
-# Preserves local changes: git submodule update stops rather than overwriting conflicts.
+# Read-only verification; never downloads dependencies or alters tracked files.
 [CmdletBinding()]
 param(
     [string]$RepositoryRoot = (Split-Path -Parent $PSScriptRoot),
