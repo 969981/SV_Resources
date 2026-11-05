@@ -175,6 +175,7 @@ def outputs(root: Path, max_output_mb: int, prefix: str = ""):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[2])
+    parser.add_argument("--root", type=Path, help="Optional isolated per-task source/output root")
     parser.add_argument("--prefix", required=True, help="Bounded path below virtual/, not a glob")
     parser.add_argument("--paths-file", type=Path,
                         help="Optional exact relative virtual file allowlist, one path per line")
@@ -191,7 +192,9 @@ def main(argv=None):
             and 1 <= opts.max_output_mb <= 200):
         parser.error("Invalid nonzero batch limits")
     repo = opts.repo.resolve()
-    root = repo / cli.BASE
+    root = (opts.root or (repo / cli.BASE)).resolve()
+    if not root.is_relative_to(repo):
+        raise ValueError("Isolated processing root must reside within repository")
     if not (root / "virtual").is_dir():
         parser.error("Missing native virtual/ directory")
     only = None
