@@ -74,9 +74,8 @@ class ProcessVirtualTests(unittest.TestCase):
 
     def test_non_utf8_labels_preserve_exact_bytes(self):
         from scripts.resource_pipeline import r1_text
-        data = ahtb_one("key").replace(b"key\\0", b"m\\x82\\x92\\0")
         # Rebuild the declared native record length after changing the key.
-        data = b"AHTB" + struct.pack("<I", 1) + struct.pack("<QH", 1, 4) + b"m\\x82\\x92\\0"
+        data = b"AHTB" + struct.pack("<I", 1) + struct.pack("<QH", 1, 4) + bytes.fromhex("6D829200")
         for parser in (cli.parse_ahtb, r1_text.parse_ahtb):
             label = parser(data)[0]
             self.assertEqual(label["label_encoding_status"], "INVALID_UTF8_ESCAPED")
