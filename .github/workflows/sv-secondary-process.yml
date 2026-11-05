@@ -1,0 +1,151 @@
+name: SV 4.0.0 virtual secondary processing (parsed/converted/resources)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/resource_pipeline/process_virtual.py'
+      - 'tests/test_sv_virtual_second_stage.py'
+      - '.github/workflows/sv-secondary-process.yml'
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: 'Narrow native virtual/ subpath'
+        type: string
+        required: true
+        default: 'message/dat/Simp_Chinese/common'
+      kind:
+        description: 'Processing kind'
+        type: choice
+        options: [all, messages, labels, bntx, models]
+        default: all
+      limit:
+        description: 'Maximum inputs per converter stage'
+        type: number
+        default: 20
+      decode_png:
+        description: 'Build pinned ultimate_tex_cli for verified BNTX PNG'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-secondary-publish-master
+  cancel-in-progress: false
+
+jobs:
+  convert:
+    if: github.repository == '969981/SV_Resources'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      SV_PREFIX: ${{ inputs.prefix || 'message/dat/Simp_Chinese/common' }}
+      SV_KIND: ${{ inputs.kind || 'all' }}
+      SV_LIMIT: ${{ inputs.limit || 20 }}
+      SV_DECODE_PNG: ${{ inputs.decode_png || false }}
+      SV_ROOT: Unpack/4.0.0/romfs/arc/data.trpfs
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          filter: blob:none
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_virtual_second_stage.py
+            tools/PokeDocs/SV/Flatbuffers
+            tools/SV.R3.ModelExport
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate untrusted scope before sparse materialization
+        run: |
+          python - <<'PY'
+          import os,sys
+          sys.path.insert(0,'scripts/resource_pipeline')
+          from cli import safe_path
+          p=safe_path(os.environ['SV_PREFIX'])
+          if p.startswith(('parsed/','converted/','resources/','_index/')) or p in ('.','virtual'):
+              raise ValueError('Not a bounded native virtual/ subtree')
+          if not (1<=int(os.environ['SV_LIMIT'])<=1000):
+              raise ValueError('Invalid per-stage limit')
+          print('Processing native virtual/',p,sep='')
+          PY
+      - name: Sparse fetch source subtree and three derived output trees
+        run: |
+          git sparse-checkout add "$SV_ROOT/virtual/$SV_PREFIX"
+          git sparse-checkout add "$SV_ROOT/parsed" "$SV_ROOT/converted" "$SV_ROOT/resources" "$SV_ROOT/_index/secondary"
+          mkdir -p "$SV_ROOT/_index"
+      - name: Run bounded synthetic converter tests
+        run: python -m unittest discover -s tests -p test_sv_virtual_second_stage.py -v
+      - name: Install exact BNTX converter only when selected
+        if: env.SV_DECODE_PNG == 'true'
+        run: |
+          cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex \
+            --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac ultimate_tex_cli
+      - name: Index and process real native virtual files
+        id: process
+        continue-on-error: true
+        shell: bash
+        run: |
+          args=(--repo . --prefix "$SV_PREFIX" --kind "$SV_KIND" --limit "$SV_LIMIT" --max-source-files 3000 --max-output-mb 25)
+          if [[ "$SV_DECODE_PNG" == "true" ]]; then
+            args+=(--png-converter 'ultimate_tex_cli {input} {output}')
+          fi
+          python scripts/resource_pipeline/process_virtual.py "${args[@]}" > sv-secondary-result.json
+          exit_code=$?
+          python - <<'PY'
+          import json
+          r=json.load(open('sv-secondary-result.json',encoding='utf-8'))
+          print(json.dumps({'input':r['source'],'files':r['source_files_seen'],
+                            'index':r['index'],'stages':r['stages'],
+                            'outputs':len(r['outputs']),'deferred':len(r['deferred_outputs'])},
+                           ensure_ascii=False,indent=2))
+          PY
+          exit "$exit_code"
+      - name: Stage only audited derived files within report budget
+        if: steps.process.outcome == 'success' || steps.process.outcome == 'failure'
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,subprocess
+          report=pathlib.Path('sv-secondary-result.json')
+          if not report.is_file():
+              raise SystemExit('No finished processing result to stage')
+          r=json.loads(report.read_text(encoding='utf-8'))
+          root=pathlib.Path(os.environ['SV_ROOT'])
+          included=[pathlib.Path(r['report_path'])]
+          for item in r['outputs']:
+              p=root/item['path']
+              if not p.is_file() or p.stat().st_size!=item['bytes']:
+                  raise RuntimeError('Generated asset changed: '+str(p))
+              included.append(p)
+          for path in included:
+              subprocess.run(['git','add','-f','--',str(path)],check=True)
+          print('staged',len(included),'verified paths')
+          PY
+      - name: Publish verified bounded derived results to master
+        if: steps.process.outcome == 'success' || steps.process.outcome == 'failure'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --cached --quiet; then
+            echo 'No changed secondary outputs'
+            exit 0
+          fi
+          git commit -m "data(SV): secondary process bounded virtual resources"
+          git pull --rebase origin master
+          git push origin HEAD:master
+      - name: Upload full non-binary report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-secondary-report-${{ github.run_id }}
+          path: |
+            sv-secondary-result.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary/*.json
+          if-no-files-found: warn
+          retention-days: 14
