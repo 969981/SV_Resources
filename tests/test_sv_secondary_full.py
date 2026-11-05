@@ -83,6 +83,36 @@ class FullSecondaryTests(unittest.TestCase):
             self.assertEqual(result["recovered_sparse_missing"],1)
             self.assertEqual(result["verified_local_paths"],1)
 
+    def test_bounded_parent_hydration_with_real_git_sparse(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo=Path(temp)
+            def git(*args):
+                subprocess.run(["git",*args],cwd=repo,check=True,
+                               capture_output=True,text=True)
+            git("init","-q")
+            git("config","user.name","CI")
+            git("config","user.email","ci@example.invalid")
+            folder="message/dat/English/common"
+            files=[folder+"/another_name.dat",folder+"/another_name.tbl"]
+            for item in files:
+                path=repo/fs.ROOT/"virtual"/item
+                path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_bytes(item.encode())
+            git("add",".")
+            git("commit","-qm","fixture")
+            git("sparse-checkout","init","--no-cone")
+            git("sparse-checkout","set","scripts/resource_pipeline")
+            self.assertFalse((repo/fs.ROOT/"virtual"/files[0]).exists())
+            result=fs.materialize_selected(repo,{
+                "selected":[{"prefix":folder,"paths":files}]
+            })
+            self.assertEqual(result["verified_local_paths"],2)
+            self.assertEqual(result["bounded_parent_patterns"],1)
+            self.assertEqual(result["exact_file_patterns"],0)
+            for item in files:
+                self.assertEqual((repo/fs.ROOT/"virtual"/item).read_bytes(),
+                                 item.encode())
+
     def test_oversized_family_and_budget_guard(self):
         rows=[("pokemon/large/big.trmdl","a"*40),
               ("pokemon/large/big.trmbf","b"*40),
