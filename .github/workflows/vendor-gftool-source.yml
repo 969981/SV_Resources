@@ -85,6 +85,7 @@ jobs:
           g['sourceTreeSha']=tree
           p.write_text(json.dumps(m,indent=2,ensure_ascii=False)+'\n')
           nested=(Path(os.environ['RUNNER_TEMP'])/'gftool-nested.txt').read_text()
+          Path('docs').mkdir(parents=True, exist_ok=True)
           Path('docs/gftool-source-provenance.md').write_text(
               '# gftool complete source import\n\n'
               'Upstream: https://github.com/pkZukan/gftool\n\n'
