@@ -4,6 +4,7 @@ on:
     paths:
       - 'scripts/Plan-SV-Unpack.py'
       - 'scripts/Build-SV-GFPAKHashCache.py'
+      - 'scripts/Build-PokeDocs-HashCaches.py'
       - 'tests/test_*.py'
       - 'tools/SV.TrinityDump/**'
       - 'tools/upstream.json'
@@ -16,6 +17,7 @@ on:
     paths:
       - 'scripts/Plan-SV-Unpack.py'
       - 'scripts/Build-SV-GFPAKHashCache.py'
+      - 'scripts/Build-PokeDocs-HashCaches.py'
       - 'tests/test_*.py'
       - 'tools/SV.TrinityDump/**'
       - 'tools/upstream.json'
@@ -46,7 +48,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Validate Python syntax
-        run: python -m py_compile scripts/Plan-SV-Unpack.py scripts/Build-SV-GFPAKHashCache.py tests/test_plan_sv_unpack.py tests/test_sv_hashcache.py
+        run: python -m py_compile scripts/Plan-SV-Unpack.py scripts/Build-SV-GFPAKHashCache.py scripts/Build-PokeDocs-HashCaches.py tests/test_plan_sv_unpack.py tests/test_sv_hashcache.py tests/test_pokedocs_hashcaches.py
       - name: Run synthetic tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
