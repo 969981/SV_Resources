@@ -11,6 +11,19 @@ import virtual_converted as vc
 
 
 class VirtualConvertedTest(unittest.TestCase):
+    def test_large_message_catalogs_are_bounded(self):
+        rows = [(f"message/dat/French/common/entry_{i:04d}.dat", "A" * 64)
+                for i in range(292)]
+        rows += [(f"message/dat/English/script/entry_{i:04d}.dat", "B" * 64)
+                 for i in range(200)]
+        groups = vc.fs.build_tasks(rows, 1000)
+        common = [g for g in groups if g["prefix"] == "message/dat/French/common"]
+        scripts = [g for g in groups if g["prefix"] == "message/dat/English/script"]
+        self.assertEqual(sum(g["file_count"] for g in common), 292)
+        self.assertTrue(all(g["file_count"] <= 96 for g in common))
+        self.assertEqual(len(scripts), 1)
+        self.assertEqual(scripts[0]["file_count"], 200)
+
     def test_layer_mapping(self):
         self.assertEqual(vc.destination_for("converted/chara/mesh.gltf"),
                          "virtual_converted/chara/mesh.gltf")

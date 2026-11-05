@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import shutil
 import sys
 
@@ -30,6 +30,29 @@ LAYERS = {
     "parsed": "_parsed/",             # Structured diagnostics and text tables.
     "resources": "_resources/",       # Semantic exports, where supported.
 }
+
+
+# High-expansion message catalogs can exceed the per-task output-size cap.
+# Keep their decoded output bounded without changing the legacy sweep.
+_original_build_tasks = fs.build_tasks
+
+
+def build_converted_tasks(rows, max_group_files=1200):
+    common_messages = []
+    regular = []
+    for record in rows:
+        parts = PurePosixPath(record[0]).parts
+        if (len(parts) >= 5 and parts[:2] == ("message", "dat")
+                and parts[3] == "common"):
+            common_messages.append(record)
+        else:
+            regular.append(record)
+    tasks = _original_build_tasks(regular, max_group_files)
+    tasks.extend(_original_build_tasks(common_messages, min(max_group_files, 96)))
+    return sorted(tasks, key=lambda task: (fs.task_priority(task["prefix"]), task["id"]))
+
+
+fs.build_tasks = build_converted_tasks
 
 
 def destination_for(relative: str) -> str:
