@@ -1,0 +1,76 @@
+name: Build native-context SV Lua F candidate overlay
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-sv-lua-native-overlay.yml'
+      - 'scripts/Build-SV-Lua-Native-Overlay.py'
+      - 'tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0/followup-f-new-exact-candidates.tsv'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-lua-native-f-overlay
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          sparse-checkout: |
+            .github
+            scripts
+            tools/PokeDocs/SV/Hashlists/Lua
+            tools/PokeDocs-Supplement/SV/Hashlists/Lua
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build from full original F Hashlist and exact candidates
+        run: |
+          python -m py_compile scripts/Build-SV-Lua-Native-Overlay.py
+          python scripts/Build-SV-Lua-Native-Overlay.py
+          python scripts/Build-SV-Lua-Native-Overlay.py --verify-only
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0')
+          j=json.loads((root/'native-f-merge-report.json').read_text())
+          assert j['source_unknown_hashes'] == 116
+          assert j['previous_exact_candidates'] == 9
+          assert j['new_exact_native_context_candidates'] == 4
+          assert j['remaining_unknown_hashes'] == 103
+          assert j['combined_exact_candidates'] == 13
+          assert j['upstream_source_modified'] is False
+          print('All 4 new F names and 13 combined F candidates matched exact 64-bit FNV.')
+          PY
+          git diff --exit-code -- tools/PokeDocs/SV/Hashlists/Lua
+      - name: Commit small derived F mapping (never edit upstream)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0/lua_f_hashes.native-merged.txt tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0/native-f-merge-report.json
+          if git diff --cached --quiet; then
+            echo 'Native F overlay is up to date'
+            exit 0
+          fi
+          git commit -m 'Publish 4 new exact F candidates and 13-name native Lua overlay'
+          for n in 1 2 3 4; do
+            git fetch origin master
+            git rebase origin/master
+            if git push origin HEAD:refs/heads/master; then
+              exit 0
+            fi
+            echo "Safe push raced with other master writer, retry $n"
+          done
+          echo 'Failed safe push after four attempts. No force push used.' >&2
+          exit 1
