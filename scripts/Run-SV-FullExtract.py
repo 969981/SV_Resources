@@ -170,10 +170,12 @@ def audit_all(root: Path, desc: Path, output_path: Path):
 
 
 def process_batch(repo, workspace, root, src, cache, oodle, seven_zip,
-                  start, end, *, dry_run):
+                  start, end, *, dry_run, report_prefix="pack"):
+    if report_prefix not in ("pack", "manual-pack"):
+        raise ValueError(f"Unsupported native report prefix: {report_prefix}")
     reports = root / "_index/batches"
     reports.mkdir(parents=True, exist_ok=True)
-    report = reports / f"pack-{start:06d}-{end-1:06d}.jsonl"
+    report = reports / f"{report_prefix}-{start:06d}-{end-1:06d}.jsonl"
     command = ["dotnet", "run", "--no-build", "-c", "Release",
                "--project", "tools/SV.TrinityDump/SV.TrinityDump.csproj", "--",
                "--romfs", workspace, "--output", root, "--cache", cache,
@@ -226,11 +228,11 @@ def process_batch(repo, workspace, root, src, cache, oodle, seven_zip,
         "report": str(report.relative_to(repo).as_posix()),
         "updatedUtc": datetime.now(timezone.utc).isoformat(),
     }
-    summary_path = reports / f"pack-{start:06d}-{end-1:06d}-summary.json"
+    summary_path = reports / f"{report_prefix}-{start:06d}-{end-1:06d}-summary.json"
     write_json(summary_path, summary)
     stages.append(str(summary_path.relative_to(repo).as_posix()))
     if large:
-        large_path = reports / f"pack-{start:06d}-{end-1:06d}-large.json"
+        large_path = reports / f"{report_prefix}-{start:06d}-{end-1:06d}-large.json"
         write_json(large_path, large)
         stages.append(str(large_path.relative_to(repo).as_posix()))
     return summary, stages
