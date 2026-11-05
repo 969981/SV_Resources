@@ -67,6 +67,7 @@ namespace Toolbox
                         throw new InvalidOperationException("Plugin has no registered resource types: " + plugin.Name);
                     verification.Add(plugin.Name + ": " + types.Length + " resource types");
                 }
+                VerifyFormatIdentification(plugins.SelectMany(p => p.Types).ToArray(), verification);
                 File.WriteAllLines(Path.Combine(Runtime.ExecutableDir, "net10-runtime-smoke.txt"), verification);
                 return;
             }
@@ -150,6 +151,57 @@ namespace Toolbox
                 MainForm = Toolbox.MainForm.Instance;
             }
         }
+
+#if NET10_0_OR_GREATER
+        // Exercise format dispatch with synthetic headers, without writing or distributing game assets.
+        // These are identification smoke tests, not file-format round-trip certification.
+        private static void VerifyFormatIdentification(Type[] types, List<string> report)
+        {
+            var fixtures = new (string TypeName, string Header)[]
+            {
+                ("FirstPlugin.SARC", "SARC"),
+                ("FirstPlugin.BYAML", "BY"),
+                ("FirstPlugin.AAMP", "AAMP"),
+                ("FirstPlugin.MSBT", "MsgStdBn"),
+                ("LayoutBXLYT.Cafe.BFLYT", "FLYT"),
+            };
+
+            foreach (var fixture in fixtures)
+            {
+                Type format = types.FirstOrDefault(t => t.FullName == fixture.TypeName);
+                if (format == null)
+                    throw new InvalidOperationException("Missing format handler: " + fixture.TypeName);
+
+                var identify = format.GetMethod("Identify", new[] { typeof(Stream) });
+                if (identify == null || identify.ReturnType != typeof(bool))
+                    throw new InvalidOperationException("Format handler lacks Identify(Stream): " + fixture.TypeName);
+
+                object instance = Activator.CreateInstance(format);
+                byte[] valid = new byte[32];
+                byte[] header = System.Text.Encoding.ASCII.GetBytes(fixture.Header);
+                Buffer.BlockCopy(header, 0, valid, 0, header.Length);
+                using (var stream = new MemoryStream(valid, writable: false))
+                {
+                    if (!(bool)identify.Invoke(instance, new object[] { stream }))
+                        throw new InvalidDataException("Valid magic rejected by " + fixture.TypeName);
+                }
+                valid[0] = 0;
+                using (var stream = new MemoryStream(valid, writable: false))
+                {
+                    if ((bool)identify.Invoke(instance, new object[] { stream }))
+                        throw new InvalidDataException("Invalid magic accepted by " + fixture.TypeName);
+                }
+                report.Add(fixture.TypeName + ": positive/negative header checks passed");
+            }
+
+            foreach (string name in new[] { "BFRES", "BNTX" })
+            {
+                if (!types.Any(t => t.Name == name))
+                    throw new InvalidOperationException("Missing registered " + name + " handler");
+                report.Add(name + ": handler registered (round-trip not tested)");
+            }
+        }
+#endif
 
         private static bool TryLoadZSTD()
         {
