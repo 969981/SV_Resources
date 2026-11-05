@@ -68,6 +68,7 @@ namespace Toolbox
                     verification.Add(plugin.Name + ": " + types.Length + " resource types");
                 }
                 VerifyFormatIdentification(plugins.SelectMany(p => p.Types).ToArray(), verification);
+                VerifySarcArchiveRoundTrip(verification);
                 File.WriteAllLines(Path.Combine(Runtime.ExecutableDir, "net10-runtime-smoke.txt"), verification);
                 return;
             }
@@ -199,6 +200,56 @@ namespace Toolbox
                 if (!types.Any(t => t.Name == name))
                     throw new InvalidOperationException("Missing registered " + name + " handler");
                 report.Add(name + ": handler registered (round-trip not tested)");
+            }
+        }
+        // A tiny generated archive proves pack -> unpack preserves file name, bytes and endian support.
+        // This tests real SARC serialization without redistributing Nintendo files.
+        private static void VerifySarcArchiveRoundTrip(List<string> report)
+        {
+            byte[] payload = System.Text.Encoding.UTF8.GetBytes("net10-sarc-roundtrip-fixture-20261105");
+            foreach (bool bigEndian in new[] { false, true })
+            {
+                var original = new FirstPlugin.SARC
+                {
+                    FileName = "synthetic.sarc",
+                    IFileInfo = new Toolbox.Library.IFileInfo()
+                };
+                FirstPlugin.SARC.CreateNewSARC(original, bigEndian);
+                original.AddFile(new FirstPlugin.SARC.SarcEntry
+                {
+                    FileName = "fixture.txt",
+                    FileData = (byte[])payload.Clone(),
+                });
+
+                byte[] archive;
+                using (var output = new MemoryStream())
+                {
+                    original.Save(output);
+                    archive = output.ToArray();
+                }
+                if (archive.Length <= 32 || System.Text.Encoding.ASCII.GetString(archive, 0, 4) != "SARC")
+                    throw new InvalidDataException("SARC writer emitted invalid archive header");
+
+                var opened = new FirstPlugin.SARC
+                {
+                    FileName = "synthetic.sarc",
+                    IFileInfo = new Toolbox.Library.IFileInfo()
+                };
+                try
+                {
+                    using var input = new MemoryStream(archive, writable: false);
+                    opened.Load(input);
+                    var files = opened.Files.ToArray();
+                    if (files.Length != 1 || files[0].FileName != "fixture.txt" ||
+                        !files[0].FileData.SequenceEqual(payload))
+                        throw new InvalidDataException("SARC pack/unpack damaged the archived fixture");
+                }
+                finally
+                {
+                    opened.Unload();
+                }
+                report.Add("SARC: " + (bigEndian ? "big" : "little") +
+                           "-endian pack/unpack preserved filename and bytes");
             }
         }
 #endif
