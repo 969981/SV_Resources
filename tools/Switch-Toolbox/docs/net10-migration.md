@@ -30,3 +30,6 @@ The Windows CI workflow is `.github/workflows/switch-toolbox-net10.yml`. Its suc
 
 ## First Windows CI iteration
 The first build restored dependencies successfully but failed on updater directory ACL API changes and a missing DirectXTexNet namespace after NuGet conversion. The updater now calls DirectoryInfo ACL extension methods; DirectXTexNet is linked to the bundled DLL to preserve the upstream API while native replacement is still under investigation. These fixes must be verified in a subsequent CI run.
+
+## Second CI iteration
+The next Windows build found .NET 10 API differences: arrays' Reverse resolution in ToFixedString, the old LZ4Codec reference, an outdated ClickOnce GenerateTrustInfo target, and WinForms designer WFO1000 diagnostics. The source was simplified for equivalent trimming behavior; the original bundled LZ4 assembly was re-referenced and ClickOnce manifest generation disabled for the standalone updater. WFO1000 is temporarily suppressed during runtime compilation only; designer serialization must be audited and tested before final acceptance.

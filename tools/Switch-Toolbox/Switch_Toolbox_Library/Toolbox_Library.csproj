@@ -18,7 +18,7 @@
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <NoWarn>$(NoWarn);NU1701</NoWarn>
+    <NoWarn>$(NoWarn);NU1701;WFO1000</NoWarn>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
@@ -1540,6 +1540,7 @@
 <Import Project="..\packages\DirectXTexNet.1.0.0-rc3\build\DirectXTexNet.targets" Condition="Exists('..\packages\DirectXTexNet.1.0.0-rc3\build\DirectXTexNet.targets')" />
   <ItemGroup>
     <Reference Include="DirectXTexNet"><HintPath>..\Toolbox\Lib\Plugins\DirectXTexNet.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="LZ4"><HintPath>..\Toolbox\Lib\LZ4.dll</HintPath><Private>true</Private></Reference>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
     <PackageReference Include="CsvHelper" Version="8.0.0" />
 
