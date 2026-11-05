@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - '.github/workflows/vendor-pokedocs.yml'
+      - 'scripts/Build-PokeDocs-HashCaches.py'
+      - 'scripts/Build-SV-GFPAKHashCache.py'
   workflow_dispatch:
 
 permissions:
@@ -65,77 +67,24 @@ jobs:
           print(f"Exact checked copy: {len(paths)} files / {total:,} bytes")
           PY
 
-      - name: Generate independent modern gftool caches (SV and ZA)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build both caches and verify every binary record
         shell: bash
         run: |
           set -euo pipefail
-          for game in SV ZA; do
-            mkdir -p "tools/HashCaches/${game}"
-            python scripts/Build-SV-GFPAKHashCache.py \
-              --hashlist "tools/PokeDocs/${game}/Hashlists/FileSystem/hashes_inside_fd.txt" \
-              --hashlist "tools/PokeDocs/${game}/Hashlists/FileSystem/hashes_inside_trpak.txt" \
-              --output "tools/HashCaches/${game}/GFPAKHashCache.bin" \
-              --report "tools/HashCaches/${game}/hashcache-report.json" \
-              --overwrite
-          done
-
-      - name: Validate binary structure and write provenance
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          import json, hashlib, struct
-          results={}
-          for game in ("SV","ZA"):
-              base=Path("tools/HashCaches") / game
-              data=base / "GFPAKHashCache.bin"
-              report=json.loads((base/"hashcache-report.json").read_text(encoding="utf-8"))
-              actual_hash=hashlib.sha256(data.read_bytes()).hexdigest()
-              with data.open("rb") as f:
-                  count=struct.unpack("<Q",f.read(8))[0]
-                  for _ in range(count):
-                      assert len(f.read(8))==8
-                      length=0
-                      shift=0
-                      while True:
-                          b=f.read(1)
-                          assert b
-                          n=b[0]
-                          length|=(n&127)<<shift
-                          if not n&128: break
-                          shift+=7
-                          assert shift<35
-                      assert len(f.read(length))==length
-                  assert not f.read(1), "Unexpected trailing bytes"
-              assert count==report["entries"] and count>0
-              assert actual_hash==report["sha256"]
-              assert data.stat().st_size<100_000_000, "GitHub forbids individual files >100 MB"
-              results[game]={"hash_count":count,"cache_bytes":data.stat().st_size,"sha256":actual_hash}
-          provenance={
-              "source_repository":"https://github.com/pkZukan/PokeDocs",
-              "source_commit":"242039cbcd9de3f5a424de5b68ae581f7bed2b23",
-              "mirror_dir":"tools/PokeDocs",
-              "cache_format":"pkZukan/gftool GFTool.Core/Cache/GFPakHashCache.cs",
-              "games":results,
-          }
-          (Path("tools/HashCaches")/"provenance.json").write_text(json.dumps(provenance,indent=2)+"\n",encoding="utf-8")
-          print(json.dumps(provenance,indent=2))
-          PY
-          cat > tools/HashCaches/README.md <<'EOF'
-          # Local PokeDocs mirror and gftool cache files
-
-          - **Full PokeDocs source snapshot**: [../PokeDocs](../PokeDocs) (not a submodule or link).
-          - **Pinned source revision**: `242039cbcd9de3f5a424de5b68ae581f7bed2b23`.
-          - **SV cache**: [SV/GFPAKHashCache.bin](SV/GFPAKHashCache.bin).
-          - **ZA cache**: [ZA/GFPAKHashCache.bin](ZA/GFPAKHashCache.bin).
-          - Hash inputs: each game's `Hashlists/FileSystem/hashes_inside_fd.txt` and `hashes_inside_trpak.txt`.
-          - Format: **modern pkZukan/gftool** (little-endian UInt64 count; UInt64 hash + .NET UTF-8 BinaryWriter string).
-          - Each output has a `hashcache-report.json`; checksums and source revision are in [provenance.json](provenance.json).
-          - Binary caches are not compatible with the older Switch-Toolbox cache format.
-
-          To rebuild locally, run `python scripts/Build-SV-GFPAKHashCache.py --hashlist tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_fd.txt --hashlist tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_trpak.txt --output tools/HashCaches/SV/GFPAKHashCache.bin --overwrite` from the repository root (replace SV with ZA as needed).
-          EOF
+          python scripts/Build-PokeDocs-HashCaches.py \
+            --source-root tools/PokeDocs \
+            --output-root tools/HashCaches \
+            --source-commit 242039cbcd9de3f5a424de5b68ae581f7bed2b23 \
+            --overwrite
+          python scripts/Build-PokeDocs-HashCaches.py \
+            --source-root tools/PokeDocs \
+            --output-root tools/HashCaches \
+            --verify-only
 
       - name: Commit full source snapshot and both real cache binaries
         shell: bash
@@ -143,7 +92,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A tools/PokeDocs
+          git add -A -- tools/PokeDocs
           git add -f tools/HashCaches/SV/GFPAKHashCache.bin tools/HashCaches/ZA/GFPAKHashCache.bin
           git add -f tools/HashCaches/SV/hashcache-report.json tools/HashCaches/ZA/hashcache-report.json
           git add tools/HashCaches/README.md tools/HashCaches/provenance.json
