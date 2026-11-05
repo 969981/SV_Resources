@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task": "appli/tex/chara_s/chara_s_01#00000",
+  "input_fingerprint": "C8B3E441F4C7E4A71EEA9FB781FE00281E3CF4745608BC3942646E6744A72CF7",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "appli/tex/chara_s/chara_s_01/chara_s_01.bntx",
+      "source_sha256": "7C9FC3377E29C446C07D201DE025AAAF5A0CC53D31C8C5A9467EB503988A5876",
+      "bytes": 8296,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010020000068200000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/appli/tex/chara_s/chara_s_01/chara_s_01.bntx.json"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/appli/tex/chara_s/chara_s_01/chara_s_01.png",
+      "path": "virtual_converted/appli/tex/chara_s/chara_s_01/chara_s_01.png",
+      "sha256": "8A5258C042C17B715357247D79117B62EE53632572F25F7962BAFA69138EE6CC",
+      "bytes": 166
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/chara_s/chara_s_01/_inspection/641b3754b47f1f3f.jsonl",
+      "path": "virtual_converted/_parsed/appli/tex/chara_s/chara_s_01/_inspection/641b3754b47f1f3f.jsonl",
+      "sha256": "9042144A897B2A5489E089C8B6D172C6C103C9A4AD02F19845C048A057FD87AE",
+      "bytes": 575
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/chara_s/chara_s_01/chara_s_01.bntx.json",
+      "path": "virtual_converted/_parsed/appli/tex/chara_s/chara_s_01/chara_s_01.bntx.json",
+      "sha256": "599CB6831560A75B6D793746E1248F9765F834872020D92E50B9FA5294AB5C5D",
+      "bytes": 273
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "appli/tex/chara_s/chara_s_01",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
