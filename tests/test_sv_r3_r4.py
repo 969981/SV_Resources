@@ -1,6 +1,7 @@
 """Native R3 dependency proof and R4 incremental state tests (no asset publishing)."""
 from pathlib import Path
 import hashlib
+from contextlib import closing
 import json
 import os
 import shutil
@@ -97,7 +98,9 @@ class R3R4Tests(unittest.TestCase):
             for file in source.iterdir():
                 if file.is_file() and file.suffix.lower() in r4.EXTS:
                     shutil.copy2(file,native/file.name)
-            with cli.connect(root/"_index"/"resource_catalog.sqlite") as conn:
+            # sqlite3.Connection.__exit__ commits but does not close the handle;
+            # Windows cannot remove the temporary DB while it remains open.
+            with closing(cli.connect(root/"_index"/"resource_catalog.sqlite")) as conn:
                 r4.apply_schema(conn)
                 first=r4.process(root,conn,REPO,discover=True,tool_sha="FAKE_SHA")
                 self.assertEqual(first["counts"]["parsed"],1,first)
