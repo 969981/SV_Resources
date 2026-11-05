@@ -1,0 +1,156 @@
+name: Migrate gftool and NxMiddleware to NET10 SLNX
+
+on:
+  push:
+    paths:
+      - '.github/workflows/upgrade-gftool-net10.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: upgrade-gftool-net10
+  cancel-in-progress: false
+
+jobs:
+  migrate-and-verify:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          sparse-checkout: |
+            tools
+            scripts
+            tests
+            docs
+            .github
+          sparse-checkout-cone-mode: true
+          persist-credentials: true
+          submodules: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Migrate project frameworks and canonical solution formats
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          root=Path('.')
+          gft=root/'tools/gftool'
+          projects=sorted(gft.rglob('*.csproj'))
+          assert len(projects)==11, f'Expected 11 projects, got {len(projects)}'
+          projects.append(root/'tools/SV.TrinityDump/SV.TrinityDump.csproj')
+          for p in projects:
+              s=p.read_text(encoding='utf-8-sig')
+              n=re.sub(r'<TargetFramework>net8\.0(?:-windows(?:7\.0)?)?</TargetFramework>',
+                       lambda m: '<TargetFramework>net10.0-windows</TargetFramework>' if '-windows' in m.group() else '<TargetFramework>net10.0</TargetFramework>',s)
+              n=n.replace('System.Drawing.Common" Version="8.0.10"','System.Drawing.Common" Version="10.0.14"')
+              assert '<TargetFramework>net10.0' in n,p
+              if n!=s: p.write_text(n,encoding='utf-8')
+          PY
+          dotnet sln tools/gftool/TrinityModLoader.sln migrate
+          dotnet sln tools/gftool/NxMiddleware/NxMiddleware.sln migrate
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          gft=Path('tools/gftool')
+          for p in (gft/'TrinityModLoader.sln',gft/'NxMiddleware/NxMiddleware.sln'):
+              assert p.with_suffix('.slnx').is_file(),p
+              p.unlink()
+          test=Path('tests/test_sv_tool_submodules.py')
+          s=test.read_text(encoding='utf-8')
+          old='"TrinityModLoader.sln", "LICENSE"'
+          assert old in s
+          s=s.replace(old,'"TrinityModLoader.slnx", "NxMiddleware/NxMiddleware.slnx", "LICENSE"')
+          anchor='                    self.assertNotIn("160000 commit", tree.stdout)'
+          assert anchor in s
+          s=s.replace(anchor,anchor+'''
+                              for project in (ROOT / path).rglob("*.csproj"):
+                                  source = project.read_text(encoding="utf-8-sig")
+                                  self.assertIn("<TargetFramework>net10.0", source, str(project))
+                              self.assertFalse((ROOT / path / "TrinityModLoader.sln").exists())
+                              self.assertFalse((ROOT / path / "NxMiddleware/NxMiddleware.sln").exists())'''.replace('                              ','                    '))
+          test.write_text(s,encoding='utf-8')
+          ps=Path('scripts/Sync-SV-Tools.ps1')
+          s=ps.read_text(encoding='utf-8')
+          old="'TrinityModLoader.sln', 'LICENSE'"
+          assert old in s
+          ps.write_text(s.replace(old,"'TrinityModLoader.slnx', 'NxMiddleware/NxMiddleware.slnx', 'LICENSE'"),encoding='utf-8')
+          for name in ('extract-sv-lua-targets','sv-m2-full','sv-m2-virtual-extract',
+                       'sv-m1-descriptor','validate-unpack-plan','vendor-gftool-source'):
+              p=Path('.github/workflows')/(name+'.yml')
+              s=p.read_text(encoding='utf-8')
+              assert '8.0.x' in s,p
+              s=s.replace("dotnet-version: '8.0.x'","dotnet-version: '10.0.x'")
+              s=s.replace('dotnet-version: "8.0.x"','dotnet-version: "10.0.x"')
+              s=s.replace('Compile net8 CLI','Compile net10 CLI')
+              pat=r"(?m)^([ \t]+)git submodule update --init --recursive -- tools/gftool\n[ \t]+if \(\$LASTEXITCODE -ne 0\) \{ throw '[^']+' \}\n"
+              s=re.sub(pat,lambda m:m.group(1)+"if (-not (Test-Path 'tools/gftool/GFTool.Core/GFTool.Core.csproj')) { throw 'GFTool.Core missing' }\n"+m.group(1)+"if (-not (Test-Path 'tools/gftool/NxMiddleware/BnTxx/BnTxx.csproj')) { throw 'NxMiddleware missing' }\n",s)
+              assert 'git submodule update --init --recursive -- tools/gftool' not in s,p
+              p.write_text(s,encoding='utf-8')
+          readme=Path('tools/README.md')
+          readme.write_text(readme.read_text(encoding='utf-8').rstrip()+
+                '\n\n## NET10 and SLNX port\n\nAll 11 gftool and NxMiddleware C# projects now target .NET 10. '
+                'Use TrinityModLoader.slnx (11 projects) or NxMiddleware/NxMiddleware.slnx (3 projects). '
+                'The former .sln files were removed. The SV.TrinityDump consumer also targets .NET 10. '
+                'System.Drawing.Common has been updated to 10.0.14; other third-party packages remain pinned. '
+                'The manifest records both original upstream and locally modified source-tree SHAs. '
+                'Windows CI compile success does not establish graphical UI or original ROM runtime correctness.\n',encoding='utf-8')
+          doc=Path('docs/gftool-source-provenance.md')
+          doc.write_text(doc.read_text(encoding='utf-8').rstrip()+
+                '\n\n## .NET 10 local port\n\nThe original upstream commit remains pinned, while project '
+                'targets, the two solutions and the System.Drawing.Common package were migrated locally. '
+                'The upstreamTreeSha field preserves the imported original and sourceTreeSha tracks the '
+                'patched vendored source. See the NET10 build workflow for reproducible evidence.\n',encoding='utf-8')
+          PY
+          dotnet sln tools/gftool/TrinityModLoader.slnx list
+          dotnet sln tools/gftool/NxMiddleware/NxMiddleware.slnx list
+      - name: Verify Release NxMiddleware build
+        run: dotnet build tools/gftool/NxMiddleware/NxMiddleware.slnx -c Release --nologo
+      - name: Verify Release full gftool Windows build
+        run: dotnet build tools/gftool/TrinityModLoader.slnx -c Release --nologo
+      - name: Verify Release SV.TrinityDump build
+        run: dotnet build tools/SV.TrinityDump/SV.TrinityDump.csproj -c Release --nologo
+      - name: Verify Debug full gftool Windows build
+        run: dotnet build tools/gftool/TrinityModLoader.slnx -c Debug --nologo
+      - name: Record provenance and publish verified changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u -- tools/gftool tools/SV.TrinityDump tests/test_sv_tool_submodules.py scripts/Sync-SV-Tools.ps1 .github/workflows tools/README.md docs/gftool-source-provenance.md
+          git add -- tools/gftool/TrinityModLoader.slnx tools/gftool/NxMiddleware/NxMiddleware.slnx
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess,re
+          root=Path('.')
+          p=root/'tools/upstream.json'
+          j=json.loads(p.read_text(encoding='utf-8'))
+          g=next(x for x in j['tools'] if x['name']=='gftool')
+          g.setdefault('upstreamTreeSha',g['sourceTreeSha'])
+          staged=subprocess.check_output(['git','write-tree'],text=True).strip()
+          line=subprocess.check_output(['git','ls-tree',staged,'tools/gftool'],text=True).strip()
+          m=re.fullmatch(r'040000 tree ([0-9a-f]{40})\ttools/gftool',line)
+          assert m,line
+          g['sourceTreeSha']=m.group(1)
+          g['localPatches']=['.NET 10','.slnx','System.Drawing.Common 10.0.14']
+          p.write_text(json.dumps(j,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('Upstream source tree:',g['upstreamTreeSha'])
+          print('Local port tree:',g['sourceTreeSha'])
+          PY
+          git add -- tools/upstream.json
+          git diff --cached --stat
+          git commit -m "build(gftool): migrate gftool and NxMiddleware to .NET 10 SLNX"
+          python -m unittest discover -s tests -p test_sv_tool_submodules.py -v
+          git push origin HEAD:master
+          echo "NET10 SLNX builds and provenance tests passed" >> "$GITHUB_STEP_SUMMARY"
