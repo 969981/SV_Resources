@@ -98,27 +98,46 @@ def numeric_variants(name: str):
             yield name[:start] + str(value).zfill(width) + name[end:]
 
 
+GYM_TYPES = (
+    "kusa", "mizu", "koori", "denki", "mushi", "normal", "esper",
+    "dragon", "hiko", "jimen", "hono", "hagane", "iwa", "ghost", "aku"
+)
+
+
+def additional_variants(kind: str, name: str):
+    """Conservative semantic template changes; never add without full 64-bit match."""
+    if kind in ("c", "e"):
+        for old in GYM_TYPES:
+            if old not in name:
+                continue
+            for new in GYM_TYPES:
+                if new != old:
+                    yield name.replace(old, new), "gym_token_substitution"
+    if kind in ("f", "s") and name and name[0].isalpha():
+        first = name[0].lower() if name[0].isupper() else name[0].upper()
+        yield first + name[1:], "first_letter_case"
+
+
 def recover(known, unknown):
     """Recover only exact FNV matches, rejecting hash collisions/ambiguity."""
     candidates = {k: {} for k in KINDS}
     attempts = 0
     for kind, _hash, name, line_number in known:
-        if not NUMERIC.search(name):
-            continue
-        for candidate in numeric_variants(name):
+        variants = ((v, "numeric_substitution") for v in numeric_variants(name))
+        for candidate, rule in (*variants, *additional_variants(kind, name)):
             attempts += 1
             target = fnv1a64(candidate)
             if target not in unknown[kind]:
                 continue
             by_hash = candidates[kind].setdefault(target, {})
-            by_hash.setdefault(candidate, (name, line_number))
+            by_hash.setdefault(candidate, (name, line_number, rule))
     accepted = {k: {} for k in KINDS}
     ambiguous = []
     for kind in KINDS:
         for h, options in candidates[kind].items():
             if len(options) == 1:
                 name, evidence = next(iter(options.items()))
-                accepted[kind][h] = (name, evidence[0], evidence[1])
+                accepted[kind][h] = (name, evidence[0], evidence[1], evidence[2])
             else:
                 ambiguous.append({
                     "kind": kind, "hash": f"0x{h:016X}",
@@ -133,12 +152,12 @@ def build_outputs(source: Path):
     overlay = io.StringIO()
     tsv = csv.writer(overlay, delimiter="\t", lineterminator="\n")
     tsv.writerow(["kind", "hash", "candidate_name", "status",
-                  "evidence_name", "evidence_line", "hash_algorithm"])
+                  "evidence_name", "evidence_line", "rule", "hash_algorithm"])
     for kind in KINDS:
-        for h, (name, seed, lineno) in sorted(accepted[kind].items()):
+        for h, (name, seed, lineno, rule) in sorted(accepted[kind].items()):
             assert h in unknown[kind] and fnv1a64(name) == h
             tsv.writerow([kind, f"0x{h:016X}", name, "HASH_EXACT_CANDIDATE",
-                          seed, lineno, "FNV-1a-64"])
+                          seed, lineno, rule, "FNV-1a-64"])
         stats[kind]["recovered"] = len(accepted[kind])
         stats[kind]["still_unknown"] = len(unknown[kind]) - len(accepted[kind])
     outputs = {"recovered.tsv": overlay.getvalue().encode("utf-8")}
@@ -158,7 +177,7 @@ def build_outputs(source: Path):
     report = {
         "source": "tools/PokeDocs/SV/Hashlists/Lua (full pinned vendor snapshot)",
         "source_is_modified": False,
-        "algorithm": "FNV-1a-64 / exact 64-bit target-match / numeric token substitutions",
+        "algorithm": "FNV-1a-64 / exact 64-bit target-match / numeric + gym token + first-case variants",
         "status": "HASH_EXACT_CANDIDATE (not native semantic confirmation)",
         "tested_candidates": attempts,
         "source_statistics": stats,
