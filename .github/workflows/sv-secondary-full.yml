@@ -12,6 +12,8 @@ on:
       - 'tests/test_sv_parsed_inspection.py'
       - 'tests/test_sv_secondary_parallel.py'
       - 'tests/test_sv_secondary_full.py'
+      - 'scripts/resource_pipeline/audit_secondary.py'
+      - 'tests/test_sv_secondary_audit.py'
       - 'tests/test_sv_virtual_second_stage.py'
   workflow_dispatch:
     inputs:
@@ -60,6 +62,7 @@ jobs:
           sparse-checkout: |
             scripts/resource_pipeline
             tests/test_sv_secondary_full.py
+            tests/test_sv_secondary_audit.py
             tests/test_sv_secondary_parallel.py
             tests/test_sv_parsed_inspection.py
             tests/test_sv_virtual_second_stage.py
@@ -82,7 +85,7 @@ jobs:
           if ([int]$env:SV_WORKERS -lt 1 -or [int]$env:SV_WORKERS -gt 4) { throw 'Bad workers' }
           if ([int]$env:SV_MAX_TASKS -lt 1 -or [int]$env:SV_MAX_TASKS -gt 20) { throw 'Bad max_tasks' }
           git config core.longpaths true
-          python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/process_virtual.py scripts/resource_pipeline/parallel_secondary.py scripts/resource_pipeline/inspect_all.py
+          python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/process_virtual.py scripts/resource_pipeline/parallel_secondary.py scripts/resource_pipeline/inspect_all.py scripts/resource_pipeline/audit_secondary.py
           if ($LASTEXITCODE -ne 0) { throw 'Python compile failed' }
           python -m unittest discover -s tests -p test_sv_secondary_full.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Full-sweep tests failed' }
@@ -92,6 +95,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Parallel isolated worker tests failed' }
           python -m unittest discover -s tests -p test_sv_parsed_inspection.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Exhaustive parsed coverage tests failed' }
+          python -m unittest discover -s tests -p test_sv_secondary_audit.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Per-file ledger audit tests failed' }
       - name: Discover whole tracked native virtual tree
         id: plan
         shell: pwsh
