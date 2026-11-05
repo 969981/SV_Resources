@@ -38,6 +38,8 @@ jobs:
           if ($projects.Count -ne 5) { throw "Expected five NET10 projects, got $($projects.Count)" }
       - name: Restore .NET 10
         run: dotnet restore Toolbox.net10.slnx --nologo -v minimal
+      - name: Yaz0 .NET 10 round-trip and malformed-data smoke tests
+        run: dotnet run --project tests/Yaz0Smoke.csproj -c Release --nologo
       - name: Build .NET 10 Release
         run: dotnet build Toolbox.net10.slnx -c Release --no-restore --nologo -v minimal
       - name: Build .NET 10 Debug
