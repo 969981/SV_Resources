@@ -553,9 +553,7 @@
     <Content Include="Lib\ZstdDictionaries\PutZsdicFilesHere.txt">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-    <Content Include="LZ4.dll">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
+    <!-- NET10 LZ4.dll is supplied by Toolbox_Library; copying this second root file causes NETSDK1152 on publish. -->
     <Content Include="Octokit.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
