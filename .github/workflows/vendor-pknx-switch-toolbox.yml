@@ -1,0 +1,128 @@
+name: Vendor complete pkNX and Switch-Toolbox sources
+
+on:
+  push:
+    paths:
+      - '.github/workflows/vendor-pknx-switch-toolbox.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-vendor-pknx-switch-toolbox
+  cancel-in-progress: false
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          sparse-checkout: |
+            tools
+            scripts
+            tests
+            .github
+          sparse-checkout-cone-mode: true
+          submodules: false
+          persist-credentials: true
+
+      - name: Fetch exact, complete upstream commits
+        shell: bash
+        env:
+          GIT_LFS_SKIP_SMUDGE: '1'
+        run: |
+          set -euo pipefail
+          git -c core.autocrlf=false clone --depth 1 --filter=blob:none https://github.com/kwsch/pkNX.git "$RUNNER_TEMP/pknx"
+          git -c core.autocrlf=false clone --depth 1 --filter=blob:none https://github.com/KillzXGaming/Switch-Toolbox.git "$RUNNER_TEMP/switchtoolbox"
+          test "$(git -C "$RUNNER_TEMP/pknx" rev-parse HEAD)" = d191cd0e5c05f2af81d9a41c1f1d82e6621b351a
+          test "$(git -C "$RUNNER_TEMP/switchtoolbox" rev-parse HEAD)" = 3a3279140ca0fa54ce804a8d56d4653a491de613
+          test -z "$(git -C "$RUNNER_TEMP/pknx" ls-tree -r HEAD | grep '^160000 ' || true)"
+          test -z "$(git -C "$RUNNER_TEMP/switchtoolbox" ls-tree -r HEAD | grep '^160000 ' || true)"
+
+      - name: Replace gitlinks with real files and preserve source trees
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e tools/pkNX/.git
+          test ! -e tools/Switch-Toolbox/.git
+          git rm -f --cached -- tools/pkNX tools/Switch-Toolbox
+          mkdir -p tools/pkNX tools/Switch-Toolbox
+          rsync -a --delete --exclude='.git/' "$RUNNER_TEMP/pknx/" tools/pkNX/
+          rsync -a --delete --exclude='.git/' "$RUNNER_TEMP/switchtoolbox/" tools/Switch-Toolbox/
+          git -c core.autocrlf=false add -f -A -- tools/pkNX tools/Switch-Toolbox
+          python - <<'PY'
+          from pathlib import Path
+          import json, os, subprocess
+          root = Path.cwd()
+          src = {'pkNX': Path(os.environ['RUNNER_TEMP']) / 'pknx',
+                 'Switch-Toolbox': Path(os.environ['RUNNER_TEMP']) / 'switchtoolbox'}
+          path = root / 'tools/upstream.json'
+          metadata = json.loads(path.read_text(encoding='utf-8'))
+          for item in metadata['tools']:
+              if item['name'] not in src:
+                  continue
+              tree = subprocess.check_output(['git','-C',str(src[item['name']]),'rev-parse','HEAD^{tree}'], text=True).strip()
+              item['importMethod'] = 'vendor-tree'
+              item['submodules'] = False
+              item['sourceTreeSha'] = tree
+          path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          modules = root / '.gitmodules'
+          value = modules.read_text(encoding='utf-8')
+          for name, url in [('pkNX','https://github.com/kwsch/pkNX.git'), ('Switch-Toolbox','https://github.com/KillzXGaming/Switch-Toolbox.git')]:
+              block = f'[submodule "tools/{name}"]\n\tpath = tools/{name}\n\turl = {url}\n\tbranch = master\n'
+              assert block in value, name
+              value = value.replace(block, '')
+          modules.write_text(value.strip() + '\n', encoding='utf-8')
+          t = root / 'tests/test_sv_tool_submodules.py'
+          code = t.read_text(encoding='utf-8')
+          old = '                else:\n                    self.fail(f"Unexpected vendored tool: {item[\'name\']}")'
+          new = ('                elif item["name"] in ("pkNX", "Switch-Toolbox"):\n'
+                 '                    solution = "pkNX.sln" if item["name"] == "pkNX" else "Toolbox.sln"\n'
+                 '                    self.assertTrue((ROOT / path / solution).is_file())\n' + old)
+          assert old in code
+          t.write_text(code.replace(old,new), encoding='utf-8')
+          ps = root / 'scripts/Sync-SV-Tools.ps1'
+          code = ps.read_text(encoding='utf-8')
+          old = '        } else {\n            throw "Unknown vendored source: $path"'
+          new = ("        } elseif ($item.name -eq 'pkNX') {\n"
+                 "            if (-not (Test-Path -LiteralPath (Join-Path $dest 'pkNX.sln') -PathType Leaf)) { throw 'Missing vendored pkNX solution' }\n"
+                 "        } elseif ($item.name -eq 'Switch-Toolbox') {\n"
+                 "            if (-not (Test-Path -LiteralPath (Join-Path $dest 'Toolbox.sln') -PathType Leaf)) { throw 'Missing vendored Switch-Toolbox solution' }\n" + old)
+          assert old in code
+          code = code.replace(old,new).replace('three submodules + two full source snapshots', 'one submodule + four full source snapshots')
+          code = code.replace('Verify two complete vendored source trees and initialize three pinned Git submodules', 'Verify four complete vendored source trees and initialize one pinned Git submodule')
+          ps.write_text(code,encoding='utf-8')
+          PY
+          git add -- .gitmodules tools/upstream.json tests/test_sv_tool_submodules.py scripts/Sync-SV-Tools.ps1
+          staged="$(git write-tree)"
+          for item in pkNX Switch-Toolbox; do
+            if [ "$item" = pkNX ]; then src="$RUNNER_TEMP/pknx"; else src="$RUNNER_TEMP/switchtoolbox"; fi
+            expected="$(git -C "$src" rev-parse 'HEAD^{tree}')"
+            actual="$(git ls-tree "$staged" "tools/$item" | awk '{print $3}')"
+            echo "$item tree expected=$expected actual=$actual"
+            test "$expected" = "$actual"
+            expected_count="$(git -C "$src" ls-tree -r --name-only HEAD | wc -l)"
+            actual_count="$(git ls-tree -r --name-only "$staged" -- "tools/$item" | wc -l)"
+            echo "$item files=$actual_count"
+            test "$expected_count" -eq "$actual_count"
+          done
+          test "$(git ls-tree "$staged" tools/gftool | awk '{print $1}')" = 160000
+
+      - name: Commit, test, and publish import branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git diff --cached --stat | tail -n 30
+          git commit -m 'Vendor full pinned pkNX and Switch-Toolbox sources'
+          python -m unittest discover -s tests -p test_sv_tool_submodules.py -v
+          branch="vendor/pknx-switchtoolbox-$GITHUB_RUN_ID"
+          git push origin "HEAD:refs/heads/$branch"
+          echo "IMPORT_BRANCH=$branch" >> "$GITHUB_STEP_SUMMARY"
+          echo "COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
