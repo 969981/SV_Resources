@@ -65,17 +65,25 @@ try {
         '-VolumeSize', '1m',
         '-BatchTargetBytes', '1572864'
     )
-    $firstRun = Invoke-TransferScript -ScriptPath $syncScript -Arguments ($commonArgs + @('-MaxFilesPerRun', '1'))
+    $seedHead = (Invoke-SVNativeProcess -FilePath $gitExe -ArgumentList @('--git-dir', $bare, 'rev-parse', 'refs/heads/master') -WorkingDirectory $tempRoot).StdOut.Trim()
+    $firstRun = Invoke-TransferScript -ScriptPath $syncScript -Arguments ($commonArgs + @('-MaxFilesPerRun', '1', '-NoPush'))
     Assert-Test ($firstRun.ExitCode -eq 0) "A one-file checkpoint run succeeds: $($firstRun.StdOut) $($firstRun.StdErr)"
     $statePath = Join-Path ((Invoke-GitForTest -Root $repo -Arguments @('rev-parse', '--absolute-git-dir')).StdOut.Trim()) 'sv-romfs-transfer\state.json'
     $stateAfterFirst = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
     Assert-Test (@($stateAfterFirst.files).Count -eq 1) 'The checkpoint records the completed large-file archive.'
+    Assert-Test (@($stateAfterFirst.batches | Where-Object { $_.pushStatus -ne 'pending' }).Count -eq 0) 'Offline data commits are checkpointed as pending push.'
+    $remoteAfterOfflineRun = (Invoke-SVNativeProcess -FilePath $gitExe -ArgumentList @('--git-dir', $bare, 'rev-parse', 'refs/heads/master') -WorkingDirectory $tempRoot).StdOut.Trim()
+    Assert-Test ($remoteAfterOfflineRun -eq $seedHead) 'The offline checkpoint run does not update its local bare remote.'
     $partialVolumes = @(Get-ChildItem -LiteralPath (Join-Path $repo '4.0.0\1') -Filter '*.7z.*' -File -Recurse)
     Assert-Test ($partialVolumes.Count -ge 2) 'A source larger than the test threshold produces multiple 7-Zip volumes.'
     Assert-Test (@($partialVolumes | Where-Object { $_.Length -gt 1048576 }).Count -eq 0) 'Every synthetic archive volume is within the configured limit.'
 
     $resumeRun = Invoke-TransferScript -ScriptPath $syncScript -Arguments $commonArgs
     Assert-Test ($resumeRun.ExitCode -eq 0) "The resumed transfer completes: $($resumeRun.StdOut) $($resumeRun.StdErr)"
+    $stateAfterResume = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+    Assert-Test (@($stateAfterResume.batches | Where-Object { $_.pushStatus -ne 'pushed' }).Count -eq 0) 'A normal rerun pushes each pending batch to the local bare remote.'
+    $batchMessages = @(Invoke-GitForTest -Root $repo -Arguments @('log', '--format=%s', '--grep=^data: add Violet 4.0.0 RomFS batch')).StdOut.Trim() -split "`r?`n" | Where-Object { $_ }
+    Assert-Test (@($batchMessages | Select-Object -Unique).Count -eq $batchMessages.Count) 'Batch numbers remain unique across checkpointed runs.'
     $manifestPath = Join-Path $repo 'violet_4.0.0_romfs_transfer_manifest.json'
     Assert-Test (Test-Path -LiteralPath $manifestPath -PathType Leaf) 'The completed run writes a transfer manifest.'
     $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json

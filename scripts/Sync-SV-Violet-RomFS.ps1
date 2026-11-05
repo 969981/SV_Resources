@@ -51,6 +51,12 @@ function Save-TransferState {
     Write-SVJsonAtomic -Path $StatePath -Value $State
 }
 
+function Set-CheckpointField {
+    param([Parameter(Mandatory = $true)][string]$Name, $Value)
+    if ($State -is [System.Collections.IDictionary]) { $State[$Name] = $Value }
+    else { $State | Add-Member -MemberType NoteProperty -Name $Name -Value $Value -Force }
+}
+
 function Set-FileState {
     param([Parameter(Mandatory = $true)]$Record)
     $prior = @($State.files | Where-Object { $_.relativePath -eq $Record.relativePath } | Select-Object -First 1)
@@ -222,7 +228,9 @@ function Commit-ArtifactBatches {
     }
     if ($current.Count -gt 0) { [void]$batches.Add(@($current.ToArray())) }
 
-    $batchNumber = 1
+    $priorBatchNumbers = @($State.batches | ForEach-Object { [int]$_.number })
+    if ($priorBatchNumbers.Count -gt 0) { $batchNumber = [int](($priorBatchNumbers | Measure-Object -Maximum).Maximum) + 1 }
+    else { $batchNumber = 1 }
     foreach ($batch in $batches) {
         if (-not $NoPush) { Assert-SVGitPreflight -RepositoryRoot $RepositoryRoot -RequireRemote }
         else { Assert-SVGitPreflight -RepositoryRoot $RepositoryRoot }
@@ -279,16 +287,57 @@ function Commit-ArtifactBatches {
 
 function Retry-PendingPushes {
     if ($NoPush) { return }
-    $pending = @($State.batches | Where-Object { $_.pushStatus -ne 'pushed' })
-    if ($pending.Count -gt 0 -or ($State.manifestCommit -and $State.manifestPushStatus -ne 'pushed')) {
-        Assert-SVGitPreflight -RepositoryRoot $RepositoryRoot -RequireRemote
-        [void](Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('push', 'origin', 'master'))
-        foreach ($batch in $pending) { $batch.pushStatus = 'pushed'; $batch.lastError = $null }
-        if ($State.manifestCommit) { $State.manifestPushStatus = 'pushed' }
-        foreach ($fileState in @($State.files)) {
-            if ($fileState.gitCommit) { $fileState.gitStatus = 'pushed' }
+    $pending = @($State.batches | Where-Object { $_.pushStatus -ne 'pushed' } | Sort-Object { [int]$_.number })
+    foreach ($batch in $pending) {
+        try {
+            Assert-SVGitPreflight -RepositoryRoot $RepositoryRoot -RequireRemote
+            $refspec = [string]$batch.commit + ':refs/heads/master'
+            [void](Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('push', 'origin', $refspec))
+            $batch.pushStatus = 'pushed'
+            $batch.lastError = $null
+            Save-TransferState
+        } catch {
+            $batch.lastError = $_.Exception.Message
+            $State.lastError = $_.Exception.Message
+            Save-TransferState
+            throw
         }
-        $State.lastError = $null
+    }
+    if ($State.manifestCommit -and $State.manifestPushStatus -ne 'pushed') {
+        try {
+            Assert-SVGitPreflight -RepositoryRoot $RepositoryRoot -RequireRemote
+            $refspec = [string]$State.manifestCommit + ':refs/heads/master'
+            [void](Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('push', 'origin', $refspec))
+            $State.manifestPushStatus = 'pushed'
+            Save-TransferState
+        } catch {
+            $State.lastError = $_.Exception.Message
+            Save-TransferState
+            throw
+        }
+    }
+
+    $head = (Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('rev-parse', 'HEAD')).StdOut.Trim()
+    $remote = Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('rev-parse', '--verify', 'origin/master') -AllowFailure
+    if ($remote.ExitCode -eq 0 -and $head -ne $remote.StdOut.Trim()) {
+        try {
+            Assert-SVGitPreflight -RepositoryRoot $RepositoryRoot -RequireRemote
+            $counts = (Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('rev-list', '--left-right', '--count', 'HEAD...origin/master')).StdOut.Trim() -split '\s+'
+            if ([int]$counts[1] -gt 0) { throw 'origin/master advanced beyond the local commit chain. No automatic merge or reset was performed.' }
+            Set-CheckpointField -Name 'finalCommit' -Value $head
+            Set-CheckpointField -Name 'finalPushStatus' -Value 'pending'
+            Save-TransferState
+            [void](Invoke-SVGIT -RepositoryRoot $RepositoryRoot -ArgumentList @('push', 'origin', 'master'))
+            Set-CheckpointField -Name 'finalPushStatus' -Value 'pushed'
+            Save-TransferState
+        } catch {
+            $State.lastError = $_.Exception.Message
+            Save-TransferState
+            throw
+        }
+    } else {
+        Set-CheckpointField -Name 'finalCommit' -Value $head
+        Set-CheckpointField -Name 'finalPushStatus' -Value 'pushed'
         Save-TransferState
     }
 }
