@@ -50,9 +50,9 @@ def write(repo, path, content):
     print("WROTE", path, flush=True)
 
 
-def fnv1a64(text):
-    """FNV-1a 64 with offset and prime observed at main+0x1701C28..0x1701C68."""
-    h = 0xCBF29CE484222325
+def fnv1a64(text, seed=0xCBF29CE484222645):
+    """FNV-1a-like loop; native seed differs from standard FNV-1a by 0x320."""
+    h = seed
     for value in text.encode("utf-8"):
         h = ((h ^ value) * 0x100000001B3) & 0xFFFFFFFFFFFFFFFF
     return h
@@ -113,11 +113,14 @@ def prefetch_gaps(repo, mod):
             no_path += 1
             continue
         for normalization, value in hash_normalizations(row["trpfd_virtual_path"]).items():
-            if fnv1a64(value) == int(row["hash64_hex"], 16):
-                fnv_test_counts[normalization] += 1
-                fnv_examples.setdefault(normalization, {
-                    "name": row["trpfd_virtual_path"], "hash": row["hash64_hex"],
-                })
+            for seed_name, seed in (("nativeSeed", 0xCBF29CE484222645),
+                                    ("standardSeed", 0xCBF29CE484222325)):
+                key = seed_name + "/" + normalization
+                if fnv1a64(value, seed) == int(row["hash64_hex"], 16):
+                    fnv_test_counts[key] += 1
+                    fnv_examples.setdefault(key, {
+                        "name": row["trpfd_virtual_path"], "hash": row["hash64_hex"],
+                    })
         filename = path.rsplit("/", 1)[-1]
         suffix = ("." + filename.rsplit(".", 1)[-1]).lower() if "." in filename else "[none]"
         ext[suffix] += 1
