@@ -1,0 +1,152 @@
+name: SV 4.0.0 Lua native C/S/F evidence (whole-file)
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sv-lua-native-evidence.yml'
+      - 'scripts/Analyze-SV-Lua54.py'
+      - 'scripts/Continue-SV-Lua54.py'
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: 'Existing verified SV 4.0.0 Lua Artifact workflow run ID (before expiry)'
+        required: true
+        type: string
+        default: '41987437139'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: sv-lua-4-0-0-evidence
+  cancel-in-progress: false
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN: ${{ github.event.inputs.source_run_id || '41987437139' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          sparse-checkout: |
+            .github
+            scripts
+            tools/PokeDocs/SV/Hashlists/Lua
+            tools/PokeDocs-Supplement/SV/Hashlists/Lua
+          sparse-checkout-cone-mode: true
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate both complete-file analyzers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/Analyze-SV-Lua54.py scripts/Continue-SV-Lua54.py
+          test -s tools/PokeDocs/SV/Hashlists/Lua/lua_c_hashes.txt
+          test -s tools/PokeDocs/SV/Hashlists/Lua/lua_s_hashes.txt
+          test -s tools/PokeDocs/SV/Hashlists/Lua/lua_f_hashes.txt
+          test -s tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv
+      - name: Download already-extracted original 4.0.0 Lua files to runner temp
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sv-4.0.0"
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "SV-4.0.0-Lua-Native-$SOURCE_RUN" --dir "$RUNNER_TEMP/sv-4.0.0"
+          MAIN="$RUNNER_TEMP/sv-4.0.0/virtual/script/lua/bin/release/main/main.blua"
+          DYNAMIC="$RUNNER_TEMP/sv-4.0.0/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua"
+          test -s "$MAIN"
+          test -s "$DYNAMIC"
+          echo 'c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815  '"$MAIN" | sha256sum -c -
+          echo 'ae4a7d0168751f53af11746ac5ae7771cb1a5bfa580bcc0f79e2b9ee85acb572  '"$DYNAMIC" | sha256sum -c -
+          echo "SV_LUA_MAIN=$MAIN" >> "$GITHUB_ENV"
+          echo "SV_LUA_DYNAMIC=$DYNAMIC" >> "$GITHUB_ENV"
+      - name: Analyze original whole Lua files directly (never split)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sv-native-baseline"
+          python scripts/Analyze-SV-Lua54.py \
+            --main "$SV_LUA_MAIN" --dynamic "$SV_LUA_DYNAMIC" \
+            --hashlists tools/PokeDocs/SV/Hashlists/Lua \
+            --prior tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv \
+            --output "$RUNNER_TEMP/sv-native-baseline" > "$RUNNER_TEMP/sv-native-baseline-log.json"
+          python scripts/Continue-SV-Lua54.py \
+            --main "$SV_LUA_MAIN" --dynamic "$SV_LUA_DYNAMIC" \
+            --hashlists tools/PokeDocs/SV/Hashlists/Lua \
+            --prior tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv \
+            --baseline "$RUNNER_TEMP/sv-native-baseline" \
+            --output tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0 \
+            > "$RUNNER_TEMP/sv-native-followup-log.json"
+          python scripts/Continue-SV-Lua54.py \
+            --main "$SV_LUA_MAIN" --dynamic "$SV_LUA_DYNAMIC" \
+            --hashlists tools/PokeDocs/SV/Hashlists/Lua \
+            --prior tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv \
+            --baseline "$RUNNER_TEMP/sv-native-baseline" \
+            --output tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0 \
+            --verify-only > /dev/null
+      - name: Cross-check all native evidence and exact FNV names
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv, hashlib, json
+          from pathlib import Path
+          root=Path('tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0')
+          j=json.loads((root/'followup-summary.json').read_text(encoding='utf-8'))
+          assert j['original_remaining_c_without_direct_F_methods']==299
+          assert j['remaining_c_with_native_static_S_closures']==103
+          assert j['native_static_S_closure_edges']==281
+          assert j['native_static_S_closure_edges_with_known_field']==269
+          assert j['remaining_c_with_native_env_registration']==213
+          assert j['remaining_c_both_static_and_registered']==97
+          assert j['remaining_c_neither_pattern']==80
+          assert j['new_F_exact_name_candidates']==4
+          assert j['remaining_F_missing_names_after_context']==103
+          assert j['native_self_instance_field_assignments']==7
+          assert j['originals_split'] is False and j['originals_modified'] is False
+          with (root/'followup-c-static-s-closures.tsv').open() as f:
+              assert sum(1 for _ in csv.DictReader(f,delimiter='\t'))==281
+          with (root/'followup-f-new-exact-candidates.tsv').open() as f:
+              assert sum(1 for _ in csv.DictReader(f,delimiter='\t'))==4
+          merged=root/'lua_f_hashes.native-merged.txt'
+          assert hashlib.sha256(merged.read_bytes()).hexdigest()=='14d2f8489f566ccd53e52485188ff7d0a00a8db9af326dc26de99a8ac8e3449b'
+          print(json.dumps(j,ensure_ascii=False,indent=2))
+          PY
+          git diff --exit-code -- tools/PokeDocs/SV/Hashlists/Lua
+      - name: Commit ONLY small derived evidence reports
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- "$base/followup-summary.json" \
+            "$base/followup-unknown-c.tsv" \
+            "$base/followup-c-static-s-closures.tsv" \
+            "$base/followup-c-global-registrations.tsv" \
+            "$base/followup-f-callback-name-evidence.tsv" \
+            "$base/followup-f-self-field-assignments.tsv" \
+            "$base/followup-f-new-exact-candidates.tsv"
+          if git diff --cached --quiet; then
+            echo 'Native evidence is up to date'
+            exit 0
+          fi
+          git commit -m 'Publish whole-file native 4.0.0 Lua C/S and F callback evidence'
+          for n in 1 2 3 4; do
+            git fetch origin master
+            git rebase origin/master
+            if git push origin HEAD:refs/heads/master; then
+              echo "Published small native evidence reports"
+              exit 0
+            fi
+            echo "Master advanced; retry $n without force push"
+          done
+          exit 1
