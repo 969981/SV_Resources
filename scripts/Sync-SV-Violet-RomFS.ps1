@@ -475,7 +475,12 @@ try {
 
     $State.lastError = $null
     Save-TransferState
-    Write-Host ("Completed local verification for {0} RomFS files; {1} artifacts totaling {2:N0} bytes." -f $manifestRecords.Count, $artifactRecords.Count, (($artifactRecords | Measure-Object -Property sizeBytes -Sum).Sum))
+    [long]$artifactBytes = 0
+    foreach ($artifact in $artifactRecords) {
+        if ($artifact -is [System.Collections.IDictionary]) { $artifactBytes += [long]$artifact['sizeBytes'] }
+        else { $artifactBytes += [long]$artifact.sizeBytes }
+    }
+    Write-Host ("Completed local verification for {0} RomFS files; {1} artifacts totaling {2:N0} bytes." -f $manifestRecords.Count, $artifactRecords.Count, $artifactBytes)
     if ($NoPush) { Write-Host 'Pushes were disabled for this run. Local commits are pending push.' }
 } catch {
     $State.lastError = $_.Exception.Message
