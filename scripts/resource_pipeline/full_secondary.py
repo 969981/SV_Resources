@@ -365,7 +365,15 @@ def status(repo, group_files):
              "SWEEP_ATTEMPTED_WITH_ERRORS" if error_groups else
              "SWEEP_ATTEMPTED_WITH_PARTIAL" if partial_groups else
              "SWEEP_ATTEMPTED")
+    inspected_files = sum(x.get("parsed_records", 0) for x in matching)
+    structured_files = sum(x.get("structurally_parsed", 0) for x in matching)
+    unsupported_files = sum(x.get("inspected_unparsed", 0) for x in matching)
     return {"tracked_native_files": len(rows), "native_groups": len(tasks),
+            "parsed_inspection_records": inspected_files,
+            "parsed_structurally_decoded": structured_files,
+            "parsed_inspected_unparsed": unsupported_files,
+            "parsed_coverage_percent": round(100 * inspected_files / max(1, len(rows)), 3),
+            "not_yet_inspected": max(0, len(rows) - inspected_files),
             "remaining_groups": len(pending),
             "remaining_files": sum(t["file_count"] for t in pending),
             "attempted_groups": len(tasks) - len(pending),
