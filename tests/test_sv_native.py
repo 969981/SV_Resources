@@ -54,6 +54,12 @@ class MakeFB:
         self.b.extend(struct.pack('<I', count) + bytes(4 * count))
         return [p + 4 + 4 * i for i in range(count)]
 
+    def rawvector(self, item_bytes, count):
+        self.pad(4)
+        p = len(self.b)
+        self.b.extend(struct.pack('<I', count) + bytes(item_bytes))
+        return p
+
     def bytevector(self, data):
         self.pad(4)
         p = len(self.b)
@@ -161,6 +167,30 @@ def anim_bytes():
     return b.finish()
 
 
+def framed_animation_bytes():
+    b = MakeFB()
+    root = b.table({0, 1})
+    info = b.table({1, 2})
+    b.ref(root[0], info[0] - 4)
+    b.value(info[1], 60)
+    b.value(info[2], 30)
+    anim = b.table({0})
+    b.ref(root[1], anim[0] - 4)
+    arr = b.vector(1)
+    b.ref(anim[0], arr[0] - 4)
+    track = b.table({0, 1, 2})
+    b.ref(arr[0], track[0] - 4)
+    b.ref(track[0], b.string('Root'))
+    b.value(track[1], 3, 'B')
+    channel = b.table({0, 1})
+    b.ref(track[2], channel[0] - 4)
+    frames = b.rawvector(struct.pack('<4H', 0, 2, 1, 1), 4)
+    b.ref(channel[0], frames)
+    positions = b.rawvector(bytes(12 * 4), 4)
+    b.ref(channel[1], positions)
+    return b.finish()
+
+
 class Tests(unittest.TestCase):
     def test_native_flatbuffers_model_reader(self):
         d = sv.parse_trmdl(sv.FB(model_bytes()))
@@ -195,6 +225,14 @@ class Tests(unittest.TestCase):
             self.assertEqual(report['checks']['geometry']['buffer_sets'], 1)
             self.assertEqual(sv.parse_trmbf(sv.FB(buffer_bytes()))['buffer_sets'][0]['vertex_buffer_sizes'][0], 12)
             self.assertEqual(sv.resolve_ref(root, 'pokemon/demo/obj.trmdl', '../../../../../etc/passwd')['status'], 'REJECTED_TRAVERSAL')
+
+    def test_nonmonotonic_native_frame_order_is_not_fabricated(self):
+        report = sv.parse_tranm(sv.FB(framed_animation_bytes()))
+        scale = report['tracks'][0]['channels']['scale']
+        self.assertEqual(scale['keyframes'], 4)
+        self.assertEqual(scale['frame_order'], 'NON_MONOTONIC')
+        self.assertEqual(scale['reverse_steps'], 1)
+        self.assertEqual(scale['duplicate_steps'], 1)
 
     def test_no_path_escape_or_invalid_vtable(self):
         with tempfile.TemporaryDirectory() as t:
