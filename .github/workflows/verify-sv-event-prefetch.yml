@@ -1,0 +1,42 @@
+name: Verify SV TREVT and TRPRE extraction
+
+on:
+  push:
+    paths:
+      - '4.0.0/1/event/trevt/bin/event.trevt'
+      - '4.0.0/1/system/prefetch/data/**'
+      - 'Unpack/4.0.0/romfs/event/trevt/bin/event.trevt/**'
+      - 'Unpack/4.0.0/romfs/system/prefetch/data/**'
+      - 'scripts/Unpack-SV-EventPrefetch.py'
+      - 'tests/test_unpack_sv_event_prefetch.py'
+      - '.github/workflows/verify-sv-event-prefetch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-native-byte-parsing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source and parsed outputs
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            tests
+            4.0.0/1/event/trevt/bin
+            4.0.0/1/system/prefetch/data
+            Unpack/4.0.0/romfs/event/trevt/bin
+            Unpack/4.0.0/romfs/system/prefetch/data
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile parser and synthetic test
+        run: python -m py_compile scripts/Unpack-SV-EventPrefetch.py tests/test_unpack_sv_event_prefetch.py
+      - name: Run synthetic table and vector checks
+        run: python -m unittest discover -s tests -p 'test_unpack_sv_event_prefetch.py' -v
+      - name: Verify actual original file SHA-256 and all nine derived outputs
+        run: python scripts/Unpack-SV-EventPrefetch.py --repo . --verify-only
