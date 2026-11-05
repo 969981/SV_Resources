@@ -1,0 +1,42 @@
+name: Validate SV M2 parallel scheduler
+
+on:
+  push:
+    branches:
+      - feature/sv-m2-parallel-extract
+    paths:
+      - '.github/workflows/validate-sv-m2-parallel.yml'
+      - 'scripts/Run-SV-FullExtract.py'
+      - 'scripts/sv_m2_parallel.py'
+      - 'tests/test_sv_m2_parallel.py'
+  pull_request:
+    paths:
+      - '.github/workflows/sv-m2-full.yml'
+      - '.github/workflows/validate-sv-m2-parallel.yml'
+      - 'scripts/Run-SV-FullExtract.py'
+      - 'scripts/sv_m2_parallel.py'
+      - 'tests/test_sv_m2_parallel.py'
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Run-SV-FullExtract.py
+            scripts/sv_m2_parallel.py
+            tests/test_sv_m2_parallel.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run ROM-free scheduler tests
+        run: |
+          python -m py_compile scripts/Run-SV-FullExtract.py scripts/sv_m2_parallel.py
+          python -m unittest discover -s tests -p 'test_sv_m2_parallel.py' -v

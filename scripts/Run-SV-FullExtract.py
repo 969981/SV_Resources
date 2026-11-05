@@ -21,6 +21,7 @@ import sys
 import tempfile
 import time
 from datetime import datetime, timezone
+from sv_m2_parallel import iter_prepared_batches, validate_unique_paths
 
 ROOT_REL = Path("Unpack/4.0.0/romfs/arc/data.trpfs")
 DESC_REL = Path("Unpack/4.0.0/romfs/arc/data.trpfd/_index")
@@ -100,15 +101,14 @@ def process_large(target: Path, row: dict, seven_zip: str):
     return info, volumes
 
 
-def git_commit_and_push(repo: Path, relative_paths: list[str], message: str, dry_run: bool):
+def git_commit_and_push(repo: Path, relative_paths: list[str], message: str, dry_run: bool, publish_branch: str = "master"):
     if dry_run:
         print(f"DRY RUN: would stage {len(relative_paths)} paths, commit & push: {message}")
         return
-    # Other workflows may write unrelated docs while this runner extracts data.
-    # Fast-forward ONLY if remote is a direct descendant of our last pushed commit;
-    # never rewrite, reset, or auto-rebase user's concurrent work.
-    call(["git", "fetch", "origin", "master"], cwd=repo)
-    call(["git", "merge", "--ff-only", "origin/master"], cwd=repo)
+    # Fast-forward only; never rewrite, reset or auto-rebase concurrent commits.
+    # An isolated M2 publication branch avoids cross-workflow master contention.
+    call(["git", "fetch", "origin", publish_branch], cwd=repo)
+    call(["git", "merge", "--ff-only", f"origin/{publish_branch}"], cwd=repo)
     with tempfile.NamedTemporaryFile(prefix="sv-m2-stage-", suffix=".txt", delete=False) as f:
         path_file = Path(f.name)
         f.write(b"".join(p.replace("\\", "/").encode("utf-8") + b"\0"
@@ -127,7 +127,7 @@ def git_commit_and_push(repo: Path, relative_paths: list[str], message: str, dry
             raise RuntimeError("git diff --cached failed")
         call(["git", "commit", "-m", message], cwd=repo)
         # No force, merge, reset, or rebase. Reject unexpected concurrent master edits.
-        call(["git", "push", "origin", "HEAD:master"], cwd=repo)
+        call(["git", "push", "origin", f"HEAD:refs/heads/{publish_branch}"], cwd=repo)
     finally:
         path_file.unlink(missing_ok=True)
 
@@ -243,12 +243,15 @@ def main():
     ap.add_argument("--start-pack", type=int, default=2)
     ap.add_argument("--batch-packs", type=int, default=100)
     ap.add_argument("--max-batches", type=int, default=1000)
+    ap.add_argument("--workers", type=int, default=1, help="Parallel isolated dotnet decoder processes (1..4)")
+    ap.add_argument("--publish-branch", choices=("master", "sv-m2-packs-4.0.0"), default="master",
+                    help="Isolated M2 branch avoids concurrent master writers")
     ap.add_argument("--time-budget-minutes", type=int, default=240)
     ap.add_argument("--seven-zip", default=r"C:\Program Files\7-Zip\7z.exe")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
-    if args.start_pack < 2 or not 1 <= args.batch_packs <= 200 or args.max_batches < 1:
-        ap.error("start-pack >= 2; batch-packs in 1..200; max-batches positive")
+    if args.start_pack < 2 or not 1 <= args.batch_packs <= 200 or args.max_batches < 1 or not 1 <= args.workers <= 4:
+        ap.error("start-pack >= 2; batch-packs in 1..200; max-batches positive; workers in 1..4")
     repo = args.repo.resolve()
     root = repo / ROOT_REL
     desc = repo / DESC_REL
@@ -276,6 +279,9 @@ def main():
         raise FileNotFoundError("Missing prepared Oodle/cache runtime dependencies")
     if not Path(args.seven_zip).exists():
         raise FileNotFoundError("7-Zip not installed at " + args.seven_zip)
+    if args.workers > 1:
+        checked = validate_unique_paths(desc / "file_index.tsv.gz", cursor)
+        print(f"PARALLEL PREFLIGHT: {checked} native paths checked; {args.workers} disjoint worker processes", flush=True)
     call(["dotnet", "build", "tools/SV.TrinityDump/SV.TrinityDump.csproj",
           "-c", "Release", "--nologo"], cwd=repo)
 
@@ -285,12 +291,18 @@ def main():
     start_time = time.monotonic()
     done = 0
     summaries = []
-    while cursor < total and done < args.max_batches:
-        end = min(total, cursor + args.batch_packs)
-        print(f"=== Native Trinity pack range {cursor}..{end-1} of {total} ===", flush=True)
-        summary, stages = process_batch(
+    def prepare(start: int, end: int):
+        print(f"=== Preparing native Trinity packs {start}..{end-1} of {total} ===", flush=True)
+        return process_batch(
             repo, str(workspace), root, desc, str(cache), str(oodle),
-            args.seven_zip, cursor, end, dry_run=args.dry_run)
+            args.seven_zip, start, end, dry_run=args.dry_run)
+
+    # Workers only write separate native JSONL reports and hashed virtual files.
+    # The single publisher below serializes Git commits and cursor updates.
+    for start, end, (summary, stages) in iter_prepared_batches(
+            cursor, total, args.batch_packs, args.max_batches, args.workers, prepare):
+        if start != cursor or summary["batchStartPack"] != start or summary["batchEndPackExclusive"] != end:
+            raise RuntimeError("Parallel worker returned an out-of-order native pack range")
         cursor = end
         done += 1
         summaries.append(summary)
@@ -320,7 +332,7 @@ def main():
         git_commit_and_push(repo, stages,
             f"data(m2): verified Trinity packs {summary['batchStartPack']}-{cursor-1} "
             f"(OK={summary['success']} FAILED={summary['failed']})",
-            dry_run=args.dry_run)
+            dry_run=args.dry_run, publish_branch=args.publish_branch)
         print("BATCH " + json.dumps(summary), flush=True)
         if done and (time.monotonic()-start_time)/60 > args.time_budget_minutes:
             print("Reached safe runner time budget after a committed checkpoint", flush=True)
