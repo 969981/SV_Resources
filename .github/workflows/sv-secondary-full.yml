@@ -7,6 +7,9 @@ on:
       - '.github/workflows/sv-secondary-full.yml'
       - 'scripts/resource_pipeline/full_secondary.py'
       - 'scripts/resource_pipeline/parallel_secondary.py'
+      - 'scripts/resource_pipeline/inspect_all.py'
+      - 'scripts/resource_pipeline/process_virtual.py'
+      - 'tests/test_sv_parsed_inspection.py'
       - 'tests/test_sv_secondary_parallel.py'
       - 'tests/test_sv_secondary_full.py'
       - 'tests/test_sv_virtual_second_stage.py'
@@ -58,6 +61,7 @@ jobs:
             scripts/resource_pipeline
             tests/test_sv_secondary_full.py
             tests/test_sv_secondary_parallel.py
+            tests/test_sv_parsed_inspection.py
             tests/test_sv_virtual_second_stage.py
             tools/gftool
             tools/SV.R3.ModelExport
@@ -78,7 +82,7 @@ jobs:
           if ([int]$env:SV_WORKERS -lt 1 -or [int]$env:SV_WORKERS -gt 4) { throw 'Bad workers' }
           if ([int]$env:SV_MAX_TASKS -lt 1 -or [int]$env:SV_MAX_TASKS -gt 20) { throw 'Bad max_tasks' }
           git config core.longpaths true
-          python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/process_virtual.py scripts/resource_pipeline/parallel_secondary.py
+          python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/process_virtual.py scripts/resource_pipeline/parallel_secondary.py scripts/resource_pipeline/inspect_all.py
           if ($LASTEXITCODE -ne 0) { throw 'Python compile failed' }
           python -m unittest discover -s tests -p test_sv_secondary_full.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Full-sweep tests failed' }
@@ -86,6 +90,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Native pipeline tests failed' }
           python -m unittest discover -s tests -p test_sv_secondary_parallel.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Parallel isolated worker tests failed' }
+          python -m unittest discover -s tests -p test_sv_parsed_inspection.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Exhaustive parsed coverage tests failed' }
       - name: Discover whole tracked native virtual tree
         id: plan
         shell: pwsh
@@ -178,6 +184,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Cannot validate checkpoint status' }
           $state = Get-Content "$env:RUNNER_TEMP/full-status.json" -Raw | ConvertFrom-Json
           Write-Host "Native total=$($state.tracked_native_files), pending=$($state.remaining_files), partial groups=$($state.partial_groups), error groups=$($state.error_groups), exhausted errors=$($state.exhausted_error_groups)"
+          Write-Host 'Every attempted native file now needs a parsed/ inspection record. Proprietary formats remain explicitly unparsed.'
           if ($state.remaining_groups -gt 0) {
             gh workflow run sv-secondary-full.yml --ref master -f "max_files=$env:MAX_FILES" -f "workers=$env:SV_WORKERS" -f "max_tasks=$env:SV_MAX_TASKS"
             if ($LASTEXITCODE -ne 0) { throw 'Dispatch next batch failed; checkpoint was retained' }
