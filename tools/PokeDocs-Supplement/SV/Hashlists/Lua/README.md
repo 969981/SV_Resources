@@ -18,3 +18,8 @@ py -3 .\scripts\Recover-SV-Lua-Hashes.py --verify-only --min-recovered 48
 ```
 
 注意：`HASH_EXACT_CANDIDATE` 只说明名称与 Hash 的数学一致性和命名规律证据；不等于已证明具体 Lua 调用或游戏 4.0.0 运行逻辑。
+
+## SV 4.0.0 全量 Lua 的小型原生证据索引
+
+- [`native-4.0.0/`](native-4.0.0/)：完整 Lua 源文件经原型／指令级解析后的 C 静态 S 闭包、全局注册、F 回调名称验证和完整增强 F Hashlist。**本目录不包含拆分后的 Lua 代码，也没有改写上游 PokeDocs。**
+- [Obsidian 第三轮原生技术报告](../../../../../docs/research/sv-lua-native-4.0.0-followup.md)。
