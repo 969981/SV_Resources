@@ -30,7 +30,7 @@ Exports:
 
 Build the pinned CLI with a recent Rust compiler:
 
-    cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac --package ultimate_tex_cli
+    cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac ultimate_tex_cli
 
 On Windows PowerShell run this cargo command on a single line.
 When ultimate_tex_cli is on PATH, convert-r1 --kind bntx auto-detects it.

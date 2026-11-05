@@ -53,4 +53,6 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_sv_resource_pipeline.py' -v
       - name: Run native SV text format and integration tests
         run: python -m unittest discover -s tests -p 'test_sv_r1_native.py' -v
+        env:
+          SV_REQUIRE_NATIVE_FIXTURES: '1'
 

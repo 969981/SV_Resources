@@ -39,6 +39,6 @@ jobs:
         run: |
           cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex \
             --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac \
-            --package ultimate_tex_cli
+            ultimate_tex_cli
       - name: Verify real SV BNTX conversion and index entries
         run: python tests/verify_sv_bntx_native.py

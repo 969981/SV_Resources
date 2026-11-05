@@ -12,7 +12,7 @@ The implementation uses the maintained ultimate_tex_cli decoder
 at pinned source revision 2ef4f0904f85d696650bdefa1f18c935a09159ac.
 Build with:
 
-    cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac --package ultimate_tex_cli
+    cargo install --locked --git https://github.com/ScanMountGoat/ultimate_tex --rev 2ef4f0904f85d696650bdefa1f18c935a09159ac ultimate_tex_cli
 
 Then run:
 
