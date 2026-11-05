@@ -330,15 +330,31 @@ def process_batch(repo, converter_png="", converter_model=""):
             item["local_only"]=result["index"]["local_only"]
             item["deferred"]=len(result.get("deferred_outputs", []))
             item["problems"]=len(result.get("problems", []))
-            item["status"]="ATTEMPTED" if proc.returncode == 0 and item["deferred"]==0 else "PARTIAL"
+            inspection=result["inspection"]
+            item["parsed_records"]=inspection["inspection_records"]
+            if item["parsed_records"] != task["file_count"]:
+                raise ValueError("Worker did not inspect all selected source paths")
+            item["inspection_manifest"]=inspection["manifest"]
+            item["inspection_sha256"]=inspection["manifest_sha256"]
+            item["structurally_parsed"]=inspection["by_status"].get("STRUCTURE_PARSED",0)
+            item["inspected_unparsed"]=inspection["by_status"].get("INSPECTED_UNPARSED",0)
+            item["hash_mismatches"]=inspection["by_status"].get("SOURCE_HASH_MISMATCH",0)
+            item["status"]=("ATTEMPTED" if proc.returncode == 0 and
+                            item["deferred"]==0 and item["hash_mismatches"]==0
+                            else "PARTIAL")
             if item["status"]=="PARTIAL":
                 failures+=1
-        except (json.JSONDecodeError,KeyError,TypeError) as exc:
+        except (json.JSONDecodeError,KeyError,TypeError,ValueError) as exc:
             item["status"]="ERROR"
             item["error"]=str(exc)+": "+proc.stderr[-700:]
             failures+=1
         item["updated_utc"]=cli.utcnow()
         records.append(item)
+        previous=state["attempted"].get(task["id"], {})
+        for kind,key in (("ERROR","error_attempts"),("PARTIAL","partial_attempts")):
+            if item["status"]==kind:
+                item[key]=(int(previous.get(key,0))+1
+                           if previous.get("fingerprint")==task["fingerprint"] else 1)
         state["attempted"][task["id"]]=item
         state["totals"]["source_files_attempted"] += task["file_count"]
         task_tmp.unlink(missing_ok=True)
