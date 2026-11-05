@@ -21,7 +21,7 @@ Unpack/4.0.0/romfs/arc/data.trpfs/
     parsed/<virtual original path>/<file>/    # nested unpack / records
     converted/<virtual original path>/<file>/ # PNG, JSON, CSV etc.
 Unpack/4.0.0/_index/                          # task/status/provenance manifests
-tools/                              # pinned git submodules; full source after recursive checkout
+tools/                              # four complete vendored trees; gftool remains a submodule
 ```
 
 Preserve original path case, extension and variant. Avoid path traversal and collisions. Add `_provenance.json` or a central JSONL record with input hash, archive entry offset where available, output hash, tool SHA, command, and validation evidence.
@@ -52,7 +52,7 @@ Preserve original path case, extension and variant. Avoid path traversal and col
 | Switch-Toolbox | https://github.com/KillzXGaming/Switch-Toolbox | General supported Switch models, textures, formats | Inspect support per file before converting |
 | SCVI_Extract | https://github.com/psthrn42/SCVI_Extract | Legacy Python comparison | Full 10-file upstream source snapshot (not a submodule); not selected as default extractor |
 
-`scripts/Sync-SV-Tools.ps1` verifies the two complete vendored trees (PokeDocs and SCVI_Extract) and initializes three remaining Git submodules. The vendored `tools/SCVI_Extract/` tree matches upstream commit `0d4f817d0756257cd5ec1c8a680ae201e8b4eec5` exactly (tree `33d0fd99e9a0787054b72b0593457161e2453bfa`). Building/running GUI tools is **not** implied by checkout. Do not commit unrelated third-party sources, Oodle DLLs, ROM keys or redistributed game files by default.
+`scripts/Sync-SV-Tools.ps1` verifies four complete vendored trees (PokeDocs, SCVI_Extract, pkNX and Switch-Toolbox) and initializes the sole remaining gftool Git submodule. The vendored `tools/SCVI_Extract/` tree matches upstream commit `0d4f817d0756257cd5ec1c8a680ae201e8b4eec5` exactly (tree `33d0fd99e9a0787054b72b0593457161e2453bfa`). Building/running GUI tools is **not** implied by checkout. Do not commit unrelated third-party sources, Oodle DLLs, ROM keys or redistributed game files by default.
 
 ## Reproducible commands (Windows, repo root)
 
@@ -123,7 +123,7 @@ The [Build SV GFPAK hash cache workflow](https://github.com/969981/SV_Resources/
 
 ## Five upstream tools pinned under tools/ (2026-11-05)
 
-PokeDocs is an existing complete vendored source tree; four other sources are pinned Git submodules (`.gitmodules`, `tools/upstream.json`). Do not replace or delete the vendored PokeDocs files. After a `git pull`, run `git submodule update --init --recursive`. The existing M2 .NET CLI project references `tools/gftool/GFTool.Core`; Hashlist generation reads `tools/PokeDocs`. See [tools README](../tools/README.md). The owner-uploaded `scripts/deps/oo2core_8_win64.dll` is used as local input and copied to ignored `tools/_local/` when no explicit DLL path is supplied. Its licensing and public repository visibility require separate attention.
+PokeDocs, SCVI_Extract, pkNX and Switch-Toolbox are complete vendored source trees; only gftool remains a pinned Git submodule (`.gitmodules`, `tools/upstream.json`). Do not replace or delete the vendored PokeDocs files. After a `git pull`, run `git submodule update --init --recursive`. The existing M2 .NET CLI project references `tools/gftool/GFTool.Core`; Hashlist generation reads `tools/PokeDocs`. See [tools README](../tools/README.md). The owner-uploaded `scripts/deps/oo2core_8_win64.dll` is used as local input and copied to ignored `tools/_local/` when no explicit DLL path is supplied. Its licensing and public repository visibility require separate attention.
 
 ## Real extraction evidence — 2026-11-05
 
