@@ -137,3 +137,12 @@ py -3 .\scripts\Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 611
 py -3 .\scripts\Verify-ZA-Lua-Sources.py --verify-only --reconstruction-root .research/ZAScripts
 py -3 .\scripts\Verify-ZA-Lua-Sources.py --scan-reconstruction --reconstruction-root .research/ZAScripts
 ```
+
+## SV 4.0.0 原生 Lua：整文件分析脚本
+
+- `Analyze-SV-Lua54.py`：直接解析完整 Lua 5.4 `main.blua` / `main_dynamic.blua`，生成基础 C→F 赋值索引；完整原始文件不拆分。
+- `Continue-SV-Lua54.py`：读取基础索引 + 完整原生文件和 PokeDocs C/F/S Hashlist，生成 281 条静态 S 闭包、213 条 C 注册、4 个新 F 候选、7 条自身实例字段写入以及增强 F Hashlist。
+- `Build-SV-Lua-Native-Overlay.py`：只基于公开 PokeDocs TXT 和独立候选 TSV 的纯离线再现，生成完整 F 增强版并逐条核对 FNV-1a-64。
+- [原生整文件研究文档](../docs/research/sv-lua-native-4.0.0-followup.md) · [源代码研究工作流](../.github/workflows/sv-lua-native-evidence.yml)（从已验证的 Actions Artifact 使用整份源文件，不把大文件提交到仓库）。
+
+仅发布派生的 TSV/JSON，输入原始文件只读；单靠 Hash 命中不视为原生源码命名最终确认。
