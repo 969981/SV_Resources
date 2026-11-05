@@ -1,0 +1,79 @@
+name: Recover SV Lua hash names from vendored PokeDocs
+
+on:
+  push:
+    paths:
+      - '.github/workflows/recover-sv-lua-hashes.yml'
+      - 'scripts/Recover-SV-Lua-Hashes.py'
+      - 'tests/test_sv_lua_hash_recovery.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-lua-recovery-master
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout only required source/tools
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          sparse-checkout: |
+            .github
+            scripts
+            tests
+            tools/PokeDocs/SV/Hashlists/Lua
+            tools/PokeDocs-Supplement
+          sparse-checkout-cone-mode: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check pure synthetic tests first
+        run: python -m unittest discover -s tests -p 'test_sv_lua_hash_recovery.py' -v
+
+      - name: Reconstruct exact-hash numeric pattern candidates
+        run: |
+          python scripts/Recover-SV-Lua-Hashes.py --min-recovered 32
+          python scripts/Recover-SV-Lua-Hashes.py --verify-only --min-recovered 32
+
+      - name: Inspect recovered count and source preservation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovery-report.json')
+          report = json.loads(p.read_text(encoding='utf-8'))
+          assert report['total_recovered'] >= 32
+          assert report['source_is_modified'] is False
+          assert report['source_statistics']['c']['recovered'] >= 2
+          assert report['source_statistics']['s']['recovered'] >= 30
+          for kind in ('c', 'e', 'f', 's'):
+              assert (p.parent/f'lua_{kind}_hashes.merged.txt').is_file()
+          print(f"Recovered {report['total_recovered']} exact-hash candidates; "
+                f"{report['total_still_unknown']} names remain unknown")
+          PY
+          git diff --exit-code -- tools/PokeDocs/SV/Hashlists/Lua
+
+      - name: Commit supplemental recovered mappings (without touching upstream)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- tools/PokeDocs-Supplement/SV/Hashlists/Lua
+          if git diff --cached --quiet; then
+            echo 'No changes to supplemental recovered hashes'
+            exit 0
+          fi
+          git diff --cached --stat
+          git commit -m 'Publish hash-exact SV Lua mapping candidates and merged overlays'
+          git push origin HEAD:refs/heads/master
