@@ -4,6 +4,7 @@ param(
   [Parameter(Mandatory=$true)][string]$Workspace,
   [string]$RepositoryRoot = (Split-Path -Parent $PSScriptRoot),
   [int]$MaxPacks = 0,
+  [int]$StartPack = 0,
   [int]$MaxFiles = 0,
   [switch]$DryRun,
   [switch]$IncludeUnused
@@ -25,6 +26,7 @@ if (Test-Path -LiteralPath $oodle -PathType Leaf) { $argv += @('--oodle', $oodle
 if ($DryRun) { $argv += '--dry-run' }
 if ($IncludeUnused) { $argv += '--include-unused' }
 if ($MaxPacks -gt 0) { $argv += @('--max-packs', "$MaxPacks") }
+if ($StartPack -gt 0) { $argv += @('--start-pack', "$StartPack") }
 if ($MaxFiles -gt 0) { $argv += @('--max-files', "$MaxFiles") }
 & $dotnet.Source @argv
 if ($LASTEXITCODE -ne 0) { throw "Trinity dumper failed with exit code $LASTEXITCODE; inspect export.jsonl" }

@@ -245,8 +245,12 @@ internal static class Program
         using var input = File.OpenRead(trpfsPath);
         int ok = 0, skipped = 0, failed = 0, examined = 0, packs = 0;
         int maxPacks = Limit(args, "--max-packs"), maxFiles = Limit(args, "--max-files");
+        int startPack = args.TryGetValue("--start-pack", out var rawStartPack) ? int.Parse(rawStartPack) : 0;
+        if (startPack < 0 || maxPacks <= 0 || maxFiles <= 0) throw new ArgumentException("Invalid pack/file window");
+        int packCursor = 0;
         foreach (var group in grouped)
         {
+            if (packCursor++ < startPack) continue;
             if (packs >= maxPacks || examined >= maxFiles) break;
             packs++;
             int packIndex = group.Key;
@@ -342,7 +346,7 @@ internal static class Program
                     failed++;
                 }
             }
-            Console.WriteLine($"Pack {packs}/{grouped.Count} {packName}: ok={ok}, resumed={skipped}, failed={failed}");
+            Console.WriteLine($"Pack {packCursor}/{grouped.Count} {packName}: ok={ok}, resumed={skipped}, failed={failed}");
         }
         Console.WriteLine($"DONE: new={ok} reused={skipped} failed={failed}; log={reportPath}");
         return failed == 0 ? 0 : 1;
