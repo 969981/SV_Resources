@@ -21,3 +21,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## ZA Lua symbols
 
 - [ZA Lua C/E/F/S 空映射恢复](za-lua-hash-recovery.md) — 70 个 Hash 行精确匹配（69 种名称），完整候选 TSV、merged TXT、测试与 CI；上游 PokeDocs 不变。
+
+## SV TREVT / TRPRE 原生事件与资源哈希
+
+- [SV 4.0.0 原生关联证据：事件状态、FNV 哈希算法与 Prefetch 36 个名称恢复](sv-event-prefetch-native-links.md) — 17,714/17,760 个路径哈希关系可验证，保留剩余 46 个未知键和条件运行时语义的证据边界。
