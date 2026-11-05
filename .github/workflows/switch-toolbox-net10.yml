@@ -1,0 +1,67 @@
+name: Switch-Toolbox .NET 10 migration build
+on:
+  push:
+    branches: [switch-toolbox-net10]
+    paths:
+      - 'tools/Switch-Toolbox/**'
+      - 'docs/research/switch-toolbox-net10.md'
+      - '.github/workflows/switch-toolbox-net10.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows-net10:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Switch-Toolbox source only
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools/Switch-Toolbox
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - name: Install .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Confirm SDK and source
+        shell: pwsh
+        run: |
+          dotnet --info
+          Get-ChildItem tools/Switch-Toolbox/Toolbox -Filter '*Net10.csproj'
+      - name: Restore .NET 10 GUI graph
+        shell: pwsh
+        run: |
+          dotnet restore tools/Switch-Toolbox/Toolbox/Toolbox.Net10.csproj --verbosity normal 2>&1 | Tee-Object -FilePath restore.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build .NET 10 GUI and dependencies
+        shell: pwsh
+        run: |
+          dotnet build tools/Switch-Toolbox/Toolbox/Toolbox.Net10.csproj --configuration Release --no-restore --verbosity normal 2>&1 | Tee-Object -FilePath build.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Check binary outputs (not functional certification)
+        if: success()
+        shell: pwsh
+        run: |
+          $base='tools/Switch-Toolbox/Toolbox/bin/Release/net10.0-windows'
+          if (-not (Test-Path "$base/Toolbox.exe")) { throw "Missing Toolbox.exe: $base" }
+          if (-not (Test-Path "$base/Toolbox.Library.dll")) { throw "Missing Toolbox.Library.dll: $base" }
+          Write-Host "Build output exists; UI/format regressions remain to be tested."
+      - name: Managed runtime and format header smoke tests
+        if: success()
+        shell: pwsh
+        run: |
+          dotnet run --project tools/Switch-Toolbox/Net10.Validation/Net10.Validation.csproj --configuration Release 2>&1 | Tee-Object -FilePath smoke.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Collect build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: switch-toolbox-net10-logs
+          path: |
+            restore.log
+            build.log
+            smoke.log
+          if-no-files-found: ignore
+          retention-days: 14

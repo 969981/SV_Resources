@@ -122,14 +122,29 @@ namespace Updater
             }
         }
 
+
+#if NET10_0_OR_GREATER
+        static System.Security.AccessControl.DirectorySecurity GetDirectorySecurity(string path)
+            => new DirectoryInfo(path).GetAccessControl();
+
+        static void SetDirectorySecurity(string path, System.Security.AccessControl.DirectorySecurity security)
+            => new DirectoryInfo(path).SetAccessControl(security);
+#else
+        static System.Security.AccessControl.DirectorySecurity GetDirectorySecurity(string path)
+            => Directory.GetAccessControl(path);
+
+        static void SetDirectorySecurity(string path, System.Security.AccessControl.DirectorySecurity security)
+            => Directory.SetAccessControl(path, security);
+#endif
+
         static void SetAccessRule(string directory)
         {
             try
             {
-                System.Security.AccessControl.DirectorySecurity sec = System.IO.Directory.GetAccessControl(directory);
+                System.Security.AccessControl.DirectorySecurity sec = GetDirectorySecurity(directory);
                 FileSystemAccessRule accRule = new FileSystemAccessRule(Environment.UserDomainName + "\\" + Environment.UserName, FileSystemRights.FullControl, AccessControlType.Allow);
                 sec.AddAccessRule(accRule);
-                Directory.SetAccessControl(directory, sec);
+                SetDirectorySecurity(directory, sec);
             }
             catch (Exception ex)
             {
