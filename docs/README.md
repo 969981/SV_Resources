@@ -53,3 +53,7 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 ## SV Lua 原生 4.0.0 名称恢复后续
 
 - [直接分析整份 BLUA：C 类静态闭包、注册关系和 F 回调补全](research/sv-lua-native-4.0.0-followup.md) — 4 个新增 F、281 条 C→S 赋值与来源证据；原始 PokeDocs 不变。
+
+## ZA Lua 第四阶段
+
+- [剩余 116 个 S 的第三方调用图、原始行号及只读原生二进制扫描流程](research/za-lua-native-evidence-gap.md) — 258 条引用，未更改已有 611 条 Hash 补全。

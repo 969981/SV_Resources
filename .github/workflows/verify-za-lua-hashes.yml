@@ -10,6 +10,9 @@ on:
       - 'tests/test_za_lua_source_evidence.py'
       - 'tools/PokeDocs-Supplement/ZA/Hashlists/Lua/**'
       - 'docs/research/za-lua-hash-recovery.md'
+      - 'docs/research/za-lua-native-evidence-gap.md'
+      - 'scripts/Audit-ZA-Lua-Unresolved.py'
+      - 'tests/test_za_lua_native_evidence.py'
   pull_request:
   workflow_dispatch:
 
@@ -56,6 +59,12 @@ jobs:
 
       - name: Verify pinned source annotations and original line numbers
         run: python scripts/Verify-ZA-Lua-Sources.py --verify-only --reconstruction-root .research/zascripts
+
+      - name: Test unresolved-evidence and literal scanner
+        run: python -m unittest discover -s tests -p 'test_za_lua_native_evidence.py' -v
+
+      - name: Validate 162 unresolved symbols and 258 reconstruction references
+        run: python scripts/Audit-ZA-Lua-Unresolved.py --haxe-root .research/zascripts
 
       - name: Ensure original PokeDocs is untouched
         run: git diff --exit-code -- tools/PokeDocs/ZA/Hashlists/Lua

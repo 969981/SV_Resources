@@ -40,3 +40,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 
 - [C 类静态 S 闭包 + F 精确名称恢复（第三轮）](sv-lua-native-4.0.0-followup.md) — 103 个 C 新增静态闭包证据，281 条 C→S；213 个 C 全局注册；4 条新增 F 完整 Hash 命中。原始 `.blua` 和 PokeDocs 均不拆分、不覆盖。
 - [小型原生证据 TSV/JSON](../../tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0/) — 无原始大文件，仅函数赋值、原始 PC 和独立候选。
+
+## ZA Lua 第四轮：未命名符号与原生证据缺口
+
+- [ZA Lua 剩余 116 条 S 的全部引用位置及原生证据入口](za-lua-native-evidence-gap.md)：85 个核心 Haxe + 5 个事件文件；258 条声明/调用/读写引用；F 43 / E 3 保留未知；没有伪称已原生 Lua 验证。

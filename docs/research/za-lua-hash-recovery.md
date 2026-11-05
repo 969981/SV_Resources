@@ -139,3 +139,9 @@ py -3 .\scripts\Recover-ZA-Lua-Hashes.py --verify-only --min-recovered 611
 py -3 .\scripts\Verify-ZA-Lua-Sources.py --verify-only --reconstruction-root .research/ZAScripts
 ~~~
 
+## 第四阶段：162 个原始未命名符号的引用与原生证据入口
+
+- [ZA Lua 116 条 S 的源引用索引与原生证据缺口](za-lua-native-evidence-gap.md)
+- `unresolved-s-references.tsv`：116 条 S 全部在第三方 Haxe 中有至少一个声明或调用位置，记录 258 处可追溯源码行。
+- `unresolved-symbol-index.tsv`：S 116、F 43、E 3 共 162 条未知的原始行号和证据等级。
+- 新增校验器 `scripts/Audit-ZA-Lua-Unresolved.py` 可通过 `--native-file` 输入实际解出的二进制，但仅产出 `RAW_HASH_LITERAL_ONLY`，不能冒充 `CONFIRMED_NATIVE`。

@@ -146,3 +146,15 @@ py -3 .\scripts\Verify-ZA-Lua-Sources.py --scan-reconstruction --reconstruction-
 - [原生整文件研究文档](../docs/research/sv-lua-native-4.0.0-followup.md) · [源代码研究工作流](../.github/workflows/sv-lua-native-evidence.yml)（从已验证的 Actions Artifact 使用整份源文件，不把大文件提交到仓库）。
 
 仅发布派生的 TSV/JSON，输入原始文件只读；单靠 Hash 命中不视为原生源码命名最终确认。
+
+## ZA Lua 未知 S 调用链索引与原生二进制只读扫描
+
+- `Audit-ZA-Lua-Unresolved.py`：校验 `unresolved-symbol-index.tsv`（162 项）与 `unresolved-s-references.tsv`（258 条），可指定固定版本 `--haxe-root` 按 SHA1 Git Blob / 原始行号核验。
+- `--native-file <真正提取的 ZA 二进制>` 扫描完整 64 位 Hash 大小端字面量，导出文件 SHA-256、偏移与字节上下文；**字面量命中不等于 Lua 原生调用**。
+- `tests/test_za_lua_native_evidence.py`：合成数据回归测试。
+- [Obsidian：ZA Lua 原生证据缺口和下一轮追踪](../docs/research/za-lua-native-evidence-gap.md)。
+
+```powershell
+py -3 .\scripts\Audit-ZA-Lua-Unresolved.py --haxe-root .research/ZAScripts
+py -3 -m unittest discover -s tests -p test_za_lua_native_evidence.py -v
+```
