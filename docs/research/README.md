@@ -13,3 +13,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## Lua symbols (SV 4.0.0 / PokeDocs)
 
 - [SV Lua C/E/F/S Hash 空映射恢复](sv-lua-hash-recovery.md) — 48 条 FNV-1a-64 精确 Hash 候选；保留原始文件、独立 merged TXT、可重复脚本和验证工作流。证据等级：`HASH_EXACT_CANDIDATE`，非原生运行时语义确证。
+
+## Lua 方法定义证据（跨版本）
+
+- [C 类与 F 方法源码结构索引](sv-lua-hash-context.md) — 18,948 条旧版原始定义，795 个未命名 C 类的文件定位；不冒充 SV 4.0.0 原生语义证据。
