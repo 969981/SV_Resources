@@ -28,3 +28,8 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 - [来源与 TXT/BIN 二进制格式](hashcache/format-and-sources.md)
 - [SV/ZA 构建步骤与 GitHub Actions](hashcache/build-and-workflows.md)
 - [来源校验、测试与故障排查](hashcache/verification.md)
+
+## SV Lua Hash 恢复（Obsidian）
+
+- [SV Lua C/E/F/S 未命名 Hash 补全](research/sv-lua-hash-recovery.md) — 48 条 FNV-1a-64 精确候选、证据与剩余 UNKNOWN 追踪。
+- [独立补充列表与 merged TXT](../tools/PokeDocs-Supplement/SV/Hashlists/Lua/) — 源 PokeDocs 文件保持不变。
