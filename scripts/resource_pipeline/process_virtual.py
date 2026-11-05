@@ -119,9 +119,10 @@ def outputs(root: Path, max_output_mb: int, prefix: str = ""):
         prefix = cli.safe_path(prefix)
         selected = PurePosixPath(prefix)
         local = selected.parent.as_posix() + "/" + selected.stem if selected.suffix else prefix
-        output_prefixes = {"parsed": prefix, "converted": local}
+        output_prefixes = {"parsed": local, "converted": local}
         if selected.parts[:2] == ("message", "dat"):
-            output_prefixes["resources"] = "messages/" + "/".join(selected.parts[2:])
+            suffixless = selected.parts[2:-1] + (selected.stem,) if selected.suffix else selected.parts[2:]
+            output_prefixes["resources"] = "messages/" + "/".join(suffixless)
         elif selected.parts[0] in ("chara", "pokemon", "field_graphic"):
             output_prefixes["resources"] = "geometry/source_verified/" + local
     used = 0
@@ -140,8 +141,28 @@ def outputs(root: Path, max_output_mb: int, prefix: str = ""):
                                    not (inside == expected or inside.startswith(expected + "/") or
                                         inside.startswith(expected + "."))):
                 continue
-            if path.suffix.lower() not in allow or path.stat().st_size > cap-used:
-                deferred.append({"path": rel, "reason": "UNSUPPORTED_OR_BATCH_LIMIT"})
+            if path.suffix.lower() == ".bin" and layer == "converted":
+                # Publish external buffers only if an actual validated glTF
+                # in the same directory references them.
+                referenced = False
+                for gltf in path.parent.glob("*.gltf"):
+                    try:
+                        check = r4_pipeline.r3.validate_gltf(gltf)
+                        referenced = any(
+                            gltf.parent.joinpath(item["path"]).resolve() == path.resolve()
+                            for item in check["external_files"])
+                    except (ValueError, KeyError, OSError, TypeError):
+                        continue
+                    if referenced:
+                        break
+                if not referenced:
+                    deferred.append({"path": rel, "reason": "UNVERIFIED_GLTF_BUFFER"})
+                    continue
+            elif path.suffix.lower() not in allow:
+                deferred.append({"path": rel, "reason": "UNSUPPORTED_EXTENSION"})
+                continue
+            if path.stat().st_size > cap-used:
+                deferred.append({"path": rel, "reason": "BATCH_SIZE_LIMIT"})
                 continue
             used += path.stat().st_size
             published.append({"path": rel, "bytes": path.stat().st_size,
