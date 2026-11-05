@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task": "appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00#00000",
+  "input_fingerprint": "4318577C19BA7551D2E47BE36910FA95D0A82B5ADBD6707B46BE91540A32ED5A",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00/btl_dan_icon_chara_01_00.bntx",
+      "source_sha256": "5DDE3421F958D092ACDB2A7BF6C15D2276ACB2B4E090C441B7375E9FD600E567",
+      "bytes": 65640,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010000010068000100",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00/btl_dan_icon_chara_01_00.bntx.json"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00/btl_dan_icon_chara_01_00.png",
+      "path": "virtual_converted/appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00/btl_dan_icon_chara_01_00.png",
+      "sha256": "DCCBF1FD012FE1BD6DBD7586DB9A6039A788AFC3AF21B99562B43851D10130DB",
+      "bytes": 6590
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00/_inspection/8ab5ba8acb23eab4.jsonl",
+      "path": "virtual_converted/_parsed/appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00/_inspection/8ab5ba8acb23eab4.jsonl",
+      "sha256": "F7B69372E88AD62F1E8877420347F72DB336C7455FA0E2E72CDDFA5FC9E19D9F",
+      "bytes": 654
+    },
+    {
+      "pipeline_path": "parsed/appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00/btl_dan_icon_chara_01_00.bntx.json",
+      "path": "virtual_converted/_parsed/appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00/btl_dan_icon_chara_01_00.bntx.json",
+      "sha256": "2B44863AEA15A0842A69820012A74151461BEEE3A86073E16986CC9573072F81",
+      "bytes": 315
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "appli/tex/btl_dan_icon_chara/btl_dan_icon_chara_01_00",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
