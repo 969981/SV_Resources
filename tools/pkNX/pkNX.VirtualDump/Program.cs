@@ -17,6 +17,13 @@ internal static class Program
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
+    // JSONL must be ONE valid JSON object per physical line. The pretty printer above
+    // is only for standalone decoded JSON artifacts, never the audit stream.
+    private static readonly JsonSerializerOptions ReportJson = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     private sealed record Result(string Path, string Status, string Sha256, long Bytes,
         string[] Outputs, string? Error = null);
 
@@ -45,7 +52,7 @@ internal static class Program
         Directory.CreateDirectory(System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(args[3]))!);
         using (var sw = new StreamWriter(args[3], false, new UTF8Encoding(false)))
             foreach (var path in paths)
-                sw.WriteLine(JsonSerializer.Serialize(results[path], Json));
+                sw.WriteLine(JsonSerializer.Serialize(results[path], ReportJson));
 
         int failed = results.Values.Count(x => x.Status == "error");
         Console.WriteLine($"pkNX batch: {paths.Length} attempted, {results.Values.Count(x => x.Status == "decoded")} decoded, {failed} errors, {results.Values.Count(x => x.Status == "unsupported")} unsupported.");
