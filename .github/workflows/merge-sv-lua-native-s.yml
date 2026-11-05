@@ -1,0 +1,81 @@
+name: Verify and publish additive SV 4.0.0 Lua S hashes
+
+on:
+  push:
+    paths:
+      - '.github/workflows/merge-sv-lua-native-s.yml'
+      - 'scripts/Merge-SV-Lua-Native-S-Fields.py'
+      - 'tests/test_sv_lua_native_s_merge.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv-lua-native-s-merge-master
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/Merge-SV-Lua-Native-S-Fields.py
+            tests/test_sv_lua_native_s_merge.py
+            tools/PokeDocs/SV/Hashlists/Lua/lua_s_hashes.txt
+            tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0/followup-c-static-s-closures.tsv
+            tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0/phase4
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run pure synthetic tests
+        run: |
+          python -m py_compile scripts/Merge-SV-Lua-Native-S-Fields.py
+          python -m unittest discover -s tests -p 'test_sv_lua_native_s_merge.py' -v
+      - name: Rebuild and verify exactly 12 native S fields
+        run: |
+          python scripts/Merge-SV-Lua-Native-S-Fields.py
+          python scripts/Merge-SV-Lua-Native-S-Fields.py --verify-only
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x = json.loads(Path('tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0/phase4/phase4-s-merge-report.json').read_text())
+          assert x['original_s_rows'] == 6623, x
+          assert x['new_unlisted_native_s_hashes'] == 12, x
+          assert x['new_exact_candidate_names'] == 1, x
+          assert x['merged_s_rows'] == 6635, x
+          assert x['original_s_modified'] is False, x
+          assert x['big_binary_files_accessed'] is False, x
+          print(x)
+          PY
+          git diff --exit-code -- tools/PokeDocs/SV/Hashlists/Lua/lua_s_hashes.txt
+      - name: Commit only additive small S evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse -- tools/PokeDocs-Supplement/SV/Hashlists/Lua/native-4.0.0/phase4
+          if git diff --cached --quiet; then
+            echo 'No new S evidence.'
+            exit 0
+          fi
+          git diff --cached --stat
+          git commit -m 'Publish native SV S fields and GetInt8 FNV candidate as additive supplement'
+          for attempt in 1 2 3; do
+            git fetch origin master
+            git rebase origin/master
+            if git push origin HEAD:refs/heads/master; then
+              echo "Published S supplement without overwriting upstream files."
+              exit 0
+            fi
+          done
+          echo "Non-fast-forward after bounded retries; no force push attempted" >&2
+          exit 1
