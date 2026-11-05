@@ -1,6 +1,6 @@
 # SV 4.0.0 — reproducible unpack / conversion roadmap
 
-Status as of 2026-11-05: **M0 repository scaffolding and planning tools only**. The presence of directories does not mean the large Trinity archive has been extracted.
+Status as of 2026-11-05: **M0 and M1 confirmed; M2 in progress**. Native TRPFD was parsed and indexed (408,641 file records in 23,589 packs). The complete 8,016,551,536-byte TRPFS was restored and SHA-256 checked in a Windows Actions runner. First two packs were actually extracted: 574 / 408,641 virtual files published, no extraction failures. Full M2 is not complete.
 
 ## Source coverage confirmed from the current repository
 
@@ -124,3 +124,14 @@ The [Build SV GFPAK hash cache workflow](https://github.com/969981/SV_Resources/
 ## Five upstream tools pinned under tools/ (2026-11-05)
 
 PokeDocs is an existing complete vendored source tree; four other sources are pinned Git submodules (`.gitmodules`, `tools/upstream.json`). Do not replace or delete the vendored PokeDocs files. After a `git pull`, run `git submodule update --init --recursive`. The existing M2 .NET CLI project references `tools/gftool/GFTool.Core`; Hashlist generation reads `tools/PokeDocs`. See [tools README](../tools/README.md). The owner-uploaded `scripts/deps/oo2core_8_win64.dll` is used as local input and copied to ignored `tools/_local/` when no explicit DLL path is supplied. Its licensing and public repository visibility require separate attention.
+
+## Real extraction evidence — 2026-11-05
+
+- Original `data.trpfd` verified: SHA-256 `AFF6097D82C828019B4B4B417D23765024DAFE5BFE923528899930B3C9534FB6`, size 20,266,112 bytes.
+- Real [TRPFD descriptor export](../Unpack/4.0.0/romfs/arc/data.trpfd/_index/descriptor_summary.json) recorded 408,641 active file references, 23,589 packs, 407,647 matched names and 994 unknown names. [M1 descriptor workflow](https://github.com/969981/SV_Resources/actions/runs/41974987235) succeeded; [commit](https://github.com/969981/SV_Resources/commit/93d51793ebe7b1ac08f21b2615310b8fe8ff01b4).
+- Real [M2 workflow](https://github.com/969981/SV_Resources/actions/runs/41975541037) successfully restored the full `data.trpfs` from 83 7z volumes and revalidated its size/SHA-256, then extracted **2 native TRPAK packs (574 files, 1,711,444 output bytes; 574 OK, 0 FAILED)**. [M2 extracted virtual files](../Unpack/4.0.0/romfs/arc/data.trpfs/virtual/) and [SHA-256 evidence JSONL](../Unpack/4.0.0/romfs/arc/data.trpfs/_index/export.jsonl) were committed in [5f16c4f](https://github.com/969981/SV_Resources/commit/5f16c4f4f9ef660cf86954e81f88c69076e81daa).
+- Remaining before all files are extracted: **23,587 packs, 408,067 active file references** (subject to missing/collision/path-format handling in future batches). One of the 574 exported files had an unknown PokeDocs path and is stored under `virtual/_unknown/2DA826151D9EA7DD.bin`, not given an invented name.
+
+### Continuing via GitHub Actions
+
+Use [SV M2 — extract Trinity virtual files into Unpack](https://github.com/969981/SV_Resources/actions/workflows/sv-m2-virtual-extract.yml), choose *Run workflow*, set `start_pack=2` and `max_packs=200` for the next bounded batch (fewer for a smaller test). Each ephemeral hosted runner must restore the full 83-volume TRPFS and validate SHA-256. This is not an automatic all-23k upload. Preserve source and output hashes, monitor GitHub repository size, rights, and individual Git blob limits. 

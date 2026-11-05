@@ -22,3 +22,9 @@ On initial workflow push, it attempts:
 For later batches, use Actions > 'SV M2 - extract Trinity virtual files into Unpack' > Run workflow, with 'start_pack' and 'max_packs' (1-200). Packs are selected in increasing native TRPFD order. These batches require full source restore on each standard ephemeral hosted runner. Do not overstate completion of all 23,589 native packs based on a small batch.
 
 The generated output index records file hash, path, byte size, SHA-256, pack name, offset, and failure information; failed names remain UNKNOWN. Native original bytes under 4.0.0/1 are not altered. The Git history may become very large if all 408,641 virtual entries are published; use a staged, verified, selective strategy and respect game asset distribution rights.
+
+## Verified first batch
+
+The actual M2 execution on 2026-11-05 succeeded and pushed 574 native virtual files (1,711,444 total bytes) under `virtual/`. They came from TRPFD pack indices 0 and 1. The `_index/export.jsonl` includes 574 `OK` records and no `FAILED` records. One unknown original path is kept by its original hash in `virtual/_unknown/`. [Action run](https://github.com/969981/SV_Resources/actions/runs/41975541037) · [commit](https://github.com/969981/SV_Resources/commit/5f16c4f4f9ef660cf86954e81f88c69076e81daa).
+
+Total native descriptor inventory: 408,641 files in 23,589 packs. **This directory is a partial, verified extraction, not a complete RomFS export.** The next native batch starts at pack 2 in the [M2 workflow](https://github.com/969981/SV_Resources/actions/workflows/sv-m2-virtual-extract.yml).
