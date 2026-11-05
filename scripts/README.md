@@ -107,3 +107,11 @@ py -3 -m unittest discover -s tests -p test_za_lua_hash_recovery.py -v
 ```
 
 研究文档：[ZA Lua Hash 恢复](../docs/research/za-lua-hash-recovery.md)。
+
+## SV 事件引用与 Prefetch 原生路径哈希研究（2026-11-05）
+
+- `Analyze-SV-EventPrefetch-Links.py`：从已核对的 4.0.0 TRPFD 索引逐值验证两个 TRPRE 数组，导出 746 条 TREVT 关系边、NSO 字符串地址和候选 ADRP+ADD 引用。
+- `Investigate-SV-EventPrefetch-Gaps.py`：输出 82 个不在 TRPFD 的值、资源分类、真实 NSO ARM64 调用点反汇编；需 `capstone==5.0.6`。
+- `Recover-SV-Prefetch-Missing.py`：从固定 PokeDocs 原始哈希表恢复 36 条经过 SV 原生 FNV-1a 变体验证的路径，46 条仍 UNKNOWN。
+
+自动验证与按明细提交：`.github/workflows/analyze-sv-event-prefetch-links.yml`；研究记录：[SV 原生事件与哈希证据](../docs/research/sv-event-prefetch-native-links.md)。
