@@ -61,6 +61,27 @@ class ProcessVirtualTests(unittest.TestCase):
             self.assertEqual(conn.execute("SELECT available,extract_status FROM raw_files").fetchone(),
                              (0, "HASH_MISMATCH"))
 
+    def test_output_scoping_prevents_prior_batches_from_consuming_budget(self):
+        current = self.root / "parsed" / self.prefix / "test.tbl.json"
+        current.parent.mkdir(parents=True, exist_ok=True)
+        current.write_text("{}", encoding="utf-8")
+        other = self.root / "parsed" / "another" / "file.json"
+        other.parent.mkdir(parents=True)
+        other.write_text("{}", encoding="utf-8")
+        published, _ = pv.outputs(self.root, 1, self.prefix)
+        self.assertEqual([x["path"] for x in published],
+                         ["parsed/message/dat/Simp_Chinese/common/test.tbl.json"])
+
+    def test_non_utf8_labels_preserve_exact_bytes(self):
+        from scripts.resource_pipeline import r1_text
+        data = ahtb_one("key").replace(b"key\\0", b"m\\x82\\x92\\0")
+        # Rebuild the declared native record length after changing the key.
+        data = b"AHTB" + struct.pack("<I", 1) + struct.pack("<QH", 1, 4) + b"m\\x82\\x92\\0"
+        for parser in (cli.parse_ahtb, r1_text.parse_ahtb):
+            label = parser(data)[0]
+            self.assertEqual(label["label_encoding_status"], "INVALID_UTF8_ESCAPED")
+            self.assertEqual(label["label_raw_hex"], "6D8292")
+
     def test_prefix_and_file_budget_guards(self):
         for bad in ("..", "../out", "/absolute", "message\\dat"):
             with self.assertRaises(ValueError):
