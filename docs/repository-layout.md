@@ -37,3 +37,12 @@ SV_Resources/
 ## Git workflow
 
 `master` tracks `origin/master`. Commit documentation and script changes separately from resource transfer batches. Each transfer batch stages explicit artifact paths, stays around 600 MiB, validates hashes, and pushes only after a successful commit. Never force-push.
+
+## New derived-output layout
+
+- `Unpack/4.0.0/exefs/<original-filename>/` — derived ExeFS outputs.
+- `Unpack/4.0.0/romfs/<original-parent>/<original-filename>/` — per-file derived RomFS outputs.
+- `Unpack/4.0.0/romfs/arc/data.trpfs/virtual/` — preserved Trinity virtual files, with nested results in `parsed/` and `converted/`.
+- `tools/upstream.json` — pinned tools, with ignored `tools/_external/` source checkouts.
+
+See [unpack-roadmap.md](unpack-roadmap.md). Data under `Unpack/` is derived and does **not** replace immutable versioned original storage. Stage substantial data selectively with a manifest and maintain the existing single-artifact Git size rules.

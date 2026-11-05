@@ -23,3 +23,7 @@ This repository may contain game-derived material. Do not add decryption keys, c
 ## RomFS transfer
 
 See [the Violet 4.0.0 RomFS transfer guide](docs/romfs-transfer.md) for the manifest, resumable workflow, verification, and restoration steps.
+
+## New: SV 4.0.0 unpack pipeline
+
+See [Unpack/](Unpack/README.md), [milestone roadmap](docs/unpack-roadmap.md), and [upstream tools](tools/README.md). `scripts/Plan-SV-Unpack.py` creates a safe per-source-file task inventory; it does not unpack actual game archives. Use existing verification and restore scripts before running gftool against local, hash-validated files.

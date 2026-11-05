@@ -32,3 +32,15 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Check-RepoLayo
 ```
 
 Use `-NoPush` to complete local verification and commits while a remote is unavailable; a later normal run retries pending pushes. Use `-MaxFilesPerRun N` for a bounded checkpoint run. Parameterize `-ArchiveThresholdBytes`, `-VolumeSize`, and `-BatchTargetBytes` for synthetic transfer tests.
+
+## SV extraction planning and external tool source
+
+- `Plan-SV-Unpack.py`: generate `Unpack/4.0.0/_index/unpack_plan.json` and, optionally, empty per-file output directories from the exact existing manifest. It **does not extract any resources**. Use `--dry-run` first, then `--create-directories`; `--force` is required to overwrite a prior plan.
+- `Sync-SV-Tools.ps1`: clone pinned PokeDocs/gftool/pkNX source into ignored `tools/_external`; `-IncludeLegacy` includes SCVI_Extract. This does not build or run tools.
+
+```powershell
+python .\scripts\Plan-SV-Unpack.py --repo . --dry-run
+python .\scripts\Plan-SV-Unpack.py --repo . --create-directories
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Sync-SV-Tools.ps1
+python -m unittest discover -s tests -p test_plan_sv_unpack.py
+```

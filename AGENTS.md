@@ -25,3 +25,10 @@ Maintain a reproducible, evidence-based Pokémon Scarlet/Violet resource archive
 
 ## Before making changes
 Read `README.md`, `docs/README.md`, `docs/repository-layout.md`, and `docs/resource-provenance.md`; inspect `git status`, current branch, remotes and relevant manifests. Write a small plan, execute, verify and summarize modified paths and commit hashes.
+
+## Generated Unpack pipeline (2026-11-05)
+- `Unpack/4.0.0/exefs/<source-filename>/` and `Unpack/4.0.0/romfs/<source-parent>/<source-filename>/` are for **derived** outputs only. Preserve original path, basename and extension. This does not change the immutable `4.0.0/{0,1}` contract.
+- `Unpack/4.0.0/romfs/arc/data.trpfs/virtual/` preserves the Trinity virtual relative paths. Nested parsing/converted results go under `parsed/<virtualpath>/<filename>/` and `converted/<virtualpath>/<filename>/`.
+- Restore 7z volumes to a hash-checked temporary directory outside the repository before processing. No extracted/converted data is considered validated without provenance. Do not silently replace `PLANNED` with `CONFIRMED`.
+- Upstream source checkouts belong to ignored `tools/_external/`; pin and attribute them in `tools/upstream.json`; do not vendor or redistribute dependencies, Oodle DLLs, ROM keys, or executables.
+- For a new converter, add tests with synthetic fixture bytes and document tool version, source SHA-256, byte offsets, file count and failure cases.

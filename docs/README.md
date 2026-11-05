@@ -15,3 +15,9 @@ For future work create `docs/research/<topic>.md` (e.g. `trinity-trpfd-trpfs.md`
 ## RomFS transfer
 
 - [Violet 4.0.0 RomFS transfer, verification, and recovery](romfs-transfer.md)
+
+## Unpack and conversion
+
+- [SV 4.0.0 pipeline and milestones](unpack-roadmap.md)
+- [Derived output directory contract](../Unpack/README.md)
+- [Upstream tools and pinned source revisions](../tools/README.md)
