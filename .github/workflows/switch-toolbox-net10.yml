@@ -45,6 +45,19 @@ jobs:
         shell: pwsh
         run: |
           dotnet publish tools/Switch-Toolbox/Toolbox/Toolbox.csproj -c Release -r win-x64 --self-contained false -p:Platform="Any CPU" -o artifact/switch-toolbox
+      - name: Validate published Win-x64 layout and compiled format plugin
+        shell: pwsh
+        run: |
+          $root = "artifact/switch-toolbox"
+          foreach ($name in @("Toolbox.exe", "Toolbox.dll", "Toolbox.runtimeconfig.json", "Lib/Plugins/FirstPlugin.Plg.dll")) {
+            if (-not (Test-Path (Join-Path $root $name) -PathType Leaf)) {
+              throw "Missing published file: $name"
+            }
+          }
+          $compiled = (Get-FileHash (Join-Path $root "FirstPlugin.Plg.dll") -Algorithm SHA256).Hash
+          $staged = (Get-FileHash (Join-Path $root "Lib/Plugins/FirstPlugin.Plg.dll") -Algorithm SHA256).Hash
+          if ($compiled -ne $staged) { throw "Plugin was not staged from current .NET 10 build" }
+          "Published format plugin verified: $staged"
       - uses: actions/upload-artifact@v4
         if: success()
         with:

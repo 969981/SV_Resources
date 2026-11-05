@@ -42,3 +42,6 @@ A legacy `COMReference Include="AxWMPLib"` invoked ResolveComReference, which th
 
 ## Fifth CI iteration: legacy TreeNode menu API
 The .NET 10 compilation found three old TreeNode.ContextMenu sites (BNSH, SHARCFB, BXFNT). They now create ContextMenuStrip and ToolStripMenuItem with the original event handlers. WFO1000 is also suppressed for the File_Format_Library build pending designer serialization verification.
+
+## Plugin distribution layout check
+The existing `PluginLoader.LoadPlugins()` scans `Lib/Plugins/*.Plg.dll` at runtime. Merely compiling the `File_Format_Library` project and copying its managed DLL into the app's root is insufficient. The application project's `AfterTargets=Publish` target now stages the freshly built `FirstPlugin.Plg.dll` in `Lib/Plugins`. CI validates the staged DLL's SHA-256 equals the newly compiled root assembly. Loading the plugin and exercising its format handlers must still be verified at runtime.

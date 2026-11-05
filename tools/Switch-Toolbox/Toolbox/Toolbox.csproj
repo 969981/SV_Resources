@@ -732,4 +732,12 @@
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="10.0.0" />
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="10.0.14" />
   </ItemGroup>
+  <!-- The plugin loader discovers *.Plg.dll under Lib/Plugins. A project-reference
+       DLL in the publish root alone is not discoverable. Stage the freshly built plugin. -->
+  <Target Name="StageMigratedFormatPlugin" AfterTargets="Publish">
+    <Error Condition="!Exists('$(PublishDir)FirstPlugin.Plg.dll')" Text="The .NET 10 File_Format_Library plugin is missing from the publish root." />
+    <MakeDir Directories="$(PublishDir)Lib\Plugins" />
+    <Copy SourceFiles="$(PublishDir)FirstPlugin.Plg.dll"
+          DestinationFiles="$(PublishDir)Lib\Plugins\FirstPlugin.Plg.dll" />
+  </Target>
 </Project>
