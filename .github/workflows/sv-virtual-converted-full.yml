@@ -197,8 +197,26 @@ jobs:
           $state = Get-Content "$env:RUNNER_TEMP/sv-virtual-converted-status.json" -Raw | ConvertFrom-Json
           Write-Host "Total=$($state.tracked_native_files), inspected=$($state.parsed_inspection_records), pending=$($state.remaining_files), partial=$($state.partial_groups), errors=$($state.error_groups)"
           if ($state.remaining_groups -gt 0) {
-            gh workflow run sv-virtual-converted-full.yml --ref master -f "max_files=$env:MAX_FILES" -f "group_files=$env:GROUP_FILES" -f "workers=$env:SV_WORKERS" -f "max_tasks=$env:SV_MAX_TASKS"
-            if ($LASTEXITCODE -ne 0) { throw 'Automatic continuation dispatch failed' }
+            # GitHub's dispatch endpoint can transiently return 502/503/504.
+            # The serialized workflow group makes a possible duplicate event safe:
+            # every next run re-plans from the committed checkpoint.
+            $queued = $false
+            for ($attempt = 1; $attempt -le 8; $attempt++) {
+              Write-Host "Queue next checkpoint batch: attempt $attempt/8"
+              gh workflow run sv-virtual-converted-full.yml --ref master -f "max_files=$env:MAX_FILES" -f "group_files=$env:GROUP_FILES" -f "workers=$env:SV_WORKERS" -f "max_tasks=$env:SV_MAX_TASKS"
+              if ($LASTEXITCODE -eq 0) {
+                $queued = $true
+                break
+              }
+              if ($attempt -lt 8) {
+                $delay = [int][Math]::Min(15 * [Math]::Pow(2, $attempt - 1), 120)
+                Write-Warning "Dispatch request failed, will retry in $delay seconds."
+                Start-Sleep -Seconds $delay
+              }
+            }
+            if (-not $queued) {
+              throw "Automatic continuation dispatch failed after 8 attempts. Verified outputs and the checkpoint have already been committed; re-run this workflow to resume safely."
+            }
           } else {
             Write-Host 'Tracked native sweep attempted; see PARTIAL / ERROR / INSPECTED_UNPARSED counts. No unsupported format is marked converted.'
           }
