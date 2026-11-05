@@ -39,3 +39,6 @@ The next build exposed three legacy generic helpers using BinaryFormatter. Micro
 
 ## Fourth CI iteration: Windows Media Player COM reference
 A legacy `COMReference Include="AxWMPLib"` invoked ResolveComReference, which the .NET SDK's MSBuild cannot run. This migration references the repository's existing AxInterop.WMPLib and Interop.WMPLib generated wrappers. COM activation and WMP audio playback still require Windows runtime testing.
+
+## Fifth CI iteration: legacy TreeNode menu API
+The .NET 10 compilation found three old TreeNode.ContextMenu sites (BNSH, SHARCFB, BXFNT). They now create ContextMenuStrip and ToolStripMenuItem with the original event handlers. WFO1000 is also suppressed for the File_Format_Library build pending designer serialization verification.
