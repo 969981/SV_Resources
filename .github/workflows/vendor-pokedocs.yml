@@ -1,0 +1,156 @@
+name: Vendor complete PokeDocs and generate SV/ZA GFPAK caches
+
+on:
+  push:
+    paths:
+      - '.github/workflows/vendor-pokedocs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vendor-pokedocs-master
+  cancel-in-progress: false
+
+jobs:
+  vendor-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout SV_Resources (only tooling)
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          sparse-checkout: |
+            tools
+            scripts
+            .github
+          sparse-checkout-cone-mode: true
+          persist-credentials: true
+
+      - name: Check out exact complete PokeDocs revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none --no-checkout https://github.com/pkZukan/PokeDocs.git "${RUNNER_TEMP}/PokeDocs"
+          git -C "${RUNNER_TEMP}/PokeDocs" checkout --detach 242039cbcd9de3f5a424de5b68ae581f7bed2b23
+          test "$(git -C "${RUNNER_TEMP}/PokeDocs" rev-parse HEAD)" = "242039cbcd9de3f5a424de5b68ae581f7bed2b23"
+          git -C "${RUNNER_TEMP}/PokeDocs" ls-files | wc -l
+
+      - name: Copy the actual complete source tree into tools/PokeDocs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools/PokeDocs
+          rsync --archive --delete --exclude='.git/' "${RUNNER_TEMP}/PokeDocs/" tools/PokeDocs/
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, subprocess, os
+          source = Path(os.environ["RUNNER_TEMP"]) / "PokeDocs"
+          dest = Path("tools/PokeDocs")
+          paths = subprocess.check_output(["git", "-C", str(source), "ls-files", "-z"]).split(b"\0")
+          paths = [os.fsdecode(p) for p in paths if p]
+          actual = set(str(p.relative_to(dest)) for p in dest.rglob("*") if p.is_file())
+          assert set(paths) == actual, f"Mirror file-set mismatch: missing={len(set(paths)-actual)}, extra={len(actual-set(paths))}"
+          total = 0
+          for rel in paths:
+              orig, copy = source / rel, dest / rel
+              assert orig.is_file() and copy.is_file(), rel
+              a = hashlib.sha256(orig.read_bytes()).digest()
+              b = hashlib.sha256(copy.read_bytes()).digest()
+              assert a == b, f"SHA-256 mismatch: {rel}"
+              total += copy.stat().st_size
+          print(f"Exact checked copy: {len(paths)} files / {total:,} bytes")
+          PY
+
+      - name: Generate independent modern gftool caches (SV and ZA)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for game in SV ZA; do
+            mkdir -p "tools/HashCaches/${game}"
+            python scripts/Build-SV-GFPAKHashCache.py \
+              --hashlist "tools/PokeDocs/${game}/Hashlists/FileSystem/hashes_inside_fd.txt" \
+              --hashlist "tools/PokeDocs/${game}/Hashlists/FileSystem/hashes_inside_trpak.txt" \
+              --output "tools/HashCaches/${game}/GFPAKHashCache.bin" \
+              --report "tools/HashCaches/${game}/hashcache-report.json" \
+              --overwrite
+          done
+
+      - name: Validate binary structure and write provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json, hashlib, struct
+          results={}
+          for game in ("SV","ZA"):
+              base=Path("tools/HashCaches") / game
+              data=base / "GFPAKHashCache.bin"
+              report=json.loads((base/"hashcache-report.json").read_text(encoding="utf-8"))
+              actual_hash=hashlib.sha256(data.read_bytes()).hexdigest()
+              with data.open("rb") as f:
+                  count=struct.unpack("<Q",f.read(8))[0]
+                  for _ in range(count):
+                      assert len(f.read(8))==8
+                      length=0
+                      shift=0
+                      while True:
+                          b=f.read(1)
+                          assert b
+                          n=b[0]
+                          length|=(n&127)<<shift
+                          if not n&128: break
+                          shift+=7
+                          assert shift<35
+                      assert len(f.read(length))==length
+                  assert not f.read(1), "Unexpected trailing bytes"
+              assert count==report["entries"] and count>0
+              assert actual_hash==report["sha256"]
+              assert data.stat().st_size<100_000_000, "GitHub forbids individual files >100 MB"
+              results[game]={"hash_count":count,"cache_bytes":data.stat().st_size,"sha256":actual_hash}
+          provenance={
+              "source_repository":"https://github.com/pkZukan/PokeDocs",
+              "source_commit":"242039cbcd9de3f5a424de5b68ae581f7bed2b23",
+              "mirror_dir":"tools/PokeDocs",
+              "cache_format":"pkZukan/gftool GFTool.Core/Cache/GFPakHashCache.cs",
+              "games":results,
+          }
+          (Path("tools/HashCaches")/"provenance.json").write_text(json.dumps(provenance,indent=2)+"\n",encoding="utf-8")
+          print(json.dumps(provenance,indent=2))
+          PY
+          cat > tools/HashCaches/README.md <<'EOF'
+          # Local PokeDocs mirror and gftool cache files
+
+          - **Full PokeDocs source snapshot**: [../PokeDocs](../PokeDocs) (not a submodule or link).
+          - **Pinned source revision**: `242039cbcd9de3f5a424de5b68ae581f7bed2b23`.
+          - **SV cache**: [SV/GFPAKHashCache.bin](SV/GFPAKHashCache.bin).
+          - **ZA cache**: [ZA/GFPAKHashCache.bin](ZA/GFPAKHashCache.bin).
+          - Hash inputs: each game's `Hashlists/FileSystem/hashes_inside_fd.txt` and `hashes_inside_trpak.txt`.
+          - Format: **modern pkZukan/gftool** (little-endian UInt64 count; UInt64 hash + .NET UTF-8 BinaryWriter string).
+          - Each output has a `hashcache-report.json`; checksums and source revision are in [provenance.json](provenance.json).
+          - Binary caches are not compatible with the older Switch-Toolbox cache format.
+
+          To rebuild locally, run `python scripts/Build-SV-GFPAKHashCache.py --hashlist tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_fd.txt --hashlist tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_trpak.txt --output tools/HashCaches/SV/GFPAKHashCache.bin --overwrite` from the repository root (replace SV with ZA as needed).
+          EOF
+
+      - name: Commit full source snapshot and both real cache binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A tools/PokeDocs
+          git add -f tools/HashCaches/SV/GFPAKHashCache.bin tools/HashCaches/ZA/GFPAKHashCache.bin
+          git add -f tools/HashCaches/SV/hashcache-report.json tools/HashCaches/ZA/hashcache-report.json
+          git add tools/HashCaches/README.md tools/HashCaches/provenance.json
+          git diff --cached --stat
+          if git diff --cached --quiet; then
+            echo 'No vendor changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Vendor full pinned PokeDocs and publish SV/ZA GFPAK caches'
+          git push origin HEAD:refs/heads/master
