@@ -230,11 +230,16 @@ def _track(f: FB, t: int, kind: int, size: int):
         raise NativeError('Animation frame/value vector length mismatch')
     frame_values = [f.get(pos + i * frame_size, 'H' if frame_size == 2 else 'B')
                     for i in range(n)]
-    if frame_values != sorted(set(frame_values)):
-        raise NativeError('Animation frame indices are not strictly increasing')
+    duplicate_steps = sum(a == b for a, b in zip(frame_values, frame_values[1:]))
+    reverse_steps = sum(a > b for a, b in zip(frame_values, frame_values[1:]))
+    # Native frame indices may be segment-local/packed. Preserve their order.
+    order = ('NON_MONOTONIC' if reverse_steps else
+             'REPEATED_FRAMES' if duplicate_steps else 'STRICTLY_INCREASING')
     return {'type': 'FRAMED16' if kind == 3 else 'FRAMED8',
             'keyframes': n, 'first_frame': frame_values[0] if n else None,
-            'last_frame': frame_values[-1] if n else None}
+            'last_frame': frame_values[-1] if n else None,
+            'frame_order': order, 'duplicate_steps': duplicate_steps,
+            'reverse_steps': reverse_steps}
 
 
 def parse_tranm(f: FB):
