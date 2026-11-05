@@ -4,14 +4,20 @@ on:
   push:
     paths:
       - 'scripts/resource_pipeline/r34.py'
+      - 'scripts/resource_pipeline/native_sv.py'
       - 'scripts/resource_pipeline/schema.sql'
       - 'tests/test_sv_r34_pipeline.py'
+      - 'tests/test_sv_r34_native.py'
+      - 'tests/test_sv_native.py'
       - '.github/workflows/verify-sv-r34-pipeline.yml'
   pull_request:
     paths:
       - 'scripts/resource_pipeline/r34.py'
+      - 'scripts/resource_pipeline/native_sv.py'
       - 'scripts/resource_pipeline/schema.sql'
       - 'tests/test_sv_r34_pipeline.py'
+      - 'tests/test_sv_r34_native.py'
+      - 'tests/test_sv_native.py'
       - '.github/workflows/verify-sv-r34-pipeline.yml'
   workflow_dispatch:
     inputs:
@@ -22,6 +28,7 @@ on:
         options:
           - synthetic
           - native-plan
+          - native-audit
           - native-run
           - native-retry
       max_tasks:
@@ -53,12 +60,16 @@ jobs:
           sparse-checkout: |
             scripts/resource_pipeline
             tests/test_sv_r34_pipeline.py
+            tests/test_sv_native.py
+            tests/test_sv_r34_native.py
           sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Test resumable fingerprints, GLB validation and review gate
-        run: python -m unittest discover -s tests -p 'test_sv_r34_pipeline.py' -v
+        run: |
+          python -m unittest discover -s tests -p 'test_sv_native.py' -v
+          python -m unittest discover -s tests -p 'test_sv_r34*.py' -v
 
   native-task:
     if: github.event_name == 'workflow_dispatch' && inputs.mode != 'synthetic'
@@ -71,6 +82,8 @@ jobs:
         with:
           sparse-checkout: |
             scripts/resource_pipeline
+            tools/PokeDocs/SV/Flatbuffers/model
+            tools/PokeDocs/SV/Flatbuffers/animation
           sparse-checkout-cone-mode: false
       - name: Plan available native resources without converting or publishing
         env:
@@ -102,6 +115,10 @@ jobs:
               python scripts/resource_pipeline/r34.py plan "${args[@]}" > r34-plan.txt
               echo 'Native plan generated locally; no asset uploaded.'
               wc -l r34-plan.txt
+              ;;
+            native-audit)
+              python scripts/resource_pipeline/r34.py native-audit "${args[@]}"
+              echo 'Native evidence stays in parsed/ on the private runner.'
               ;;
             native-run|native-retry)
               if [[ -z "$SV_R3_CONVERTER" || -z "$SV_R3_CONVERTER_VERSION" ]]; then
