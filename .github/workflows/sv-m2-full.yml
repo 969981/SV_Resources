@@ -108,8 +108,19 @@ jobs:
           else {
             git fetch origin $env:PUBLISH_BRANCH
             if ($LASTEXITCODE -ne 0) { throw 'Unable to fetch existing M2 branch' }
-            git switch -c $env:PUBLISH_BRANCH "origin/$env:PUBLISH_BRANCH"
-            if ($LASTEXITCODE -ne 0) { throw 'Unable to switch to existing M2 branch' }
+            $current = git branch --show-current
+            if ($current -ne $env:PUBLISH_BRANCH) {
+              git show-ref --verify --quiet "refs/heads/$env:PUBLISH_BRANCH"
+              if ($LASTEXITCODE -eq 0) {
+                git switch $env:PUBLISH_BRANCH
+              }
+              else {
+                git switch -c $env:PUBLISH_BRANCH "origin/$env:PUBLISH_BRANCH"
+              }
+              if ($LASTEXITCODE -ne 0) { throw 'Unable to switch to existing M2 branch' }
+            }
+            git merge --ff-only "origin/$env:PUBLISH_BRANCH"
+            if ($LASTEXITCODE -ne 0) { throw 'Isolated M2 branch diverged; manual reconciliation required' }
           }
           Write-Host "M2 dedicated output branch = $env:PUBLISH_BRANCH"
 
