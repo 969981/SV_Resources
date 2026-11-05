@@ -26,10 +26,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Checkout pinned PokeDocs submodule
+      - name: Verify vendored PokeDocs source tree
         run: |
-          git submodule update --init -- tools/PokeDocs
-          test "$(git -C tools/PokeDocs rev-parse HEAD)" = '242039cbcd9de3f5a424de5b68ae581f7bed2b23'
+          test "$(git rev-parse HEAD:tools/PokeDocs)" = '96ea0ac5b5f7389e79578a7dcd783d6e48d8f66f'
+          test -s tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_fd.txt
+          test -s tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_trpak.txt
       - name: Build binary GFPAKHashCache
         run: |
           mkdir -p dist

@@ -57,6 +57,6 @@ See exact commands in [M1/M2 execution guide](../docs/unpack-roadmap.md#m1m2-loc
 
 ## Five upstream tools now live in tools/ (Git submodules)
 
-`Sync-SV-Tools.ps1` now initializes/verifies `tools/gftool`, `tools/PokeDocs`, `tools/pkNX`, `tools/Switch-Toolbox`, and `tools/SCVI_Extract`. The old `tools/_external` location is obsolete. Run `git submodule update --init --recursive` after pulling to get complete source; use `-VerifyOnly` to inspect pinned SHAs without downloads. `-IncludeLegacy` is accepted for backward compatibility but the SCVI_Extract submodule is always included.
+`Sync-SV-Tools.ps1` now initializes/verifies four submodules (`tools/gftool`, `tools/pkNX`, `tools/Switch-Toolbox`, `tools/SCVI_Extract`) and verifies the existing complete vendored `tools/PokeDocs` tree. The old `tools/_external` location is obsolete. Run `git submodule update --init --recursive` after pulling to get complete source for those four; vendored PokeDocs is already present; use `-VerifyOnly` to inspect pinned SHAs without downloads. `-IncludeLegacy` is accepted for backward compatibility but the SCVI_Extract submodule is always included.
 
 `Prepare-SV-Trinity.ps1` can automatically take the **existing** `scripts/deps/oo2core_8_win64.dll` as runtime input if `-OodleDllPath` is omitted. It stages a copy under ignored `tools/_local/` while leaving `scripts/deps` unchanged.

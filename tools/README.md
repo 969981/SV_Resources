@@ -1,16 +1,16 @@
 # SV tools — pinned Git submodules
 
-All five upstream projects are imported under `tools/` as **Git submodules**. A normal GitHub tree displays each as a pinned commit; use `git clone --recurse-submodules` or `git submodule update --init --recursive` to get complete source locally. This is **not** copying/vendoring source code into this repository.
+All five upstream projects are available under `tools/`. **PokeDocs is a full vendored upstream source snapshot** (already committed before this integration), while gftool, pkNX, Switch-Toolbox and SCVI_Extract are **pinned Git submodules**. Use `git clone --recurse-submodules` or `git submodule update --init --recursive` to get those four full sources locally. Vendored PokeDocs requires no additional checkout.
 
 | Local path | Upstream | Purpose | Priority |
 | --- | --- | --- | --- |
 | [gftool](gftool) | [pkZukan/gftool](https://github.com/pkZukan/gftool) | Trinity TRPFS/TRPFD, GFTool.Core, models | P0 |
-| [PokeDocs](PokeDocs) | [pkZukan/PokeDocs](https://github.com/pkZukan/PokeDocs) | SV Hashlists and FlatBuffers schemas | P0 |
+| [PokeDocs](PokeDocs) | [pkZukan/PokeDocs](https://github.com/pkZukan/PokeDocs) | **Full vendored source**; SV Hashlists and FlatBuffers schemas | P0 |
 | [pkNX](pkNX) | [kwsch/pkNX](https://github.com/kwsch/pkNX) | SV 4.0.0 data **dump**, not editor | P1 |
 | [Switch-Toolbox](Switch-Toolbox) | [KillzXGaming/Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox) | Inspect/convert supported Nintendo Switch formats; verify compatibility per file | P1 |
 | [SCVI_Extract](SCVI_Extract) | [psthrn42/SCVI_Extract](https://github.com/psthrn42/SCVI_Extract) | Legacy Python TRPFS extractor / comparison | P2 |
 
-Pinned SHA, source URL, branch and role: [upstream.json](upstream.json). **Do not auto-merge or pull upstream into master** without tests; update a submodule pointer through a reviewed commit. Respect each project's own license and third-party dependencies.
+Pinned SHA, source URL, branch, import method and role: [upstream.json](upstream.json). For PokeDocs, the tracked tree is exactly the upstream tree hash `96ea0ac5...`, preserving the already imported content. **Do not auto-merge or pull upstream into master** without tests; update a submodule pointer through a reviewed commit. Respect each project's own license and third-party dependencies.
 
 ## Retrieve all sources (Windows)
 
@@ -20,11 +20,11 @@ cd SV_Resources
 # Or for an existing checkout:
 git submodule sync --recursive
 git submodule update --init --recursive
-# Wrapper with pinned SHA validation (same five tools):
+# Wrapper with pin validation (four submodules and full PokeDocs tree):
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Sync-SV-Tools.ps1
 ```
 
-If using sparse checkout, ensure `.gitmodules` and `tools/` are present. gftool has its own nested `NxMiddleware` submodule, so use `--recursive` for the full source. Switch-Toolbox has a substantial history; submodules keep the parent repo small while preserving independent source history.
+If using sparse checkout, ensure `.gitmodules` and `tools/` are present. The vendored `tools/PokeDocs` tree already includes its complete source files. gftool has its own nested `NxMiddleware` submodule, so use `--recursive` for the full source. Switch-Toolbox has a substantial history; submodules keep the parent repo small while preserving independent source history.
 
 ## Existing SV.TrinityDump batch extractor
 
@@ -40,7 +40,7 @@ If using sparse checkout, ensure `.gitmodules` and `tools/` are present. gftool 
 
 ## Reproducibility and CI
 
-- `tools/upstream.json` is checked against `.gitmodules` and the gitlinks in `tools/` by synthetic test.
+- `tools/upstream.json` is checked against `.gitmodules`, the four gitlinks and the vendored PokeDocs tree by synthetic test.
 - CI compiles `SV.TrinityDump` using the actual pinned gftool submodule; no Oodle or ROM files required.
 - CI can build GFPAKHashCache from pinned PokeDocs (downloadable Actions artifact).
 - Actual 8 GiB `data.trpfs` extraction remains a local Windows validation step; no source extraction is claimed from submodule initialization alone.

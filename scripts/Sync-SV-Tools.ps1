@@ -1,4 +1,4 @@
-# Initialize all five pinned git submodules under tools/.
+# Verify PokeDocs vendored source and initialize four pinned Git submodules under tools/.
 # Preserves local changes: git submodule update stops rather than overwriting conflicts.
 [CmdletBinding()]
 param(
@@ -12,7 +12,7 @@ $RepositoryRoot = [IO.Path]::GetFullPath($RepositoryRoot)
 $manifestPath = Join-Path $RepositoryRoot 'tools\upstream.json'
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { throw "Missing: $manifestPath" }
 $config = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if ($config.sourceTracking -ne 'git-submodule') { throw 'Unexpected tool manifest version' }
+if ($config.sourceTracking -ne 'mixed-vendor-and-submodules') { throw 'Unexpected tool manifest version' }
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw 'Git executable not found' }
 
 if (-not $VerifyOnly) {
@@ -27,6 +27,19 @@ foreach ($item in $config.tools) {
         throw "Unsafe submodule path in manifest: $path"
     }
     $dest = Join-Path $RepositoryRoot $path.Replace('/', '\')
+    if ($item.importMethod -eq 'vendor-tree') {
+        $hashlist = Join-Path $dest 'SV\Hashlists\FileSystem\hashes_inside_fd.txt'
+        if (-not (Test-Path -LiteralPath $hashlist -PathType Leaf)) {
+            throw "Missing vendored PokeDocs hashlist: $hashlist"
+        }
+        $tree = (& git -C $RepositoryRoot rev-parse 'HEAD:tools/PokeDocs').Trim()
+        if ($LASTEXITCODE -ne 0 -or $tree -ne [string]$item.sourceTreeSha) {
+            throw "Vendored PokeDocs tree mismatch: expected $($item.sourceTreeSha) actual=$tree"
+        }
+        Write-Host "$path  vendored tree $tree"
+        continue
+    }
+    if ($item.importMethod -ne 'git-submodule') { throw "Unsupported import method for $path" }
     if (-not $VerifyOnly) {
         & git -C $RepositoryRoot submodule update --init --recursive -- $path
         if ($LASTEXITCODE -ne 0) { throw "Unable to initialize $path" }
@@ -40,4 +53,4 @@ foreach ($item in $config.tools) {
     }
     Write-Host "$path  $actual"
 }
-Write-Host 'All five tool sources initialized and verified. No game data extracted or tool executables run.'
+Write-Host 'All five tool source locations verified (four submodules + full PokeDocs snapshot). No game data extracted or tool executables run.'

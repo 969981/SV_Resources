@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "checkedOn": "2026-11-05",
-  "sourceTracking": "git-submodule",
+  "sourceTracking": "mixed-vendor-and-submodules",
   "tools": [
     {
       "name": "gftool",
@@ -11,7 +11,8 @@
       "upstreamBranch": "main",
       "role": "P0 Trinity TRPFS/TRPFD extraction, models and GFTool.Core",
       "optional": false,
-      "submodules": true
+      "submodules": true,
+      "importMethod": "git-submodule"
     },
     {
       "name": "PokeDocs",
@@ -21,7 +22,9 @@
       "upstreamBranch": "main",
       "role": "P0 SV Hashlists + FlatBuffers schemas",
       "optional": false,
-      "submodules": false
+      "submodules": false,
+      "importMethod": "vendor-tree",
+      "sourceTreeSha": "96ea0ac5b5f7389e79578a7dcd783d6e48d8f66f"
     },
     {
       "name": "pkNX",
@@ -31,7 +34,8 @@
       "upstreamBranch": "master",
       "role": "P1 SV 4.0.0 data dump / cross-check",
       "optional": false,
-      "submodules": false
+      "submodules": false,
+      "importMethod": "git-submodule"
     },
     {
       "name": "Switch-Toolbox",
@@ -41,7 +45,8 @@
       "upstreamBranch": "master",
       "role": "P1 inspection and conversion of supported Switch formats",
       "optional": false,
-      "submodules": false
+      "submodules": false,
+      "importMethod": "git-submodule"
     },
     {
       "name": "SCVI_Extract",
@@ -51,7 +56,8 @@
       "upstreamBranch": "master",
       "role": "P2 legacy Python TRPFS extraction comparison",
       "optional": false,
-      "submodules": false
+      "submodules": false,
+      "importMethod": "git-submodule"
     }
   ]
 }

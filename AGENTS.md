@@ -34,6 +34,6 @@ Read `README.md`, `docs/README.md`, `docs/repository-layout.md`, and `docs/resou
 - For a new converter, add tests with synthetic fixture bytes and document tool version, source SHA-256, byte offsets, file count and failure cases.
 
 ## Imported upstream Git submodules
-- All five external tools are tracked as **Git submodules** inside `tools/`, with pin SHA and upstream metadata in `tools/upstream.json` and URLs in `.gitmodules`. When working on them, run `git submodule update --init --recursive` instead of maintaining duplicate `tools/_external` clones.
+- Four external tools (gftool, pkNX, Switch-Toolbox, SCVI_Extract) are tracked as **Git submodules**, and PokeDocs remains a **complete vendored upstream tree** inside `tools/`. Preserve that existing source. Pinned refs/trees are in `tools/upstream.json` and Git submodule URLs are in `.gitmodules`. When working on them, run `git submodule update --init --recursive` instead of maintaining duplicate `tools/_external` clones.
 - Do not commit generated build outputs, automatic upstream branch updates, or unrelated content. Preserve pinned SHAs unless a reproducible update is explicitly requested and compatibility tests pass.
 - `SV.TrinityDump` links to `tools/gftool/GFTool.Core`. `Prepare-SV-Trinity.ps1` consumes hashes from `tools/PokeDocs/` and may detect the already tracked `scripts/deps/oo2core_8_win64.dll`. Review licensing before public redistribution of a proprietary DLL; no extra copy is committed by the script.

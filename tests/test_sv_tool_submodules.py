@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class TestToolSubmodules(unittest.TestCase):
     def test_pinned_sources(self):
         meta = json.loads((ROOT / "tools/upstream.json").read_text(encoding="utf-8"))
-        self.assertEqual(meta["sourceTracking"], "git-submodule")
+        self.assertEqual(meta["sourceTracking"], "mixed-vendor-and-submodules")
         tools = meta["tools"]
         self.assertEqual(set(x["name"] for x in tools),
                          {"gftool", "PokeDocs", "pkNX", "Switch-Toolbox", "SCVI_Extract"})
@@ -25,10 +25,15 @@ class TestToolSubmodules(unittest.TestCase):
         for item in tools:
             path = item["path"]
             section = f'submodule "{path}"'
-            self.assertTrue(config.has_section(section), path)
-            self.assertEqual(config[section]["path"], path)
-            self.assertEqual(config[section]["url"], item["repository"])
-            self.assertIn(f"160000 commit {item['ref']}\t{path}", recursive.stdout)
+            if item["importMethod"] == "vendor-tree":
+                self.assertFalse(config.has_section(section), path)
+                self.assertIn(f"040000 tree {item['sourceTreeSha']}\t{path}", recursive.stdout)
+                self.assertTrue((ROOT / path / "SV/Hashlists/FileSystem/hashes_inside_fd.txt").is_file())
+            else:
+                self.assertTrue(config.has_section(section), path)
+                self.assertEqual(config[section]["path"], path)
+                self.assertEqual(config[section]["url"], item["repository"])
+                self.assertIn(f"160000 commit {item['ref']}\t{path}", recursive.stdout)
             self.assertEqual(len(item["ref"]), 40)
 
     def test_project_uses_imported_gftool(self):

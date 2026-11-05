@@ -30,4 +30,4 @@ See [Unpack/](Unpack/README.md), [milestone roadmap](docs/unpack-roadmap.md), an
 
 ## Pinned external tool sources
 
-Five complete upstream tool sources can be checked out under [tools/](tools/README.md) via Git submodules: gftool, PokeDocs, pkNX, Switch-Toolbox and SCVI_Extract. After `git pull`, run `git submodule update --init --recursive` (or `scripts/Sync-SV-Tools.ps1`). The SV.TrinityDump .NET wrapper links to `tools/gftool`; do not use obsolete `tools/_external` paths. The already tracked `scripts/deps/oo2core_8_win64.dll` is not automatically redistributed or modified by this integration.
+Five upstream projects are available under [tools/](tools/README.md): full vendored PokeDocs source and four pinned Git submodules (gftool, pkNX, Switch-Toolbox and SCVI_Extract). After `git pull`, run `git submodule update --init --recursive` (or `scripts/Sync-SV-Tools.ps1`). The SV.TrinityDump .NET wrapper links to `tools/gftool`; do not use obsolete `tools/_external` paths. The already tracked `scripts/deps/oo2core_8_win64.dll` is not automatically redistributed or modified by this integration.
