@@ -2,6 +2,7 @@
 
 Entry points:
 - [[Tools/R0-R1-CLI]]
+- [[Tools/Secondary-Batches]] — virtual/ 全量与分批二次加工（gftool / PNG / DAT/TBL）
 - [[Tools/R3-R4-Automation]]
 - [[Formats/BNTX]]
 - [[Formats/Message-DAT-TBL]]
