@@ -42,7 +42,11 @@ namespace FirstPlugin
        
         }
 
+#if NETFRAMEWORK
         bool IsPlaying = false;
+#endif
+#if NETFRAMEWORK
+        // Legacy ActiveX event hook; .NET 10 editor does not host the COM control.
         private void axWindowsMediaPlayer1_PlayStateChange(object sender, AxWMPLib._WMPOCXEvents_PlayStateChangeEvent e)
         {
             if (!IsPlaying)
@@ -54,5 +58,6 @@ namespace FirstPlugin
                 IsPlaying = false;
             }
         }
+#endif
     }
 }
