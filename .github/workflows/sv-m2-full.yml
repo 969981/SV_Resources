@@ -21,8 +21,8 @@ permissions:
   actions: write
 
 concurrency:
-  group: sv-trinity-full-4-0-0
-  cancel-in-progress: true
+  group: sv-trinity-full-4-0-0-isolated-branch
+  cancel-in-progress: false
 
 jobs:
   full-extraction:
@@ -33,6 +33,11 @@ jobs:
       START_PACK: ${{ github.event.inputs.start_pack || '2' }}
       BATCH_PACKS: ${{ github.event.inputs.batch_packs || '100' }}
     steps:
+      - name: Verify this job is on the isolated full-extraction branch
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_NAME -ne 'm2-full-extract') { throw 'Refuse full extraction outside m2-full-extract branch' }
+
       - name: Free-space and batch limit preflight
         shell: pwsh
         run: |
@@ -129,7 +134,7 @@ jobs:
           Write-Host "M2 next pack = $($p.nextPack) / $($p.totalPacks); state = $($p.state)"
           if ($p.nextPack -lt $p.totalPacks) {
             if ($p.state -ne 'PARTIAL') { throw 'Cannot auto-continue non-partial checkpoint' }
-            gh workflow run sv-m2-full.yml --ref master -f "start_pack=$($p.nextPack)" -f "batch_packs=$env:BATCH_PACKS"
+            gh workflow run sv-m2-full.yml --ref m2-full-extract -f "start_pack=$($p.nextPack)" -f "batch_packs=$env:BATCH_PACKS"
             if ($LASTEXITCODE -ne 0) { throw 'Unable to dispatch next verified pack window; run manually from the recorded checkpoint' }
             Write-Host "Next GitHub Actions run dispatched for native pack $($p.nextPack)."
           }

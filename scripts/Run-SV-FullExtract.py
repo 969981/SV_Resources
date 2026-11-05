@@ -104,11 +104,11 @@ def git_commit_and_push(repo: Path, relative_paths: list[str], message: str, dry
     if dry_run:
         print(f"DRY RUN: would stage {len(relative_paths)} paths, commit & push: {message}")
         return
-    # Other workflows may write unrelated docs while this runner extracts data.
+    # This isolated extraction branch is dedicated to native output checkpoints.
     # Fast-forward ONLY if remote is a direct descendant of our last pushed commit;
-    # never rewrite, reset, or auto-rebase user's concurrent work.
-    call(["git", "fetch", "origin", "master"], cwd=repo)
-    call(["git", "merge", "--ff-only", "origin/master"], cwd=repo)
+    # never rewrite, reset, or auto-rebase unrelated master work.
+    call(["git", "fetch", "origin", "m2-full-extract"], cwd=repo)
+    call(["git", "merge", "--ff-only", "origin/m2-full-extract"], cwd=repo)
     with tempfile.NamedTemporaryFile(prefix="sv-m2-stage-", suffix=".txt", delete=False) as f:
         path_file = Path(f.name)
         f.write(b"".join(p.replace("\\", "/").encode("utf-8") + b"\0"
@@ -127,7 +127,7 @@ def git_commit_and_push(repo: Path, relative_paths: list[str], message: str, dry
             raise RuntimeError("git diff --cached failed")
         call(["git", "commit", "-m", message], cwd=repo)
         # No force, merge, reset, or rebase. Reject unexpected concurrent master edits.
-        call(["git", "push", "origin", "HEAD:master"], cwd=repo)
+        call(["git", "push", "origin", "HEAD:refs/heads/m2-full-extract"], cwd=repo)
     finally:
         path_file.unlink(missing_ok=True)
 
