@@ -44,7 +44,7 @@ def sv_hash(path: str) -> int:
 
 独立证据：sv_hash("event/trevt/bin/event.trevt") = 0x95E2585FAEC1683F。main+0x11BE11C..0x11BE128 恰好构造这个常数；main+0x11BE130..134 取出相同路径字符串，再把哈希与路径地址放入栈参数，main+0x11BE14C 调用 main+0x11C2FCC。这证明原生路径哈希与实参关系，**不证明被调用方的完整文件解析与事件条件执行**。
 
-另一路：main+0x1701C90..134 使用 data:/%s.trpre 字符串模板，附近存在 main+0x343C6C0、main+0x1701EA8、main+0xCC5C18 等调用。具体文件读取、哈希消费者和加载行为仍需闭合。
+另一路：main+0x1701C90..0x1701C94 使用 data:/%s.trpre 字符串模板，附近存在 main+0x343C6C0、main+0x1701EA8、main+0xCC5C18 等调用。具体文件读取、哈希消费者和加载行为仍需闭合。
 
 ## 3. TREVT 条件引用图
 
