@@ -184,9 +184,19 @@ def parse_ahtb(data: bytes):
         pos += length
         if name[-1] != 0:
             raise ValueError("AHTB label is not NUL-terminated")
-        label = name[:-1].decode("utf-8", errors="strict")
-        out.append({"ordinal": ordinal, "hash64": f"{hash64:016X}", "label": label,
-                    "text": None, "text_status": "NOT_DECODED"})
+        raw = name[:-1]
+        try:
+            label = raw.decode("utf-8", errors="strict")
+            encoding_status = "UTF8"
+        except UnicodeDecodeError:
+            label = raw.decode("utf-8", errors="backslashreplace")
+            encoding_status = "INVALID_UTF8_ESCAPED"
+        record = {"ordinal": ordinal, "hash64": f"{hash64:016X}", "label": label,
+                  "label_encoding_status": encoding_status,
+                  "text": None, "text_status": "NOT_DECODED"}
+        if encoding_status != "UTF8":
+            record["label_raw_hex"] = raw.hex().upper()
+        out.append(record)
     if pos != len(data):
         raise ValueError(f"AHTB trailing bytes: {len(data) - pos}")
     return out
@@ -308,9 +318,12 @@ def convert(root, conn, kind, limit, converter=None, force=False):
                 import io
                 s = io.StringIO()
                 w = csv.writer(s, lineterminator="\n")
-                w.writerow(["ordinal", "hash64", "label", "text_status"])
+                w.writerow(["ordinal", "hash64", "label", "text_status",
+                            "label_encoding_status", "label_raw_hex"])
                 for record in records:
-                    w.writerow([record["ordinal"], record["hash64"], record["label"], "NOT_DECODED"])
+                    w.writerow([record["ordinal"], record["hash64"], record["label"],
+                                "NOT_DECODED", record["label_encoding_status"],
+                                record.get("label_raw_hex", "")])
                 write_atomic(csvout, s.getvalue().encode("utf-8-sig"))
                 add_asset(conn, rid, "AHTB_LABELS_CSV", csvout, root, data, "CONFIRMED")
                 conn.executemany("""INSERT INTO parsed_records(raw_file_id,record_key,ordinal,
@@ -440,6 +453,8 @@ def decode_messages(root, conn, limit=0, force=False):
                 "entries":[{"ordinal":x["ordinal"],"label":x["label"],
                             "hash64":x["hash64"],"text":x["text"],
                             "flags":x["flags"],"text_status":x["text_status"],
+                            "label_encoding_status":x["label_encoding_status"],
+                            "label_raw_hex":x.get("label_raw_hex"),
                             "tokens":x["tokens"]} for x in content["entries"]]
             }
             compact_path = root / "resources/messages" / content["language_raw"] / (
@@ -453,11 +468,12 @@ def decode_messages(root, conn, limit=0, force=False):
             output = io.StringIO()
             writer = csv.writer(output,lineterminator="\n")
             writer.writerow(["ordinal","label","hash64","language","flags",
-                             "text","text_status","tokens_json"])
+                             "text","text_status","tokens_json","label_encoding_status","label_raw_hex"])
             for x in content["entries"]:
                 writer.writerow([x["ordinal"],x["label"],x["hash64"],
                                  content["language"],x["flags"],x["text"],
-                                 x["text_status"],json.dumps(x["tokens"],ensure_ascii=False)])
+                                 x["text_status"],json.dumps(x["tokens"],ensure_ascii=False),
+                                 x["label_encoding_status"],x.get("label_raw_hex","")])
             write_atomic(csv_path, output.getvalue().encode("utf-8-sig"))
             add_asset(conn, rid, "LOCALIZED_MESSAGES_CSV", csv_path, root,
                       dat_bytes, "CONFIRMED")
