@@ -49,6 +49,29 @@ namespace Toolbox
             var domain = AppDomain.CurrentDomain;
             domain.AssemblyResolve += LoadAssembly;
 
+#if NET10_0_OR_GREATER
+            // CI/runtime acceptance mode: validate the deployed plugin tree
+            // without requiring a desktop or opening a game asset.
+            if (args.Any(a => string.Equals(a, "--verify-runtime", StringComparison.OrdinalIgnoreCase)))
+            {
+                var plugins = PluginLoader.LoadPlugins();
+                if (plugins.Count == 0)
+                    throw new InvalidOperationException("No .NET 10 plugins were loaded from Lib/Plugins.");
+
+                var verification = new List<string>();
+                foreach (var plugin in plugins)
+                {
+                    plugin.Load();
+                    Type[] types = plugin.Types;
+                    if (types == null || types.Length == 0)
+                        throw new InvalidOperationException("Plugin has no registered resource types: " + plugin.Name);
+                    verification.Add(plugin.Name + ": " + types.Length + " resource types");
+                }
+                File.WriteAllLines(Path.Combine(Runtime.ExecutableDir, "net10-runtime-smoke.txt"), verification);
+                return;
+            }
+#endif
+
             bool LoadedDX = TryLoadDirectXTex();
             if (!LoadedDX && !Toolbox.Library.Runtime.UseDirectXTexDecoder)
             {

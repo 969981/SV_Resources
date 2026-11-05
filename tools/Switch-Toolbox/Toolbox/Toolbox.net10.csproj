@@ -635,4 +635,28 @@
     <ProjectReference Include="..\Switch_Toolbox_Library\Toolbox_Library.net10.csproj" />
     <ProjectReference Include="..\Updater\Updater.net10.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Preserve legacy plug-in layouts and native runtime dependencies; do not
+         ship old copies of the two assemblies compiled by this NET10 solution. -->
+    <Content Include="Lib\**\*" Exclude="@(Content);Lib\FirstPlugin.Plg.dll;Lib\Switch_Toolbox.Library.dll;Lib\Plugins\FirstPlugin.Plg.dll;Lib\Plugins\Switch_Toolbox.Library.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <Target Name="StageNet10Plugin" AfterTargets="Build">
+    <MakeDir Directories="$(TargetDir)Lib\Plugins" />
+    <Error Condition="!Exists('$(TargetDir)FirstPlugin.Plg.dll')"
+           Text="The compiled .NET 10 FirstPlugin.Plg.dll is missing from the app output." />
+    <Copy SourceFiles="$(TargetDir)FirstPlugin.Plg.dll"
+          DestinationFiles="$(TargetDir)Lib\Plugins\FirstPlugin.Plg.dll"
+          SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="StageNet10PluginForPublish" AfterTargets="Publish">
+    <MakeDir Directories="$(PublishDir)Lib\Plugins" />
+    <Error Condition="!Exists('$(PublishDir)FirstPlugin.Plg.dll')"
+           Text="The compiled .NET 10 FirstPlugin.Plg.dll is missing from the publish directory." />
+    <Copy SourceFiles="$(PublishDir)FirstPlugin.Plg.dll"
+          DestinationFiles="$(PublishDir)Lib\Plugins\FirstPlugin.Plg.dll"
+          SkipUnchangedFiles="true" />
+  </Target>
 </Project>
