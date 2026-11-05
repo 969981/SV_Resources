@@ -50,6 +50,31 @@ def write(repo, path, content):
     print("WROTE", path, flush=True)
 
 
+def fnv1a64(text):
+    """FNV-1a 64 with offset and prime observed at main+0x1701C28..0x1701C68."""
+    h = 0xCBF29CE484222325
+    for value in text.encode("utf-8"):
+        h = ((h ^ value) * 0x100000001B3) & 0xFFFFFFFFFFFFFFFF
+    return h
+
+
+def hash_normalizations(path):
+    raw = path
+    fwd = raw.replace("\\", "/")
+    back = raw.replace("/", "\\")
+    return {
+        "raw": raw, "lower": raw.lower(),
+        "slash": fwd, "slash_lower": fwd.lower(),
+        "backslash": back, "backslash_lower": back.lower(),
+        "data_colon_slash": "data:/" + fwd,
+        "data_colon_slash_lower": "data:/" + fwd.lower(),
+        "arc_prefix": "@arc\\" + back,
+        "arc_prefix_lower": "@arc\\" + back.lower(),
+        "leading_slash": "/" + fwd,
+        "leading_slash_lower": "/" + fwd.lower(),
+    }
+
+
 def prefetch_gaps(repo, mod):
     arr0, arr1 = mod.load_hash_csv(repo, 0), mod.load_hash_csv(repo, 1)
     map0, map1 = {h: i for i, h in enumerate(arr0)}, {h: i for i, h in enumerate(arr1)}
@@ -80,11 +105,19 @@ def prefetch_gaps(repo, mod):
     directory = Counter()
     membership = Counter()
     no_path = 0
+    fnv_test_counts = Counter()
+    fnv_examples = {}
     for row in matched:
         path = row["trpfd_virtual_path"].replace("\\", "/")
         if not path:
             no_path += 1
             continue
+        for normalization, value in hash_normalizations(row["trpfd_virtual_path"]).items():
+            if fnv1a64(value) == int(row["hash64_hex"], 16):
+                fnv_test_counts[normalization] += 1
+                fnv_examples.setdefault(normalization, {
+                    "name": row["trpfd_virtual_path"], "hash": row["hash64_hex"],
+                })
         filename = path.rsplit("/", 1)[-1]
         suffix = ("." + filename.rsplit(".", 1)[-1]).lower() if "." in filename else "[none]"
         ext[suffix] += 1
@@ -99,6 +132,9 @@ def prefetch_gaps(repo, mod):
         "topExtensions": ext.most_common(40),
         "topDirectories": directory.most_common(40),
         "membershipMaskCounts": dict(sorted(membership.items())),
+        "matchingPathSamples": [r["trpfd_virtual_path"] for r in matched[:12]],
+        "nativeFnv64CandidateMatchesByNameTransform": dict(sorted(fnv_test_counts.items())),
+        "nativeFnv64CandidateMatchExamples": fnv_examples,
         "note": "Classification is only of exact-matching resource names; an extension does not prove a runtime load.",
     }
     write(repo, PREFETCH / "_index/prefetch_match_categories.json", json_text(stats))
@@ -197,7 +233,8 @@ def main():
     stats = prefetch_gaps(repo, mod)
     print("GAP_SUMMARY " + json.dumps({
         k: stats[k] for k in ("unmatchedDistinct", "unmatchedBoth", "unmatchedOnly0",
-                              "unmatchedOnly1", "topExtensions", "topDirectories")
+                              "unmatchedOnly1", "topExtensions", "topDirectories",
+                              "nativeFnv64CandidateMatchesByNameTransform", "matchingPathSamples")
     }, ensure_ascii=False), flush=True)
     if not args.skip_native_disassembly:
         callsite_windows(repo, mod)
