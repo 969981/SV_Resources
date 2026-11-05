@@ -18,7 +18,11 @@ import subprocess
 import tempfile
 from datetime import datetime, timezone
 
-VERSION = 'r3r4.1'
+VERSION = 'r3r4.2'
+try:
+    from . import native_sv
+except ImportError:
+    import native_sv
 ROOT = 'Unpack/4.0.0/romfs/arc/data.trpfs'
 EXTENSIONS = {'.trmdl': 'model', '.tranm': 'animation', '.trscn': 'scene'}
 COMPANIONS = {'.trmsh', '.trmbf', '.trskl', '.tracm', '.trmdl', '.tranm', '.trscn'}
@@ -213,12 +217,89 @@ def glb_check(path, profile):
             'scenes': len(scene_defs), 'notes': 'Does not prove fidelity to native materials, UV, LOD, rig or animation'}
 
 
+def native_dependency_paths(root, path, known, by_directory):
+    """Follow native string references, never infer dependencies solely from a stem.
+
+    If a local synthetic or unknown layout cannot be parsed, preserve the old
+    sibling set and record a parser warning; conversion will not become verified.
+    """
+    extra = set()
+    warnings = []
+    try:
+        model = None
+        if path.endswith('.trmdl'):
+            model = path
+        elif path.endswith('.tranm'):
+            parent = safe_relative(path).parent
+            candidates = [p for p in by_directory.get(parent, ())
+                          if safe_relative(p).suffix.lower() == '.trmdl']
+            if len(candidates) == 1:
+                model = candidates[0]
+            else:
+                warnings.append('TRANM model binding ambiguous or unavailable')
+        if model:
+            extra.add(model)
+            info = native_sv.parse_file(root, model)['data']
+            direct = list(info['mesh_references']) + list(info['material_references'])
+            if info['skeleton_reference']:
+                direct.append(info['skeleton_reference'])
+            for name in direct:
+                ref = native_sv.resolve_ref(root, model, name)
+                if ref['status'] == 'FOUND_EXACT' and ref['virtual_path'] in known:
+                    virtual = ref['virtual_path']
+                    extra.add(virtual)
+                    if virtual.endswith('.trmsh'):
+                        mesh_info = native_sv.parse_file(root, virtual)['data']
+                        if mesh_info['buffer_reference']:
+                            bf = native_sv.resolve_ref(root, virtual, mesh_info['buffer_reference'])
+                            if bf['status'] == 'FOUND_EXACT' and bf['virtual_path'] in known:
+                                extra.add(bf['virtual_path'])
+                            else:
+                                warnings.append('Unresolved mesh vertex/index buffer: ' + str(bf))
+                else:
+                    warnings.append('Unresolved native model dependency: ' + str(ref))
+    except (OSError, ValueError) as exc:
+        warnings.append('Native dependency parser unavailable: ' + str(exc)[:200])
+    return extra, warnings
+
+
+def native_audit(root, task):
+    """Audit native references as evidence, never as rendered geometry."""
+    if task['kind'] == 'model':
+        result = native_sv.audit_bundle(root, task['path'])
+    elif task['kind'] == 'animation':
+        parent = safe_relative(task['path']).parent
+        candidates = [x['path'] for x in task['spec']['inputs']
+                      if safe_relative(x['path']).parent == parent and x['path'].endswith('.trmdl')]
+        if len(candidates) == 1:
+            result = native_sv.audit_bundle(root, candidates[0], task['path'])
+        else:
+            result = {'status': 'NATIVE_ANIMATION_ONLY_UNBOUND',
+                      'animation': native_sv.parse_file(root, task['path']),
+                      'note': 'No unique model reference; skeleton mapping unproven'}
+    else:
+        raise ValueError('Native adapter does not support scene files yet')
+    return {'fingerprint': task['fingerprint'], 'source': task['path'],
+            'input_sha256': task['spec']['inputs'], 'evidence': result,
+            'status': 'NATIVE_STRUCTURE_ONLY'}
+
+
 def load_tasks(conn, root, schema_file, converter_version, converter, shard_index=0, shard_count=1):
     if shard_count < 1 or not 0 <= shard_index < shard_count:
         raise ValueError('Invalid shard configuration')
     schema_sha = sha256(schema_file)
+    # The implementation and native .fbs schemas are part of the rebuild key.
+    schema_root = Path(__file__).resolve().parents[2] / 'tools/PokeDocs/SV/Flatbuffers'
+    schema_names = ('model/trmdl.fbs', 'model/trmsh.fbs', 'model/trmbf.fbs',
+                    'model/trmtr.fbs', 'model/trskl.fbs', 'animation/tranm.fbs')
+    native_schema = {name: sha256(schema_root / name)
+                     for name in schema_names if (schema_root / name).is_file()}
+    native_parser_sha = sha256(Path(native_sv.__file__))
     rows = conn.execute("SELECT id,virtual_path,sha256_recorded FROM raw_files WHERE available=1 AND extract_status='OK' ORDER BY virtual_path").fetchall()
     known = {p: (rid, h) for rid, p, h in rows}
+    by_directory = {}
+    for p in known:
+        by_directory.setdefault(safe_relative(p).parent, []).append(p)
     for rid, path, manifest_sha in rows:
         name = safe_relative(path)
         ext = name.suffix.lower()
@@ -228,9 +309,11 @@ def load_tasks(conn, root, schema_file, converter_version, converter, shard_inde
             continue
         # Only siblings with identical stems are grouped. Names are evidence, not proof
         # of an in-game object relationship; converters must verify the pairing.
-        related = sorted(p for p in known if safe_relative(p).parent == name.parent
-                         and safe_relative(p).stem == name.stem
+        related = sorted(p for p in by_directory.get(name.parent, ())
+                         if safe_relative(p).stem == name.stem
                          and safe_relative(p).suffix.lower() in COMPANIONS)
+        native_paths, native_warnings = native_dependency_paths(root, path, known, by_directory)
+        related = sorted(set(related) | native_paths | {path})
         inputs = []
         for p in related:
             source = asset(root, 'virtual', p)
@@ -243,6 +326,9 @@ def load_tasks(conn, root, schema_file, converter_version, converter, shard_inde
             inputs.append({'path': p, 'sha256': actual})
         spec = {'source_version': 'SV_4.0.0', 'primary': path, 'inputs': inputs,
                 'parser_version': VERSION, 'schema_sha256': schema_sha,
+                'native_parser_sha256': native_parser_sha,
+                'native_schema_sha256': native_schema,
+                'native_evidence_warnings': native_warnings,
                 'conversion_params': {'profile': EXTENSIONS[ext],
                                       'converter_template': converter or '',
                                       'converter_version': converter_version}}
@@ -355,7 +441,7 @@ def promote(conn, root, task, review_path):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('plan', 'run', 'retry-failed', 'status', 'promote', 'verify-glb'))
+    parser.add_argument('action', choices=('plan', 'run', 'retry-failed', 'native-audit', 'status', 'promote', 'verify-glb'))
     parser.add_argument('--root', type=Path, default=Path(ROOT))
     parser.add_argument('--db', type=Path)
     parser.add_argument('--schema', type=Path, default=Path(__file__).with_name('schema.sql'))
@@ -402,6 +488,21 @@ def main(argv=None):
             elif args.action == 'promote':
                 print(str(promote(conn, root, task, args.review)))
                 counts['OK'] += 1
+            elif args.action == 'native-audit':
+                try:
+                    report = native_audit(root, task)
+                    location = asset(root, 'parsed', 'r3/' + task['path'] + '.native-evidence.json')
+                    atomic_json(location, report)
+                    add_record(conn, task, 'R3_NATIVE_EVIDENCE', location.relative_to(root).as_posix(),
+                               sha256(location), 'CANDIDATE')
+                    upsert_job(conn, task, 'PENDING', 'Native structure verified; GLB visual fidelity not tested')
+                    conn.commit()
+                    counts['PENDING'] += 1
+                except (OSError, ValueError) as exc:
+                    conn.rollback()
+                    upsert_job(conn, task, 'FAILED', 'Native audit: ' + str(exc)[:1800])
+                    conn.commit()
+                    counts['FAILED'] += 1
             else:
                 result = run_one(conn, root, task, args.converter,
                                  args.action == 'retry-failed')
