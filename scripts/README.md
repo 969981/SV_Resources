@@ -90,3 +90,9 @@ GitHub Actions：[recover-sv-lua-hashes.yml](../.github/workflows/recover-sv-lua
 ## Event TREVT / Prefetch TRPRE native unpack
 
 `Unpack-SV-EventPrefetch.py` parses the three Violet 4.0.0 files directly as FlatBuffers, with exact source SHA-256 checks, CSV/JSON output, and provenance. Verify published results: `py -3 scripts/Unpack-SV-EventPrefetch.py --repo . --verify-only`. Regenerate: add `--overwrite`. See [TREVT/TRPRE research](../docs/research/trevt-prefetch-format.md).
+
+## SV Lua C/F 旧版源码索引
+
+`Index-SV-Lua-CallGraph.py` 通过固定提交 `Martmists-GH/SV-Script-RE@1f843bd...` 扫描 `decompiled/` 与原始 `split/`，构建 C→F 定义、未知 C 类上下文和未知 F 所有者表。**该旧版语料不是 4.0.0 原生代码**，不覆写原始 PokeDocs 或此前 48 条候选。
+
+`python scripts/Index-SV-Lua-CallGraph.py --external <checkout>`；使用 `--verify-only` 检查可重现性。自动化：[`index-sv-lua-context.yml`](../.github/workflows/index-sv-lua-context.yml)，文档：[C/F 证据链](../docs/research/sv-lua-hash-context.md)。
