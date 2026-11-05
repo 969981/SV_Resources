@@ -13,8 +13,8 @@
 从仓库根目录重建：
 
 ```powershell
-py -3 .\scripts\Recover-SV-Lua-Hashes.py --min-recovered 32
-py -3 .\scripts\Recover-SV-Lua-Hashes.py --verify-only --min-recovered 32
+py -3 .\scripts\Recover-SV-Lua-Hashes.py --min-recovered 48
+py -3 .\scripts\Recover-SV-Lua-Hashes.py --verify-only --min-recovered 48
 ```
 
 注意：`HASH_EXACT_CANDIDATE` 只说明名称与 Hash 的数学一致性和命名规律证据；不等于已证明具体 Lua 调用或游戏 4.0.0 运行逻辑。
