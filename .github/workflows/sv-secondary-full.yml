@@ -16,11 +16,15 @@ on:
         description: Maximum source files per run (400..2400)
         type: string
         required: true
-        default: '1800'
+        default: '2400'
       workers:
         description: Concurrent isolated worker processes (1..4)
         type: string
-        default: '3'
+        default: '4'
+      max_tasks:
+        description: Independent native folders to process per batch (1..20)
+        type: string
+        default: '12'
   schedule:
     - cron: '17 20 * * *'
 
@@ -39,8 +43,9 @@ jobs:
     timeout-minutes: 330
     env:
       GH_TOKEN: ${{ github.token }}
-      MAX_FILES: ${{ github.event.inputs.max_files || '1800' }}
-      SV_WORKERS: ${{ github.event.inputs.workers || '3' }}
+      MAX_FILES: ${{ github.event.inputs.max_files || '2400' }}
+      SV_WORKERS: ${{ github.event.inputs.workers || '4' }}
+      SV_MAX_TASKS: ${{ github.event.inputs.max_tasks || '12' }}
       SV_ROOT: Unpack/4.0.0/romfs/arc/data.trpfs
     steps:
       - uses: actions/checkout@v4
@@ -71,6 +76,7 @@ jobs:
         run: |
           if ([int]$env:MAX_FILES -lt 400 -or [int]$env:MAX_FILES -gt 2400) { throw 'Bad max_files' }
           if ([int]$env:SV_WORKERS -lt 1 -or [int]$env:SV_WORKERS -gt 4) { throw 'Bad workers' }
+          if ([int]$env:SV_MAX_TASKS -lt 1 -or [int]$env:SV_MAX_TASKS -gt 20) { throw 'Bad max_tasks' }
           git config core.longpaths true
           python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/process_virtual.py scripts/resource_pipeline/parallel_secondary.py
           if ($LASTEXITCODE -ne 0) { throw 'Python compile failed' }
@@ -84,7 +90,7 @@ jobs:
         id: plan
         shell: pwsh
         run: |
-          python scripts/resource_pipeline/full_secondary.py --repo . --group-files 1200 --max-tasks 6 --max-files $env:MAX_FILES select
+          python scripts/resource_pipeline/full_secondary.py --repo . --group-files 1200 --max-tasks $env:SV_MAX_TASKS --max-files $env:MAX_FILES select
           if ($LASTEXITCODE -ne 0) { throw 'Tree-wide native planning failed' }
           $p = Get-Content "$env:SV_ROOT/_index/secondary/full-selection.json" -Raw | ConvertFrom-Json
           "count=$($p.selected_count)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
@@ -118,10 +124,11 @@ jobs:
           Write-Host "Pinned converters: BNTX=$($plan.needs_bntx), TRMDL=$($plan.needs_models)"
       - name: Process entire chosen batch using format validators
         if: steps.plan.outputs.count != '0'
+        continue-on-error: true  # Keep successful outputs and record failed groups for bounded retry.
         shell: pwsh
         run: |
           $plan = Get-Content "$env:SV_ROOT/_index/secondary/full-selection.json" -Raw | ConvertFrom-Json
-          $arguments = @("scripts/resource_pipeline/parallel_secondary.py","--repo",".","--workers",$env:SV_WORKERS,"--max-output-mb","120")
+          $arguments = @("scripts/resource_pipeline/parallel_secondary.py","--repo",".","--workers",$env:SV_WORKERS,"--max-output-mb","90")
           if ($plan.needs_bntx) { $arguments += @("--png-converter","ultimate_tex_cli {input} {output}") }
           if ($plan.needs_models) {
             $exe = Join-Path $PWD "tools/SV.R3.ModelExport/bin/Release/net10.0-windows/SV.R3.ModelExport.exe"
@@ -170,9 +177,9 @@ jobs:
           python scripts/resource_pipeline/full_secondary.py --repo . status > "$env:RUNNER_TEMP/full-status.json"
           if ($LASTEXITCODE -ne 0) { throw 'Cannot validate checkpoint status' }
           $state = Get-Content "$env:RUNNER_TEMP/full-status.json" -Raw | ConvertFrom-Json
-          Write-Host "Native total=$($state.tracked_native_files), pending=$($state.remaining_files), unresolved groups=$($state.unresolved_groups)"
+          Write-Host "Native total=$($state.tracked_native_files), pending=$($state.remaining_files), partial groups=$($state.partial_groups), error groups=$($state.error_groups), exhausted errors=$($state.exhausted_error_groups)"
           if ($state.remaining_groups -gt 0) {
-            gh workflow run sv-secondary-full.yml --ref master -f "max_files=$env:MAX_FILES" -f "workers=$env:SV_WORKERS"
+            gh workflow run sv-secondary-full.yml --ref master -f "max_files=$env:MAX_FILES" -f "workers=$env:SV_WORKERS" -f "max_tasks=$env:SV_MAX_TASKS"
             if ($LASTEXITCODE -ne 0) { throw 'Dispatch next batch failed; checkpoint was retained' }
           }
       - name: Upload progress evidence
