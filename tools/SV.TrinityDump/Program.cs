@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -15,7 +16,11 @@ internal static class Program
 {
     private static int Main(string[] args)
     {
-        try { return Execute(ParseArgs(args)); }
+        try
+        {
+            var options = ParseArgs(args);
+            return options.ContainsKey("--descriptor-only") ? ExportDescriptorIndex(options) : Execute(options);
+        }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"FATAL: {ex}");
@@ -29,7 +34,7 @@ internal static class Program
         for (int i = 0; i < args.Length; i++)
         {
             if (!args[i].StartsWith("--", StringComparison.Ordinal)) throw new ArgumentException("Expected --option: " + args[i]);
-            if (args[i] is "--dry-run" or "--include-unused")
+            if (args[i] is "--dry-run" or "--include-unused" or "--descriptor-only")
             {
                 options[args[i]] = "true";
                 continue;
@@ -66,6 +71,97 @@ internal static class Program
                            p.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0))
             return null;
         return string.Join('/', parts);
+    }
+
+
+    // M1: Read native data.trpfd directly; no data.trpfs restoration required.
+    private static int ExportDescriptorIndex(Dictionary<string, string> args)
+    {
+        string romfs = Path.GetFullPath(args["--romfs"]);
+        string descriptorPath = Path.Combine(romfs, "arc", "data.trpfd");
+        string cachePath = Path.GetFullPath(args["--cache"]);
+        string output = Path.GetFullPath(args["--output"]);
+        if (!File.Exists(descriptorPath)) throw new FileNotFoundException("Missing data.trpfd", descriptorPath);
+        if (!File.Exists(cachePath)) throw new FileNotFoundException("Missing GFPAKHashCache.bin", cachePath);
+        if (output.StartsWith(romfs.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar,
+                              StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("The index output must not modify the original RomFS.");
+        var descriptor = FlatBufferConverter.DeserializeFrom<CustomFileDescriptor>(descriptorPath);
+        if (descriptor is null) throw new InvalidDataException("TRPFD cannot be decoded");
+        if (descriptor.FileHashes.Length != descriptor.FileInfo.Length ||
+            descriptor.PackNames.Length != descriptor.PackInfo.Length)
+            throw new InvalidDataException("TRPFD hash/pack information length mismatch.");
+        if (descriptor.FileHashes.Length == 0 || descriptor.PackNames.Length == 0)
+            throw new InvalidDataException("Empty TRPFD: refusing to publish misleading index.");
+
+        GFPakHashCache.Open(cachePath);
+        Directory.CreateDirectory(Path.Combine(output, "_index"));
+        string hashListName = Path.Combine(output, "_index", "file_index.tsv.gz");
+        string packListName = Path.Combine(output, "_index", "pack_index.tsv");
+        var counts = new long[descriptor.PackNames.Length];
+        long known = 0;
+        // GZip output is deterministic; use a checked temporary path, then atomic move.
+        var tempFile = hashListName + ".sv-writing";
+        using (var compressed = new GZipStream(new FileStream(tempFile, FileMode.CreateNew, FileAccess.Write),
+                                               CompressionLevel.Optimal))
+        using (var writer = new StreamWriter(compressed, new UTF8Encoding(false)))
+        {
+            writer.WriteLine("hash\tpack_index\tpack_name\tvirtual_path");
+            for (int i = 0; i < descriptor.FileHashes.Length; i++)
+            {
+                ulong hash = descriptor.FileHashes[i];
+                int index = checked((int)descriptor.FileInfo[i].PackIndex);
+                if (index < 0 || index >= descriptor.PackNames.Length)
+                    throw new InvalidDataException($"Pack index out of bounds at file record {i}: {index}");
+                counts[index]++;
+                var name = GFPakHashCache.GetName(hash);
+                if (name is not null) known++;
+                writer.Write(hash.ToString("X16"));
+                writer.Write('\t');
+                writer.Write(index);
+                writer.Write('\t');
+                writer.Write(descriptor.PackNames[index].Replace('\t', ' '));
+                writer.Write('\t');
+                writer.WriteLine(name?.Replace('\t', ' ').Replace('\n', ' ').Replace('\r', ' ') ?? "");
+            }
+        }
+        File.Move(tempFile, hashListName, true);
+        var packs = new List<object>();
+        using (var writer = new StreamWriter(packListName, false, new UTF8Encoding(false)))
+        {
+            writer.WriteLine("pack_index\tpack_name\treferenced_files\tpacked_bytes\treported_file_count");
+            for (int i = 0; i < descriptor.PackNames.Length; i++)
+            {
+                var p = descriptor.PackInfo[i];
+                writer.WriteLine($"{i}\t{descriptor.PackNames[i].Replace('\t', ' ')}\t{counts[i]}\t{p.FileSize}\t{p.FileCount}");
+            }
+        }
+        var unused = descriptor.UnusedHashes?.Length ?? 0;
+        var summary = new
+        {
+            gameVersion = "4.0.0",
+            sourcePath = "4.0.0/1/arc/data.trpfd",
+            sourceBytes = new FileInfo(descriptorPath).Length,
+            sourceSha256 = Sha256File(descriptorPath),
+            cacheSha256 = Sha256File(cachePath),
+            hashCacheEntries = GFPakHashCache.Count,
+            descriptorFiles = descriptor.FileHashes.Length,
+            namedFiles = known,
+            unnamedFiles = descriptor.FileHashes.Length - known,
+            packCount = descriptor.PackNames.Length,
+            unreferencedFiles = unused,
+            compressedFileIndex = "_index/file_index.tsv.gz",
+            packIndex = "_index/pack_index.tsv",
+            evidence = "CONFIRMED_NATIVE_TRPFD",
+            trpfsRestored = false,
+            trpfsVirtualFilesExtracted = false
+        };
+        string summaryFile = Path.Combine(output, "_index", "descriptor_summary.json");
+        File.WriteAllText(summaryFile, JsonSerializer.Serialize(summary,
+            new JsonSerializerOptions { WriteIndented = true }) + "\n", new UTF8Encoding(false));
+        Console.WriteLine($"TRPFD decoded: {summary.descriptorFiles} files / {summary.packCount} packs; known={known}, unknown={summary.unnamedFiles}");
+        Console.WriteLine($"Wrote: {summaryFile}, {hashListName}, {packListName}");
+        return 0;
     }
 
     private static int Execute(Dictionary<string, string> args)
