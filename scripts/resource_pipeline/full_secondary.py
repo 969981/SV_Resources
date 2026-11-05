@@ -189,7 +189,7 @@ def materialize_selected(repo: Path, selection, batch_size=120, max_parent_files
             ["git","ls-tree","-r","-z","--name-only","HEAD","--",folder],
             cwd=repo,capture_output=True,check=True
         )
-        tracked=sum(bool(v) for v in counted.stdout.split(b"\\0"))
+        tracked=sum(bool(v) for v in counted.stdout.split(b"\0"))
         if 0 < tracked <= max_parent_files:
             patterns.append(folder)
             full_dir_count+=1
@@ -199,7 +199,7 @@ def materialize_selected(repo: Path, selection, batch_size=120, max_parent_files
                 exact_count+=1
     if not patterns:
         raise ValueError("No native paths selected")
-    stdin="\\n".join(sorted(set(patterns)))+"\\n"
+    stdin="\n".join(sorted(set(patterns)))+"\n"
     subprocess.run(["git","sparse-checkout","add","--stdin"],cwd=repo,
                    input=stdin,text=True,check=True)
     missing=[p for p in paths if not (repo/p).is_file()]
@@ -223,7 +223,7 @@ def materialize_selected(repo: Path, selection, batch_size=120, max_parent_files
             "expected":len(paths),"missing":len(unresolved),
             "paths":unresolved[:2000],"git_restore_errors":recovery_errors[:5],
             "method":"BOUNDED_PARENT_SPARSE_THEN_EXACT_RESTORE"
-        },indent=2,ensure_ascii=False)+"\\n",encoding="utf-8")
+        },indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
         raise ValueError("Missing "+str(len(unresolved))+
                          " native Git blobs after bounded parent hydration; "+
                          "details: "+str(report)+", first: "+unresolved[0])
