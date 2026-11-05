@@ -1,5 +1,8 @@
 """No-ROM regression for deterministic full-sweep planning and safety."""
 from pathlib import Path
+import subprocess
+import tempfile
+from unittest import mock
 import sys
 import unittest
 
@@ -46,6 +49,39 @@ class FullSecondaryTests(unittest.TestCase):
         newrows=[(p,"9"*40 if p.endswith("a.dat") else sha) for p,sha in rows]
         changed=fs.build_tasks(newrows,2)
         self.assertEqual(len(fs.select_batch(changed,state,10,10)),2)
+
+    def test_windows_sparse_checkout_missing_files_are_restored(self):
+        # Reproduce Git reporting success without materializing a selected path.
+        with tempfile.TemporaryDirectory() as temp:
+            repo=Path(temp)
+            def git(*args):
+                return subprocess.run(["git",*args],cwd=repo,check=True,
+                                      capture_output=True,text=True)
+            git("init","-q")
+            git("config","user.name","CI")
+            git("config","user.email","ci@example.invalid")
+            relative="message/dat/English/common/another_name.dat"
+            source=repo/fs.ROOT/"virtual"/relative
+            source.parent.mkdir(parents=True)
+            source.write_bytes(b"DAT/TBL fixture")
+            git("add",".")
+            git("commit","-qm","fixture")
+            git("sparse-checkout","init","--no-cone")
+            git("sparse-checkout","set","scripts/resource_pipeline")
+            self.assertFalse(source.exists())
+            selection={"selected":[{"paths":[relative]}]}
+            real_run=subprocess.run
+            def simulate_sparse_no_materialization(command,*args,**kwargs):
+                if command[:2]==["git","sparse-checkout"]:
+                    return subprocess.CompletedProcess(command,0)
+                return real_run(command,*args,**kwargs)
+            with mock.patch.object(fs.subprocess,"run",
+                                   side_effect=simulate_sparse_no_materialization):
+                result=fs.materialize_selected(repo,selection)
+            self.assertTrue(source.is_file())
+            self.assertEqual(source.read_bytes(),b"DAT/TBL fixture")
+            self.assertEqual(result["recovered_sparse_missing"],1)
+            self.assertEqual(result["verified_local_paths"],1)
 
     def test_oversized_family_and_budget_guard(self):
         rows=[("pokemon/large/big.trmdl","a"*40),
