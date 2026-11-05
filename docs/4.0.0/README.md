@@ -7,6 +7,7 @@ Entry points:
 - [[Resources/Pokemon]]
 - [[Resources/Items]]
 - [[Verification/README]]
+- [[R3-R4-models-and-incremental]]
 
 The live data layers are all under:
 Unpack/4.0.0/romfs/arc/data.trpfs/{virtual,parsed,converted,resources}

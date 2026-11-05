@@ -47,3 +47,15 @@ Full BC7 PNG integration CI:
 
 Original input hashes must match the extraction manifest. Generated
 databases and assets are gitignored by default.
+
+## R3/R4 — GLB validation and incremental rebuild
+
+The conservative model/animation/scene adapter, resumable fingerprint engine,
+synthetic tests, optional self-hosted Actions plan, and visual review gate
+are documented in `docs/4.0.0/R3-R4-models-and-incremental.md`.
+
+    python scripts/resource_pipeline/r34.py plan --limit 20
+    python scripts/resource_pipeline/r34.py status
+
+Real native conversion requires a separately supplied, licensed adapter.
+Unreviewed GLB remains in `converted/`; no game assets are released by CI.
