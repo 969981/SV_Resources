@@ -2,7 +2,7 @@
   "version": "4.0.0",
   "source": "virtual/message/dat/Simp_Chinese/common",
   "kind": "all",
-  "completed_utc": "2026-11-05T11:27:40.005944+00:00",
+  "completed_utc": "2026-11-05T11:30:38.628599+00:00",
   "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
   "source_files_seen": 292,
   "index": {
@@ -57,6 +57,20 @@
       "issues": []
     }
   },
+  "problems": [
+    {
+      "source": "message/dat/Simp_Chinese/common/bag.dat",
+      "stage": "messages",
+      "status": "FAILED",
+      "error": "'utf-8' codec can't decode byte 0x82 in position 11: invalid start byte"
+    },
+    {
+      "source": "message/dat/Simp_Chinese/common/bag.tbl",
+      "stage": "labels",
+      "status": "FAILED",
+      "error": "'utf-8' codec can't decode byte 0x82 in position 11: invalid start byte"
+    }
+  ],
   "outputs": [
     {
       "path": "parsed/message/dat/Simp_Chinese/common/another_name.labels.json",
