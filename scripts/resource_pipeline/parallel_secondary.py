@@ -218,6 +218,8 @@ def main_run(repo: Path, max_workers: int, png: str, model: str, output_mb: int)
                  "formats":data["index"]["formats"],
                  "stages":statuses,"outputs":len(data.get("outputs",[])),
                  "parsed_records":data["inspection"]["inspection_records"],
+                 "inspection_manifest":data["inspection"]["manifest"],
+                 "inspection_sha256":data["inspection"]["manifest_sha256"],
                  "structurally_parsed":data["inspection"]["by_status"].get("STRUCTURE_PARSED",0),
                  "inspected_unparsed":data["inspection"]["by_status"].get("INSPECTED_UNPARSED",0),
                  "hash_mismatches":data["inspection"]["by_status"].get("SOURCE_HASH_MISMATCH",0),
@@ -229,15 +231,15 @@ def main_run(repo: Path, max_workers: int, png: str, model: str, output_mb: int)
         row["elapsed_seconds"]=item.get("elapsed_seconds")
         row["updated_utc"]=cli.utcnow()
         summaries.append(row)
-        # Preserve ERROR as an unresolved attempt, not a success. The planner
-        # retries it a bounded number of times before moving to other folders.
-        # This avoids an infinite dispatch loop on one permanently broken input.
+        # Keep independent bounded retry counters for ERROR and PARTIAL.
+        # Changed source fingerprints always reset the retry budget.
         previous = state["attempted"].get(task["id"], {})
-        if row["status"] == "ERROR":
-            row["error_attempts"] = (
-                int(previous.get("error_attempts", 0)) + 1
-                if previous.get("fingerprint") == task["fingerprint"] else 1
-            )
+        for kind, key in (("ERROR", "error_attempts"),
+                          ("PARTIAL", "partial_attempts")):
+            if row["status"] == kind:
+                row[key] = (int(previous.get(key, 0)) + 1
+                            if previous.get("fingerprint") == task["fingerprint"]
+                            else 1)
         state["attempted"][task["id"]] = row
         state["totals"]["source_files_attempted"] += task["file_count"]
         try:

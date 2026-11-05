@@ -1,0 +1,58 @@
+name: Audit SV virtual secondary per-file coverage
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/resource_pipeline/full_secondary.py'
+      - 'scripts/resource_pipeline/parallel_secondary.py'
+      - 'scripts/resource_pipeline/audit_secondary.py'
+      - 'tests/test_sv_secondary_full.py'
+      - 'tests/test_sv_secondary_audit.py'
+      - '.github/workflows/sv-secondary-audit.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/resource_pipeline/audit_secondary.py'
+      - 'tests/test_sv_secondary_audit.py'
+      - '.github/workflows/sv-secondary-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_secondary_audit.py
+            tests/test_sv_secondary_full.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/secondary/full-state.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/full-extract-progress.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify audit code and fixtures
+        run: |
+          python -m py_compile scripts/resource_pipeline/audit_secondary.py
+          python -m unittest discover -s tests -p 'test_sv_secondary_audit.py' -v
+          python -m unittest discover -s tests -p 'test_sv_secondary_full.py' -v
+      - name: Produce a compressed ledger for every tracked virtual file
+        if: github.event_name != 'pull_request'
+        run: |
+          python scripts/resource_pipeline/audit_secondary.py --repo . --out sv-secondary-audit
+      - name: Publish evidence without adding massive derived files to Git history
+        if: github.event_name != 'pull_request' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-secondary-audit
+          path: sv-secondary-audit/
+          if-no-files-found: warn
+          retention-days: 14

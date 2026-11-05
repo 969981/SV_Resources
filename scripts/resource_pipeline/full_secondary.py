@@ -26,7 +26,8 @@ STATE_NAME = "_index/secondary/full-state.json"
 SELECTION_NAME = "_index/secondary/full-selection.json"
 RUN_NAME = "_index/secondary/full-last-run.json"
 EPOCH = "full-sweep-parsed-v2"  # Revisit ALL earlier tasks: parsed coverage is now mandatory.
-MAX_ERROR_ATTEMPTS = 2  # Never let a permanently failing group stall the full sweep.
+MAX_ERROR_ATTEMPTS = 2  # Keep failed tasks visible, but never dispatch forever.
+MAX_PARTIAL_ATTEMPTS = 2  # Retry incomplete outputs, then retain unresolved evidence.
 
 
 def repo_root(path):
@@ -137,12 +138,25 @@ def load_state(repo):
 
 
 def is_terminal(task, state):
-    """A matching successful/partial attempt is final; errors get bounded retries."""
+    """Only complete inspections or retry-exhausted failures are terminal.
+
+    ATTEMPTED without full parsed inspection is a legacy checkpoint, not
+    proof of coverage. PARTIAL remains unresolved even after retries.
+    """
     previous = state["attempted"].get(task["id"], {})
     if previous.get("fingerprint") != task["fingerprint"]:
         return False
-    return (previous.get("status") != "ERROR" or
-            int(previous.get("error_attempts", 0)) >= MAX_ERROR_ATTEMPTS)
+    status = previous.get("status")
+    inspected = (int(previous.get("parsed_records", -1)) ==
+                 int(task["file_count"]))
+    if status == "ATTEMPTED":
+        return inspected and int(previous.get("hash_mismatches", 0)) == 0
+    if status == "PARTIAL":
+        return inspected and (int(previous.get("partial_attempts", 0)) >=
+                              MAX_PARTIAL_ATTEMPTS)
+    if status == "ERROR":
+        return int(previous.get("error_attempts", 0)) >= MAX_ERROR_ATTEMPTS
+    return False
 
 
 def select_batch(tasks, state, max_tasks=20, max_files=2400):
@@ -316,15 +330,31 @@ def process_batch(repo, converter_png="", converter_model=""):
             item["local_only"]=result["index"]["local_only"]
             item["deferred"]=len(result.get("deferred_outputs", []))
             item["problems"]=len(result.get("problems", []))
-            item["status"]="ATTEMPTED" if proc.returncode == 0 and item["deferred"]==0 else "PARTIAL"
+            inspection=result["inspection"]
+            item["parsed_records"]=inspection["inspection_records"]
+            if item["parsed_records"] != task["file_count"]:
+                raise ValueError("Worker did not inspect all selected source paths")
+            item["inspection_manifest"]=inspection["manifest"]
+            item["inspection_sha256"]=inspection["manifest_sha256"]
+            item["structurally_parsed"]=inspection["by_status"].get("STRUCTURE_PARSED",0)
+            item["inspected_unparsed"]=inspection["by_status"].get("INSPECTED_UNPARSED",0)
+            item["hash_mismatches"]=inspection["by_status"].get("SOURCE_HASH_MISMATCH",0)
+            item["status"]=("ATTEMPTED" if proc.returncode == 0 and
+                            item["deferred"]==0 and item["hash_mismatches"]==0
+                            else "PARTIAL")
             if item["status"]=="PARTIAL":
                 failures+=1
-        except (json.JSONDecodeError,KeyError,TypeError) as exc:
+        except (json.JSONDecodeError,KeyError,TypeError,ValueError) as exc:
             item["status"]="ERROR"
             item["error"]=str(exc)+": "+proc.stderr[-700:]
             failures+=1
         item["updated_utc"]=cli.utcnow()
         records.append(item)
+        previous=state["attempted"].get(task["id"], {})
+        for kind,key in (("ERROR","error_attempts"),("PARTIAL","partial_attempts")):
+            if item["status"]==kind:
+                item[key]=(int(previous.get(key,0))+1
+                           if previous.get("fingerprint")==task["fingerprint"] else 1)
         state["attempted"][task["id"]]=item
         state["totals"]["source_files_attempted"] += task["file_count"]
         task_tmp.unlink(missing_ok=True)
@@ -361,6 +391,9 @@ def status(repo, group_files):
     exhausted_errors = sum(x.get("status") == "ERROR" and
                            int(x.get("error_attempts", 0)) >= MAX_ERROR_ATTEMPTS
                            for x in matching)
+    exhausted_partials = sum(x.get("status") == "PARTIAL" and
+                            int(x.get("partial_attempts", 0)) >= MAX_PARTIAL_ATTEMPTS
+                            for x in matching)
     phase = ("PARTIAL" if pending else
              "SWEEP_ATTEMPTED_WITH_ERRORS" if error_groups else
              "SWEEP_ATTEMPTED_WITH_PARTIAL" if partial_groups else
@@ -379,6 +412,7 @@ def status(repo, group_files):
             "attempted_groups": len(tasks) - len(pending),
             "error_groups": error_groups,
             "exhausted_error_groups": exhausted_errors,
+            "exhausted_partial_groups": exhausted_partials,
             "partial_groups": partial_groups,
             "unresolved_groups": error_groups + partial_groups,
             "state": phase,
