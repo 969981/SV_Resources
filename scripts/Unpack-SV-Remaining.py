@@ -7,22 +7,30 @@ from pathlib import Path
 
 ROOT=Path("4.0.0")
 DEST=Path("Unpack/4.0.0")
+OUTPUT_BUDGET=0
+OUTPUT_USED=0
 
 def u32(data,p,order="<"):
     if p < 0 or p+4 > len(data): raise ValueError(f"u32 out of bounds: {p}")
     return struct.unpack_from(order+"I",data,p)[0]
 def digest(data): return hashlib.sha256(data).hexdigest().upper()
 def emit(out,name,data,offset,limit):
+    global OUTPUT_USED
     rec={"path":name,"offset":offset,"bytes":len(data),"sha256":digest(data)}
     if len(data)>limit:
         rec["status"]="SKIPPED_LARGE"
         return rec
     dest=out/"extracted"/name
-    dest.parent.mkdir(parents=True,exist_ok=True)
     if dest.exists():
         if dest.stat().st_size!=len(data) or digest(dest.read_bytes())!=rec["sha256"]:
             raise ValueError(f"Existing output differs: {dest}")
-    else: dest.write_bytes(data)
+    elif OUTPUT_BUDGET and OUTPUT_USED+len(data)>OUTPUT_BUDGET:
+        rec["status"]="SKIPPED_BUDGET"
+        return rec
+    else:
+        dest.parent.mkdir(parents=True,exist_ok=True)
+        dest.write_bytes(data)
+        OUTPUT_USED+=len(data)
     rec["status"]="EXTRACTED"
     return rec
 
@@ -168,14 +176,12 @@ def run(repo,src,restored,limit,manifest):
             results=result.get("exports",result.get("segments",[]))
             result.update({"source":rel.as_posix(),"sourceBytes":len(data),
                 "sourceSha256":source_hash,"parser":"scripts/Unpack-SV-Remaining.py",
-                "status":"PARTIAL" if any(x["status"]=="SKIPPED_LARGE" for x in results)
+                "status":"PARTIAL" if any(x["status"].startswith("SKIPPED") for x in results)
                          else "EXTRACTED" if any(x["status"]=="EXTRACTED" for x in results)
                          else "INDEXED_ONLY"})
     index=out/"_index"/"provenance.json"
     index.parent.mkdir(parents=True,exist_ok=True)
     payload=json.dumps(result,ensure_ascii=False,indent=2,sort_keys=True)+"\n"
-    if index.exists() and index.read_text("utf8")!=payload:
-        raise ValueError(f"Existing provenance differs: {index}")
     index.write_text(payload,encoding="utf8")
     return result
 
@@ -185,7 +191,10 @@ def main():
     ap.add_argument("--restored-root",type=Path)
     ap.add_argument("--category",choices=("small","packages","movies","all"),default="small")
     ap.add_argument("--max-output-file-bytes",type=int,default=95_000_000)
+    ap.add_argument("--max-total-output-bytes",type=int,default=0,help="0=unlimited; resumed output files do not count")
     args=ap.parse_args()
+    global OUTPUT_BUDGET
+    OUTPUT_BUDGET=args.max_total_output_bytes
     repo=args.repo.resolve()
     manifest_path=repo/"violet_4.0.0_romfs_transfer_manifest.json"
     manifest={}
