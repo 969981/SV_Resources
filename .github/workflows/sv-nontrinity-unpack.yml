@@ -110,6 +110,17 @@ jobs:
             Unpack/4.0.0/romfs/demo/**/_index/
           if-no-files-found: warn
           retention-days: 30
+      - name: Preserve extracted bytes as downloadable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-nontrinity-extracted-${{ github.run_id }}
+          path: |
+            Unpack/4.0.0/exefs/**/extracted/
+            Unpack/4.0.0/romfs/audio/**/extracted/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
       - name: Commit bounded validated output batch
         shell: pwsh
         run: |
@@ -124,4 +135,10 @@ jobs:
           git commit -m "data(unpack): verified non-Trinity 4.0.0 extract batch"
           if ($LASTEXITCODE -ne 0) { throw 'git commit failed' }
           git push origin HEAD:master
-          if ($LASTEXITCODE -ne 0) { throw 'Push rejected; inspect remote head, do not force/rebase' }
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'master advanced while extracting. Preserve the verified commit on a separate review branch.'
+            $safeBranch = "sv-nontrinity-verified-$env:GITHUB_RUN_ID"
+            git push origin "HEAD:refs/heads/$safeBranch"
+            if ($LASTEXITCODE -ne 0) { throw 'Neither master nor safe review branch accepted the extracted commit' }
+            Write-Host "Verified outputs saved to review branch: $safeBranch; master was not overwritten."
+          }
