@@ -10,3 +10,12 @@
 - Binary caches are not compatible with the older Switch-Toolbox cache format.
 
 To rebuild locally, run `python scripts/Build-SV-GFPAKHashCache.py --hashlist tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_fd.txt --hashlist tools/PokeDocs/SV/Hashlists/FileSystem/hashes_inside_trpak.txt --output tools/HashCaches/SV/GFPAKHashCache.bin --overwrite` from the repository root (replace SV with ZA as needed).
+
+## 技术文档与工作流
+
+- [Obsidian GFPAK 缓存知识库](../../docs/hashcache/README.md)
+- [来源/二进制格式](../../docs/hashcache/format-and-sources.md)
+- [本地重建与 Actions 流程](../../docs/hashcache/build-and-workflows.md)
+- [SHA-256、测试、故障排查](../../docs/hashcache/verification.md)
+
+推荐从仓库根目录执行 `python scripts/Build-PokeDocs-HashCaches.py --overwrite`，分别生成 SV 和 ZA；用 `python scripts/Build-PokeDocs-HashCaches.py --verify-only` 做只读完整结构校验。工作流在 `.github/workflows/vendor-pokedocs.yml`，核心转换器留在 `scripts/Build-SV-GFPAKHashCache.py`。
