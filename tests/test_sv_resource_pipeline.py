@@ -129,5 +129,30 @@ class TrinityCatalogTests(unittest.TestCase):
             self.assertFalse((self.root / "parsed/message/dat/Simp_Chinese/common/sample.labels.json").exists())
 
 
+
+class NativeFormatRegressionTests(unittest.TestCase):
+    """The repository already tracks these tiny, genuine source fixtures."""
+
+    def test_actual_zh_hans_ahtb(self):
+        source = REPO / (
+            "Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/"
+            "Simp_Chinese/common/app_common.tbl")
+        if not source.is_file():
+            self.skipTest("Native AHTB fixture not checked out")
+        entries = cli.parse_ahtb(source.read_bytes())
+        self.assertEqual(len(entries), 65)
+        self.assertEqual(entries[0]["label"], "msg_common_18_keywait")
+        self.assertEqual(entries[-1]["label"], "msg_app_common_max")
+
+    def test_actual_icon_ribbon_bntx(self):
+        source = REPO / (
+            "Unpack/4.0.0/romfs/arc/data.trpfs/virtual/appli/tex/"
+            "icon_ribbon/icon_ribbon_001/icon_ribbon_001.bntx")
+        if not source.is_file():
+            self.skipTest("Native BNTX fixture not checked out")
+        data = cli.parse_bntx(source.read_bytes())
+        self.assertIn({"brti_offset": 0x1F8, "format_code": "0x00002001",
+                       "width": 128, "height": 128}, data["textures"])
+
 if __name__ == "__main__":
     unittest.main()
