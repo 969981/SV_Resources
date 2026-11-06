@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_ob/ob1220_light#00000",
+  "input_fingerprint": "4CB0622251AF40A30916F79F381985D027B23015206B57F8B0F686FADF23A62A",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_ob/ob1220_light/ob1220_light.ccdatam",
+      "source_sha256": "1876ECA56FE03EB0B532180FC92B586DF2497992148DA071238005F84A3EC3C3",
+      "bytes": 952,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C000000000006000800040006000000040000000A00000048030000E4020000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_ob/ob1220_light/ob1220_light.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob1220_light/_inspection/3aef24649ef3669f.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob1220_light/_inspection/3aef24649ef3669f.jsonl",
+      "sha256": "A43F961836F2D6274A58F68E4947C05B561C432E59029EF38CB43C2DA4233F83",
+      "bytes": 652
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob1220_light/ob1220_light.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob1220_light/ob1220_light.ccdatam.flatbuffer.json",
+      "sha256": "642B7DEE6D1E62A6315654B3F268927BB7D7413E9D9D559F43BCA9A9DEF040CA",
+      "bytes": 1348
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_ob/ob1220_light",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
