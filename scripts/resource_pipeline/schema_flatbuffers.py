@@ -16,6 +16,7 @@ try:
 except ImportError:
     import cli
 
+DECODER_EPOCH = "sv-flatc-pokedocs-v1"  # Bump for a new parser/schema generation.
 SCHEMA_ROOT = Path(__file__).resolve().parents[2] / "tools/PokeDocs/SV/Flatbuffers"
 # Paths are repository-versioned SV schemas, not arbitrary extension guesses.
 ANIMATION = ("tracl", "tracm", "tracn", "tracp", "tracr", "tracs",
