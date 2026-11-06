@@ -2,41 +2,41 @@
   "schemaVersion": 1,
   "source_version": "4.0.0",
   "parallel_workers": 4,
-  "elapsed_seconds": 27.687,
-  "selected_count": 2,
-  "input_files": 2400,
-  "files_per_second": 86.68,
-  "completed_count": 2,
-  "parsed_records": 2400,
-  "structurally_parsed": 2400,
+  "elapsed_seconds": 42.266,
+  "selected_count": 12,
+  "input_files": 2148,
+  "files_per_second": 50.82,
+  "completed_count": 12,
+  "parsed_records": 2148,
+  "structurally_parsed": 2148,
   "inspected_unparsed": 0,
   "error_count": 0,
   "partial_count": 1,
   "attempts": [
     {
-      "task": "message/dat/JPN_KANJI/script#00000",
-      "fingerprint": "27BF0434C0899E708E5B25DEE9DCE5A05B79602957ED6F5BCA1517EEA2C9CD25",
-      "input_files": 1200,
-      "status": "PARTIAL",
-      "unresolved": 182,
+      "task": "message/dat/Simp_Chinese/script#00001",
+      "fingerprint": "9AE664D902B455792AAAD57387DC948C6EA8AF93B0D055F474E585EEC0899009",
+      "input_files": 324,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "MESSAGE_DAT_CANDIDATE": 600,
-        "AHTB": 600
+        "MESSAGE_DAT_CANDIDATE": 162,
+        "AHTB": 162
       },
       "stages": {
         "messages": {
           "kind": "messages",
-          "processed": 600,
-          "ok": 600,
+          "processed": 162,
+          "ok": 162,
           "blocked": 0,
           "skipped": 0,
           "failed": 0
         },
         "labels": {
           "kind": "labels",
-          "processed": 600,
-          "ok": 600,
+          "processed": 162,
+          "ok": 162,
           "blocked": 0,
           "skipped": 0,
           "failed": 0
@@ -61,26 +61,90 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "message/dat/JPN_KANJI/script",
+          "prefix": "message/dat/Simp_Chinese/script",
           "cursor": null,
           "issues": []
         }
       },
-      "outputs": 2819,
-      "parsed_records": 1200,
-      "inspection_manifest": "parsed/message/dat/JPN_KANJI/script/_inspection/d9241022928a77a6.jsonl",
-      "inspection_sha256": "AB4D9D46FE1C432686562582BE3958185DE3F3A3498166949B5300AFAE48AFD4",
-      "structurally_parsed": 1200,
+      "outputs": 811,
+      "parsed_records": 324,
+      "inspection_manifest": "parsed/message/dat/Simp_Chinese/script/_inspection/637c3acd83aea070.jsonl",
+      "inspection_sha256": "57D7A34AFBA78665D0B0A2354E350E70D495EC8D3627C10A3CF3C3BA7F1C0A4B",
+      "structurally_parsed": 324,
       "inspected_unparsed": 0,
       "hash_mismatches": 0,
-      "published": 2820,
-      "elapsed_seconds": 15.859,
-      "updated_utc": "2026-11-05T21:53:09.249495+00:00",
-      "partial_attempts": 2
+      "published": 812,
+      "elapsed_seconds": 11.047,
+      "updated_utc": "2026-11-05T23:03:13.136770+00:00"
     },
     {
-      "task": "message/dat/Simp_Chinese/script#00000",
-      "fingerprint": "48C27BB53CCDF29A1D111C8E1F10CA95210FDAB312A4CA27909373FBD6476E79",
+      "task": "message/dat/Spanish/common#00000",
+      "fingerprint": "CCA1BF2B44DACD9FDE4C2121F605CF3903F9F067E58EFCC9E86645BBDE4A2C02",
+      "input_files": 292,
+      "status": "PARTIAL",
+      "unresolved": 2,
+      "returncode": 0,
+      "formats": {
+        "MESSAGE_DAT_CANDIDATE": 141,
+        "AHTB": 151
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 141,
+          "ok": 141,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 151,
+          "ok": 151,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "message/dat/Spanish/common",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 724,
+      "parsed_records": 292,
+      "inspection_manifest": "parsed/message/dat/Spanish/common/_inspection/c5acd618579c8e65.jsonl",
+      "inspection_sha256": "527A169F8BEC3C83BD18C0EBE3B21C8312A9E845819FCBD8F92010EFC9E8B197",
+      "structurally_parsed": 292,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 725,
+      "elapsed_seconds": 24.579,
+      "updated_utc": "2026-11-05T23:03:15.125876+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "message/dat/Spanish/script#00000",
+      "fingerprint": "260F60C401013AB73301FC69DBE631A344F85AE7FC1CEE5FB11AA489D75260E9",
       "input_files": 1200,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -126,23 +190,591 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "message/dat/Simp_Chinese/script",
+          "prefix": "message/dat/Spanish/script",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 3001,
       "parsed_records": 1200,
-      "inspection_manifest": "parsed/message/dat/Simp_Chinese/script/_inspection/8fc093796c158cf3.jsonl",
-      "inspection_sha256": "715F252D6FF058A216AD4F20BD62BD18BF4B2B9C7D82DF8B3D636AC6ABCF0221",
+      "inspection_manifest": "parsed/message/dat/Spanish/script/_inspection/c6499668ca0d2ea1.jsonl",
+      "inspection_sha256": "D96DF94F8F9E8446833A05FC1A3B92C8664B9A5BC456BB77015029B659A3AF65",
       "structurally_parsed": 1200,
       "inspected_unparsed": 0,
       "hash_mismatches": 0,
       "published": 3002,
-      "elapsed_seconds": 12.937,
-      "updated_utc": "2026-11-05T21:53:15.242593+00:00"
+      "elapsed_seconds": 28.313,
+      "updated_utc": "2026-11-05T23:03:22.506038+00:00"
+    },
+    {
+      "task": "message/dat/Spanish/script#00001",
+      "fingerprint": "BC98F25372C30C8EE91D9436AF346A1EB6C182E6FB7FD223B1D3475A204BAA4E",
+      "input_files": 324,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "MESSAGE_DAT_CANDIDATE": 162,
+        "AHTB": 162
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 162,
+          "ok": 162,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 162,
+          "ok": 162,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "message/dat/Spanish/script",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 811,
+      "parsed_records": 324,
+      "inspection_manifest": "parsed/message/dat/Spanish/script/_inspection/74f970953a0661ce.jsonl",
+      "inspection_sha256": "4D25B60346040FCD78BF68EECB8A3D4A09F643152A8BF2174C18748A6F26DB0A",
+      "structurally_parsed": 324,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 812,
+      "elapsed_seconds": 11.375,
+      "updated_utc": "2026-11-05T23:03:24.931523+00:00"
+    },
+    {
+      "task": "appli/tex/chara_m/chara_d_honoo_m_00#00000",
+      "fingerprint": "D7687B13B232F4E45C6680C70A4C234E715D8F394677C8CBF615D5AA1125A5C6",
+      "input_files": 1,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "appli/tex/chara_m/chara_d_honoo_m_00",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 3,
+      "parsed_records": 1,
+      "inspection_manifest": "parsed/appli/tex/chara_m/chara_d_honoo_m_00/_inspection/5528077baed16f71.jsonl",
+      "inspection_sha256": "E69B90EE642C948C8378DAAD1E61217C9F1D92C5C9C0F05065FC339E69ADDFA4",
+      "structurally_parsed": 1,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 4,
+      "elapsed_seconds": 0.25,
+      "updated_utc": "2026-11-05T23:03:25.076345+00:00"
+    },
+    {
+      "task": "appli/tex/chara_m/chara_d_honoo_m_01#00000",
+      "fingerprint": "9794A4DADCBDB2ABB30B0DAB56427D15B03BF917247FFD32246C14CC980A8EF3",
+      "input_files": 1,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "appli/tex/chara_m/chara_d_honoo_m_01",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 3,
+      "parsed_records": 1,
+      "inspection_manifest": "parsed/appli/tex/chara_m/chara_d_honoo_m_01/_inspection/7d8615b61a9f85dc.jsonl",
+      "inspection_sha256": "AC7D9CFB96EBA907B07D1CAA5BD92EFFBC6778A036CFD1B3B2DD4AD34B1794B9",
+      "structurally_parsed": 1,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 4,
+      "elapsed_seconds": 0.532,
+      "updated_utc": "2026-11-05T23:03:25.090207+00:00"
+    },
+    {
+      "task": "appli/tex/chara_m/chara_d_kakutou_m_00#00000",
+      "fingerprint": "98C7E33D43790287D73EC5FD6070B76CE748A2BDDCC93B54F287AA668EC8128A",
+      "input_files": 1,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "appli/tex/chara_m/chara_d_kakutou_m_00",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 3,
+      "parsed_records": 1,
+      "inspection_manifest": "parsed/appli/tex/chara_m/chara_d_kakutou_m_00/_inspection/2f532faf1d3c62bd.jsonl",
+      "inspection_sha256": "A89BF54E501C0EA44ADFA7240388EB070755A7A0950830634FD7EFCC1B205C9F",
+      "structurally_parsed": 1,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 4,
+      "elapsed_seconds": 0.516,
+      "updated_utc": "2026-11-05T23:03:25.102045+00:00"
+    },
+    {
+      "task": "appli/tex/chara_m/chara_d_kakutou_m_01#00000",
+      "fingerprint": "C71593F86292D9C954ED1316D7EC67CDDC1321ADBFEA3323676C72C5BEE12B75",
+      "input_files": 1,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "appli/tex/chara_m/chara_d_kakutou_m_01",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 3,
+      "parsed_records": 1,
+      "inspection_manifest": "parsed/appli/tex/chara_m/chara_d_kakutou_m_01/_inspection/7e030924fd8ea928.jsonl",
+      "inspection_sha256": "559D084DE1201F48534B137BFFDE30DB4DD43B0DCC48C3C39382924D361E39B5",
+      "structurally_parsed": 1,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 4,
+      "elapsed_seconds": 0.468,
+      "updated_utc": "2026-11-05T23:03:25.116651+00:00"
+    },
+    {
+      "task": "appli/tex/chara_m/chara_dlc1_m_00#00000",
+      "fingerprint": "D459309751EA7A0EE0F3B7FF97EFF68E4BFF7945861E66A120EEF5C980E48909",
+      "input_files": 1,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "appli/tex/chara_m/chara_dlc1_m_00",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 3,
+      "parsed_records": 1,
+      "inspection_manifest": "parsed/appli/tex/chara_m/chara_dlc1_m_00/_inspection/a360aff07cf31a6a.jsonl",
+      "inspection_sha256": "5320DB7DD20F0C2D0AED094209B8BBAE7307B13E0D86FEDCE53EB63978ABB5D3",
+      "structurally_parsed": 1,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 4,
+      "elapsed_seconds": 0.922,
+      "updated_utc": "2026-11-05T23:03:25.129122+00:00"
+    },
+    {
+      "task": "appli/tex/chara_m/chara_dlc1_m_01#00000",
+      "fingerprint": "F64C9C24971A8FA16511FC726778960C8033FBBC9583C25779AC657F95F08E4E",
+      "input_files": 1,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "appli/tex/chara_m/chara_dlc1_m_01",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 3,
+      "parsed_records": 1,
+      "inspection_manifest": "parsed/appli/tex/chara_m/chara_dlc1_m_01/_inspection/5cda035799f7d2f5.jsonl",
+      "inspection_sha256": "6EC86619A779AEF1B4394AB709789A4850FC9A311D1886E17F28F0D31C426B75",
+      "structurally_parsed": 1,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 4,
+      "elapsed_seconds": 0.797,
+      "updated_utc": "2026-11-05T23:03:25.141730+00:00"
+    },
+    {
+      "task": "appli/tex/chara_m/chara_dlc1_m_02#00000",
+      "fingerprint": "8DFE096631CC9007B8BB077327D6CA1E8A9E9411ABAF68A946F745896C976356",
+      "input_files": 1,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "appli/tex/chara_m/chara_dlc1_m_02",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 3,
+      "parsed_records": 1,
+      "inspection_manifest": "parsed/appli/tex/chara_m/chara_dlc1_m_02/_inspection/e31a504c74b17849.jsonl",
+      "inspection_sha256": "1B33097861EFCB41F0DBA0D9828A27C58DD566FBE06E27A5054B3A610313F577",
+      "structurally_parsed": 1,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 4,
+      "elapsed_seconds": 0.391,
+      "updated_utc": "2026-11-05T23:03:25.155433+00:00"
+    },
+    {
+      "task": "appli/tex/chara_m/chara_dlc1_m_03#00000",
+      "fingerprint": "D5E8F32BC36F0421647EC94467425BF91ECD840B795AAC43C256A76D73F0647C",
+      "input_files": 1,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "appli/tex/chara_m/chara_dlc1_m_03",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 3,
+      "parsed_records": 1,
+      "inspection_manifest": "parsed/appli/tex/chara_m/chara_dlc1_m_03/_inspection/114e636b039aec80.jsonl",
+      "inspection_sha256": "E680C68DBDACBCA468933A16C1EA07ACED6EBE0B25F9ACEB716E7D460FD51346",
+      "structurally_parsed": 1,
+      "inspected_unparsed": 0,
+      "hash_mismatches": 0,
+      "published": 4,
+      "elapsed_seconds": 0.266,
+      "updated_utc": "2026-11-05T23:03:25.166968+00:00"
     }
   ],
-  "updated_utc": "2026-11-05T21:53:15.586044+00:00",
+  "updated_utc": "2026-11-05T23:03:25.179029+00:00",
   "policy": "UNKNOWN_FORMATS_AND_VISUAL_REVIEW_NOT_AUTOMATICALLY_CONFIRMED"
 }
