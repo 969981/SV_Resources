@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_ob/ob0004_shoppingbagb#00000",
+  "input_fingerprint": "FABE43879EE1ACB80DD5CE6671BFD8297FF1E805E945F3CC443C06205C34DD1B",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_ob/ob0004_shoppingbagb/ob0004_shoppingbagb.ccdatam",
+      "source_sha256": "9A26363707290C632A5764118E2210996A78D9EAB36F5DD5BFEE85B5A7EC734A",
+      "bytes": 244,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C00000000000600080004000600000004000000020000007800000004000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_ob/ob0004_shoppingbagb/ob0004_shoppingbagb.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob0004_shoppingbagb/_inspection/ec9f0698d50af0a3.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob0004_shoppingbagb/_inspection/ec9f0698d50af0a3.jsonl",
+      "sha256": "3A9DDBE6715ACA8208C5A2FDFCF03D60A7A91C381206F1815456884A3DAC1CAB",
+      "bytes": 680
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob0004_shoppingbagb/ob0004_shoppingbagb.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob0004_shoppingbagb/ob0004_shoppingbagb.ccdatam.flatbuffer.json",
+      "sha256": "0F5FE45506E357C2A30BD7FD5D848E319958C8D1559DA1D643E67C904F9F15DE",
+      "bytes": 654
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_ob/ob0004_shoppingbagb",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
