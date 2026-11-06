@@ -1,0 +1,66 @@
+name: SV audit - native paths and unknown Trinity formats
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/resource_pipeline/unknown_format_audit.py'
+      - '.github/workflows/sv-unknown-format-audit.yml'
+  pull_request:
+    paths:
+      - 'scripts/resource_pipeline/unknown_format_audit.py'
+      - 'scripts/resource_pipeline/full_secondary.py'
+      - 'scripts/resource_pipeline/cli.py'
+      - 'tests/test_sv_unknown_format_audit.py'
+      - 'tests/test_sv_virtual_second_stage.py'
+      - '.github/workflows/sv-unknown-format-audit.yml'
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_unknown_format_audit.py
+            tests/test_sv_virtual_second_stage.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate planner, signature detector and auditor
+        run: |
+          python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/cli.py scripts/resource_pipeline/unknown_format_audit.py
+          python -m unittest discover -s tests -p 'test_sv_virtual_second_stage.py' -v
+          python -m unittest discover -s tests -p 'test_sv_unknown_format_audit.py' -v
+  audit:
+    if: github.event_name != 'pull_request' && github.repository == '969981/SV_Resources'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/resource_pipeline/unknown_format_audit.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify native paths against committed inspection reports
+        run: |
+          python scripts/resource_pipeline/unknown_format_audit.py --repo . --out sv-unknown-format-audit
+      - name: Upload unknown format candidates and coverage gaps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-unknown-format-coverage-${{ github.run_id }}
+          path: sv-unknown-format-audit/
+          if-no-files-found: warn
+          retention-days: 30
