@@ -46,7 +46,10 @@ def verify_flatbuffer_table(path: Path) -> tuple[bool, str]:
         stream.seek(root)
         backward = struct.unpack("<i", stream.read(4))[0]
         vtable = root - backward
-        if backward <= 0 or vtable < 4 or vtable + 4 > size:
+        # A shared FlatBuffers vtable may be located *after* the table.
+        # The signed vtable displacement can legitimately be negative;
+        # validate the computed address instead of requiring a positive delta.
+        if backward == 0 or vtable < 4 or vtable + 4 > size:
             return False, "INVALID_VTABLE_OFFSET"
         stream.seek(vtable)
         table_len, object_len = struct.unpack("<HH", stream.read(4))
