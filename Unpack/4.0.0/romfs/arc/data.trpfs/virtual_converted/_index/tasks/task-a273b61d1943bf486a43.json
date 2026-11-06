@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_ob/ob1004_baloon#00000",
+  "input_fingerprint": "AEF2E4BCB2503F5E93DE2082484FD4DD449EE3834D36C36BF96688BE468CCAFB",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_ob/ob1004_baloon/ob1004_baloon.ccdatam",
+      "source_sha256": "9EC433D464799529FA51B4D6D15BAB6A70D1AD9346F55643B6E3DBB09746AE50",
+      "bytes": 868,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C0000000000060008000400060000000400000008000000E802000074020000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_ob/ob1004_baloon/ob1004_baloon.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob1004_baloon/_inspection/469ab4704c2a3aae.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob1004_baloon/_inspection/469ab4704c2a3aae.jsonl",
+      "sha256": "F3C1137CF98246FA3EAA52422F3EAE06FDD40F9FD18C1CCDBC3A716CBE9149EA",
+      "bytes": 656
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob1004_baloon/ob1004_baloon.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob1004_baloon/ob1004_baloon.ccdatam.flatbuffer.json",
+      "sha256": "F0112ADEF81FCC2635D5CF6C5411F52D979A6A9C0AD1CC9EB203A77984A41466",
+      "bytes": 1278
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_ob/ob1004_baloon",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
