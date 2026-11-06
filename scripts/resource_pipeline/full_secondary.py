@@ -12,6 +12,7 @@ from collections import Counter, defaultdict
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path, PurePosixPath
 import subprocess
 import sys
@@ -420,6 +421,8 @@ def process_batch(repo, converter_png="", converter_model=""):
             item["inspection_sha256"]=inspection["manifest_sha256"]
             item["structurally_parsed"]=inspection["by_status"].get("STRUCTURE_PARSED",0)
             item["inspected_unparsed"]=inspection["by_status"].get("INSPECTED_UNPARSED",0)
+            item["schema_decoder_epoch"] = (SCHEMA_DECODER_EPOCH if
+                (os.environ.get("SV_FLATC_EXE") or shutil.which("flatc")) else "")
             item["hash_mismatches"]=inspection["by_status"].get("SOURCE_HASH_MISMATCH",0)
             item["status"]=("ATTEMPTED" if proc.returncode == 0 and
                             item["deferred"]==0 and item["hash_mismatches"]==0
