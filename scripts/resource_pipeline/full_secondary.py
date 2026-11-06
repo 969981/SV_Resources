@@ -30,7 +30,7 @@ RUN_NAME = "_index/secondary/full-last-run.json"
 EPOCH = "full-sweep-parsed-v2"  # Revisit ALL earlier tasks: parsed coverage is now mandatory.
 MAX_ERROR_ATTEMPTS = 2  # Keep failed tasks visible, but never dispatch forever.
 MAX_PARTIAL_ATTEMPTS = 2  # Retry incomplete outputs, then retain unresolved evidence.
-SCHEMA_DECODER_EPOCH = "sv-flatc-pokedocs-v1"  # Replay old unsupported schema candidates once.
+SCHEMA_DECODER_EPOCH = schema_flatbuffers.DECODER_EPOCH  # Targeted schema backfill version.
 
 
 def repo_root(path):
