@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_uq/tr1800_bbtm#00000",
+  "input_fingerprint": "C33A1E08DDA7927A71A64A19D9CA572CB61461B4DDC6DA7CE4FC5CB3462C4244",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_uq/tr1800_bbtm/tr1800_bbtm.ccdatam",
+      "source_sha256": "0AB6C9DE2E347E80EA22B582547B3517F7E0B9D679325BB69F64A7C277D94155",
+      "bytes": 232,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C00000000000600080004000600000004000000020000007000000004000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_uq/tr1800_bbtm/tr1800_bbtm.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_uq/tr1800_bbtm/_inspection/b40548f48477bea1.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_uq/tr1800_bbtm/_inspection/b40548f48477bea1.jsonl",
+      "sha256": "96C0F5171E0C7C5E7945E33A19CB05EA321B61CFFC1D02FA2EEC7DDFF911802F",
+      "bytes": 648
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_uq/tr1800_bbtm/tr1800_bbtm.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_uq/tr1800_bbtm/tr1800_bbtm.ccdatam.flatbuffer.json",
+      "sha256": "354F9121CED01C45071819D0AD03D7948BF716FBAC23037AFA36E149E01D0113",
+      "bytes": 626
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_uq/tr1800_bbtm",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
