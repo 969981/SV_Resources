@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_drs1020_00_tops_00_mtl#00000",
+  "input_fingerprint": "FE45AF8008D1782225E694A04D7FB271840A76192D3467EEA869FD33497FC2A7",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_drs1020_00_tops_00_mtl/cm_drs1020_00_tops_00_mtl.bntx",
+      "source_sha256": "A71458E2D52AD343B618867BA58DA9BA37868F7F764FE9A45C7F68E38D872A02",
+      "bytes": 53360,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A00100D0000070D00000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_drs1020_00_tops_00_mtl/cm_drs1020_00_tops_00_mtl.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_drs1020_00_tops_00_mtl/cm_drs1020_00_tops_00_mtl.png",
+      "path": "virtual_converted/chara/share/cm_drs1020_00_tops_00_mtl/cm_drs1020_00_tops_00_mtl.png",
+      "sha256": "51274C3F780C725EFB15560F311C61E3DD08C471EA617EEC37E2BD7D0820179A",
+      "bytes": 3446
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_drs1020_00_tops_00_mtl/_inspection/0c3660c2f5022eac.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_drs1020_00_tops_00_mtl/_inspection/0c3660c2f5022eac.jsonl",
+      "sha256": "01DB3D35B402B59B199539852E49C3299B37EB8DB350040FE9ECFE6BE950F749",
+      "bytes": 664
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_drs1020_00_tops_00_mtl/cm_drs1020_00_tops_00_mtl.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_drs1020_00_tops_00_mtl/cm_drs1020_00_tops_00_mtl.bntx.json",
+      "sha256": "A4490AE49B3C1291B38FB468FCA7B8A643115883D84A5017365E787A471A1BCA",
+      "bytes": 300
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_drs1020_00_tops_00_mtl",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
