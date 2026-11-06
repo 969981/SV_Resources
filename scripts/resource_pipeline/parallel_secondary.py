@@ -222,6 +222,9 @@ def main_run(repo: Path, max_workers: int, png: str, model: str, output_mb: int)
                  "inspection_sha256":data["inspection"]["manifest_sha256"],
                  "structurally_parsed":data["inspection"]["by_status"].get("STRUCTURE_PARSED",0),
                  "inspected_unparsed":data["inspection"]["by_status"].get("INSPECTED_UNPARSED",0),
+                 "schema_decoder_epoch": (fs.SCHEMA_DECODER_EPOCH
+                     if (os.environ.get("SV_FLATC_EXE") or shutil.which("flatc"))
+                     else ""),
                  "hash_mismatches":data["inspection"]["by_status"].get("SOURCE_HASH_MISMATCH",0),
                  "published":len(files)}
         else:
