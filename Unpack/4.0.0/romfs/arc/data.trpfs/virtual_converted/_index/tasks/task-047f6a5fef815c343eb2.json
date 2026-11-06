@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "task": "chara/motion_tr/tr0611_tribefvat#00000.part1.part1.part0.part1",
+  "input_fingerprint": "F78E4E6B120F76B4C1322F064E782BCC63D5F02F80962063DB5033FED4ABE96B",
+  "input_files": 2,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1,
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj.bntx",
+      "source_sha256": "013610C6E7E646B094C699A547D76241CFDA137676AE381E68BE12C9F7D87C76",
+      "bytes": 3788904,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A00100D0390068D03900",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    },
+    {
+      "source": "chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj_normal.bntx",
+      "source_sha256": "804D2928C34A8791DE4D9600934ABA6CFF3898E73CFA5D7638C8628056A0DE73",
+      "bytes": 479336,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010050070068500700",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj_normal.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj_normal.png",
+      "path": "virtual_converted/chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj_normal.png",
+      "sha256": "DF6CD2070C5C02A7B9A1E2FA5A0322BAF67E62CBA5E3A63F39EB6825FDEFEFE2",
+      "bytes": 35808
+    },
+    {
+      "pipeline_path": "parsed/chara/motion_tr/tr0611_tribefvat/_inspection/a8e8fd158236b63e.jsonl",
+      "path": "virtual_converted/_parsed/chara/motion_tr/tr0611_tribefvat/_inspection/a8e8fd158236b63e.jsonl",
+      "sha256": "510DD3CF24C72CA5E463835C2514BDF6A29AF549C762393BB11FC3443C2E6852",
+      "bytes": 1224
+    },
+    {
+      "pipeline_path": "parsed/chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj.bntx.json",
+      "path": "virtual_converted/_parsed/chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj.bntx.json",
+      "sha256": "2904F688258BB9E778A7DC6C38811E5B2603D3DE19D2F75A3E7C1D283197B481",
+      "bytes": 300
+    },
+    {
+      "pipeline_path": "parsed/chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj_normal.bntx.json",
+      "path": "virtual_converted/_parsed/chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj_normal.bntx.json",
+      "sha256": "7876E11715D331CD8FC01AEDB5B203B0019DB35F28541881CEFCA62A4544FC37",
+      "bytes": 306
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "chara/motion_tr/tr0611_tribefvat/tr0611_00_00347_cheer01_obj.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 1
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/motion_tr/tr0611_tribefvat",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
