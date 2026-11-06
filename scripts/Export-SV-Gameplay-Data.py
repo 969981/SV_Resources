@@ -19,11 +19,17 @@ VERSION = "4.0.0"
 ROOT = Path("Unpack/4.0.0/romfs/arc/data.trpfs")
 DOMAINS = ("items", "pokedex", "encounters", "moves", "locations")
 SOURCE_PREFIXES = (
+    "avalon/data",
+    "world/data/battle/eventBattlePokemon",
     "world/data/encount/pokedata",
     "world/data/encount/point_data",
     "world/data/field/fixed_symbol",
     "world/data/event/pokedata",
     "world/data/raid",
+    "world/data/ui/pokedex",
+    "world/data/ui/ymap",
+    "world/data/ui/shop",
+    "world/data/ui/item_machine",
     "world/data/pokedex",
     "world/data/zukan",
     "world/data/item",
@@ -57,16 +63,22 @@ def safe_rel(value: str) -> str:
 
 def domain_for(path: str) -> str | None:
     path = "/" + path.replace("\\", "/").lower() + "/"
+    if path.startswith("/avalon/data/personal_array.bin/"):
+        return "pokedex"
+    if path.startswith("/avalon/data/waza_array.bin/"):
+        return "moves"
+    if path.startswith("/avalon/data/tokusei_array.bin/"):
+        return "pokedex"
     if any(k in path for k in ("/encount/", "/fixed_symbol/", "/eventbattlepokemon/",
                                 "/raid/", "/outbreak/", "/event/pokedata/")):
         return "encounters"
-    if any(k in path for k in ("/pokedex/", "/zukan/", "/personal/", "personal_data")):
+    if any(k in path for k in ("/pokedex/", "/zukan/", "/personal/", "personal_data", "/ui/pokedex/")):
         return "pokedex"
     if any(k in path for k in ("/waza/", "/move/", "learnset", "wazaoboe")):
         return "moves"
-    if any(k in path for k in ("/item/", "/items/", "/shop/", "item_data")):
+    if any(k in path for k in ("/item/", "/items/", "/shop/", "/item_machine/", "item_data")):
         return "items"
-    if any(k in path for k in ("/area/", "/map/", "/location/", "/place/", "/zone/")):
+    if any(k in path for k in ("/area/", "/map/", "/location/", "/place/", "/zone/", "/ui/ymap/")):
         return "locations"
     return None
 

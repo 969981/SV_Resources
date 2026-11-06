@@ -26,6 +26,12 @@ class GameplayExportTests(unittest.TestCase):
         self.assertEqual(sv.domain_for("world/data/waza/waza_array.bin"), "moves")
         self.assertEqual(sv.domain_for("world/data/item/item_array.bin"), "items")
         self.assertEqual(sv.domain_for("world/data/map/map.bin"), "locations")
+        self.assertEqual(sv.domain_for("avalon/data/personal_array.bin"), "pokedex")
+        self.assertEqual(sv.domain_for("avalon/data/waza_array.bin"), "moves")
+        self.assertEqual(sv.domain_for("world/data/ui/pokedex/memo_poke_data/memo_poke_data_array.bfbs"), "pokedex")
+        self.assertEqual(sv.domain_for("world/data/ui/ymap/ymap_place_name_data/data.bfbs"), "locations")
+        self.assertEqual(sv.domain_for("world/data/battle/eventBattlePokemon/eventBattlePokemon_array.bfbs"), "encounters")
+        self.assertEqual(sv.domain_for("world/data/ui/shop/shop_wazamachine/shop_wazamachine_data/data.bfbs"), "items")
         self.assertIsNone(sv.domain_for("pokemon/data/pm0128/model.trmdl"))
 
     def test_raw_field_values_preserved_not_converted_into_guesses(self):

@@ -8,12 +8,12 @@
 | --- | --- | --- |
 | 野生遭遇 | world/data/encount/pokedata/pokedata/pokedata_array.bin 及 pokedata_su1、pokedata_su2 对应 DLC 表 | 每条记录的群系、地区、版本、时段、天气和权重需单独验证 |
 | 固定宝可梦 | world/data/field/fixed_symbol/fixed_symbol_table/fixed_symbol_table_array.bin | 与野生、太晶团体战区分 |
-| 事件宝可梦 | world/data/event/pokedata/eventBattlePokemon/eventBattlePokemon_array.bin | 不是全部礼物/配信 |
+| 事件宝可梦 | world/data/battle/eventBattlePokemon/eventBattlePokemon_array.bfbs | 不是全部礼物/配信 |
 | 团体战 | world/data/raid/ 的原始表 | 战斗等级、捕获等级和版本限制独立记录 |
-| 图鉴 | pokedex、zukan、personal 资源 | NationalDex、DevID、地区图鉴号不能未经证据就等值连接 |
-| 技能 | waza、learnset、招式学习数据 | 属性、威力、PP、分类、学习方式需对应 schema |
+| 图鉴 | avalon/data/personal_array.bin、world/data/ui/pokedex/ 资源 | NationalDex、DevID、地区图鉴号不能未经证据就等值连接 |
+| 技能 | avalon/data/waza_array.bin 和 personal 表中的学习列表 | 属性、威力、PP、分类、学习方式需对应 schema |
 | 道具 | item、shop 资源 | 道具编号、背包组、用途、价格需分别核验 |
-| 地点 | world/data/area、world/data/map、encount/point_data | 保存地图 ID、区域 ID、点坐标、正式地点名原始外键 |
+| 地点 | world/data/ui/ymap/、world/data/area、world/data/map、encount/point_data | 保存地图 ID、区域 ID、点坐标、正式地点名原始外键 |
 
 ## 已实现的导出工具
 
