@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "task": "chara/model_cc_base/model#00000",
+  "input_fingerprint": "3EEC6546CCB596B650A4A58897C81CFF064E22C3C916597FEEC532F25726D0EB",
+  "input_files": 3,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 3
+  },
+  "sources": [
+    {
+      "source": "chara/model_cc_base/model/cc_base.trmdl",
+      "source_sha256": "00BCC9A3805595248ABCF2EA003D9EFF1192452B1AB674BC36BE1DDD9CBE0C90",
+      "bytes": 148,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "180000000000120028000000040008000C001000140018001200000074000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          40,
+          524292
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/model_cc_base/model/cc_base.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    },
+    {
+      "source": "chara/model_cc_base/model/cc_base.trskl",
+      "source_sha256": "7BBF3A2EBBE47251F53824AF1CF1CCA9A2284638EE6386FD290333615282228F",
+      "bytes": 15300,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "100000000C0010000000040008000C000C0000004C1800000C05000004000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          16,
+          1048588,
+          262144,
+          786440
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/model_cc_base/model/cc_base.trskl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    },
+    {
+      "source": "chara/model_cc_base/model/cc_base_loc.trskl",
+      "source_sha256": "F492D6099768C16526A46A15E5743B3FFCBE8EC05922A70FC7FCE372E2BB22BC",
+      "bytes": 420,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "100000000C0010000000040008000C000C000000140000000C00000004000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          16,
+          1048588,
+          262144,
+          786440
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/model_cc_base/model/cc_base_loc.trskl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/model_cc_base/model/_inspection/5dbe081c7099e44b.jsonl",
+      "path": "virtual_converted/_parsed/chara/model_cc_base/model/_inspection/5dbe081c7099e44b.jsonl",
+      "sha256": "A12D81CB1F7741125496D2F503DAB4E1372FBF7B7953EE73F1B8C34F259E081A",
+      "bytes": 1947
+    },
+    {
+      "pipeline_path": "parsed/chara/model_cc_base/model/cc_base.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/model_cc_base/model/cc_base.trmdl.flatbuffer.json",
+      "sha256": "43095F5BAA231EB1FD573848B9AD9A2625F3B20713FAA86F5FE87BA8A0077165",
+      "bytes": 598
+    },
+    {
+      "pipeline_path": "parsed/chara/model_cc_base/model/cc_base.trskl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/model_cc_base/model/cc_base.trskl.flatbuffer.json",
+      "sha256": "02D67C474B9EE5C3C5C5090F06EC209FC97564EA9E2C3821270553B322ABC64B",
+      "bytes": 38739
+    },
+    {
+      "pipeline_path": "parsed/chara/model_cc_base/model/cc_base_loc.trskl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/model_cc_base/model/cc_base_loc.trskl.flatbuffer.json",
+      "sha256": "C3A69431236BF58B126AAF98B4C615912B143583C6BE589839EBF84037B0A911",
+      "bytes": 1224
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "chara/model_cc_base/model/cc_base.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "TRMDL contains no validated .trmsh references"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/model_cc_base/model",
+      "cursor": "chara/model_cc_base/model/cc_base.trmdl",
+      "issues": [
+        {
+          "source": "chara/model_cc_base/model/cc_base.trmdl",
+          "error": "TRMDL contains no validated .trmsh references"
+        }
+      ]
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
