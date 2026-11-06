@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/model_ob/ob1500_phone#00000.part1.part1.part1.part1.part0",
+  "input_fingerprint": "71B0302D908C0C260365172B613024877818357FF320AF8AD2AB740BAA86156A",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/model_ob/ob1500_phone/ob1500_00_obj03_00_nrm.bntx",
+      "source_sha256": "3C8BF016F83E1E496C163F87CCD2CF37B6B8FD35A8EDBF1DA801427D02237DD4",
+      "bytes": 8304,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010020000070200000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/model_ob/ob1500_phone/ob1500_00_obj03_00_nrm.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/model_ob/ob1500_phone/ob1500_00_obj03_00_nrm.png",
+      "path": "virtual_converted/chara/model_ob/ob1500_phone/ob1500_00_obj03_00_nrm.png",
+      "sha256": "DA0BFDFD0B1073319653808A96A7F04F4B7E25242AA8AD8D2BB8250DD4DA0F56",
+      "bytes": 86
+    },
+    {
+      "pipeline_path": "parsed/chara/model_ob/ob1500_phone/_inspection/a056f2b195614335.jsonl",
+      "path": "virtual_converted/_parsed/chara/model_ob/ob1500_phone/_inspection/a056f2b195614335.jsonl",
+      "sha256": "AEFF2781393E1E727873E7FE76EEF2CB4557207ADC8AC37C284C091ECB44252E",
+      "bytes": 637
+    },
+    {
+      "pipeline_path": "parsed/chara/model_ob/ob1500_phone/ob1500_00_obj03_00_nrm.bntx.json",
+      "path": "virtual_converted/_parsed/chara/model_ob/ob1500_phone/ob1500_00_obj03_00_nrm.bntx.json",
+      "sha256": "4C007C9FE79F613BBB99D94DC73FC7487F1278F8C0560B7199A2D6086BF6E1B8",
+      "bytes": 282
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/model_ob/ob1500_phone",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
