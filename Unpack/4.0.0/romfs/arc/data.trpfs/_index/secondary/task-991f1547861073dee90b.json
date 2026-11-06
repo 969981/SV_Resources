@@ -1,0 +1,111 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/chara/model_pc_base/model",
+  "kind": "all",
+  "completed_utc": "2026-11-06T10:15:03.009930+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 3,
+  "selection_sha256": "b175dced0cfad862d4116d78c4f02546dc7175840e26ab76d7041d67bad17100",
+  "index": {
+    "available": 3,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 3,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 3
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/model_pc_base/model",
+      "cursor": "chara/model_pc_base/model/p0_base.trmdl",
+      "issues": [
+        {
+          "source": "chara/model_pc_base/model/p0_base.trmdl",
+          "error": "TRMDL contains no validated .trmsh references"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "chara/model_pc_base/model/p0_base.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "TRMDL contains no validated .trmsh references"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/chara/model_pc_base/model/_inspection/657a8605a18de958.jsonl",
+    "source_files": 3,
+    "inspection_records": 3,
+    "by_status": {
+      "STRUCTURE_PARSED": 3
+    },
+    "manifest_sha256": "4B7845AD9A45D49723CE8F2AF0B6DCA85201EDA69AAEEC5A9DC400328D2D12D8"
+  },
+  "outputs": [
+    {
+      "path": "parsed/chara/model_pc_base/model/_inspection/657a8605a18de958.jsonl",
+      "bytes": 1947,
+      "sha256": "4B7845AD9A45D49723CE8F2AF0B6DCA85201EDA69AAEEC5A9DC400328D2D12D8"
+    },
+    {
+      "path": "parsed/chara/model_pc_base/model/p0_base.trmdl.flatbuffer.json",
+      "bytes": 598,
+      "sha256": "C9863AD453359566AF7B7997311D940E1CC4FA90AE759288F5B2CE53796CEB2E"
+    },
+    {
+      "path": "parsed/chara/model_pc_base/model/p0_base.trskl.flatbuffer.json",
+      "bytes": 36949,
+      "sha256": "CEB3BFB10E8F954C9D36BA5B1057184A89C15D40A015485043243A20E836BE0E"
+    },
+    {
+      "path": "parsed/chara/model_pc_base/model/p0_base_loc.trskl.flatbuffer.json",
+      "bytes": 1490,
+      "sha256": "B590BCBBB789213F29B8FAEE1AA5B0214BF1CFC71088B60F86D14616A15EF845"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
