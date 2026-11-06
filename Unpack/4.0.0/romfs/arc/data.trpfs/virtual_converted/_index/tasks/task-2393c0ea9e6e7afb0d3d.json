@@ -4,8 +4,7 @@
   "input_fingerprint": "ECF6CD98BA3B0AD61B8524DD086940853F6FC07F3EAA77CBB9FEBD59CC352FBA",
   "input_files": 3,
   "inspection_statuses": {
-    "INSPECTED_UNPARSED": 1,
-    "STRUCTURE_PARSED": 2
+    "STRUCTURE_PARSED": 3
   },
   "sources": [
     {
@@ -32,7 +31,8 @@
           "kind": "BNTX_METADATA",
           "path": "parsed/pokemon/data/pm0056/pm0056_00_00/icon/pm0056_00_00_00.bntx.json"
         }
-      ]
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
     },
     {
       "source": "pokemon/data/pm0056/pm0056_00_00/icon/pm0056_00_00_00_big.bntx",
@@ -58,7 +58,8 @@
           "kind": "BNTX_METADATA",
           "path": "parsed/pokemon/data/pm0056/pm0056_00_00/icon/pm0056_00_00_00_big.bntx.json"
         }
-      ]
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
     },
     {
       "source": "pokemon/data/pm0056/pm0056_00_00/locators/pm0056_00_00_00000_eff.trskl",
@@ -78,8 +79,14 @@
           786440
         ]
       },
-      "parse_status": "INSPECTED_UNPARSED",
-      "parsed_assets": []
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/pokemon/data/pm0056/pm0056_00_00/locators/pm0056_00_00_00000_eff.trskl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
     }
   ],
   "outputs": [
@@ -96,10 +103,10 @@
       "bytes": 21534
     },
     {
-      "pipeline_path": "parsed/pokemon/data/pm0056/_inspection/2fd9855301d3634a.jsonl",
-      "path": "virtual_converted/_parsed/pokemon/data/pm0056/_inspection/2fd9855301d3634a.jsonl",
-      "sha256": "8F714EF6AD6747E6EA4DE1A789167B5F7D6F84ECE2FB38DD76C840A1F8ECB2AD",
-      "bytes": 1748
+      "pipeline_path": "parsed/pokemon/data/pm0056/_inspection/40ceab8c5a909fa0.jsonl",
+      "path": "virtual_converted/_parsed/pokemon/data/pm0056/_inspection/40ceab8c5a909fa0.jsonl",
+      "sha256": "1DC4CD8F6D6A2177178A7F4F038F1042306CA6036AE2E80961EFC9FF45AB5F7A",
+      "bytes": 2006
     },
     {
       "pipeline_path": "parsed/pokemon/data/pm0056/pm0056_00_00/icon/pm0056_00_00_00.bntx.json",
@@ -112,6 +119,12 @@
       "path": "virtual_converted/_parsed/pokemon/data/pm0056/pm0056_00_00/icon/pm0056_00_00_00_big.bntx.json",
       "sha256": "B88CF5F5E30192DC195BF15B17F432B5D939CDBBD5B362F3D4CFFFE847DFFB57",
       "bytes": 294
+    },
+    {
+      "pipeline_path": "parsed/pokemon/data/pm0056/pm0056_00_00/locators/pm0056_00_00_00000_eff.trskl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/pokemon/data/pm0056/pm0056_00_00/locators/pm0056_00_00_00000_eff.trskl.flatbuffer.json",
+      "sha256": "71D8576C69462CC08C7CD02FEA324BA56B36B333D8B0FE92D5FAAFAEBEF0FB31",
+      "bytes": 3304
     }
   ],
   "deferred_outputs": [],
