@@ -26,6 +26,16 @@ class SchemaFlatbuffersTests(unittest.TestCase):
             file.write_bytes(fake_table_bytes())
             self.assertEqual(sf.verify_flatbuffer_table(file),
                              (True, "BOUNDED_FLATBUFFER_ROOT"))
+            # Real SV TRAEF files use a negative soffset_t to a shared
+            # vtable located after the root table; this must be accepted.
+            signed=bytearray(32)
+            struct.pack_into("<I", signed, 0, 4)
+            struct.pack_into("<i", signed, 4, -12)
+            struct.pack_into("<HH", signed, 16, 6, 8)
+            struct.pack_into("<H", signed, 20, 4)
+            file.write_bytes(signed)
+            self.assertEqual(sf.verify_flatbuffer_table(file),
+                             (True, "BOUNDED_FLATBUFFER_ROOT"))
             file.write_bytes(bytes(32))
             self.assertEqual(sf.verify_flatbuffer_table(file)[0], False)
             bad = bytearray(fake_table_bytes())
