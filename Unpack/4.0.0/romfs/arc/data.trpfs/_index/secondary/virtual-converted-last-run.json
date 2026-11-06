@@ -2,30 +2,27 @@
   "schemaVersion": 1,
   "source_version": "4.0.0",
   "parallel_workers": 4,
-  "elapsed_seconds": 34.328,
+  "elapsed_seconds": 25.562,
   "selected_count": 8,
-  "input_files": 1020,
-  "files_per_second": 29.71,
+  "input_files": 809,
+  "files_per_second": 31.65,
   "completed_count": 8,
-  "parsed_records": 1020,
-  "structurally_parsed": 1006,
-  "inspected_unparsed": 14,
+  "parsed_records": 809,
+  "structurally_parsed": 803,
+  "inspected_unparsed": 6,
   "error_count": 0,
   "partial_count": 0,
   "attempts": [
     {
-      "task": "pokemon/data/pm0450/pm0450_00_00#00000",
-      "fingerprint": "F3ED7EC3B996E5D1E9CABADEBB5D21B6F4C4E0BFC4EE6643E50FC827AA4C709E",
-      "input_files": 204,
+      "task": "__rollup__/pokemon/data/pm0456#1d0f196a6ea39c7201cb",
+      "fingerprint": "1D0F196A6EA39C7201CBC93B6E2A658C608F610113EC6C041A21161290738834",
+      "input_files": 8,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "FLATBUFFER_CANDIDATE": 175,
-        "BY_EXTENSION:trslp": 1,
-        "BY_EXTENSION:trspn": 1,
-        "BY_EXTENSION:trmdd": 1,
-        "BNTX": 26
+        "BNTX": 4,
+        "FLATBUFFER_CANDIDATE": 4
       },
       "stages": {
         "messages": {
@@ -46,8 +43,74 @@
         },
         "bntx": {
           "kind": "bntx",
-          "processed": 26,
-          "ok": 26,
+          "processed": 4,
+          "ok": 4,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "pokemon/data/pm0456",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 13,
+      "parsed_records": 8,
+      "inspection_manifest": "parsed/pokemon/data/pm0456/_inspection/1556b5919bebb7b8.jsonl",
+      "inspection_sha256": "9FEEB1AF003C72A2E14AE38B1F05953FF7F7C67D016A8D9572BC41227A98AA9D",
+      "structurally_parsed": 8,
+      "inspected_unparsed": 0,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 14,
+      "elapsed_seconds": 1.484,
+      "updated_utc": "2026-11-06T06:53:48.010329+00:00"
+    },
+    {
+      "task": "pokemon/data/pm0456/pm0456_00_00#00000",
+      "fingerprint": "EDB6F98A41D6C98C675E69B49C6FE90348AD44172BF0756FACADB89692CCE8FD",
+      "input_files": 164,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 145,
+        "BY_EXTENSION:trspn": 1,
+        "BNTX": 18
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 18,
+          "ok": 18,
           "blocked": 0,
           "skipped": 0,
           "failed": 0
@@ -64,35 +127,33 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "pokemon/data/pm0450/pm0450_00_00",
-          "cursor": "pokemon/data/pm0450/pm0450_00_00/pm0450_00_00.trmdl",
+          "prefix": "pokemon/data/pm0456/pm0456_00_00",
+          "cursor": "pokemon/data/pm0456/pm0456_00_00/pm0456_00_00.trmdl",
           "issues": []
         }
       },
-      "outputs": 245,
-      "parsed_records": 204,
-      "inspection_manifest": "parsed/pokemon/data/pm0450/pm0450_00_00/_inspection/4476e5d88572b55e.jsonl",
-      "inspection_sha256": "DC39853CDA157F10368558F25AF4525A6C07182706661F4A76C62FC4F1144BA2",
-      "structurally_parsed": 201,
-      "inspected_unparsed": 3,
+      "outputs": 196,
+      "parsed_records": 164,
+      "inspection_manifest": "parsed/pokemon/data/pm0456/pm0456_00_00/_inspection/4c38a313c03b82e6.jsonl",
+      "inspection_sha256": "DE82B59D63469301D40C971FD006A2EE88608B296984E3D8C0FBC912C5444B85",
+      "structurally_parsed": 163,
+      "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 246,
-      "elapsed_seconds": 21.516,
-      "updated_utc": "2026-11-06T06:51:03.324584+00:00"
+      "published": 197,
+      "elapsed_seconds": 15.421,
+      "updated_utc": "2026-11-06T06:53:48.532535+00:00"
     },
     {
-      "task": "pokemon/data/pm0450/pm0450_01_00#00000",
-      "fingerprint": "D2E333981045CFD19D5576F26879BD2FF9CB55E5D791C710272FFB0C12DBF9C9",
-      "input_files": 178,
+      "task": "pokemon/data/pm0456/pm0456_01_00#00000",
+      "fingerprint": "39AEA1682A30B45818EB0358FDF0E9515386B777BB968A5047B206A711F1074C",
+      "input_files": 146,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "FLATBUFFER_CANDIDATE": 175,
-        "BY_EXTENSION:trslp": 1,
-        "BY_EXTENSION:trspn": 1,
-        "BY_EXTENSION:trmdd": 1
+        "FLATBUFFER_CANDIDATE": 145,
+        "BY_EXTENSION:trspn": 1
       },
       "stages": {
         "messages": {
@@ -131,26 +192,222 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "pokemon/data/pm0450/pm0450_01_00",
-          "cursor": "pokemon/data/pm0450/pm0450_01_00/pm0450_01_00.trmdl",
+          "prefix": "pokemon/data/pm0456/pm0456_01_00",
+          "cursor": "pokemon/data/pm0456/pm0456_01_00/pm0456_01_00.trmdl",
           "issues": []
         }
       },
-      "outputs": 179,
-      "parsed_records": 178,
-      "inspection_manifest": "parsed/pokemon/data/pm0450/pm0450_01_00/_inspection/d07f73940d9d5e64.jsonl",
-      "inspection_sha256": "7E02F26412FA361CF511F712A9850D17FE63D8D0A209CCE51F46634920019271",
-      "structurally_parsed": 175,
-      "inspected_unparsed": 3,
+      "outputs": 149,
+      "parsed_records": 146,
+      "inspection_manifest": "parsed/pokemon/data/pm0456/pm0456_01_00/_inspection/9c32dd8c9799d070.jsonl",
+      "inspection_sha256": "8F43BB16BD0A39B769E1EFDFAD07E9F4B1E875B608E42BC248C293EF40B0BE0C",
+      "structurally_parsed": 145,
+      "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 180,
-      "elapsed_seconds": 19.062,
-      "updated_utc": "2026-11-06T06:51:03.926805+00:00"
+      "published": 150,
+      "elapsed_seconds": 14.546,
+      "updated_utc": "2026-11-06T06:53:48.952578+00:00"
     },
     {
-      "task": "__rollup__/pokemon/data/pm0453#73a687fdead15572dd53",
-      "fingerprint": "73A687FDEAD15572DD53F99D7925C6892F630A7CB01707DF21F887CA3EB07C2E",
+      "task": "__rollup__/pokemon/data/pm0457#be362ea4aad332f5dde6",
+      "fingerprint": "BE362EA4AAD332F5DDE67552E8C3E59CF50DFBD3F893C3AF720C313E63C2B7DC",
+      "input_files": 8,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 4,
+        "FLATBUFFER_CANDIDATE": 4
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 4,
+          "ok": 4,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "pokemon/data/pm0457",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 13,
+      "parsed_records": 8,
+      "inspection_manifest": "parsed/pokemon/data/pm0457/_inspection/c91a574283cec12d.jsonl",
+      "inspection_sha256": "B0CD8611EDD145D884CBB128F15F5856A0EEC21A2F25090386AE86943A6F6616",
+      "structurally_parsed": 8,
+      "inspected_unparsed": 0,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 14,
+      "elapsed_seconds": 1.468,
+      "updated_utc": "2026-11-06T06:53:49.016185+00:00"
+    },
+    {
+      "task": "pokemon/data/pm0457/pm0457_00_00#00000",
+      "fingerprint": "24F7551B7010B71A6101C44AF87800D4C9375F734695C154161F44FAD375AE85",
+      "input_files": 165,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 145,
+        "BY_EXTENSION:trspn": 1,
+        "BNTX": 19
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 19,
+          "ok": 19,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 1,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "pokemon/data/pm0457/pm0457_00_00",
+          "cursor": "pokemon/data/pm0457/pm0457_00_00/pm0457_00_00.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 202,
+      "parsed_records": 165,
+      "inspection_manifest": "parsed/pokemon/data/pm0457/pm0457_00_00/_inspection/9d035590cd6700c3.jsonl",
+      "inspection_sha256": "30A89D8CC1281D6F515814EA5EB6365E6925C8F4104080D92719AED729CC9E56",
+      "structurally_parsed": 164,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 203,
+      "elapsed_seconds": 15.297,
+      "updated_utc": "2026-11-06T06:53:49.568247+00:00"
+    },
+    {
+      "task": "pokemon/data/pm0457/pm0457_01_00#00000",
+      "fingerprint": "10E5EDAF5C7CA503A034520C8C14E541D90720D468F2B4DF872C8FD8EB085DB2",
+      "input_files": 146,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 145,
+        "BY_EXTENSION:trspn": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 1,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "pokemon/data/pm0457/pm0457_01_00",
+          "cursor": "pokemon/data/pm0457/pm0457_01_00/pm0457_01_00.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 149,
+      "parsed_records": 146,
+      "inspection_manifest": "parsed/pokemon/data/pm0457/pm0457_01_00/_inspection/8dd15247443667c6.jsonl",
+      "inspection_sha256": "F07930BB7F151E9639EEF026A75CD5906374DC86F3EF43E97299192E9F6C9789",
+      "structurally_parsed": 145,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 150,
+      "elapsed_seconds": 13.391,
+      "updated_utc": "2026-11-06T06:53:50.077302+00:00"
+    },
+    {
+      "task": "__rollup__/pokemon/data/pm0459#21b377da030888652ee3",
+      "fingerprint": "21B377DA030888652EE38DA4DF03312D25FFB9A51041F5420A7E7F282042DC5D",
       "input_files": 6,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -196,35 +453,35 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "pokemon/data/pm0453",
+          "prefix": "pokemon/data/pm0459",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 11,
       "parsed_records": 6,
-      "inspection_manifest": "parsed/pokemon/data/pm0453/_inspection/3de91573d1759474.jsonl",
-      "inspection_sha256": "A9128A72E62B2F89AFB6536F1320DD3956305EA37B835EA3E4C8298C5315C6E5",
+      "inspection_manifest": "parsed/pokemon/data/pm0459/_inspection/1ef066c0299f8604.jsonl",
+      "inspection_sha256": "71E4F0A0413AB70353CFC6CAE2940A2E8AA43A5A27A16EFF3674F0CAFE54348C",
       "structurally_parsed": 6,
       "inspected_unparsed": 0,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 12,
-      "elapsed_seconds": 1.031,
-      "updated_utc": "2026-11-06T06:51:03.998516+00:00"
+      "elapsed_seconds": 0.266,
+      "updated_utc": "2026-11-06T06:53:50.138582+00:00"
     },
     {
-      "task": "pokemon/data/pm0453/pm0453_00_00#00000",
-      "fingerprint": "EAF178BA5BCEEE94C02E2F4BFDAD4B278D7DABC9423D07DD052659597EBC62E8",
-      "input_files": 176,
+      "task": "pokemon/data/pm0459/pm0459_00_00#00000",
+      "fingerprint": "215B9C7AA334F4752B79A2C4E750374874883A085D337FF6545E272A35971B10",
+      "input_files": 166,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "FLATBUFFER_CANDIDATE": 146,
+        "FLATBUFFER_CANDIDATE": 144,
         "BY_EXTENSION:trslp": 1,
         "BY_EXTENSION:trmdd": 1,
-        "BNTX": 28
+        "BNTX": 20
       },
       "stages": {
         "messages": {
@@ -245,8 +502,8 @@
         },
         "bntx": {
           "kind": "bntx",
-          "processed": 28,
-          "ok": 28,
+          "processed": 20,
+          "ok": 20,
           "blocked": 0,
           "skipped": 0,
           "failed": 0
@@ -263,288 +520,24 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "pokemon/data/pm0453/pm0453_00_00",
-          "cursor": "pokemon/data/pm0453/pm0453_00_00/pm0453_00_00.trmdl",
+          "prefix": "pokemon/data/pm0459/pm0459_00_00",
+          "cursor": "pokemon/data/pm0459/pm0459_00_00/pm0459_00_00.trmdl",
           "issues": []
         }
       },
-      "outputs": 219,
-      "parsed_records": 176,
-      "inspection_manifest": "parsed/pokemon/data/pm0453/pm0453_00_00/_inspection/1acdc471518b18b3.jsonl",
-      "inspection_sha256": "185F898EEC7F96520FD48B2C7899B6902F2E109047A5E03D37EFD8F9BBFAD5D6",
-      "structurally_parsed": 174,
+      "outputs": 198,
+      "parsed_records": 166,
+      "inspection_manifest": "parsed/pokemon/data/pm0459/pm0459_00_00/_inspection/ff3cd264c7f5e55f.jsonl",
+      "inspection_sha256": "F2FF629F3332CCB2E6F98D254C7B047B725D59C28F6C0FAE14BE6065665B0AC1",
+      "structurally_parsed": 164,
       "inspected_unparsed": 2,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 220,
-      "elapsed_seconds": 20.375,
-      "updated_utc": "2026-11-06T06:51:04.712556+00:00"
-    },
-    {
-      "task": "pokemon/data/pm0453/pm0453_01_00#00000",
-      "fingerprint": "C5FC91AFEC3655055D673F8ED8F4E7881D30E9FAC8C44A09838FF870E24C36E5",
-      "input_files": 148,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 146,
-        "BY_EXTENSION:trslp": 1,
-        "BY_EXTENSION:trmdd": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 1,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "pokemon/data/pm0453/pm0453_01_00",
-          "cursor": "pokemon/data/pm0453/pm0453_01_00/pm0453_01_00.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 150,
-      "parsed_records": 148,
-      "inspection_manifest": "parsed/pokemon/data/pm0453/pm0453_01_00/_inspection/989c579f6e76f529.jsonl",
-      "inspection_sha256": "7913215D90765B5F8E2DD5D8F90C6150DEEE8E50CE66107608F9B46E4AAF213A",
-      "structurally_parsed": 146,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 151,
-      "elapsed_seconds": 16.735,
-      "updated_utc": "2026-11-06T06:51:05.216198+00:00"
-    },
-    {
-      "task": "__rollup__/pokemon/data/pm0454#f2cefe092d3e553f8955",
-      "fingerprint": "F2CEFE092D3E553F8955D778899533861B7CA5607EEE9BA48738B041ECF63421",
-      "input_files": 6,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BNTX": 4,
-        "FLATBUFFER_CANDIDATE": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 4,
-          "ok": 4,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 0,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "pokemon/data/pm0454",
-          "cursor": null,
-          "issues": []
-        }
-      },
-      "outputs": 11,
-      "parsed_records": 6,
-      "inspection_manifest": "parsed/pokemon/data/pm0454/_inspection/e8ff1f478fc74b73.jsonl",
-      "inspection_sha256": "D8AFBDF8896C68F0DE50A2C96AE8E8DD4CBD0C95AA22D54E85186C984E5DBF48",
-      "structurally_parsed": 6,
-      "inspected_unparsed": 0,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 12,
-      "elapsed_seconds": 0.359,
-      "updated_utc": "2026-11-06T06:51:05.281766+00:00"
-    },
-    {
-      "task": "pokemon/data/pm0454/pm0454_00_00#00000",
-      "fingerprint": "7EB76059CEB1FA819CE290FFF8C1928C7BAE501C990988B1A21EB751FB29AEE7",
-      "input_files": 162,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 138,
-        "BY_EXTENSION:trslp": 1,
-        "BY_EXTENSION:trmdd": 1,
-        "BNTX": 22
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 22,
-          "ok": 22,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 1,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "pokemon/data/pm0454/pm0454_00_00",
-          "cursor": "pokemon/data/pm0454/pm0454_00_00/pm0454_00_00.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 200,
-      "parsed_records": 162,
-      "inspection_manifest": "parsed/pokemon/data/pm0454/pm0454_00_00/_inspection/9ee30db431a8aa30.jsonl",
-      "inspection_sha256": "A5005D51E9A536942EBF69B375B0259EF443AA238E11314AB832BBEEDCCFE653",
-      "structurally_parsed": 160,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 201,
-      "elapsed_seconds": 11.953,
-      "updated_utc": "2026-11-06T06:51:05.928733+00:00"
-    },
-    {
-      "task": "pokemon/data/pm0454/pm0454_01_00#00000",
-      "fingerprint": "FCCFCE3BAC0C8AB5B0AF1448D8A69FB0AB53CDDBC9B86FDC6040EB48F1043B6B",
-      "input_files": 140,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 138,
-        "BY_EXTENSION:trslp": 1,
-        "BY_EXTENSION:trmdd": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 1,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "pokemon/data/pm0454/pm0454_01_00",
-          "cursor": "pokemon/data/pm0454/pm0454_01_00/pm0454_01_00.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 142,
-      "parsed_records": 140,
-      "inspection_manifest": "parsed/pokemon/data/pm0454/pm0454_01_00/_inspection/c1da8ad8c4b8f8c2.jsonl",
-      "inspection_sha256": "C78CB66576B883F00D06E0F9A73A46F6AE3AF843FBA6C79FDAB0E6CC4E783B6F",
-      "structurally_parsed": 138,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 143,
-      "elapsed_seconds": 9.391,
-      "updated_utc": "2026-11-06T06:51:06.402701+00:00"
+      "published": 199,
+      "elapsed_seconds": 7.75,
+      "updated_utc": "2026-11-06T06:53:50.687510+00:00"
     }
   ],
-  "updated_utc": "2026-11-06T06:51:06.677901+00:00",
+  "updated_utc": "2026-11-06T06:53:50.922676+00:00",
   "policy": "UNKNOWN_FORMATS_AND_VISUAL_REVIEW_NOT_AUTOMATICALLY_CONFIRMED"
 }
