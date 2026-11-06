@@ -2,28 +2,28 @@
   "schemaVersion": 1,
   "source_version": "4.0.0",
   "parallel_workers": 4,
-  "elapsed_seconds": 9.453,
+  "elapsed_seconds": 9.015,
   "selected_count": 8,
-  "input_files": 60,
-  "files_per_second": 6.35,
+  "input_files": 78,
+  "files_per_second": 8.65,
   "completed_count": 8,
-  "parsed_records": 60,
-  "structurally_parsed": 12,
-  "inspected_unparsed": 48,
+  "parsed_records": 78,
+  "structurally_parsed": 24,
+  "inspected_unparsed": 54,
   "error_count": 0,
   "partial_count": 0,
   "attempts": [
     {
-      "task": "__rollup__/effect/battle_ew/ew0511#5ae29d9b782552761b2c",
-      "fingerprint": "5AE29D9B782552761B2CC6E8F7ADCFF1F5B4A965387D806293451B8D1F72E216",
-      "input_files": 15,
+      "task": "effect/battle_ew/ew0520#00000",
+      "fingerprint": "AF7EC0BB7BC40BBAAFA0B147F9313219C092848EF7156D0DA4E4CAC358BF877F",
+      "input_files": 5,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
         "BY_EXTENSION:trtml": 1,
         "BY_EXTENSION:trsot": 2,
-        "FLATBUFFER_CANDIDATE": 12
+        "BY_EXTENSION:ptcl": 2
       },
       "stages": {
         "messages": {
@@ -46,6 +46,74 @@
           "kind": "bntx",
           "processed": 0,
           "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "effect/battle_ew/ew0520",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 1,
+      "parsed_records": 5,
+      "inspection_manifest": "parsed/effect/battle_ew/ew0520/_inspection/3943ea76c23b558f.jsonl",
+      "inspection_sha256": "A7C71CADCE6CDBE29EDF131A6455D976C847360B103CA4D7F2C5E9AA25F08D60",
+      "structurally_parsed": 0,
+      "inspected_unparsed": 5,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 2,
+      "elapsed_seconds": 0.781,
+      "updated_utc": "2026-11-06T23:31:44.427727+00:00"
+    },
+    {
+      "task": "__rollup__/effect/battle_ew/ew0521#bc88e20476b42d3aaf5a",
+      "fingerprint": "BC88E20476B42D3AAF5A8D0D3C266CD45A3C60267241E36A5533485947BD23C9",
+      "input_files": 14,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BY_EXTENSION:trtml": 2,
+        "BY_EXTENSION:trsot": 2,
+        "BY_EXTENSION:ptcl": 4,
+        "BNTX": 1,
+        "FLATBUFFER_CANDIDATE": 5
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
           "blocked": 0,
           "skipped": 0,
           "failed": 0
@@ -62,26 +130,26 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "effect/battle_ew/ew0511",
-          "cursor": "effect/battle_ew/ew0511/ew0511_hand/ew0511_hand.trmdl",
+          "prefix": "effect/battle_ew/ew0521",
+          "cursor": "effect/battle_ew/ew0521/ew0521_locator/ew0521_locator.trmdl",
           "issues": []
         }
       },
-      "outputs": 16,
-      "parsed_records": 15,
-      "inspection_manifest": "parsed/effect/battle_ew/ew0511/_inspection/9c34325525e6233a.jsonl",
-      "inspection_sha256": "F5BEB20D6E86D46E3029B6612B4C62ADF065C1946D44230ABAFD5F2B7AEFD414",
-      "structurally_parsed": 12,
-      "inspected_unparsed": 3,
+      "outputs": 12,
+      "parsed_records": 14,
+      "inspection_manifest": "parsed/effect/battle_ew/ew0521/_inspection/6c160d0b1b0a18e2.jsonl",
+      "inspection_sha256": "EEB68EFCBCE1DCD977B55959C8484F3F45E471AF2B2A43D0B218F996F0272653",
+      "structurally_parsed": 6,
+      "inspected_unparsed": 8,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 17,
-      "elapsed_seconds": 8.625,
-      "updated_utc": "2026-11-06T23:29:58.662896+00:00"
+      "published": 13,
+      "elapsed_seconds": 5.578,
+      "updated_utc": "2026-11-06T23:31:44.455437+00:00"
     },
     {
-      "task": "effect/battle_ew/ew0512#00000",
-      "fingerprint": "E29D3288F658A5A260B40914E11A23CADCC140813862A1E3B9D6AFFDF9C64DF2",
+      "task": "effect/battle_ew/ew0522#00000",
+      "fingerprint": "D1D99642F4ED8ED580412F3D4269B48708768B97C91C637A25E02483BBD61063",
       "input_files": 6,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -128,92 +196,26 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "effect/battle_ew/ew0512",
+          "prefix": "effect/battle_ew/ew0522",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 1,
       "parsed_records": 6,
-      "inspection_manifest": "parsed/effect/battle_ew/ew0512/_inspection/745552fbd265a841.jsonl",
-      "inspection_sha256": "9D917BD987A8090259CD3541010E8A1140DC125CABB20C4AF028B596C6D6236E",
+      "inspection_manifest": "parsed/effect/battle_ew/ew0522/_inspection/1d14ee3f7b1342a9.jsonl",
+      "inspection_sha256": "57CD13CC7A093E13C3FA3839D79CFFE23EC0B0164D177954E7706BC240AD1E81",
       "structurally_parsed": 0,
       "inspected_unparsed": 6,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 2,
-      "elapsed_seconds": 1.625,
-      "updated_utc": "2026-11-06T23:29:58.674806+00:00"
+      "elapsed_seconds": 0.781,
+      "updated_utc": "2026-11-06T23:31:44.460895+00:00"
     },
     {
-      "task": "effect/battle_ew/ew0513#00000",
-      "fingerprint": "93F905DAC930ABCB8678DE409658FABC84C4A190022FEF9A74067AD96F3A0A3E",
-      "input_files": 5,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BY_EXTENSION:trtml": 1,
-        "BY_EXTENSION:trsot": 2,
-        "BY_EXTENSION:ptcl": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 0,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "effect/battle_ew/ew0513",
-          "cursor": null,
-          "issues": []
-        }
-      },
-      "outputs": 1,
-      "parsed_records": 5,
-      "inspection_manifest": "parsed/effect/battle_ew/ew0513/_inspection/67b1862bd9d4afc2.jsonl",
-      "inspection_sha256": "FFD13A68BEC6963244680F4324D9F2C3D8BF0FB46BA3D92CB51B46D2EFFFD4BF",
-      "structurally_parsed": 0,
-      "inspected_unparsed": 5,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 2,
-      "elapsed_seconds": 1.656,
-      "updated_utc": "2026-11-06T23:29:58.682669+00:00"
-    },
-    {
-      "task": "effect/battle_ew/ew0514#00000",
-      "fingerprint": "8310983BC57E6A55A00AD0CDA1D03243E5607946B938BFDFD7DFEBC592023261",
+      "task": "effect/battle_ew/ew0523#00000",
+      "fingerprint": "D6F8C06388DA25223D299C5CAA487991123E117886EB2C6E7290D169EFD834F1",
       "input_files": 8,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -260,158 +262,26 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "effect/battle_ew/ew0514",
+          "prefix": "effect/battle_ew/ew0523",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 1,
       "parsed_records": 8,
-      "inspection_manifest": "parsed/effect/battle_ew/ew0514/_inspection/7d91b28f8d506541.jsonl",
-      "inspection_sha256": "218F7B43D144762C8C4100E549C60DAB9AF0D5CA5AE1D358941D402CDB321EBF",
+      "inspection_manifest": "parsed/effect/battle_ew/ew0523/_inspection/2124a03aae7497a3.jsonl",
+      "inspection_sha256": "FBE23A4AB9B8EA07C43CD6733B9DFFABA2DA4CC586C69DDF3959BA24DACEB7DE",
       "structurally_parsed": 0,
       "inspected_unparsed": 8,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 2,
-      "elapsed_seconds": 1.641,
-      "updated_utc": "2026-11-06T23:29:58.689247+00:00"
+      "elapsed_seconds": 0.781,
+      "updated_utc": "2026-11-06T23:31:44.464922+00:00"
     },
     {
-      "task": "effect/battle_ew/ew0515#00000",
-      "fingerprint": "733A7495BB88C809FFEE99D0C45BE1B436447B5BFD44F9075927D0B6C3AE2A53",
-      "input_files": 7,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BY_EXTENSION:trtml": 1,
-        "BY_EXTENSION:trsot": 2,
-        "BY_EXTENSION:ptcl": 4
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 0,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "effect/battle_ew/ew0515",
-          "cursor": null,
-          "issues": []
-        }
-      },
-      "outputs": 1,
-      "parsed_records": 7,
-      "inspection_manifest": "parsed/effect/battle_ew/ew0515/_inspection/7b8a599c1ad03750.jsonl",
-      "inspection_sha256": "17EB52A9D6A3127B4A189A6DA84B2C904A5F8BE2018120ED21EC66C900B8C101",
-      "structurally_parsed": 0,
-      "inspected_unparsed": 7,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 2,
-      "elapsed_seconds": 0.391,
-      "updated_utc": "2026-11-06T23:29:58.698726+00:00"
-    },
-    {
-      "task": "effect/battle_ew/ew0517#00000",
-      "fingerprint": "347D1FF9EF06EAC9C31D7DFF553701D9875450F6E5AFAFBC20BF3FEE1284B209",
-      "input_files": 8,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BY_EXTENSION:trtml": 1,
-        "BY_EXTENSION:trsot": 2,
-        "BY_EXTENSION:ptcl": 5
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 0,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "effect/battle_ew/ew0517",
-          "cursor": null,
-          "issues": []
-        }
-      },
-      "outputs": 1,
-      "parsed_records": 8,
-      "inspection_manifest": "parsed/effect/battle_ew/ew0517/_inspection/f93ae90166085c4c.jsonl",
-      "inspection_sha256": "576F9ECD268BFE61CB9305D33F48AF909981892276B7A9B20A9D955D0CBDAEE7",
-      "structurally_parsed": 0,
-      "inspected_unparsed": 8,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 2,
-      "elapsed_seconds": 0.5,
-      "updated_utc": "2026-11-06T23:29:58.712778+00:00"
-    },
-    {
-      "task": "effect/battle_ew/ew0518#00000",
-      "fingerprint": "C270106ECAE372995EE4001377A14FE33ACF8103D534013F03303017377A85CF",
+      "task": "effect/battle_ew/ew0524#00000",
+      "fingerprint": "376A5AE92BED1CC5F67877326EDB4EA06B012B292350009F08C81D300FFD1278",
       "input_files": 6,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -458,34 +328,102 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "effect/battle_ew/ew0518",
+          "prefix": "effect/battle_ew/ew0524",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 1,
       "parsed_records": 6,
-      "inspection_manifest": "parsed/effect/battle_ew/ew0518/_inspection/4d5e2ad3f925aece.jsonl",
-      "inspection_sha256": "46D0DCD8A15A16CA70B70EB1242E9497DBE6A7E858837D2AF3ABC81854F27361",
+      "inspection_manifest": "parsed/effect/battle_ew/ew0524/_inspection/da2e867f05783bc4.jsonl",
+      "inspection_sha256": "60075EF9F5179E2038F6F6768BC53DD5A78DD9CF74371007150766CCC96EBB66",
       "structurally_parsed": 0,
       "inspected_unparsed": 6,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 2,
-      "elapsed_seconds": 0.438,
-      "updated_utc": "2026-11-06T23:29:58.721644+00:00"
+      "elapsed_seconds": 0.125,
+      "updated_utc": "2026-11-06T23:31:44.478478+00:00"
     },
     {
-      "task": "effect/battle_ew/ew0519#00000",
-      "fingerprint": "3F5981EB9BF9FDD64EDB26D4F26EC0F871F3EC88748B62BFA2955F4BA6D8428A",
-      "input_files": 5,
+      "task": "__rollup__/effect/battle_ew/ew0525#08bcffc0949b25b77877",
+      "fingerprint": "08BCFFC0949B25B778775602E3F6673DC7830CE4ADA517A1F7171075CE879C0F",
+      "input_files": 27,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BY_EXTENSION:trtml": 2,
+        "BY_EXTENSION:trsot": 2,
+        "BY_EXTENSION:ptcl": 5,
+        "BNTX": 1,
+        "FLATBUFFER_CANDIDATE": 17
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 1,
+          "ok": 1,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 2,
+            "parsed": 0,
+            "converted": 2,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "effect/battle_ew/ew0525",
+          "cursor": "effect/battle_ew/ew0525/ew0525_whip/ew0525_whip.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 27,
+      "parsed_records": 27,
+      "inspection_manifest": "parsed/effect/battle_ew/ew0525/_inspection/edba4b1c6e98d464.jsonl",
+      "inspection_sha256": "275865D35FC5D9D86722D973502CB2B10A6A72D2ABD9F6712663F73AF254751D",
+      "structurally_parsed": 18,
+      "inspected_unparsed": 9,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 28,
+      "elapsed_seconds": 7.735,
+      "updated_utc": "2026-11-06T23:31:44.534417+00:00"
+    },
+    {
+      "task": "effect/battle_ew/ew0526#00000",
+      "fingerprint": "188FAF4E0C4681EC820A10B037B650DCA9899F48395117AE8F7B550381AB97B5",
+      "input_files": 6,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
         "BY_EXTENSION:trtml": 1,
         "BY_EXTENSION:trsot": 2,
-        "BY_EXTENSION:ptcl": 2
+        "BY_EXTENSION:ptcl": 3
       },
       "stages": {
         "messages": {
@@ -524,24 +462,90 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "effect/battle_ew/ew0519",
+          "prefix": "effect/battle_ew/ew0526",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 1,
-      "parsed_records": 5,
-      "inspection_manifest": "parsed/effect/battle_ew/ew0519/_inspection/4b4d58fd7cca1671.jsonl",
-      "inspection_sha256": "760C7A9E98D80F4C868983F84872404D0B557D9018738648C3D7F835B89E805A",
+      "parsed_records": 6,
+      "inspection_manifest": "parsed/effect/battle_ew/ew0526/_inspection/fc931179af67940d.jsonl",
+      "inspection_sha256": "02793FCB594F713EAA450B75073382A56F0852D7D5FDCE8CB0DACE6FE62E0285",
       "structurally_parsed": 0,
-      "inspected_unparsed": 5,
+      "inspected_unparsed": 6,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 2,
-      "elapsed_seconds": 0.203,
-      "updated_utc": "2026-11-06T23:29:58.728749+00:00"
+      "elapsed_seconds": 0.125,
+      "updated_utc": "2026-11-06T23:31:44.542741+00:00"
+    },
+    {
+      "task": "effect/battle_ew/ew0527#00000",
+      "fingerprint": "3EF82FADE780190CA644C900A0A10DBCE962C18B093B8E611DAA4D7FA3B6C5AD",
+      "input_files": 6,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BY_EXTENSION:trtml": 1,
+        "BY_EXTENSION:trsot": 2,
+        "BY_EXTENSION:ptcl": 3
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "effect/battle_ew/ew0527",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 1,
+      "parsed_records": 6,
+      "inspection_manifest": "parsed/effect/battle_ew/ew0527/_inspection/830a0f153e188c3b.jsonl",
+      "inspection_sha256": "7CE079DF11FD8D0553800325EC67916C869F9415D606FC67035CA5B283F70459",
+      "structurally_parsed": 0,
+      "inspected_unparsed": 6,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 2,
+      "elapsed_seconds": 0.141,
+      "updated_utc": "2026-11-06T23:31:44.545974+00:00"
     }
   ],
-  "updated_utc": "2026-11-06T23:29:59.309581+00:00",
+  "updated_utc": "2026-11-06T23:31:44.811702+00:00",
   "policy": "UNKNOWN_FORMATS_AND_VISUAL_REVIEW_NOT_AUTOMATICALLY_CONFIRMED"
 }
