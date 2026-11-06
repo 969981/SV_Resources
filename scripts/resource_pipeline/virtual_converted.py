@@ -7,6 +7,7 @@ An inspection record is NOT a claim that an unsupported format was converted.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import shutil
@@ -97,7 +98,7 @@ def _compact_unattempted(tasks, state, target_files=64):
             if len(chunk) == 1:
                 kept.append(chunk[0])
                 return
-            h = __import__("hashlib").sha256()
+            h = hashlib.sha256()
             h.update((fs.EPOCH + "|rollup-v1|").encode("utf-8"))
             paths = []
             for leaf in chunk:
@@ -120,7 +121,43 @@ def _compact_unattempted(tasks, state, target_files=64):
             chunk.append(task)
             size += task["file_count"]
         emit()
-    return sorted(kept, key=lambda task: (fs.task_priority(task["prefix"]), task["id"]))
+    refined = [part for task in kept for part in _split_deferred_task(task, state)]
+    return sorted(refined, key=lambda task: (fs.task_priority(task["prefix"]), task["id"]))
+
+
+def _split_deferred_task(task, state):
+    """Bisect a published PARTIAL batch with missing derivatives.
+
+    Preserve the parent ledger and input fingerprints.  On future runs this
+    recursion deterministically regenerates the same children, without
+    invalidating successful unrelated groups or retrying a size-bound parent
+    three times with identical output limits.
+    """
+    previous = state.get("attempted", {}).get(task["id"], {})
+    if (previous.get("fingerprint") != task["fingerprint"]
+            or previous.get("status") != "PARTIAL"
+            or int(previous.get("unresolved", 0)) <= 0
+            or task["file_count"] < 2):
+        return [task]
+    paths = task["paths"]
+    cut = len(paths) // 2
+    children = []
+    for index, part in enumerate((paths[:cut], paths[cut:])):
+        h = hashlib.sha256()
+        h.update((fs.EPOCH + "|deferred-split-v1|").encode("utf-8"))
+        h.update(task["fingerprint"].encode("ascii") + b"\\0")
+        h.update(str(index).encode("ascii") + b"\\0")
+        for path in part:
+            h.update(path.encode("utf-8") + b"\\0")
+        child = {
+            "id": task["id"] + ".part" + str(index),
+            "fingerprint": h.hexdigest().upper(),
+            "prefix": task["prefix"],
+            "paths": part,
+            "file_count": len(part),
+        }
+        children.extend(_split_deferred_task(child, state))
+    return children
 
 
 # The planner and final status must use the *same* stable grouping view.
