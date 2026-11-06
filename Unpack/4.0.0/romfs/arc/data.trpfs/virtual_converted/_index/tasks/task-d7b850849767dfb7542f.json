@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_villagef_body_00_alb#00000",
+  "input_fingerprint": "4A491B62B7AE6810B51140C4EC6C71A78D50D8E1859264C23C4064CA39F35A09",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_villagef_body_00_alb/cm_villagef_body_00_alb.bntx",
+      "source_sha256": "E621E6A5963C92364057B157536FE6CE7D03C1A6C606721EB994BC01396B687E",
+      "bytes": 356464,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010070050070700500",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_villagef_body_00_alb/cm_villagef_body_00_alb.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_villagef_body_00_alb/cm_villagef_body_00_alb.png",
+      "path": "virtual_converted/chara/share/cm_villagef_body_00_alb/cm_villagef_body_00_alb.png",
+      "sha256": "D72A62278E0E6012CE2D937E09F55EE4DC8014D17DFE7D20F4A7F7EA77F04C09",
+      "bytes": 229922
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_villagef_body_00_alb/_inspection/635ad5c2396f8b4e.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_villagef_body_00_alb/_inspection/635ad5c2396f8b4e.jsonl",
+      "sha256": "1FD6813D318777FFF8CBFE06C2D8EBD1657C147210F62AA1B1619909754C4913",
+      "bytes": 657
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_villagef_body_00_alb/cm_villagef_body_00_alb.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_villagef_body_00_alb/cm_villagef_body_00_alb.bntx.json",
+      "sha256": "B29FE6A301D2ED40CE1B8FCB2A81DE134445377FDA7618F5305F4168E6209AAB",
+      "bytes": 297
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_villagef_body_00_alb",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_villagef_body_00_rgn#00000",
+  "input_fingerprint": "7B577D4338CD9D573C8F0EFA216D49EA387BC5DD257545E8A96ADAF41E2DA1C8",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_villagef_body_00_rgn/cm_villagef_body_00_rgn.bntx",
+      "source_sha256": "333E67D6318867E1AF21439E120970B03CECD5E671D11C181A325DDD3C5A8D6A",
+      "bytes": 53360,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A00100D0000070D00000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_villagef_body_00_rgn/cm_villagef_body_00_rgn.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_villagef_body_00_rgn/cm_villagef_body_00_rgn.png",
+      "path": "virtual_converted/chara/share/cm_villagef_body_00_rgn/cm_villagef_body_00_rgn.png",
+      "sha256": "AF9F370DBD35A8800BA69E46316265428C21F3F3B743973590809AF1F6FB7B1D",
+      "bytes": 57122
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_villagef_body_00_rgn/_inspection/3bdc3b2d34e7ea72.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_villagef_body_00_rgn/_inspection/3bdc3b2d34e7ea72.jsonl",
+      "sha256": "FAB30EA9E17E216E7F8A489E9DEAEA526641A28A1EDA7DDC7FD2829E2F9746D0",
+      "bytes": 656
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_villagef_body_00_rgn/cm_villagef_body_00_rgn.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_villagef_body_00_rgn/cm_villagef_body_00_rgn.bntx.json",
+      "sha256": "0F6D62A80E626D20DF3FCD699CDE32CD4C3E8E4225F64EBB9659EF606D6F6A9E",
+      "bytes": 296
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_villagef_body_00_rgn",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
