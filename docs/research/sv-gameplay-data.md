@@ -52,3 +52,22 @@ GitHub Actions：.github/workflows/sv-gameplay-data.yml；Artifacts 包括数据
 依次对野生三地图、固定/事件、团体战、个人参数与地区图鉴、技能与道具、区域/地点建立游戏版本对应的真实 schema 解码器；从原始字段导出等级、权重、条件、特性、种族、形态、坐标，再对照游戏文本与 pkNX / PKHeX 的映射和运行时逻辑。按逐表原始输入数、解析成功数、异常数、唯一 ID 和来源哈希验收。
 
 资料：仓库固定版本 tools/pkNX 与 tools/PokeDocs/SV/Flatbuffers；上游 https://github.com/kwsch/pkNX 和 https://github.com/pkZukan/PokeDocs。
+
+
+## 原生玩法表第二层（pkNX Schema + flatc）
+
+使用固定版本 pkNX .fbs Schema 与 SHA-256 校验后的 flatc 直接解码实际存在的原生二进制：
+
+    python scripts/Decode-SV-Gameplay-Flatbuffers.py --repo .
+
+生成 parsed 下的结构化 JSON，随后 Export-SV-Gameplay-Data.py 自动将真实记录输出至 CSV / JSONL / SQLite。
+
+- 图鉴：avalon/data/personal_array.bin，获取种族编号、能力值、特性、进化和可学招式
+- 招式：avalon/data/waza_array.bin，获取 MoveID、属性、威力、命中、PP 等
+- 道具：world/data/item/itemdata/itemdata_array.bfbs，获取 Id、ItemType、Price、FieldPocket 等
+- 遭遇：world/data/encount/pokedata 下各 DLC 表，获取 DevId、等级、Area、Biome、Time、Version 和权重
+- 地点：world/data/ui/ymap 下地点名与地图数据，保存原始坐标、消息标签及显示设置
+- 额外验证图鉴 UI 与团体战的原始配置表
+
+schema 成功解析只意味着数据字段结构可读，不等于实机条件已经完全验证。缺少的来源记录为 SOURCE_NOT_EXTRACTED。
+实际数量和问题见 semantic_exports/native_schema_decoding.json 与 summary.json，不能以预计值代替运行结果。
