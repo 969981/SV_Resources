@@ -60,6 +60,29 @@ class VirtualConvertedTest(unittest.TestCase):
         self.assertEqual(first, {t["id"]: t["fingerprint"] for t in repeat})
         self.assertTrue(all(vc.fs.is_terminal(t, state) for t in repeat))
 
+    def test_partial_size_limit_is_bisected_without_losing_native_files(self):
+        rows = [(f"appli/tex/picnic_menu/item_{i:03d}/image.bntx", "C" * 64)
+                for i in range(64)]
+        leaves = vc.build_converted_tasks(rows, 1000)
+        parent = vc._compact_unattempted(leaves, {"attempted": {}})[0]
+        self.assertEqual(parent["file_count"], 64)
+        state = {"attempted": {parent["id"]: {
+            "fingerprint": parent["fingerprint"], "status": "PARTIAL",
+            "parsed_records": 64, "unresolved": 5, "partial_attempts": 1}}}
+        first = vc._split_deferred_task(parent, state)
+        self.assertEqual([p["file_count"] for p in first], [32, 32])
+        self.assertEqual(sorted(p for task in first for p in task["paths"]),
+                         sorted(p for p, _ in rows))
+        self.assertEqual(first, vc._split_deferred_task(parent, state))
+        state["attempted"][first[0]["id"]] = {
+            "fingerprint": first[0]["fingerprint"], "status": "PARTIAL",
+            "parsed_records": 32, "unresolved": 1, "partial_attempts": 1}
+        second = vc._split_deferred_task(parent, state)
+        self.assertEqual([t["file_count"] for t in second], [16, 16, 32])
+        self.assertEqual(first[1]["id"], second[2]["id"])
+        self.assertEqual(sorted(p for task in second for p in task["paths"]),
+                         sorted(p for p, _ in rows))
+
     def test_layer_mapping(self):
         self.assertEqual(vc.destination_for("converted/chara/mesh.gltf"),
                          "virtual_converted/chara/mesh.gltf")
