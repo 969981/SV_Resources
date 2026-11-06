@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_tr/tr0380_musician#00000",
+  "input_fingerprint": "E45E9ECFB94086D38D6F7E80CE4837A52CFF84CEDB069422D1BF21270657C9A9",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_tr/tr0380_musician/tr0380_musician.ccdatam",
+      "source_sha256": "E9FFA08104FF764D09536143C23B964F5734A9A9220115B41018C29EC9427FFF",
+      "bytes": 832,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C0000000000060008000400060000000400000008000000C80200005C020000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_tr/tr0380_musician/tr0380_musician.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_tr/tr0380_musician/_inspection/77b25a2188745436.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_tr/tr0380_musician/_inspection/77b25a2188745436.jsonl",
+      "sha256": "9F3145D4579DCA00C2EB550C5ECDF74F5C6433A63CA1CAD45A212DC40D1D8D2C",
+      "bytes": 664
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_tr/tr0380_musician/tr0380_musician.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_tr/tr0380_musician/tr0380_musician.ccdatam.flatbuffer.json",
+      "sha256": "BCCE6F88468AF79B3B3AEEA2C8DCC475535E3CFB99420B1A237219052C5D61B5",
+      "bytes": 1234
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_tr/tr0380_musician",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
