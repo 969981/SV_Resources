@@ -17,9 +17,10 @@ import subprocess
 import sys
 
 try:
-    from . import cli
+    from . import cli, schema_flatbuffers
 except ImportError:
     import cli
+    import schema_flatbuffers
 
 ROOT = Path(cli.BASE)
 STATE_NAME = "_index/secondary/full-state.json"
@@ -28,6 +29,7 @@ RUN_NAME = "_index/secondary/full-last-run.json"
 EPOCH = "full-sweep-parsed-v2"  # Revisit ALL earlier tasks: parsed coverage is now mandatory.
 MAX_ERROR_ATTEMPTS = 2  # Keep failed tasks visible, but never dispatch forever.
 MAX_PARTIAL_ATTEMPTS = 2  # Retry incomplete outputs, then retain unresolved evidence.
+SCHEMA_DECODER_EPOCH = "sv-flatc-pokedocs-v1"  # Replay old unsupported schema candidates once.
 
 
 def repo_root(path):
@@ -149,6 +151,15 @@ def is_terminal(task, state):
     status = previous.get("status")
     inspected = (int(previous.get("parsed_records", -1)) ==
                  int(task["file_count"]))
+    # Parser upgrades must re-visit already INSPECTED_UNPARSED sources whose
+    # extension now has a real version-pinned schema. Preserve every other
+    # historical task ID/fingerprint and never restart the whole 349k sweep.
+    if (status in ("ATTEMPTED", "PARTIAL")
+            and int(previous.get("inspected_unparsed", 0)) > 0
+            and previous.get("schema_decoder_epoch") != SCHEMA_DECODER_EPOCH
+            and any(PurePosixPath(p).suffix.lower() in schema_flatbuffers.SCHEMAS
+                    for p in task["paths"])):
+        return False
     if status == "ATTEMPTED":
         return inspected and int(previous.get("hash_mismatches", 0)) == 0
     if status == "PARTIAL":
