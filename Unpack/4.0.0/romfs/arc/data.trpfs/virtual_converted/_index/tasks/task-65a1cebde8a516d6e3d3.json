@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_ob/ob0041_rice#00000",
+  "input_fingerprint": "27E6D23F978719700E66A762669D02E259F845C28B73396403D650EE21A8A126",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_ob/ob0041_rice/ob0041_rice.ccdatam",
+      "source_sha256": "C43CEFDE960CAA808B484AF42ABB6E2B24C1398F18AD79E793181AFC49ADBBD2",
+      "bytes": 124,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C00000000000600080004000600000004000000010000001000000000000A00",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_ob/ob0041_rice/ob0041_rice.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob0041_rice/_inspection/86772d681729db39.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob0041_rice/_inspection/86772d681729db39.jsonl",
+      "sha256": "1FE13A82FF4CF40FB3D70610264C9F2A0B3A92E8FFEE7EA69F0D38B37CC4C6BB",
+      "bytes": 648
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob0041_rice/ob0041_rice.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob0041_rice/ob0041_rice.ccdatam.flatbuffer.json",
+      "sha256": "31AB7FC060EE9BB7B300E0F751A072E84FE7B2C4B9A9C9A9578234719EA392CB",
+      "bytes": 513
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_ob/ob0041_rice",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
