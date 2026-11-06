@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_tr/tr0500_taxidriver#00000",
+  "input_fingerprint": "9B7A7323A02A54B4B04C0F5A068BA2A789AC6691322921DFDB26B47FF9BDE8B1",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_tr/tr0500_taxidriver/tr0500_taxidriver.ccdatam",
+      "source_sha256": "947DC0FB32198179FF0C6CD18D6C574B0A56A9E9840E04E0405F91B2EEDDE251",
+      "bytes": 432,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C000000000006000800040006000000040000000400000038010000CC000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_tr/tr0500_taxidriver/tr0500_taxidriver.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_tr/tr0500_taxidriver/_inspection/fefa73d4b05d2769.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_tr/tr0500_taxidriver/_inspection/fefa73d4b05d2769.jsonl",
+      "sha256": "565144A673EF2E40C0823AB449E1E3061C46652D1C8002E022C37D5950F4F774",
+      "bytes": 672
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_tr/tr0500_taxidriver/tr0500_taxidriver.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_tr/tr0500_taxidriver/tr0500_taxidriver.ccdatam.flatbuffer.json",
+      "sha256": "6D9D2D3945CA0C634C608FC522C3D63DD658D0931B47F67DFED042B8608AC3D2",
+      "bytes": 838
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_tr/tr0500_taxidriver",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
