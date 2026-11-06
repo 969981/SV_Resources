@@ -49,10 +49,104 @@ def build_converted_tasks(rows, max_group_files=1200):
             regular.append(record)
     tasks = _original_build_tasks(regular, max_group_files)
     tasks.extend(_original_build_tasks(common_messages, min(max_group_files, 96)))
-    return sorted(tasks, key=lambda task: (fs.task_priority(task["prefix"]), task["id"]))
+    tasks = sorted(tasks, key=lambda task: (fs.task_priority(task["prefix"]), task["id"]))
+    return (_compact_unattempted(tasks, _active_state) if _active_state is not None
+            else tasks)
+
+
+# Keep already checkpointed leaf tasks unchanged.  Previously every one-file
+# directory consumed a whole worker slot, so eight tasks could mean eight files
+# despite a 1600-file batch limit.  Only never-attempted leaf tasks may be
+# combined into stable, auditable batches.
+_original_choose = fs.choose
+_original_status = fs.status
+_active_state = None
+
+
+def _groupable_prefix(task):
+    parts = PurePosixPath(task["prefix"]).parts
+    if len(parts) < 3 or task["file_count"] >= 64:
+        return None
+    # Common message catalogs can expand drastically; preserve the original
+    # bounded per-directory tasks and paired-text processing.
+    if len(parts) >= 4 and parts[:2] == ("message", "dat") and parts[3] == "common":
+        return None
+    if parts[:2] == ("message", "dat"):
+        return "/".join(parts[:4]) if len(parts) >= 4 else None
+    return "/".join(parts[:3])
+
+
+def _compact_unattempted(tasks, state, target_files=64):
+    attempted = state.get("attempted", {})
+    kept = []
+    buckets = {}
+    for task in tasks:
+        prefix = _groupable_prefix(task)
+        if prefix is None or task["id"] in attempted:
+            kept.append(task)
+        else:
+            buckets.setdefault(prefix, []).append(task)
+    for prefix, members in sorted(buckets.items()):
+        chunk = []
+        size = 0
+
+        def emit():
+            if not chunk:
+                return
+            # A single leaf must retain its historical ID and fingerprint.
+            if len(chunk) == 1:
+                kept.append(chunk[0])
+                return
+            h = __import__("hashlib").sha256()
+            h.update((fs.EPOCH + "|rollup-v1|").encode("utf-8"))
+            paths = []
+            for leaf in chunk:
+                h.update(leaf["id"].encode("utf-8") + b"\\0")
+                h.update(leaf["fingerprint"].encode("ascii") + b"\\0")
+                paths.extend(leaf["paths"])
+            kept.append({
+                "id": "__rollup__/" + prefix + "#" + h.hexdigest()[:20],
+                "fingerprint": h.hexdigest().upper(),
+                "prefix": prefix,
+                "paths": paths,
+                "file_count": len(paths),
+            })
+
+        for task in members:
+            if chunk and size + task["file_count"] > target_files:
+                emit()
+                chunk = []
+                size = 0
+            chunk.append(task)
+            size += task["file_count"]
+        emit()
+    return sorted(kept, key=lambda task: (fs.task_priority(task["prefix"]), task["id"]))
+
+
+# The planner and final status must use the *same* stable grouping view.
+# The original grouped-task records stay terminal across successive runs;
+# previously committed leaf records remain untouched and are not reprocessed.
+def _choose_with_compaction(repo, group_files, max_tasks, max_files):
+    global _active_state
+    _active_state = fs.load_state(repo)
+    try:
+        return _original_choose(repo, group_files, max_tasks, max_files)
+    finally:
+        _active_state = None
+
+
+def _status_with_compaction(repo, group_files):
+    global _active_state
+    _active_state = fs.load_state(repo)
+    try:
+        return _original_status(repo, group_files)
+    finally:
+        _active_state = None
 
 
 fs.build_tasks = build_converted_tasks
+fs.choose = _choose_with_compaction
+fs.status = _status_with_compaction
 
 
 def destination_for(relative: str) -> str:
