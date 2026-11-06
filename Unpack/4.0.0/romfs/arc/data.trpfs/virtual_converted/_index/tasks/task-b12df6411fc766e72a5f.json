@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_tribe_obj_00_ao#00000",
+  "input_fingerprint": "1E0B38449A396A0912F67F94CCAA31A965F5D3266645D6BCAE4CD54B42E9CB7A",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_tribe_obj_00_ao/cm_tribe_obj_00_ao.bntx",
+      "source_sha256": "6E12DC04DA630874A71BEFCAB7692AD77C51646AB8DAF9F507001A805E71C794",
+      "bytes": 53360,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A00100D0000070D00000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_tribe_obj_00_ao/cm_tribe_obj_00_ao.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_tribe_obj_00_ao/cm_tribe_obj_00_ao.png",
+      "path": "virtual_converted/chara/share/cm_tribe_obj_00_ao/cm_tribe_obj_00_ao.png",
+      "sha256": "26EA8B035B7AAA4F02365BB4E20D612BBF4473540CC600A246A75561F7210898",
+      "bytes": 60676
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_tribe_obj_00_ao/_inspection/14abde72a99530c4.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_tribe_obj_00_ao/_inspection/14abde72a99530c4.jsonl",
+      "sha256": "8D5CCFA628959648E75C8E5472EAA5DBBBB5461EACD0260E0C410B723DB31632",
+      "bytes": 636
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_tribe_obj_00_ao/cm_tribe_obj_00_ao.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_tribe_obj_00_ao/cm_tribe_obj_00_ao.bntx.json",
+      "sha256": "48E18A1FB39FD88C9A453D4372A509DB912B185957CD46D15DA05B5061219AFB",
+      "bytes": 286
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_tribe_obj_00_ao",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
