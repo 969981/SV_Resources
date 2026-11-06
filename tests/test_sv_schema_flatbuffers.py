@@ -75,6 +75,46 @@ class SchemaFlatbuffersTests(unittest.TestCase):
             self.assertEqual(body["status"], "STRUCTURE_PARSED")
             self.assertEqual(len(body["schema_sha256"]), 64)
 
+    def test_extended_pokedocs_schema_registry(self):
+        expected = {
+            ".trins": "field/trins.fbs",
+            ".trlgt": "field/trlgt.fbs",
+            ".trtrr": "field/trtrr.fbs",
+            ".trsha": "render/trsha.fbs",
+            ".trtch": "render/trtch.fbs",
+            ".trbsm": "model/trbsm.fbs",
+            ".trltt": "model/trltt.fbs",
+            ".ccdata": "customization/ccdata.fbs",
+            ".ccdatam": "customization/ccdatam.fbs",
+        }
+        for ext, schema in expected.items():
+            with self.subTest(extension=ext):
+                self.assertEqual(sf.SCHEMAS[ext], schema)
+
+    @unittest.skipIf(os.name == "nt", "Fake Python executable uses POSIX shebang")
+    def test_empty_flatc_object_is_not_accepted_as_decoded(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            root = base / "root"
+            source = root / "virtual/field/example.trins"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(fake_table_bytes())
+            schemas = base / "schemas"
+            entry = schemas / "field/trins.fbs"
+            entry.parent.mkdir(parents=True)
+            entry.write_text("table TRINS { value:uint; } root_type TRINS;")
+            tool = base / "fakeflatc"
+            tool.write_text(
+                "#!/usr/bin/env python3\\n"
+                "import pathlib,sys\\n"
+                "args=sys.argv\\n"
+                "out=pathlib.Path(args[args.index('-o')+1])\\n"
+                "(out/(pathlib.Path(args[-1]).stem+'.json')).write_text('{}')\\n")
+            tool.chmod(0o755)
+            with patch.object(sf, "SCHEMA_ROOT", schemas):
+                result = sf.convert_one(root, "field/example.trins", source, str(tool))
+            self.assertEqual(result, (None, "FLATC_OUTPUT_EMPTY_OBJECT"))
+
     def test_no_schema_never_becomes_success(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
