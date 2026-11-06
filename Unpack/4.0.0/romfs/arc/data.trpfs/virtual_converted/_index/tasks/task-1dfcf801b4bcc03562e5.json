@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_md_metal04_rgn#00000",
+  "input_fingerprint": "95DAA32E50EB23AB8BD8C7865F87A396D39C87619AA94CCC9DF817224DAA3125",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_md_metal04_rgn/cm_md_metal04_rgn.bntx",
+      "source_sha256": "4C0A3E7159670F881732C614FFB787C1E2CD337A68A990E299493913ECC92CF1",
+      "bytes": 8304,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010020000070200000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_md_metal04_rgn/cm_md_metal04_rgn.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_md_metal04_rgn/cm_md_metal04_rgn.png",
+      "path": "virtual_converted/chara/share/cm_md_metal04_rgn/cm_md_metal04_rgn.png",
+      "sha256": "7EFFDE412CE76B7EE5DC04EB1E12F9AB128ECD5D551568FDC02720B7A14A8A97",
+      "bytes": 327
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_md_metal04_rgn/_inspection/22b5fba88a9472b3.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_md_metal04_rgn/_inspection/22b5fba88a9472b3.jsonl",
+      "sha256": "EB5D41F39E14FB4580DE1FADC3556FEA59620484AC41F9BC9466BDF2D7592CB4",
+      "bytes": 631
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_md_metal04_rgn/cm_md_metal04_rgn.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_md_metal04_rgn/cm_md_metal04_rgn.bntx.json",
+      "sha256": "0F40FD503B298085D4D3DA8DFFB3127723ED79AF93AC4BDC630C07C6F80AEF4C",
+      "bytes": 281
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_md_metal04_rgn",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}

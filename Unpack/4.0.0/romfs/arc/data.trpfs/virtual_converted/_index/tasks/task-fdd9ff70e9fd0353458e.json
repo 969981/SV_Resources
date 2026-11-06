@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_md_pra00_nrm#00000",
+  "input_fingerprint": "F5FB568E2BDC29ECD90AC94B97208E6DA0E659E22EB822A28BBB5794518EF34C",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_md_pra00_nrm/cm_md_pra00_nrm.bntx",
+      "source_sha256": "822F70EA1D64882F654A9C6E10372341DF8BD6B5D050A88DB831504C74D12DBB",
+      "bytes": 12400,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010030000070300000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_md_pra00_nrm/cm_md_pra00_nrm.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_md_pra00_nrm/cm_md_pra00_nrm.png",
+      "path": "virtual_converted/chara/share/cm_md_pra00_nrm/cm_md_pra00_nrm.png",
+      "sha256": "AB178F90341B8821F446024AC60816E48563C3100211A317A777182B077CA286",
+      "bytes": 3189
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_md_pra00_nrm/_inspection/f3c8ec879b00c159.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_md_pra00_nrm/_inspection/f3c8ec879b00c159.jsonl",
+      "sha256": "E1726EAF50C639F102AF26F41C04DAB91A1AC6FDA0249EE538253F664EDE80B2",
+      "bytes": 624
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_md_pra00_nrm/cm_md_pra00_nrm.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_md_pra00_nrm/cm_md_pra00_nrm.bntx.json",
+      "sha256": "A8913C892C30D896970EB1744A802F5892F1109074F6A7867C4B359FCF0221B7",
+      "bytes": 278
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_md_pra00_nrm",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
