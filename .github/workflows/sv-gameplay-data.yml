@@ -38,7 +38,6 @@ jobs:
           python -m py_compile scripts/Export-SV-Gameplay-Data.py
           python -m unittest discover -s tests -p 'test_sv_gameplay_export.py' -v
   export:
-    if: github.event_name != 'pull_request'
     needs: tests
     runs-on: ubuntu-latest
     timeout-minutes: 150
