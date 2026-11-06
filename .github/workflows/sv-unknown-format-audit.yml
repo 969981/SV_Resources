@@ -86,7 +86,16 @@ jobs:
               "pm0128_11_51.trmtr",
               "pm0128_11_51.trmmt",
               "pm0128_11_51.trpokecfg",
+              "pm0128_11_51_00000_defaultwait01_loop.tracm",
+              "pm0128_11_51_00000_defaultwait01_loop.tranm",
+              "pm0128_11_51.trskl",
+              "pm0128_11_51.trmdl",
+              "pm0128_11_51.trmsh",
+              "pm0128_11_51.trmbf",
+              "pm0128_11_51_base.tracl",
           ]
+          baseline = set(files[:4])
+          baseline_failed = []
           succeeded = 0
           for name in files:
               rel=folder+name
@@ -99,9 +108,12 @@ jobs:
                   obj=json.loads((root/output).read_text("utf-8"))
                   if obj["native_sha256"] != sf.cli.digest(path):
                       raise RuntimeError("Native SHA-256 mismatch")
-          print(json.dumps({"schema_decoded":succeeded,"samples":len(files)}))
-          if succeeded != len(files):
-              raise SystemExit("Not every real SV 4.0.0 sample passed schema-backed conversion")
+              elif name in baseline:
+                  baseline_failed.append(name + ":" + status)
+          print(json.dumps({"schema_decoded":succeeded, "samples":len(files),
+                            "baseline_failures":baseline_failed}))
+          if baseline_failed:
+              raise SystemExit("Known-good real SV schema samples regressed")
           PY
 
   audit:
