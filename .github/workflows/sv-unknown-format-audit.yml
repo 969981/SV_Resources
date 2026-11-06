@@ -12,6 +12,8 @@ on:
       - 'scripts/resource_pipeline/full_secondary.py'
       - 'scripts/resource_pipeline/cli.py'
       - 'tests/test_sv_unknown_format_audit.py'
+      - 'tests/test_sv_schema_flatbuffers.py'
+      - 'scripts/resource_pipeline/schema_flatbuffers.py'
       - 'tests/test_sv_virtual_second_stage.py'
       - '.github/workflows/sv-unknown-format-audit.yml'
 permissions:
@@ -26,6 +28,7 @@ jobs:
           sparse-checkout: |
             scripts/resource_pipeline
             tests/test_sv_unknown_format_audit.py
+            tests/test_sv_schema_flatbuffers.py
             tests/test_sv_virtual_second_stage.py
           sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
@@ -36,6 +39,7 @@ jobs:
           python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/cli.py scripts/resource_pipeline/unknown_format_audit.py
           python -m unittest discover -s tests -p 'test_sv_virtual_second_stage.py' -v
           python -m unittest discover -s tests -p 'test_sv_unknown_format_audit.py' -v
+          python -m unittest discover -s tests -p 'test_sv_schema_flatbuffers.py' -v
   audit:
     if: github.event_name != 'pull_request' && github.repository == '969981/SV_Resources'
     needs: tests
