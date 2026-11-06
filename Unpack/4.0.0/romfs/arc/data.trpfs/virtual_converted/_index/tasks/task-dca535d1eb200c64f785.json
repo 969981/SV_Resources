@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "task": "pokemon/catalog/catalog#00000",
+  "input_fingerprint": "0D8ECDB127500A890FAE0D93194B4ECC2F56132B39B9746624D298799E14C5BB",
+  "input_files": 1,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1
+  },
+  "sources": [
+    {
+      "source": "pokemon/catalog/catalog/poke_resource_table.trpmcatalog",
+      "source_sha256": "94BB51B37B22617DE05193E0C0A15BF04BF1B12E1CA53CBDA7144FD02AE472AD",
+      "bytes": 382952,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "0C00000008000C000400080008000000D0D7050004000000F403000048D60500",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          786440,
+          524292,
+          8
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": []
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/pokemon/catalog/catalog/_inspection/684d05e80a29b896.jsonl",
+      "path": "virtual_converted/_parsed/pokemon/catalog/catalog/_inspection/684d05e80a29b896.jsonl",
+      "sha256": "B496C87A4589202C03BD5C9323379DEBAEE33AE443C0630D6F263225D5A9BA79",
+      "bytes": 513
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "pokemon/catalog/catalog",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
