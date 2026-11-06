@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_md_leather01_rgn#00000",
+  "input_fingerprint": "C412ED8D8E18E5E783F8F380EFF6B7825D6F0C2EB9FA92EBC0ED5F09DB0A9153",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_md_leather01_rgn/cm_md_leather01_rgn.bntx",
+      "source_sha256": "5B5FBCF7C191C48558BD0B305586F537A6857B95EC615C86DFE741F1310377AD",
+      "bytes": 8304,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010020000070200000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_md_leather01_rgn/cm_md_leather01_rgn.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_md_leather01_rgn/cm_md_leather01_rgn.png",
+      "path": "virtual_converted/chara/share/cm_md_leather01_rgn/cm_md_leather01_rgn.png",
+      "sha256": "FADBAA62C4858D302BCCC53FD6083166D7C0A245BFA8B1984AD3F4A8630E8D3A",
+      "bytes": 1773
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_md_leather01_rgn/_inspection/75084303dbae4e0b.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_md_leather01_rgn/_inspection/75084303dbae4e0b.jsonl",
+      "sha256": "35540789A3603DFD6FEA135B6DA1D817631515BD4A90E74DC66C55303E5B4D88",
+      "bytes": 639
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_md_leather01_rgn/cm_md_leather01_rgn.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_md_leather01_rgn/cm_md_leather01_rgn.bntx.json",
+      "sha256": "498C35D02BF29FB987D0197602500C0775A82CFA34CC3E369536CDA2160846F5",
+      "bytes": 285
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_md_leather01_rgn",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
