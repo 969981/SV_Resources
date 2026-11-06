@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/bsm/chara_create_value_list_b#00000",
+  "input_fingerprint": "0DE476081EBCFDCADD4472CECC0F222CA7FB83D572B7E0C33FD215F57E1A9967",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/bsm/chara_create_value_list_b/chara_create_value_list_b.trbsm",
+      "source_sha256": "9BDBC8FD97090006E47470B221869E927BE85F4967EA32BCC146710EDD90D510",
+      "bytes": 4476,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:trbsm",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "14000000545242530C001600040008000C0010000C000000140900006C000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          20,
+          1396855380,
+          1441804,
+          524292
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/bsm/chara_create_value_list_b/chara_create_value_list_b.trbsm.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/bsm/chara_create_value_list_b/_inspection/cda8f82e70c20ee7.jsonl",
+      "path": "virtual_converted/_parsed/chara/bsm/chara_create_value_list_b/_inspection/cda8f82e70c20ee7.jsonl",
+      "sha256": "2E0421EC155DC3C48112BC622D0649D827A58E4A758D8991BE0929D52E1730ED",
+      "bytes": 701
+    },
+    {
+      "pipeline_path": "parsed/chara/bsm/chara_create_value_list_b/chara_create_value_list_b.trbsm.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/bsm/chara_create_value_list_b/chara_create_value_list_b.trbsm.flatbuffer.json",
+      "sha256": "072580915519D5D698C82711ED6C52C96FC022B7D2A5ABDA76D631A282306EC2",
+      "bytes": 4335
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/bsm/chara_create_value_list_b",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
