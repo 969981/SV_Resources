@@ -105,11 +105,11 @@ class SchemaFlatbuffersTests(unittest.TestCase):
             entry.write_text("table TRINS { value:uint; } root_type TRINS;")
             tool = base / "fakeflatc"
             tool.write_text(
-                "#!/usr/bin/env python3\\n"
-                "import pathlib,sys\\n"
-                "args=sys.argv\\n"
-                "out=pathlib.Path(args[args.index('-o')+1])\\n"
-                "(out/(pathlib.Path(args[-1]).stem+'.json')).write_text('{}')\\n")
+                "#!/usr/bin/env python3\n"
+                "import pathlib,sys\n"
+                "args=sys.argv\n"
+                "out=pathlib.Path(args[args.index('-o')+1])\n"
+                "(out/(pathlib.Path(args[-1]).stem+'.json')).write_text('{}')\n")
             tool.chmod(0o755)
             with patch.object(sf, "SCHEMA_ROOT", schemas):
                 result = sf.convert_one(root, "field/example.trins", source, str(tool))
