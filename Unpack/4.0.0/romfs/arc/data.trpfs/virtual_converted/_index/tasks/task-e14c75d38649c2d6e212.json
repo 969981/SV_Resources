@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/motion_tr/tr0601_tribemvat#00000.part0.part0.part1.part0.part1",
+  "input_fingerprint": "A2CBEACCF4B7CAF3527D75C654FCFBA0D16354EAF4240CE3A484C3B2A977DB65",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_body_skin_normal.bntx",
+      "source_sha256": "BAACAF5DD139CCCE007515FC19DC9E6B906EA7B1F2281AB9A9F08D744A6B675F",
+      "bytes": 184424,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A00100D0020068D00200",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_body_skin_normal.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_body_skin_normal.png",
+      "path": "virtual_converted/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_body_skin_normal.png",
+      "sha256": "181C498495AE944BA337E1F6D0972F1417B8460FCF987683570DB7E3691378DC",
+      "bytes": 27391
+    },
+    {
+      "pipeline_path": "parsed/chara/motion_tr/tr0601_tribemvat/_inspection/a59e3389a0a469f4.jsonl",
+      "path": "virtual_converted/_parsed/chara/motion_tr/tr0601_tribemvat/_inspection/a59e3389a0a469f4.jsonl",
+      "sha256": "2F9081016072AFEA4A5D41B9D1D43904A133CB88556FA86D33BDFC3089228CE5",
+      "bytes": 685
+    },
+    {
+      "pipeline_path": "parsed/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_body_skin_normal.bntx.json",
+      "path": "virtual_converted/_parsed/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_body_skin_normal.bntx.json",
+      "sha256": "826D61BB8F59FB4CE5BF4F2A719A6DB6CADD43A6247EDF38608677818E911A65",
+      "bytes": 311
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/motion_tr/tr0601_tribemvat",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
