@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_tr/tr0900_richman#00000",
+  "input_fingerprint": "583E454EBE25BE637D2AF5664D80550A499120B2AFAADE7E6C2DF9009488A180",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_tr/tr0900_richman/tr0900_richman.ccdatam",
+      "source_sha256": "3ACCA819C47EA2E7B6AEE74E19702FFA6ADF93A641C455C740DF9F609F15EEFC",
+      "bytes": 124,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C00000000000600080004000600000004000000010000001000000000000A00",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_tr/tr0900_richman/tr0900_richman.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_tr/tr0900_richman/_inspection/213d24c201ee7afb.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_tr/tr0900_richman/_inspection/213d24c201ee7afb.jsonl",
+      "sha256": "EA88429822EDA579AB13C9C6A9E6148F22EEB702BC39FD0BC492A2508A3BA382",
+      "bytes": 660
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_tr/tr0900_richman/tr0900_richman.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_tr/tr0900_richman/tr0900_richman.ccdatam.flatbuffer.json",
+      "sha256": "5B46E0E5BE5BBA0FCF0FCECC2ECC81C9078774358D791F006268C280A9CABE05",
+      "bytes": 519
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_tr/tr0900_richman",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
