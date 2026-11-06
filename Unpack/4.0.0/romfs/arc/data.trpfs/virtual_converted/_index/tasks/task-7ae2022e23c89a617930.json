@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_uni00_shoes_00_mtl#00000",
+  "input_fingerprint": "9904E27B3FA5864A93729E2F45BD73E868639DDAB68872CF1F6EF95EF1359355",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_uni00_shoes_00_mtl/cm_uni00_shoes_00_mtl.bntx",
+      "source_sha256": "B4B740B6BFDBE9C8085D2472F75D920ACB046ECC5D41E8F2EDB45CE7268D0649",
+      "bytes": 12400,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010030000070300000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_uni00_shoes_00_mtl/cm_uni00_shoes_00_mtl.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_uni00_shoes_00_mtl/cm_uni00_shoes_00_mtl.png",
+      "path": "virtual_converted/chara/share/cm_uni00_shoes_00_mtl/cm_uni00_shoes_00_mtl.png",
+      "sha256": "96C156EBBB75CFE6750C683930EF24AB24F10F8DE5C18C8C798D7BADFBE712C5",
+      "bytes": 512
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_uni00_shoes_00_mtl/_inspection/f328f7e0c5f051cf.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_uni00_shoes_00_mtl/_inspection/f328f7e0c5f051cf.jsonl",
+      "sha256": "D8B751DE61F5328D7F42AA6560E5905E7FD253EE2B2B66E592B1EB85FE4A0965",
+      "bytes": 648
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_uni00_shoes_00_mtl/cm_uni00_shoes_00_mtl.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_uni00_shoes_00_mtl/cm_uni00_shoes_00_mtl.bntx.json",
+      "sha256": "AEB06D94DE7EFB83D0E4480244BFBBC2B25E9DA004FC974E45A46749AE6380FB",
+      "bytes": 290
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_uni00_shoes_00_mtl",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
