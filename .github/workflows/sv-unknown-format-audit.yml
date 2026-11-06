@@ -100,8 +100,8 @@ jobs:
                   if obj["native_sha256"] != sf.cli.digest(path):
                       raise RuntimeError("Native SHA-256 mismatch")
           print(json.dumps({"schema_decoded":succeeded,"samples":len(files)}))
-          if succeeded == 0:
-              raise SystemExit("No real SV 4.0.0 sample passed schema-backed conversion")
+          if succeeded != len(files):
+              raise SystemExit("Not every real SV 4.0.0 sample passed schema-backed conversion")
           PY
 
   audit:
