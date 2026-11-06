@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_vr/tr0870_hunkf#00000",
+  "input_fingerprint": "0252B926B1A8C348D21BDFF35D37B6BBC2408D4F87BC585781D8119460900E34",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_vr/tr0870_hunkf/tr0870_hunkf.ccdatam",
+      "source_sha256": "2EFBF681067A1912DB2EC1F840D8779453820A88E294F7757AD20CE27B8FED47",
+      "bytes": 3492,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C0000000000060008000400060000000400000020000000240D0000AC0C0000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_vr/tr0870_hunkf/tr0870_hunkf.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_vr/tr0870_hunkf/_inspection/1d631083e9b1a3b0.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_vr/tr0870_hunkf/_inspection/1d631083e9b1a3b0.jsonl",
+      "sha256": "DF70D5C5E34EF8A06ADD5BCB1336C82EFBA28B53DE7FE7064D307C7551648850",
+      "bytes": 653
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_vr/tr0870_hunkf/tr0870_hunkf.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_vr/tr0870_hunkf/tr0870_hunkf.ccdatam.flatbuffer.json",
+      "sha256": "9B37E725B10E114351D933ABD015DF7F5D805AF588D88AD59633AB5B97928E4F",
+      "bytes": 3916
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_vr/tr0870_hunkf",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
