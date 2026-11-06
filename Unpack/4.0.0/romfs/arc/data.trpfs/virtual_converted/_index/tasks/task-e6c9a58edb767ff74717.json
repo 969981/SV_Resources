@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_uq/tr1320_jchildm#00000",
+  "input_fingerprint": "72C28EDD1CC1863FE68136C84E07085A857853D168A94DA7D3ED18A5DAF3C001",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_uq/tr1320_jchildm/tr1320_jchildm.ccdatam",
+      "source_sha256": "4AD7C6E42D20729D674568748D4AD2ED62CADF2D507E740F9498C67902EF9B48",
+      "bytes": 1332,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C000000000006000800040006000000040000000C000000B804000044040000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_uq/tr1320_jchildm/tr1320_jchildm.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_uq/tr1320_jchildm/_inspection/a8879f0eb214b79b.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_uq/tr1320_jchildm/_inspection/a8879f0eb214b79b.jsonl",
+      "sha256": "04517060C7ECAD0D9097AD417C0139C132238AF0A92923AFCD4314B5684B564B",
+      "bytes": 661
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_uq/tr1320_jchildm/tr1320_jchildm.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_uq/tr1320_jchildm/tr1320_jchildm.ccdatam.flatbuffer.json",
+      "sha256": "1D4B31D5F3F237C0DD29A22C064D55C6EC393F2E9C8E576256DC67D5FC313B2F",
+      "bytes": 1744
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_uq/tr1320_jchildm",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
