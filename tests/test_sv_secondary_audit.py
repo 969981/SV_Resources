@@ -124,7 +124,7 @@ class AuditSecondaryTests(unittest.TestCase):
                  "source_sha256": "A" * 64, "sha256_evidence": "LOCAL_DIGEST_ONLY"}
                 for name in sources
             ]
-            payload = "".join(json.dumps(row) + "\\n" for row in recorded).encode()
+            payload = "".join(json.dumps(row) + "\n" for row in recorded).encode()
             dest = root / manifest
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(payload)
