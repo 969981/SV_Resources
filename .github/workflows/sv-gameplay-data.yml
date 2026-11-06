@@ -29,6 +29,7 @@ jobs:
             tools/pkNX/FlatBuffers/SV/
             scripts/resource_pipeline/r1_text.py
             tests/test_sv_gameplay_export.py
+            tests/test_sv_gameplay_native.py
           sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
@@ -37,6 +38,7 @@ jobs:
         run: |
           python -m py_compile scripts/Export-SV-Gameplay-Data.py
           python -m unittest discover -s tests -p 'test_sv_gameplay_export.py' -v
+          python -m unittest discover -s tests -p 'test_sv_gameplay_native.py' -v
   export:
     needs: tests
     runs-on: ubuntu-latest
