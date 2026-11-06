@@ -128,6 +128,10 @@ def build_audit(repo: Path, out: Path, group_files=1200):
     rows = fs.listed_native(repo)
     tasks = fs.build_tasks(rows, max_group_files=group_files)
     state = fs.load_state(repo)
+    # Audit the SAME stable rollup IDs/fingerprints used by the full sweep.
+    # Otherwise successful 64-file rollups appear as NOT_ATTEMPTED leaves.
+    if fs.EPOCH == fs.FULL_EPOCH:
+        tasks = fs.compact_never_attempted(tasks, state)
     parsed_paths = tracked_paths(repo, (root / "parsed").as_posix())
     status_counts = Counter()
     group_counts = Counter()
