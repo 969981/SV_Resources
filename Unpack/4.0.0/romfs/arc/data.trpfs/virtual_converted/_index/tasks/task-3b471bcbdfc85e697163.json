@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_hr_beard01_alb#00000",
+  "input_fingerprint": "E295D8ABE4A6C9B394FCA990F04816691088BB1C6560167568370625981D1F48",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_hr_beard01_alb/cm_hr_beard01_alb.bntx",
+      "source_sha256": "A51FD18E690F1FE1965E860D15BC822ADD28545CF6FFC60D51BFAB44719F4ADE",
+      "bytes": 356464,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010070050070700500",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_hr_beard01_alb/cm_hr_beard01_alb.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_hr_beard01_alb/cm_hr_beard01_alb.png",
+      "path": "virtual_converted/chara/share/cm_hr_beard01_alb/cm_hr_beard01_alb.png",
+      "sha256": "0A505A60D0E7004E9F448A34050B5F220E3D050E0AE4C220195A936334974F88",
+      "bytes": 223362
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_hr_beard01_alb/_inspection/348e9b7dbbd3a3b0.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_hr_beard01_alb/_inspection/348e9b7dbbd3a3b0.jsonl",
+      "sha256": "5FC4C7FA776EB41366759FA9B2118467BBC761800CB11FC2E42587212BBAF067",
+      "bytes": 633
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_hr_beard01_alb/cm_hr_beard01_alb.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_hr_beard01_alb/cm_hr_beard01_alb.bntx.json",
+      "sha256": "E3F06D7407EE0B209250B9978A8291F090BA79C8759FFED48DBA5F81FAD7646C",
+      "bytes": 285
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_hr_beard01_alb",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_hr_hairstyle00_alb#00000",
+  "input_fingerprint": "E0D9290D13AFFFC16B4D32F656D286A95425B80086812C937FB8E123507FCA21",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_hr_hairstyle00_alb/cm_hr_hairstyle00_alb.bntx",
+      "source_sha256": "157285778B2D199735B501510793F9C255B0A9D424B3390A4EB90DF296446981",
+      "bytes": 94320,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010070010070700100",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_hr_hairstyle00_alb/cm_hr_hairstyle00_alb.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_hr_hairstyle00_alb/cm_hr_hairstyle00_alb.png",
+      "path": "virtual_converted/chara/share/cm_hr_hairstyle00_alb/cm_hr_hairstyle00_alb.png",
+      "sha256": "06BB2FFB688E7FD38977C829F1C26037C3D907CBE83F2CCB11E0069AB1F56E0A",
+      "bytes": 43298
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_hr_hairstyle00_alb/_inspection/cff6bef6c625a033.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_hr_hairstyle00_alb/_inspection/cff6bef6c625a033.jsonl",
+      "sha256": "88EB99200FB3559ECBF56CD66B5F455E2C08478103D92AC1C99517D2052DD4B1",
+      "bytes": 648
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_hr_hairstyle00_alb/cm_hr_hairstyle00_alb.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_hr_hairstyle00_alb/cm_hr_hairstyle00_alb.bntx.json",
+      "sha256": "A8B7090DE4579933D355E20185697C46E5635BB8D0BBB66F94106822A6555DA8",
+      "bytes": 292
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_hr_hairstyle00_alb",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
