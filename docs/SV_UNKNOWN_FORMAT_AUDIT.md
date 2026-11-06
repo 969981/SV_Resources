@@ -39,3 +39,16 @@
 ## 分组与检查点
 
 FULL secondary 会把从未处理过的若干小叶子任务合成稳定 64 文件级的批次，已处理任务仍采用原 task id。virtual_converted 与 FULL secondary 的检查点不互通，数字不能相加。所有优化需记录每批实际 selected_files 与产出大小，而不只看 max_files 的配置。
+
+
+## 2026-11-06 增量调查：官方参考 Schema 与审计口径
+
+- [PokeDocs SV FlatBuffers](https://github.com/pkZukan/PokeDocs/tree/main/SV/Flatbuffers) 当前随仓库的固定版本还包含 field/trins、field/trlgt、field/trtrr、render/trsha、render/trtch、model/trbsm、model/trltt、customization/ccdata、customization/ccdatam 的原生根表。现已接入「候选 schema 解码」路由，必须由真实文件通过 root/vtable 与 flatc 解析后才写入 STRUCTURE_PARSED，不能按扩展名直接计成功。解析出空 JSON 的任务仍保持待解析。
+- [gftool GFTool.Core](https://github.com/pkZukan/gftool) 已有 .trmdl/.trmsh/.trskl/.trmtr 和场景 TRSCN/多组件读取能力，但其工具兼容性不等于每个 SV 4.0.0 实体资源均可输出。下一步要针对 TRSCN 建立节点/子场景/组件引用的真实样本比对。
+- [TrinitySceneEditor](https://github.com/Terasol/TrinitySceneEditor) 可以检验 .trscn 的子场景关系；[Switch Toolbox](https://github.com/KillzXGaming/Switch-Toolbox) 适合交叉验证 BNTX/BNSH/SARC/BFRES 等容器。容器头识别不是像素、shader 或模型真正导出。
+- `.github/workflows/sv-unknown-format-audit.yml` 只读 `virtual_converted/_index/tasks/` 报告，其统计**不含** FULL secondary 的 `parsed/**/_inspection/*.jsonl`。FULL 任务要用 `.github/workflows/sv-secondary-audit.yml` 的 per-file ledger；两者不能把记录条数直接相加，须按原始相对路径去重。
+- FULL secondary 的执行器会合并从未尝试的小叶任务为 64 文件批次（`__full_rollup__/`），审计使用同一个 `compact_never_attempted` 与 checkpoint ID，否则会把实际完成的批次误列为 NOT_ATTEMPTED。
+
+### 下一次实际样本验收
+
+针对新增 9 类：每类选 1–3 个真实 SV 4.0.0 路径，记录 SHA-256、文件大小、Schema SHA-256、flatc 退出状态、JSON 的非空关键字段和输出大小。无真实样本或 JSON 缺字段时只标为候选，不归入已验证类型。再依照 `unknown_format_candidates.csv` 排序继续处理高频未知格式。

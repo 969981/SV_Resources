@@ -16,15 +16,21 @@ try:
 except ImportError:
     import cli
 
-DECODER_EPOCH = "sv-flatc-pokedocs-v1"  # Bump for a new parser/schema generation.
+DECODER_EPOCH = "sv-flatc-pokedocs-v2"  # Bump for a new parser/schema generation.
 SCHEMA_ROOT = Path(__file__).resolve().parents[2] / "tools/PokeDocs/SV/Flatbuffers"
 # Paths are repository-versioned SV schemas, not arbitrary extension guesses.
 ANIMATION = ("tracl", "tracm", "tracn", "tracp", "tracr", "tracs",
              "traef", "tralk", "tranm", "trbik", "trcma", "trmdt", "trspb")
-MODEL = ("trmbf", "trmdl", "trmmt", "trmsh", "trmtr", "trpokecfg", "trskl")
+MODEL = ("trbsm", "trmbf", "trmdl", "trmmt", "trmsh", "trmtr", "trpokecfg", "trskl", "trltt")
+FIELD = ("trins", "trlgt", "trtrr")
+RENDER = ("trsha", "trtch")
+CUSTOMIZATION = ("ccdata", "ccdatam")
 SCHEMAS = {
     **{"." + ext: "animation/" + ext + ".fbs" for ext in ANIMATION},
     **{"." + ext: "model/" + ext + ".fbs" for ext in MODEL},
+    **{"." + ext: "field/" + ext + ".fbs" for ext in FIELD},
+    **{"." + ext: "render/" + ext + ".fbs" for ext in RENDER},
+    **{"." + ext: "customization/" + ext + ".fbs" for ext in CUSTOMIZATION},
     ".trpmcatalog": "resources/trpmcatalog.fbs",
 }
 MAX_SOURCE_BYTES = 32 * 1024 * 1024
@@ -103,6 +109,10 @@ def convert_one(root: Path, rel: str, source: Path,
             decoded = json.loads(result.read_text(encoding="utf-8"))
             if not isinstance(decoded, dict):
                 return None, "FLATC_OUTPUT_NOT_OBJECT"
+            # Arbitrary FlatBuffers roots can decode to {} under the wrong
+            # schema; an empty document is not evidence of a matched format.
+            if not decoded:
+                return None, "FLATC_OUTPUT_EMPTY_OBJECT"
         except (OSError, UnicodeError, ValueError):
             return None, "FLATC_OUTPUT_INVALID_JSON"
     output = root / "parsed" / (rel + ".flatbuffer.json")
