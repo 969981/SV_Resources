@@ -136,5 +136,30 @@ class FullSweepCompactionTests(unittest.TestCase):
 
 
 
+class CandidateSignatureTests(unittest.TestCase):
+    def test_signatures_are_classified_but_not_claimed_decoded(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "candidate.bin"
+            for head, label in ((b"BNSH", "BNSH_SHADER"),
+                                (b"SARC", "SARC_ARCHIVE"),
+                                (b"FRES", "BFRES_CONTAINER")):
+                src.write_bytes(head + bytes(60))
+                fmt, _, confidence, parser_status = cli.detect(src, ".bin")
+                self.assertEqual(fmt, label)
+                self.assertEqual(confidence, "CONFIRMED")
+                self.assertEqual(parser_status, "PENDING_DECODER")
+
+    def test_documented_trinity_extensions_are_only_candidates(self):
+        with tempfile.TemporaryDirectory() as td:
+            for ext in (".trmtr", ".trmmt", ".trscn", ".trs"):
+                src = Path(td) / ("fixture" + ext)
+                src.write_bytes(bytes(64))
+                fmt, _, confidence, parser_status = cli.detect(src, ext)
+                self.assertEqual(fmt, "FLATBUFFER_CANDIDATE")
+                self.assertEqual(confidence, "CANDIDATE")
+                self.assertEqual(parser_status, "PENDING_SCHEMA")
+
+
+
 if __name__ == "__main__":
     unittest.main()
