@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_tr/tr0410_mania#00000",
+  "input_fingerprint": "6B174259FC1C2C58C78E96A03FDFFCC47C12C46EA4B8A2DC7D323E2DB2116E2B",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_tr/tr0410_mania/tr0410_mania.ccdatam",
+      "source_sha256": "07E382FD735BD56D7D1A98D919299354A84E7B27AD2995DA134FA9EBCE1785A6",
+      "bytes": 432,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C000000000006000800040006000000040000000400000038010000CC000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_tr/tr0410_mania/tr0410_mania.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_tr/tr0410_mania/_inspection/c32267e159f10e98.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_tr/tr0410_mania/_inspection/c32267e159f10e98.jsonl",
+      "sha256": "EA90815A3BA8F72FE63F0D23980E329A806C778AF4A89AFCE21910E21E5D6C04",
+      "bytes": 652
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_tr/tr0410_mania/tr0410_mania.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_tr/tr0410_mania/tr0410_mania.ccdatam.flatbuffer.json",
+      "sha256": "C43E3FF8E500C350855EF1DBC26AAE3F6C364316959FA58D96E299A10724768E",
+      "bytes": 828
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_tr/tr0410_mania",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
