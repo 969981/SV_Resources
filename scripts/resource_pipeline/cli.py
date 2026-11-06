@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 
 VERSION = "4.0.0"
 BASE = "Unpack/4.0.0/romfs/arc/data.trpfs"
-DETECTOR_VERSION = "r0.1"
+DETECTOR_VERSION = "r0.2"
 
 
 def utcnow():
@@ -87,9 +87,16 @@ def detect(path: Path, ext: str):
         return "BNTX", prefix, "CONFIRMED", "READY"
     if head.startswith(b"AHTB"):
         return "AHTB", prefix, "CONFIRMED", "READY"
+    # Binary signatures prove container identity, NOT successful decoding.
+    if head.startswith(b"BNSH"):
+        return "BNSH_SHADER", prefix, "CONFIRMED", "PENDING_DECODER"
+    if head.startswith(b"SARC"):
+        return "SARC_ARCHIVE", prefix, "CONFIRMED", "PENDING_DECODER"
+    if head.startswith(b"FRES"):
+        return "BFRES_CONTAINER", prefix, "CONFIRMED", "PENDING_DECODER"
     if head.startswith(b"FBS") or ext == ".bfbs":
         return "FLATBUFFER_SCHEMA_CANDIDATE", prefix, "CANDIDATE", "PENDING_SCHEMA"
-    if ext in (".trmdl", ".trmsh", ".trmbf", ".trskl", ".tranm", ".tracm", ".trpmcatalog", ".trabt"):
+    if ext in (".trmdl", ".trmsh", ".trmbf", ".trmtr", ".trmmt", ".trskl", ".tranm", ".tracm", ".trpmcatalog", ".trabt", ".trscn", ".trs"):
         return "FLATBUFFER_CANDIDATE", prefix, "CANDIDATE", "PENDING_SCHEMA"
     if ext == ".dat":
         return "MESSAGE_DAT_CANDIDATE" if "/message/dat/" in "/" + path.as_posix() else "BINARY_DAT", prefix, "CANDIDATE", "PENDING_DECODER"
