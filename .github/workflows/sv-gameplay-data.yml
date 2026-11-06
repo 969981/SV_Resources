@@ -1,0 +1,115 @@
+name: SV 4.0.0 gameplay data and Chinese names
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Export-SV-Gameplay-Data.py'
+      - 'scripts/resource_pipeline/r1_text.py'
+      - '.github/workflows/sv-gameplay-data.yml'
+  pull_request:
+    paths:
+      - 'scripts/Export-SV-Gameplay-Data.py'
+      - 'tests/test_sv_gameplay_export.py'
+      - '.github/workflows/sv-gameplay-data.yml'
+permissions:
+  contents: write
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Export-SV-Gameplay-Data.py
+            scripts/resource_pipeline/r1_text.py
+            tests/test_sv_gameplay_export.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: ROM-free synthetic tests
+        run: |
+          python -m py_compile scripts/Export-SV-Gameplay-Data.py
+          python -m unittest discover -s tests -p 'test_sv_gameplay_export.py' -v
+  export:
+    if: github.event_name != 'pull_request'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/Export-SV-Gameplay-Data.py
+            scripts/resource_pipeline/r1_text.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/encount
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/field/fixed_symbol
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/event/pokedata
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/raid
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/pokedex
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/zukan
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/item
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/shop
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/waza
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/area
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/data/map
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/personal
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/waza
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/zukan
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Simp_Chinese
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/message/dat/Trad_Chinese
+            Unpack/4.0.0/romfs/arc/data.trpfs/parsed/world/data
+            Unpack/4.0.0/romfs/arc/data.trpfs/parsed/pokemon/data
+            Unpack/4.0.0/romfs/arc/data.trpfs/parsed/message/dat
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual_converted/_parsed/world/data
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual_converted/_parsed/pokemon/data
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual_converted/_parsed/message/dat
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Decode actual available sources without fabricating missing BIN formats
+        run: python scripts/Export-SV-Gameplay-Data.py --repo .
+      - name: Upload ALL verified outputs and unresolved evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-4.0.0-gameplay-data
+          path: Unpack/4.0.0/romfs/arc/data.trpfs/semantic_exports/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish only bounded derived files, preserving original archive
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin master
+          test "$(git rev-parse origin/master)" = "$(git rev-parse HEAD)" || { echo 'master advanced; leave results in artifact'; exit 0; }
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          root=Path('Unpack/4.0.0/romfs/arc/data.trpfs/semantic_exports')
+          files=sorted(x for x in root.iterdir() if x.is_file())
+          chosen=[]; total=0
+          for path in files:
+              size=path.stat().st_size
+              if size > 80*1024*1024 or total+size > 120*1024*1024:
+                  print('ARTIFACT_ONLY',path,size)
+                  continue
+              chosen.append(str(path)); total+=size
+          if not chosen: raise SystemExit('No generated files available')
+          for name in chosen:
+              subprocess.run(['git','add','--sparse','-f','--',name],check=True)
+          print(json.dumps({'staged':len(chosen),'bytes':total}))
+          PY
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'data(SV): export available gameplay tables and Chinese message keys'
+          git push origin HEAD:master
