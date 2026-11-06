@@ -30,7 +30,9 @@ class TestToolSubmodules(unittest.TestCase):
             if item["importMethod"] == "vendor-tree":
                 self.assertFalse(config.has_section(section), path)
                 self.assertFalse(item["submodules"], path)
-                self.assertIn(f"040000 tree {item['sourceTreeSha']}\t{path}", recursive.stdout)
+                local_sha = item.get("vendoredTreeSha", item["sourceTreeSha"])
+                self.assertEqual(len(local_sha), 40, path)
+                self.assertIn(f"040000 tree {local_sha}\t{path}", recursive.stdout)
                 if item["name"] == "PokeDocs":
                     self.assertTrue((ROOT / path / "SV/Hashlists/FileSystem/hashes_inside_fd.txt").is_file())
                 elif item["name"] == "SCVI_Extract":
