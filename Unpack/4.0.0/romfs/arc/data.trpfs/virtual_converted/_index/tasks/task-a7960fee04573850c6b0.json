@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_ob/ob0224_sportball#00000",
+  "input_fingerprint": "393356F7E804D5DF7B6221D7D977A0138541D21328960918D0923F59DB962303",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_ob/ob0224_sportball/ob0224_sportball.ccdatam",
+      "source_sha256": "E5A0E20EE8B54FF6398039EAFE379D4549A67A3CFAE72964BD2C21F0D8D60D27",
+      "bytes": 124,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C00000000000600080004000600000004000000010000001000000000000A00",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_ob/ob0224_sportball/ob0224_sportball.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob0224_sportball/_inspection/abdf9645ac46414f.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob0224_sportball/_inspection/abdf9645ac46414f.jsonl",
+      "sha256": "0F23639462EAC9E189E23E8424AB12A32F546ACBB3B4DB4CE7F008BDDD10BD56",
+      "bytes": 668
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_ob/ob0224_sportball/ob0224_sportball.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_ob/ob0224_sportball/ob0224_sportball.ccdatam.flatbuffer.json",
+      "sha256": "6FCD5EB44068F35426A51BF507446A5670EF1B1DED78F69A6573046C560C7EBA",
+      "bytes": 523
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_ob/ob0224_sportball",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
