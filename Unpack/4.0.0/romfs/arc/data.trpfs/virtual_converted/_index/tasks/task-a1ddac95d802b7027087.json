@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "task": "chara/savm_vr/tr0640_sadultm#00000",
+  "input_fingerprint": "85AE1ABBF9E68E595224AA854B266220B3631675FB3A6265053AD790EB20FF51",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/savm_vr/tr0640_sadultm/tr0640_sadultm.ccdatam",
+      "source_sha256": "355528B8E5CA5BA309C7E806023AD242A344866ED236A1E6B82543879DB68DDE",
+      "bytes": 1764,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BY_EXTENSION:ccdatam",
+      "confidence": "UNKNOWN",
+      "detector_status": "UNSUPPORTED",
+      "inspection": {
+        "header_hex": "0C000000000006000800040006000000040000001000000064060000EC050000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          393216,
+          262152,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/chara/savm_vr/tr0640_sadultm/tr0640_sadultm.ccdatam.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/savm_vr/tr0640_sadultm/_inspection/f5c779b4dfb5996f.jsonl",
+      "path": "virtual_converted/_parsed/chara/savm_vr/tr0640_sadultm/_inspection/f5c779b4dfb5996f.jsonl",
+      "sha256": "0B260DD3B8B661A2CA61E0B43368CC11985960972492F48727A445C6EAECD8EC",
+      "bytes": 661
+    },
+    {
+      "pipeline_path": "parsed/chara/savm_vr/tr0640_sadultm/tr0640_sadultm.ccdatam.flatbuffer.json",
+      "path": "virtual_converted/_parsed/chara/savm_vr/tr0640_sadultm/tr0640_sadultm.ccdatam.flatbuffer.json",
+      "sha256": "A24CDB1DC1415D6A7818EF63EF2E5D3216FF8AB59D2C9B7D98D0BC157981458D",
+      "bytes": 2176
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/savm_vr/tr0640_sadultm",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
