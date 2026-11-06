@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_fes_obj04_00_rgn#00000",
+  "input_fingerprint": "AC0967D730892BF1BD0998E9FE2D82AFDBE8677DA5E08050F3BE887EDEDA6F85",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_fes_obj04_00_rgn/cm_fes_obj04_00_rgn.bntx",
+      "source_sha256": "45BB6DFEBAEA4CA588DF5564255040D7FB17626BE7905254DB96B7DE1163E618",
+      "bytes": 20592,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010050000070500000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_fes_obj04_00_rgn/cm_fes_obj04_00_rgn.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_fes_obj04_00_rgn/cm_fes_obj04_00_rgn.png",
+      "path": "virtual_converted/chara/share/cm_fes_obj04_00_rgn/cm_fes_obj04_00_rgn.png",
+      "sha256": "C689E2A06ED4922C5CD7F69845D3FE0AC9D8AC981C7BABD2C48B572A2EDEFEA5",
+      "bytes": 20726
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_fes_obj04_00_rgn/_inspection/3e0c6145b7f0e36f.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_fes_obj04_00_rgn/_inspection/3e0c6145b7f0e36f.jsonl",
+      "sha256": "27F4EC88DE573094BCB2A9B905687B8905301EE9B5D9B280D5B2D21B0CB9B272",
+      "bytes": 640
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_fes_obj04_00_rgn/cm_fes_obj04_00_rgn.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_fes_obj04_00_rgn/cm_fes_obj04_00_rgn.bntx.json",
+      "sha256": "F998C051616258EF5D1EC440D72171DE2FCDA1DC38C92B79F0EABD3C57F5A9B2",
+      "bytes": 288
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_fes_obj04_00_rgn",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
