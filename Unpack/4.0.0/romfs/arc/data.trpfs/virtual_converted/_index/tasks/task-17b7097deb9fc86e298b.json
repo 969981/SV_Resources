@@ -4,8 +4,7 @@
   "input_fingerprint": "1CEBCBAE2FAF793EA820637403BB25E903D87E4DB047AA7EB19F5A04F5B3B347",
   "input_files": 6,
   "inspection_statuses": {
-    "INSPECTED_UNPARSED": 1,
-    "STRUCTURE_PARSED": 5
+    "STRUCTURE_PARSED": 6
   },
   "sources": [
     {
@@ -32,7 +31,8 @@
           "kind": "BNTX_METADATA",
           "path": "parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_eye2_nrm.bntx.json"
         }
-      ]
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
     },
     {
       "source": "pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_eye_alb.bntx",
@@ -58,7 +58,8 @@
           "kind": "BNTX_METADATA",
           "path": "parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_eye_alb.bntx.json"
         }
-      ]
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
     },
     {
       "source": "pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_eye_lym.bntx",
@@ -84,7 +85,8 @@
           "kind": "BNTX_METADATA",
           "path": "parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_eye_lym.bntx.json"
         }
-      ]
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
     },
     {
       "source": "pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_eye_nrm.bntx",
@@ -110,7 +112,8 @@
           "kind": "BNTX_METADATA",
           "path": "parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_eye_nrm.bntx.json"
         }
-      ]
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
     },
     {
       "source": "pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_jewel_nrm.bntx",
@@ -136,16 +139,17 @@
           "kind": "BNTX_METADATA",
           "path": "parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_jewel_nrm.bntx.json"
         }
-      ]
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
     },
     {
       "source": "pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_rare.trmtr",
       "source_sha256": "FB3E8A0A7F02EFFF57FFF658A0CD3237992B8AF9D2DB0A6A03AB699EB83F563B",
       "bytes": 11464,
       "sha256_evidence": "LOCAL_DIGEST_ONLY",
-      "format_candidate": "BY_EXTENSION:trmtr",
-      "confidence": "UNKNOWN",
-      "detector_status": "UNSUPPORTED",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
       "inspection": {
         "header_hex": "0C000000080008000000040008000000040000000500000078230000D41D0000",
         "header_bytes": 64,
@@ -156,8 +160,14 @@
           8
         ]
       },
-      "parse_status": "INSPECTED_UNPARSED",
-      "parsed_assets": []
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_rare.trmtr.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
     }
   ],
   "outputs": [
@@ -192,10 +202,10 @@
       "bytes": 131
     },
     {
-      "pipeline_path": "parsed/pokemon/data/pm0072/pm0072_00_00/_inspection/8fe8246d898f39c8.jsonl",
-      "path": "virtual_converted/_parsed/pokemon/data/pm0072/pm0072_00_00/_inspection/8fe8246d898f39c8.jsonl",
-      "sha256": "46C452E48478ECB6DAC1E45238D395325EEFD73C456CD44AC802AC691436F5D6",
-      "bytes": 3530
+      "pipeline_path": "parsed/pokemon/data/pm0072/pm0072_00_00/_inspection/b043eaf24cbfba01.jsonl",
+      "path": "virtual_converted/_parsed/pokemon/data/pm0072/pm0072_00_00/_inspection/b043eaf24cbfba01.jsonl",
+      "sha256": "E86E1711B5020C8E8691C626A2CB504A0A438C487B2842C19CAFF2ED0D42284F",
+      "bytes": 3901
     },
     {
       "pipeline_path": "parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_eye2_nrm.bntx.json",
@@ -226,6 +236,12 @@
       "path": "virtual_converted/_parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_jewel_nrm.bntx.json",
       "sha256": "C587AC2CEB213E9AEBE04C9B9E6574D3A80FD613BD1BC910BF1C43E012736617",
       "bytes": 287
+    },
+    {
+      "pipeline_path": "parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_rare.trmtr.flatbuffer.json",
+      "path": "virtual_converted/_parsed/pokemon/data/pm0072/pm0072_00_00/pm0072_00_00_rare.trmtr.flatbuffer.json",
+      "sha256": "13898BEE6F3C2B58C0489FEA56C3309DD4783952F6A1BDEC65147C676107754A",
+      "bytes": 16893
     }
   ],
   "deferred_outputs": [],
