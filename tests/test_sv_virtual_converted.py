@@ -24,6 +24,42 @@ class VirtualConvertedTest(unittest.TestCase):
         self.assertEqual(len(scripts), 1)
         self.assertEqual(scripts[0]["file_count"], 200)
 
+    def test_unattempted_single_file_leaves_compact_without_losing_coverage(self):
+        rows = [(f"appli/tex/icon_ribbon/item_{i:03d}/image.bntx", "A" * 64)
+                for i in range(70)]
+        leaves = vc.build_converted_tasks(rows, 1000)
+        self.assertEqual(len(leaves), 70)
+        compacted = vc._compact_unattempted(leaves, {"attempted": {}})
+        self.assertEqual(len(compacted), 2)
+        self.assertEqual(sorted(x["file_count"] for x in compacted), [6, 64])
+        self.assertEqual(sorted(p for task in compacted for p in task["paths"]),
+                         sorted(p for p, _ in rows))
+        self.assertTrue(all(task["prefix"] == "appli/tex/icon_ribbon"
+                            for task in compacted))
+
+    def test_old_checkpoint_and_new_rollup_fingerprints_are_stable(self):
+        rows = [(f"appli/tex/icon_ribbon/item_{i:03d}/image.bntx", "B" * 64)
+                for i in range(70)]
+        leaves = vc.build_converted_tasks(rows, 1000)
+        old = leaves[0]
+        state = {"attempted": {old["id"]: {
+            "fingerprint": old["fingerprint"], "status": "ATTEMPTED",
+            "parsed_records": 1}}}
+        grouped = vc._compact_unattempted(leaves, state)
+        self.assertEqual(len(grouped), 3)
+        self.assertTrue(any(t["id"] == old["id"] for t in grouped))
+        self.assertTrue(vc.fs.is_terminal(old, state))
+        self.assertEqual(sum(t["file_count"] for t in grouped), 70)
+        first = {t["id"]: t["fingerprint"] for t in grouped}
+        for task in grouped:
+            if task["id"] != old["id"]:
+                state["attempted"][task["id"]] = {
+                    "fingerprint": task["fingerprint"],
+                    "status": "ATTEMPTED", "parsed_records": task["file_count"]}
+        repeat = vc._compact_unattempted(leaves, state)
+        self.assertEqual(first, {t["id"]: t["fingerprint"] for t in repeat})
+        self.assertTrue(all(vc.fs.is_terminal(t, state) for t in repeat))
+
     def test_layer_mapping(self):
         self.assertEqual(vc.destination_for("converted/chara/mesh.gltf"),
                          "virtual_converted/chara/mesh.gltf")
