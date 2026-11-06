@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_uni_cap_00_mtl#00000",
+  "input_fingerprint": "FF4F51F6BB5E74291FED4C63A606D43B0D176F532B922DB4A5B40ECB902073D8",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_uni_cap_00_mtl/cm_uni_cap_00_mtl.bntx",
+      "source_sha256": "B70B8F617B08DD9879BAD542EBBF0D4B9FB46B375C001E9FC61909247BAB1AC0",
+      "bytes": 12400,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010030000070300000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_uni_cap_00_mtl/cm_uni_cap_00_mtl.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_uni_cap_00_mtl/cm_uni_cap_00_mtl.png",
+      "path": "virtual_converted/chara/share/cm_uni_cap_00_mtl/cm_uni_cap_00_mtl.png",
+      "sha256": "F639358E631EBFE07E7D697C282A94ACE888B840E90F088354E597D8B95BEF15",
+      "bytes": 763
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_uni_cap_00_mtl/_inspection/9af2d7934e6795cd.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_uni_cap_00_mtl/_inspection/9af2d7934e6795cd.jsonl",
+      "sha256": "DA941708ACEB1BE55C2F80409F7CB9EBC25D4B9272503E9A1F239A6DBBF88EA1",
+      "bytes": 632
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_uni_cap_00_mtl/cm_uni_cap_00_mtl.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_uni_cap_00_mtl/cm_uni_cap_00_mtl.bntx.json",
+      "sha256": "E8D0B0A4092B8FFD59B6303D19C7B41CBCF9ACC904C3FE0A2AFE3A7451B01A2D",
+      "bytes": 282
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_uni_cap_00_mtl",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
