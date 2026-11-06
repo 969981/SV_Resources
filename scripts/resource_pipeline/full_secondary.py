@@ -12,14 +12,16 @@ from collections import Counter, defaultdict
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path, PurePosixPath
 import subprocess
 import sys
 
 try:
-    from . import cli
+    from . import cli, schema_flatbuffers
 except ImportError:
     import cli
+    import schema_flatbuffers
 
 ROOT = Path(cli.BASE)
 STATE_NAME = "_index/secondary/full-state.json"
@@ -28,6 +30,7 @@ RUN_NAME = "_index/secondary/full-last-run.json"
 EPOCH = "full-sweep-parsed-v2"  # Revisit ALL earlier tasks: parsed coverage is now mandatory.
 MAX_ERROR_ATTEMPTS = 2  # Keep failed tasks visible, but never dispatch forever.
 MAX_PARTIAL_ATTEMPTS = 2  # Retry incomplete outputs, then retain unresolved evidence.
+SCHEMA_DECODER_EPOCH = schema_flatbuffers.DECODER_EPOCH  # Targeted schema backfill version.
 
 
 def repo_root(path):
@@ -149,6 +152,15 @@ def is_terminal(task, state):
     status = previous.get("status")
     inspected = (int(previous.get("parsed_records", -1)) ==
                  int(task["file_count"]))
+    # Parser upgrades must re-visit already INSPECTED_UNPARSED sources whose
+    # extension now has a real version-pinned schema. Preserve every other
+    # historical task ID/fingerprint and never restart the whole 349k sweep.
+    if (status in ("ATTEMPTED", "PARTIAL")
+            and int(previous.get("inspected_unparsed", 0)) > 0
+            and previous.get("schema_decoder_epoch") != SCHEMA_DECODER_EPOCH
+            and any(PurePosixPath(p).suffix.lower() in schema_flatbuffers.SCHEMAS
+                    for p in task["paths"])):
+        return False
     if status == "ATTEMPTED":
         return inspected and int(previous.get("hash_mismatches", 0)) == 0
     if status == "PARTIAL":
@@ -266,10 +278,81 @@ def materialize_selected(repo: Path, selection, batch_size=120, max_parent_files
             "scope":"CONE_PARENT_SPARSE_VERIFIED"}
 
 
+
+# Newly discovered leaf folders are frequently one native file each.
+# Compact only NEVER-ATTEMPTED leaves; keep all existing checkpointed IDs
+# exactly as they were, so resuming cannot throw away verified progress.
+FULL_EPOCH = "full-sweep-parsed-v2"
+
+
+def compact_never_attempted(tasks, state, target_files=64):
+    """Stable exact-coverage rollups of small, unattempted native leaf tasks.
+
+    Common message tables are intentionally kept intact: their decoded output
+    size and DAT/TBL coupling need a smaller, independently bounded budget.
+    """
+    attempted = state.get("attempted", {})
+    kept = []
+    buckets = defaultdict(list)
+    for task in tasks:
+        parts = PurePosixPath(task["prefix"]).parts
+        if (task["id"] in attempted or task["file_count"] >= target_files
+                or len(parts) < 4 or parts[:2] == ("message", "dat")):
+            kept.append(task)
+            continue
+        # Keep workspaces bounded, but do not create one process per leaf.
+        parent = "/".join(parts[:3])
+        buckets[parent].append(task)
+
+    for parent, members in sorted(buckets.items()):
+        chunk = []
+        size = 0
+
+        def flush():
+            if not chunk:
+                return
+            if len(chunk) == 1:
+                kept.append(chunk[0])
+                return
+            sha = hashlib.sha256()
+            sha.update((EPOCH + "|full-rollup-v1|").encode("utf-8"))
+            paths = []
+            for leaf in chunk:
+                sha.update(leaf["id"].encode("utf-8") + b"\0")
+                sha.update(leaf["fingerprint"].encode("ascii") + b"\0")
+                paths.extend(leaf["paths"])
+            digest = sha.hexdigest().upper()
+            kept.append({
+                "id": "__full_rollup__/" + parent + "#" + digest[:20],
+                "fingerprint": digest,
+                "prefix": parent,
+                "paths": paths,
+                "file_count": len(paths),
+            })
+
+        for leaf in sorted(members, key=lambda t: t["id"]):
+            if chunk and size + leaf["file_count"] > target_files:
+                flush()
+                chunk = []
+                size = 0
+            chunk.append(leaf)
+            size += leaf["file_count"]
+        flush()
+    result = sorted(kept, key=lambda t: (task_priority(t["prefix"]), t["id"]))
+    # Validate there was NO missing native path or duplicate during compaction.
+    before = sorted(p for t in tasks for p in t["paths"])
+    after = sorted(p for t in result for p in t["paths"])
+    if before != after:
+        raise ValueError("Native task compaction changed exact source coverage")
+    return result
+
+
 def choose(repo, group_files, max_tasks, max_files):
     rows = listed_native(repo)
     tasks = build_tasks(rows, group_files)
     state = load_state(repo)
+    if EPOCH == FULL_EPOCH:
+        tasks = compact_never_attempted(tasks, state)
     selected = select_batch(tasks, state, max_tasks, max_files)
     seen = sum(t["file_count"] for t in tasks if is_terminal(t, state))
     summary = {
@@ -338,6 +421,8 @@ def process_batch(repo, converter_png="", converter_model=""):
             item["inspection_sha256"]=inspection["manifest_sha256"]
             item["structurally_parsed"]=inspection["by_status"].get("STRUCTURE_PARSED",0)
             item["inspected_unparsed"]=inspection["by_status"].get("INSPECTED_UNPARSED",0)
+            item["schema_decoder_epoch"] = (SCHEMA_DECODER_EPOCH if
+                (os.environ.get("SV_FLATC_EXE") or shutil.which("flatc")) else "")
             item["hash_mismatches"]=inspection["by_status"].get("SOURCE_HASH_MISMATCH",0)
             item["status"]=("ATTEMPTED" if proc.returncode == 0 and
                             item["deferred"]==0 and item["hash_mismatches"]==0
@@ -383,6 +468,8 @@ def status(repo, group_files):
     rows=listed_native(repo)
     tasks=build_tasks(rows,group_files)
     state=load_state(repo)
+    if EPOCH == FULL_EPOCH:
+        tasks = compact_never_attempted(tasks, state)
     pending = [t for t in tasks if not is_terminal(t, state)]
     matching = [state["attempted"][t["id"]] for t in tasks
                 if state["attempted"].get(t["id"], {}).get("fingerprint") == t["fingerprint"]]

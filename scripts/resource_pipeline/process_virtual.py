@@ -9,16 +9,19 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import shutil
 from pathlib import Path, PurePosixPath
 import sqlite3
 import sys
 
 try:
-    from . import cli, r4_pipeline, inspect_all
+    from . import cli, r4_pipeline, inspect_all, schema_flatbuffers
 except ImportError:
     import cli
     import r4_pipeline
     import inspect_all
+    import schema_flatbuffers
 
 
 def scoped_paths(root: Path, prefix: str, max_files: int, only=None):
@@ -262,8 +265,15 @@ def main(argv=None):
                 ).fetchall()
             )
     selection_sha = hashlib.sha256("\n".join(p for p, _ in files).encode()).hexdigest()
+    # Version the immutable per-source inspection manifest. A parser upgrade
+    # revisits only unsupported schema candidates; reusing the former manifest
+    # path would conflict with its old verified digest on publication.
+    decoder_epoch = (schema_flatbuffers.DECODER_EPOCH if
+                     (os.environ.get("SV_FLATC_EXE") or shutil.which("flatc"))
+                     else "without-flatc")
     batch_id = hashlib.sha256(
-        (cli.VERSION + "|" + opts.prefix + "|" + opts.kind + "|" + selection_sha).encode()
+        (cli.VERSION + "|" + opts.prefix + "|" + opts.kind + "|" +
+         selection_sha + "|" + decoder_epoch).encode()
     ).hexdigest()[:16]
     # Every selected native file gets an evidence-labelled parsed/ record,
     # even when no semantic format decoder exists yet.

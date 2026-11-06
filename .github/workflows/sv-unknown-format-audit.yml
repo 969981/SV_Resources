@@ -1,0 +1,147 @@
+name: SV audit - native paths and unknown Trinity formats
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/resource_pipeline/unknown_format_audit.py'
+      - '.github/workflows/sv-unknown-format-audit.yml'
+  pull_request:
+    paths:
+      - 'scripts/resource_pipeline/unknown_format_audit.py'
+      - 'scripts/resource_pipeline/full_secondary.py'
+      - 'scripts/resource_pipeline/cli.py'
+      - 'tests/test_sv_unknown_format_audit.py'
+      - 'tests/test_sv_schema_flatbuffers.py'
+      - 'scripts/resource_pipeline/schema_flatbuffers.py'
+      - 'tests/test_sv_virtual_second_stage.py'
+      - '.github/workflows/sv-unknown-format-audit.yml'
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tests/test_sv_unknown_format_audit.py
+            tests/test_sv_schema_flatbuffers.py
+            tests/test_sv_virtual_second_stage.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate planner, signature detector and auditor
+        run: |
+          python -m py_compile scripts/resource_pipeline/full_secondary.py scripts/resource_pipeline/cli.py scripts/resource_pipeline/unknown_format_audit.py
+          python -m unittest discover -s tests -p 'test_sv_virtual_second_stage.py' -v
+          python -m unittest discover -s tests -p 'test_sv_unknown_format_audit.py' -v
+          python -m unittest discover -s tests -p 'test_sv_schema_flatbuffers.py' -v
+
+  real-schema-smoke:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            scripts/resource_pipeline
+            tools/PokeDocs/SV/Flatbuffers
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/pokemon/data/pm0128/pm0128_11_51
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Obtain authenticated official flatc binary release with SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sv-flatc"
+          curl -fL --retry 4 --retry-all-errors \
+            -o "$RUNNER_TEMP/sv-flatc-release.zip" \
+            'https://github.com/google/flatbuffers/releases/download/v25.12.19-2026-02-06-03fffb2/Linux.flatc.binary.g%2B%2B-13.zip'
+          printf '%s  %s\n' 'c5e0adf44ffc20556620427eb6f183022d1e94d64f751a6b67e2ebd9cec76c9a' "$RUNNER_TEMP/sv-flatc-release.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/sv-flatc-release.zip" -d "$RUNNER_TEMP/sv-flatc"
+          exe="$(find "$RUNNER_TEMP/sv-flatc" -type f -name flatc -print -quit)"
+          test -n "$exe"
+          chmod +x "$exe"
+          "$exe" --version
+          printf 'SV_FLATC_EXE=%s\n' "$exe" >> "$GITHUB_ENV"
+      - name: Decode committed SV 4.0.0 animation and material examples with real schema
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from scripts.resource_pipeline import schema_flatbuffers as sf
+          root=Path("Unpack/4.0.0/romfs/arc/data.trpfs")
+          folder="pokemon/data/pm0128/pm0128_11_51/"
+          files=[
+              "pm0128_11_51_00010_defaultidle01.traef",
+              "pm0128_11_51.trmtr",
+              "pm0128_11_51.trmmt",
+              "pm0128_11_51.trpokecfg",
+              "pm0128_11_51_00000_defaultwait01_loop.tracm",
+              "pm0128_11_51_00000_defaultwait01_loop.tranm",
+              "pm0128_11_51.trskl",
+              "pm0128_11_51.trmdl",
+              "pm0128_11_51.trmsh",
+              "pm0128_11_51.trmbf",
+              "pm0128_11_51_base.tracl",
+          ]
+          baseline = set(files[:4])
+          baseline_failed = []
+          succeeded = 0
+          for name in files:
+              rel=folder+name
+              path=root/"virtual"/rel
+              output, status=sf.convert_one(root,rel,path)
+              record={"source":rel,"status":status,"output":output}
+              print(json.dumps(record))
+              if status == "SCHEMA_JSON_EXPORTED":
+                  succeeded += 1
+                  obj=json.loads((root/output).read_text("utf-8"))
+                  if obj["native_sha256"] != sf.cli.digest(path):
+                      raise RuntimeError("Native SHA-256 mismatch")
+              elif name in baseline:
+                  baseline_failed.append(name + ":" + status)
+          print(json.dumps({"schema_decoded":succeeded, "samples":len(files),
+                            "baseline_failures":baseline_failed}))
+          if baseline_failed:
+              raise SystemExit("Known-good real SV schema samples regressed")
+          PY
+
+  audit:
+    if: github.repository == '969981/SV_Resources'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/resource_pipeline/unknown_format_audit.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual_converted/_index/tasks
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify native paths against committed inspection reports
+        run: |
+          python scripts/resource_pipeline/unknown_format_audit.py --repo . --out sv-unknown-format-audit
+      - name: Upload unknown format candidates and coverage gaps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-unknown-format-coverage-${{ github.run_id }}
+          path: sv-unknown-format-audit/
+          if-no-files-found: warn
+          retention-days: 30

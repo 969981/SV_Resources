@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from scripts.resource_pipeline import cli, process_virtual as pv
+from scripts.resource_pipeline import cli, process_virtual as pv, full_secondary as fs
 
 
 def ahtb_one(label="key"):
@@ -90,6 +90,75 @@ class ProcessVirtualTests(unittest.TestCase):
             pv.scoped_paths(self.root, self.prefix, 0)
         with self.assertRaises(ValueError):
             pv.scoped_paths(self.root, "not-extracted", 10)
+
+
+class FullSweepCompactionTests(unittest.TestCase):
+    def test_compacts_never_attempted_singleton_leaves_with_exact_paths(self):
+        rows = [(f"appli/tex/icon_ribbon/item_{i:04d}/texture.bin", "A" * 40)
+                for i in range(142)]
+        leaves = fs.build_tasks(rows, 1000)
+        self.assertEqual(len(leaves), 142)
+        compacted = fs.compact_never_attempted(leaves, {"attempted": {}})
+        self.assertEqual(sorted(t["file_count"] for t in compacted), [14, 64, 64])
+        self.assertEqual(sorted(p for t in compacted for p in t["paths"]),
+                         sorted(p for p, _ in rows))
+        self.assertTrue(all(t["id"].startswith("__full_rollup__/") for t in compacted))
+
+    def test_checkpointed_leaf_and_rollup_keep_their_ids(self):
+        rows = [(f"chara/obj/body/entry_{i:04d}/scene.trscn", "B" * 40)
+                for i in range(75)]
+        leaves = fs.build_tasks(rows, 1000)
+        leaf = leaves[0]
+        state = {"attempted": {leaf["id"]: {
+            "fingerprint": leaf["fingerprint"], "status": "ATTEMPTED",
+            "parsed_records": 1, "hash_mismatches": 0,
+        }}}
+        first = fs.compact_never_attempted(leaves, state)
+        self.assertTrue(any(t["id"] == leaf["id"] for t in first))
+        self.assertEqual(sorted(p for t in first for p in t["paths"]),
+                         sorted(p for p, _ in rows))
+        rollup = next(t for t in first if t["id"].startswith("__full_rollup__/"))
+        state["attempted"][rollup["id"]] = {
+            "fingerprint": rollup["fingerprint"], "status": "ATTEMPTED",
+            "parsed_records": rollup["file_count"], "hash_mismatches": 0,
+        }
+        second = fs.compact_never_attempted(leaves, state)
+        self.assertEqual([(t["id"], t["fingerprint"]) for t in first],
+                         [(t["id"], t["fingerprint"]) for t in second])
+        self.assertTrue(fs.is_terminal(rollup, state))
+
+    def test_high_expansion_message_catalogs_are_not_compacted(self):
+        rows = [(f"message/dat/English/common/entry_{i:03d}/file.dat", "C" * 40)
+                for i in range(10)]
+        leaves = fs.build_tasks(rows, 1000)
+        result = fs.compact_never_attempted(leaves, {"attempted": {}})
+        self.assertEqual([t["id"] for t in leaves], [t["id"] for t in result])
+
+
+
+class CandidateSignatureTests(unittest.TestCase):
+    def test_signatures_are_classified_but_not_claimed_decoded(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "candidate.bin"
+            for head, label in ((b"BNSH", "BNSH_SHADER"),
+                                (b"SARC", "SARC_ARCHIVE"),
+                                (b"FRES", "BFRES_CONTAINER")):
+                src.write_bytes(head + bytes(60))
+                fmt, _, confidence, parser_status = cli.detect(src, ".bin")
+                self.assertEqual(fmt, label)
+                self.assertEqual(confidence, "CONFIRMED")
+                self.assertEqual(parser_status, "PENDING_DECODER")
+
+    def test_documented_trinity_extensions_are_only_candidates(self):
+        with tempfile.TemporaryDirectory() as td:
+            for ext in (".trmtr", ".trmmt", ".trscn", ".trs"):
+                src = Path(td) / ("fixture" + ext)
+                src.write_bytes(bytes(64))
+                fmt, _, confidence, parser_status = cli.detect(src, ext)
+                self.assertEqual(fmt, "FLATBUFFER_CANDIDATE")
+                self.assertEqual(confidence, "CANDIDATE")
+                self.assertEqual(parser_status, "PENDING_SCHEMA")
+
 
 
 if __name__ == "__main__":

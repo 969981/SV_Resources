@@ -7,6 +7,8 @@ on:
       - '.github/workflows/sv-virtual-converted-full.yml'
       - 'scripts/resource_pipeline/virtual_converted.py'
       - 'tests/test_sv_virtual_converted.py'
+      - 'tests/test_sv_schema_flatbuffers.py'
+      - 'scripts/resource_pipeline/schema_flatbuffers.py'
   workflow_dispatch:
     inputs:
       max_files:
@@ -59,6 +61,7 @@ jobs:
           sparse-checkout: |
             scripts/resource_pipeline
             tests/test_sv_virtual_converted.py
+            tests/test_sv_schema_flatbuffers.py
             tools/gftool
             tools/SV.R3.ModelExport
             tools/PokeDocs/SV/Flatbuffers
@@ -85,6 +88,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Parser compile failed' }
           python -m unittest discover -s tests -p test_sv_virtual_converted.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Conversion publisher tests failed' }
+          python -m unittest discover -s tests -p test_sv_schema_flatbuffers.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Schema-backed decoder tests failed' }
 
       - name: Plan from all committed virtual/ files, not a preselected category
         id: plan
@@ -111,6 +116,32 @@ jobs:
           path: ~/.cargo/bin/ultimate_tex_cli.exe
           key: sv-ultimate-tex-cli-win-2ef4f090-v1
 
+      - uses: actions/cache@v4
+        if: steps.plan.outputs.count != '0'
+        with:
+          path: ${{ runner.temp }}/sv-flatc
+          key: sv-flatc-v25-12-19-03fffb2-sha256-v1
+      - name: Verify pinned FlatBuffers compiler for native schema-backed decoding
+        if: steps.plan.outputs.count != '0'
+        shell: pwsh
+        run: |
+          $folder = Join-Path $env:RUNNER_TEMP 'sv-flatc'
+          New-Item -ItemType Directory -Force -Path $folder | Out-Null
+          $exe = Join-Path $folder 'flatc.exe'
+          if (-not (Test-Path -LiteralPath $exe)) {
+            $archive = Join-Path $env:RUNNER_TEMP 'sv-flatc-release.zip'
+            $url = 'https://github.com/google/flatbuffers/releases/download/v25.12.19-2026-02-06-03fffb2/Windows.flatc.binary.zip'
+            Invoke-WebRequest -Uri $url -OutFile $archive
+            $sha = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($sha -ne '68d51916873a3dbdaf7997ddfbbbfd6472b5907ffc62ccc9a88d146bbc0db87d') {
+              throw 'Official flatc release ZIP SHA-256 mismatch'
+            }
+            Expand-Archive -LiteralPath $archive -DestinationPath $folder -Force
+          }
+          if (-not (Test-Path -LiteralPath $exe)) { throw 'Pinned flatc.exe missing' }
+          & $exe --version
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned flatc.exe unusable' }
+          "SV_FLATC_EXE=$exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: Build the actual pinned texture and .NET 10 model decoders
         if: steps.plan.outputs.count != '0'
         shell: pwsh

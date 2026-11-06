@@ -85,6 +85,34 @@ class FullSecondaryTests(unittest.TestCase):
         state["attempted"][task["id"]]["parsed_records"] = 2
         self.assertTrue(fs.is_terminal(task, state))
 
+    def test_new_flatc_schema_replays_only_prior_unsupported_files(self):
+        # The decoder upgrade must not rewrite the full native sweep:
+        # already-inspected schema candidates are retried exactly once.
+        row={"fingerprint":"sha","status":"ATTEMPTED","parsed_records":1,
+             "inspected_unparsed":1,"hash_mismatches":0}
+        prior={"attempted":{"schema#00000":row}}
+        candidate={"id":"schema#00000","fingerprint":"sha","file_count":1,
+                   "paths":["pokemon/data/pm0128/clip.tranm"]}
+        self.assertFalse(fs.is_terminal(candidate,prior))
+        row["schema_decoder_epoch"]=fs.SCHEMA_DECODER_EPOCH
+        self.assertTrue(fs.is_terminal(candidate,prior))
+        row.pop("schema_decoder_epoch")
+        unknown=dict(candidate,paths=["pokemon/data/pm0128/mystery.xyz"])
+        self.assertTrue(fs.is_terminal(unknown,prior))
+        row["inspected_unparsed"]=0
+        self.assertTrue(fs.is_terminal(candidate,prior))
+
+    def test_exhausted_partial_schema_candidate_can_revisit_after_decoder_upgrade(self):
+        task={"id":"partial#00000","fingerprint":"sha","file_count":1,
+              "paths":["pokemon/data/pm0128/material.trmtr"]}
+        row={"fingerprint":"sha","status":"PARTIAL","parsed_records":1,
+             "partial_attempts":fs.MAX_PARTIAL_ATTEMPTS,
+             "inspected_unparsed":1}
+        state={"attempted":{task["id"]:row}}
+        self.assertFalse(fs.is_terminal(task,state))
+        row["schema_decoder_epoch"]=fs.SCHEMA_DECODER_EPOCH
+        self.assertTrue(fs.is_terminal(task,state))
+
     def test_windows_sparse_checkout_missing_files_are_restored(self):
         # Reproduce Git reporting success without materializing a selected path.
         with tempfile.TemporaryDirectory() as temp:
