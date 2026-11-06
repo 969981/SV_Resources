@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths:
       - 'scripts/Export-SV-Gameplay-Data.py'
+      - 'scripts/Decode-SV-Gameplay-Flatbuffers.py'
       - 'scripts/resource_pipeline/r1_text.py'
       - '.github/workflows/sv-gameplay-data.yml'
   pull_request:
@@ -24,6 +25,8 @@ jobs:
           filter: blob:none
           sparse-checkout: |
             scripts/Export-SV-Gameplay-Data.py
+            scripts/Decode-SV-Gameplay-Flatbuffers.py
+            tools/pkNX/FlatBuffers/SV/
             scripts/resource_pipeline/r1_text.py
             tests/test_sv_gameplay_export.py
           sparse-checkout-cone-mode: false
@@ -80,7 +83,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Decode actual available sources without fabricating missing BIN formats
+      - name: Install official pinned FlatBuffers compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sv-flatc"
+          curl -fL --retry 4 --retry-all-errors \
+            -o "$RUNNER_TEMP/sv-flatc-release.zip" \
+            'https://github.com/google/flatbuffers/releases/download/v25.12.19-2026-02-06-03fffb2/Linux.flatc.binary.g%2B%2B-13.zip'
+          printf '%s  %s\n' 'c5e0adf44ffc20556620427eb6f183022d1e94d64f751a6b67e2ebd9cec76c9a' "$RUNNER_TEMP/sv-flatc-release.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/sv-flatc-release.zip" -d "$RUNNER_TEMP/sv-flatc"
+          executable="$(find "$RUNNER_TEMP/sv-flatc" -type f -name flatc -print -quit)"
+          test -n "$executable"
+          chmod +x "$executable"
+          "$executable" --version
+          echo "SV_FLATC_EXE=$executable" >> "$GITHUB_ENV"
+      - name: Decode canonical native gameplay FlatBuffers using vendored pkNX schemas
+        run: python scripts/Decode-SV-Gameplay-Flatbuffers.py --repo .
+      - name: Export real records and Chinese labels to SQLite CSV and JSONL
         run: python scripts/Export-SV-Gameplay-Data.py --repo .
       - name: Upload ALL verified outputs and unresolved evidence
         if: always()
