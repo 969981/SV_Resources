@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "task": "chara/model_ob/ob1103_mask4#00000.part1.part1.part1",
+  "input_fingerprint": "22BD0CE2466941ADA367283307DBA762756780EACE92AAF80C90A3F7A5B82AC4",
+  "input_files": 2,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 2
+  },
+  "sources": [
+    {
+      "source": "chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_ao.bntx",
+      "source_sha256": "467F97E66C47E4FF2FE1E1E23D1460CBF8EE26C92671756E67E22D3CF4711066",
+      "bytes": 53360,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A00100D0000070D00000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_ao.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    },
+    {
+      "source": "chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_nrm.bntx",
+      "source_sha256": "A765AF9ED106AF0455F7B83768549B44C9944CD400ACBB1AA5D86953AB05DA2D",
+      "bytes": 356464,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010070050070700500",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_nrm.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_ao.png",
+      "path": "virtual_converted/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_ao.png",
+      "sha256": "BA9DD3C2A7E62AB06E11971B96A907699796A72D0C0072033FACD8F765A3C2DD",
+      "bytes": 55738
+    },
+    {
+      "pipeline_path": "converted/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_nrm.png",
+      "path": "virtual_converted/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_nrm.png",
+      "sha256": "3BE398560EA4B92D33900B88A7B2C556A309D557BB37A307FE3FDDDBC2992469",
+      "bytes": 260980
+    },
+    {
+      "pipeline_path": "parsed/chara/model_ob/ob1103_mask4/_inspection/72d69b7278ab1c5d.jsonl",
+      "path": "virtual_converted/_parsed/chara/model_ob/ob1103_mask4/_inspection/72d69b7278ab1c5d.jsonl",
+      "sha256": "4F138B3E818F7DA7369E70EC283F2D3011B49B537F48E542AE8BEBA77FAE3A35",
+      "bytes": 1279
+    },
+    {
+      "pipeline_path": "parsed/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_ao.bntx.json",
+      "path": "virtual_converted/_parsed/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_ao.bntx.json",
+      "sha256": "06E02B8E7D0DDFCC93A3D7F96716B804A51950C82C992AE2604380059A293A18",
+      "bytes": 287
+    },
+    {
+      "pipeline_path": "parsed/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_nrm.bntx.json",
+      "path": "virtual_converted/_parsed/chara/model_ob/ob1103_mask4/pm1120_14_00_body_b_nrm.bntx.json",
+      "sha256": "F2E3BCEBD6362E0C04FE7AF44A1EC1CA4620E1856A02CAB1EF0D341ABCCCFE20",
+      "bytes": 289
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 2,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/model_ob/ob1103_mask4",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
