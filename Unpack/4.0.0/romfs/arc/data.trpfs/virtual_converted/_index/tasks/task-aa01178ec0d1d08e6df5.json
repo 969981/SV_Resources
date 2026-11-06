@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/motion_tr/tr0601_tribemvat#00000.part0.part1.part1.part1.part0",
+  "input_fingerprint": "A25BD802B52C18EC9EEF1B873E4C47C10CDEF1757E17A61040392EED6A950B47",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eyebrow_tangent.bntx",
+      "source_sha256": "995DA23DA68E80AEE4DF1C0EA67EDA7D9BBFF8FAABC524260113547F602EBCAC",
+      "bytes": 20584,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010050000068500000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eyebrow_tangent.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eyebrow_tangent.png",
+      "path": "virtual_converted/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eyebrow_tangent.png",
+      "sha256": "BCDFE7BEA62CBDB0A43F69AFA71F2C505002D81CA61B8BC372E0AA0BB424B548",
+      "bytes": 1882
+    },
+    {
+      "pipeline_path": "parsed/chara/motion_tr/tr0601_tribemvat/_inspection/cfcf2c51479754ae.jsonl",
+      "path": "virtual_converted/_parsed/chara/motion_tr/tr0601_tribemvat/_inspection/cfcf2c51479754ae.jsonl",
+      "sha256": "9E60F2915473DEA9673145B369886ABF1F8F70D39F5F2C65471ECAA94ECE9AC6",
+      "bytes": 682
+    },
+    {
+      "pipeline_path": "parsed/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eyebrow_tangent.bntx.json",
+      "path": "virtual_converted/_parsed/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eyebrow_tangent.bntx.json",
+      "sha256": "CC44C633D6E68DED88949A11A88EB5E34AFB009EA521BFECA4EE4FC226DE14F4",
+      "bytes": 308
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/motion_tr/tr0601_tribemvat",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
