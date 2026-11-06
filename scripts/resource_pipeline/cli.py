@@ -96,7 +96,7 @@ def detect(path: Path, ext: str):
         return "BFRES_CONTAINER", prefix, "CONFIRMED", "PENDING_DECODER"
     if head.startswith(b"FBS") or ext == ".bfbs":
         return "FLATBUFFER_SCHEMA_CANDIDATE", prefix, "CANDIDATE", "PENDING_SCHEMA"
-    if ext in (".trmdl", ".trmsh", ".trmbf", ".trmtr", ".trmmt", ".trskl", ".tranm", ".tracm", ".trpmcatalog", ".trabt", ".trscn", ".trs"):
+    if ext in (".trmdl", ".trmsh", ".trmbf", ".trmtr", ".trmmt", ".trskl", ".tranm", ".tracm", ".trpmcatalog", ".trabt", ".trscn", ".trs", ".trpokecfg", ".traef", ".tracl", ".tracn", ".tracp", ".tracr", ".tracs", ".tralk", ".trbik", ".trcma", ".trmdt", ".trspb"):
         return "FLATBUFFER_CANDIDATE", prefix, "CANDIDATE", "PENDING_SCHEMA"
     if ext == ".dat":
         return "MESSAGE_DAT_CANDIDATE" if "/message/dat/" in "/" + path.as_posix() else "BINARY_DAT", prefix, "CANDIDATE", "PENDING_DECODER"
