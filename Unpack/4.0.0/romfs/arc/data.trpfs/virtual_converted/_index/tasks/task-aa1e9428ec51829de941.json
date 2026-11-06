@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_tribem_body_00_ao#00000",
+  "input_fingerprint": "079CC29297EF954FCB7A3D36E06EA3843FC3922102A64D7CF39A1F8724319A59",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_tribem_body_00_ao/cm_tribem_body_00_ao.bntx",
+      "source_sha256": "1E175A31F7A123E8D77919AFF52165854C383021BF879287F00F4CA56F32614B",
+      "bytes": 184432,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A00100D0020070D00200",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_tribem_body_00_ao/cm_tribem_body_00_ao.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_tribem_body_00_ao/cm_tribem_body_00_ao.png",
+      "path": "virtual_converted/chara/share/cm_tribem_body_00_ao/cm_tribem_body_00_ao.png",
+      "sha256": "7B6B18D4DC4CD687F4138D17BC4E8A966371F9231FD3E64A32E38D550F990765",
+      "bytes": 247460
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_tribem_body_00_ao/_inspection/b90ae4cca87b98c1.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_tribem_body_00_ao/_inspection/b90ae4cca87b98c1.jsonl",
+      "sha256": "8696767B2D4715D3B7F376B77B81D3A8B9115265B4B7A29649446723EE972EA4",
+      "bytes": 645
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_tribem_body_00_ao/cm_tribem_body_00_ao.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_tribem_body_00_ao/cm_tribem_body_00_ao.bntx.json",
+      "sha256": "3BFC62001D6B121E7B2E0C21F954F5E1F2A45ECD48FC5A3D0C952719E34FD3BD",
+      "bytes": 291
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_tribem_body_00_ao",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}

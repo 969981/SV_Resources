@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "chara/share/cm_tribef_face_00_nrm#00000",
+  "input_fingerprint": "842E26BC51B64F1EC05B7B30AF6F7D36AF130182D3E131DA2E6B253EC1167CFE",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/share/cm_tribef_face_00_nrm/cm_tribef_face_00_nrm.bntx",
+      "source_sha256": "B458041406AA94D7AA068CA1FD05D0889B88763E2BFE0AF4A5B8C90475D09C34",
+      "bytes": 356464,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010070050070700500",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/chara/share/cm_tribef_face_00_nrm/cm_tribef_face_00_nrm.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/chara/share/cm_tribef_face_00_nrm/cm_tribef_face_00_nrm.png",
+      "path": "virtual_converted/chara/share/cm_tribef_face_00_nrm/cm_tribef_face_00_nrm.png",
+      "sha256": "A65635304104F3A9FF387F02714AC53FFF06BB226D23D60B68F5A0DEABD39291",
+      "bytes": 174567
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_tribef_face_00_nrm/_inspection/36d25aed83ad136e.jsonl",
+      "path": "virtual_converted/_parsed/chara/share/cm_tribef_face_00_nrm/_inspection/36d25aed83ad136e.jsonl",
+      "sha256": "56EB4CDEAC4F5D9DE56945BA375F0A191F4268CF31396D3E290B3BC58BF4ADAA",
+      "bytes": 649
+    },
+    {
+      "pipeline_path": "parsed/chara/share/cm_tribef_face_00_nrm/cm_tribef_face_00_nrm.bntx.json",
+      "path": "virtual_converted/_parsed/chara/share/cm_tribef_face_00_nrm/cm_tribef_face_00_nrm.bntx.json",
+      "sha256": "E04FFE025CF8F8DA9C51C52EC8FD662B9CA98A1CD6454CE2182CD35217A3C205",
+      "bytes": 293
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/share/cm_tribef_face_00_nrm",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
