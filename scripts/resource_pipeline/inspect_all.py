@@ -20,9 +20,10 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 try:
-    from . import cli
+    from . import cli, schema_flatbuffers
 except ImportError:
     import cli
+    import schema_flatbuffers
 
 SCHEMA_VERSION = 1
 TEXT_MAX_BYTES = 8 * 1024 * 1024
@@ -148,6 +149,11 @@ def inspect_all(root: Path, conn: sqlite3.Connection, files, prefix: str, batch_
         standard = _parse_known_common(file, rel, root) if extraction == "OK" else None
         if standard is not None:
             parsed_assets.append({"kind": "STANDARD_STRUCTURE", "path": standard})
+        schema_result = "NOT_ATTEMPTED"
+        if extraction == "OK" and PurePosixPath(rel).suffix.lower() in schema_flatbuffers.SCHEMAS:
+            schema_path, schema_result = schema_flatbuffers.convert_one(root, rel, file)
+            if schema_path is not None:
+                parsed_assets.append({"kind": "TRINITY_SCHEMA_JSON", "path": schema_path})
         # A successful image/glTF conversion does NOT prove all model/animation
         # semantics, and an extension guess does NOT mean a format is decoded.
         if extraction == "HASH_MISMATCH":
@@ -163,6 +169,7 @@ def inspect_all(root: Path, conn: sqlite3.Connection, files, prefix: str, batch_
             "format_candidate": fmt, "confidence": confidence,
             "detector_status": detector_status, "inspection": _probe(file),
             "parse_status": status, "parsed_assets": parsed_assets,
+            "schema_decoder_status": schema_result,
         }
         records.append(record)
     if len(records) != len(files) or len({r["source"] for r in records}) != len(files):
