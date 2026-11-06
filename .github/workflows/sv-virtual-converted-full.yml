@@ -189,6 +189,56 @@ jobs:
           }
           if (-not $pushed) { throw 'Push rejected after six non-forced retries' }
 
+      # GitHub may accept the commit objects but reject the ref update with
+      # "fatal error in commit_refs_rules" (service-side). Preserve *all*
+      # allowlisted binaries and the checkpoint as a replayable artifact.
+      # Never advance the remote checkpoint unless the branch push succeeded.
+      - name: Package verified assets if remote publication fails
+        if: failure() && steps.plan.outputs.count != '0'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          @'
+          import json
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+
+          base = Path.cwd().resolve()
+          pub = Path("sv-virtual-converted-publication.json")
+          if not pub.is_file():
+              raise SystemExit("No allowlisted publication to recover")
+          paths = json.loads(pub.read_text("utf-8"))["paths"]
+          root = "Unpack/4.0.0/romfs/arc/data.trpfs/"
+          allowed = (root + "virtual_converted/", root + "_index/secondary/virtual-converted-")
+          if not paths:
+              raise SystemExit("Cannot recover an empty publication")
+          with ZipFile("sv-virtual-converted-recovery.zip", "w",
+                       compression=ZIP_DEFLATED, compresslevel=3, allowZip64=True) as archive:
+              for relative in paths:
+                  if not isinstance(relative, str) or "\\" in relative or not relative.startswith(allowed):
+                      raise ValueError("Unsafe allowlisted recovery asset: " + str(relative))
+                  source = (base / relative).resolve()
+                  if not source.is_relative_to(base) or not source.is_file():
+                      raise FileNotFoundError(relative)
+                  archive.write(source, relative)
+              archive.write(pub, pub.as_posix())
+              run = Path("sv-virtual-converted-run.json")
+              if run.is_file():
+                  archive.write(run, run.as_posix())
+          print("Saved", len(paths), "audited paths for replay")
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to package audited recovery assets' }
+
+      - name: Upload replayable batch after ref rejection
+        if: failure() && steps.plan.outputs.count != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-virtual-converted-recovery-${{ github.run_id }}
+          path: sv-virtual-converted-recovery.zip
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 0
+
       - name: Enqueue next checkpoint batch until complete or bounded retries exhausted
         shell: pwsh
         run: |
