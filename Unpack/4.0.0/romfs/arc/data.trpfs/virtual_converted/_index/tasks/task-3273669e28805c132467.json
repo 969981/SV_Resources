@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "task": "chara/motion_tr/tr0601_tribemvat#00000.part0.part1.part0.part0",
+  "input_fingerprint": "4E88DFF77C84D384AF9711E6A19259664AC724547AE99B206D403F861DF23E2A",
+  "input_files": 1,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1
+  },
+  "sources": [
+    {
+      "source": "chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eye.bntx",
+      "source_sha256": "2B9E0829CAAE994F895FD59585A283DE0DE7E2BD479B568B0A88B486247D2425",
+      "bytes": 200808,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010030068100300",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/chara/motion_tr/tr0601_tribemvat/_inspection/ce0a27a2517f56c8.jsonl",
+      "path": "virtual_converted/_parsed/chara/motion_tr/tr0601_tribemvat/_inspection/ce0a27a2517f56c8.jsonl",
+      "sha256": "A33A3459A5C87BB1665291633A22677BCB7654EF8C93AB37FA22F8AFAF2161BC",
+      "bytes": 550
+    },
+    {
+      "pipeline_path": "parsed/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eye.bntx.json",
+      "path": "virtual_converted/_parsed/chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eye.bntx.json",
+      "sha256": "25E76CEBACCF2190ABF466CC8A33AD760AEFAC393B329D6C31A446313DFE1901",
+      "bytes": 297
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "chara/motion_tr/tr0601_tribemvat/tr0601_00_00347_cheer01_eye.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 1
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "chara/motion_tr/tr0601_tribemvat",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
