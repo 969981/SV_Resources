@@ -4,6 +4,7 @@ using pkNX.Structures.FlatBuffers.SV.Trinity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using FlatSharp;
 
 namespace pkNX.Structures.FlatBuffers;
@@ -14,6 +15,10 @@ public class PaldeaFixedSymbolModel
     public readonly List<PaldeaFixedSymbolPoint>[] PointsViolet;
 
     public readonly Dictionary<string, string[]> MultiSpawner;
+
+    // SHA of the actual source placement TRSCN read by this model, only during
+    // explicitly requested source tracing. Not used to generate encounter data.
+    public readonly Dictionary<string, string> PlacementTrscnSha256 = new();
 
     private static T Get<T>(Memory<byte> data) where T : class, IFlatBufferSerializable<T>
         => FlatBufferConverter.DeserializeFrom<T>(data);
@@ -37,7 +42,10 @@ public class PaldeaFixedSymbolModel
 
     private IEnumerable<PaldeaFixedSymbolPoint> GetSymbols(IFileInternal rom, int game, string mapName)
     {
-        var data = rom.GetPackedFile($"world/scene/parts/field/streaming_event/{mapName}_fixed_placement_symbol_/{mapName}_fixed_placement_symbol_{game}.trscn");
+        var path = $"world/scene/parts/field/streaming_event/{mapName}_fixed_placement_symbol_/{mapName}_fixed_placement_symbol_{game}.trscn";
+        var data = rom.GetPackedFile(path);
+        if (EncounterTraceSV.Enabled)
+            PlacementTrscnSha256[path] = Convert.ToHexString(SHA256.HashData(data.Span));
         var template = Get<TrinitySceneObjectTemplate>(data);
         return GetObjectTemplateSymbolPoints(template);
     }
