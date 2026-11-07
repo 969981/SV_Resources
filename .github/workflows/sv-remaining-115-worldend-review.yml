@@ -1,0 +1,100 @@
+name: SV 4.0.0 remaining DLC 115 wild and WorldEnd 158 review
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/Triage-SV-Remaining-115-Wild-and-Worldend-158.py'
+      - 'tests/test_sv_remaining_115_worldend.py'
+      - '.github/workflows/sv-remaining-115-worldend-review.yml'
+      - 'docs/4.0.0/Verification/SV-Remaining-115-and-Worldend-158-Review.md'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Triage-SV-Remaining-115-Wild-and-Worldend-158.py'
+      - 'tests/test_sv_remaining_115_worldend.py'
+      - '.github/workflows/sv-remaining-115-worldend-review.yml'
+      - 'docs/4.0.0/Verification/SV-Remaining-115-and-Worldend-158-Review.md'
+permissions:
+  actions: read
+  contents: read
+jobs:
+  source-evidence-comparisons:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Triage-SV-Remaining-115-Wild-and-Worldend-158.py
+            tests/test_sv_remaining_115_worldend.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate source evidence identity and level interval semantics
+        run: |
+          python -m py_compile scripts/Triage-SV-Remaining-115-Wild-and-Worldend-158.py
+          python -m unittest discover -s tests -p test_sv_remaining_115_worldend.py -v
+      - name: Download independently source-verified original Gen9 field evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/wild" "$RUNNER_TEMP/fixed"
+          gh run download 42373962443 -R "$GITHUB_REPOSITORY" \
+            -n SV400-true-Gen9-gender-normalized-666-wild-189-fixed-source-joins \
+            -D "$RUNNER_TEMP/wild"
+          gh run download 42374514212 -R "$GITHUB_REPOSITORY" \
+            -n SV400-true-native-fixed-WorldEnd-158-source-event-counterfactual \
+            -D "$RUNNER_TEMP/fixed"
+          for p in \
+            "$RUNNER_TEMP/wild/level-audit/SV400_115_Reference_Level_Not_Present_Premerge.csv" \
+            "$RUNNER_TEMP/wild/level-audit/SV400_666_Premerge_Level_Differences_Compact.csv" \
+            "$RUNNER_TEMP/wild/level-audit/SV400_666_Gen9_Level_Merge_Audit.json" \
+            "$RUNNER_TEMP/fixed/SV400_236_Worldend_158_Source_WhatIf.csv" \
+            "$RUNNER_TEMP/fixed/SV400_Fixed_Worldend_158_Source_Counterfactual.json"
+          do
+            test -s "$p"
+          done
+      - name: Build strict original-source exception review matrices
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Triage-SV-Remaining-115-Wild-and-Worldend-158.py \
+            --wild-115 "$RUNNER_TEMP/wild/level-audit/SV400_115_Reference_Level_Not_Present_Premerge.csv" \
+            --wild-666 "$RUNNER_TEMP/wild/level-audit/SV400_666_Premerge_Level_Differences_Compact.csv" \
+            --wild-report "$RUNNER_TEMP/wild/level-audit/SV400_666_Gen9_Level_Merge_Audit.json" \
+            --fixed-236 "$RUNNER_TEMP/fixed/SV400_236_Worldend_158_Source_WhatIf.csv" \
+            --fixed-report "$RUNNER_TEMP/fixed/SV400_Fixed_Worldend_158_Source_Counterfactual.json" \
+            --output "$RUNNER_TEMP/SV400-remaining-review"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"SV400-remaining-review"
+          j=json.loads((p/"SV400_115_and_Worldend_46_Area_Diagnostic_Manifest.json").read_text("utf-8-sig"))
+          assert j["status"]=="SV400_REAL_SOURCE_115_WILD_236_WORLDEND_DIAGNOSTICS_NOT_GENERATOR_PATCH"
+          w,f=j["wild"],j["fixed"]
+          assert (w["cases"],w["su1_kitakami"],w["su2_blueberry"])==(115,22,93)
+          assert (w["location_176_plus_194"],w["species_774_minior"])==(78,35)
+          assert (w["reference_within_native"],w["native_within_reference"],
+                  w["reference_completely_below_native"])==(58,54,3)
+          assert (f["cases"],f["row_boolean_gained"],f["row_boolean_lost"],
+                  f["row_boolean_matched_on_both_sides"])==(236,189,46,1)
+          assert (f["true_multiset_reference_gained"],f["true_multiset_reference_lost"])==(190,47)
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as out:
+              out.write("## Real original 4.0.0 unresolved encounter reference differences\n\n")
+              out.write("- **115** remaining wild premerge reference discrepancies: **93** Blueberry, **22** Kitakami; **78** at locations 176/194; **35** Minior (774).\n")
+              out.write("- Intervals: **58** reference contained within native, **54** native contained within reference, **3** reference entirely lower.\n")
+              out.write("- **236** WorldEnd->158 what-if fixed records, **46** individually row-labeled regressions, **189** row-labeled improvements, **1** matches both; exact multiset lost **47**, gained **190**.\n")
+              out.write("- This is **strict research output**, not a corrected PKHeX legality database.\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-original-source-remaining-115-wild-worldend-46-fixed-review
+          path: |
+            ${{ runner.temp }}/SV400-remaining-review/*.csv
+            ${{ runner.temp }}/SV400-remaining-review/*.json
+          retention-days: 30
+          if-no-files-found: warn
