@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_office01#00000.part0.part1.part0.part1.part1.part1.part1.part1.part1",
+  "input_fingerprint": "FCE7E505F62D5B4294E45BC90BC97B11DA2E01D051CFB2DF7E91B8A65B62B365",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_office01/a_sch_office01_machine01_body01_alb.bntx",
+      "source_sha256": "596D04B81DB3B77AD28052CE2DDB7C7EBA912D4A36A73FCF0139589AF875F938",
+      "bytes": 1405040,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010070150070701500",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_machine01_body01_alb.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/field_graphic/common_model/a_sch_office01/a_sch_office01_machine01_body01_alb.png",
+      "path": "virtual_converted/field_graphic/common_model/a_sch_office01/a_sch_office01_machine01_body01_alb.png",
+      "sha256": "B64875C5B535DAAE5EA755E40FDAC72759B355B173108A1EE9EE6553E261FAAB",
+      "bytes": 241107
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office01/_inspection/d98569eeec759769.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office01/_inspection/d98569eeec759769.jsonl",
+      "sha256": "73675992B44E478DCC41F4FA406D7DE108BABEB428F7A46E4D4F93B7ED9C517B",
+      "bytes": 694
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_machine01_body01_alb.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_machine01_body01_alb.bntx.json",
+      "sha256": "263127C600B9AD0D6AD9BA3247248246E6AA049337953A3C24426D93049131E6",
+      "bytes": 318
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_office01",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_office02#00000.part0.part0.part0.part0.part0.part0.part1",
+  "input_fingerprint": "50B36C81AB088729CC3A21EDF6F8DA5CFCE1421C11550FDAD4B085EEC3EA86DE",
+  "input_files": 2,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 2
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl",
+      "source_sha256": "F50C51FB4A7C1F77B37DA327E0CA8F24E0AE51433A9A309A9A2FC1581FAEA79B",
+      "bytes": 188,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1800000000001200240000000400000008000C0010001400120000006C000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          36,
+          4
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    },
+    {
+      "source": "field_graphic/common_model/a_sch_office02/a_sch_office02.trmsh",
+      "source_sha256": "9FA5C1D734EFC038A6596BF5E95E4EB4620A498D7EBE4BD309FEA52AB16D6689",
+      "bytes": 6996,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1000000000000A000C000000040008000A000000240000000400000014000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          16,
+          655360,
+          12,
+          524292
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmsh.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office02/_inspection/50de6bb855b47f40.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office02/_inspection/50de6bb855b47f40.jsonl",
+      "sha256": "0A4845A601B1BC714FEDC86F9E999E394936DC4D1534A81E0D86FAE456F69658",
+      "bytes": 1373
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.flatbuffer.json",
+      "sha256": "2DAEBE2342B34F2B909D7125489A3523C45339CEBE527BC00E22496C66BAAC72",
+      "bytes": 695
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.object.json",
+      "sha256": "098F433844129AC0D08577A90EEE2DEFC40C5329898533103F3D07C51694B782",
+      "bytes": 2808
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmsh.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmsh.flatbuffer.json",
+      "sha256": "E2D37FC5FB9D9453E67525BD1102D72057B16DC29159AFF23DB5942D4B9C12ED",
+      "bytes": 13559
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_sch_office02/a_sch_office02.trmbf,field_graphic/common_model/a_sch_office02/a_sch_office02.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_office02",
+      "cursor": "field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
