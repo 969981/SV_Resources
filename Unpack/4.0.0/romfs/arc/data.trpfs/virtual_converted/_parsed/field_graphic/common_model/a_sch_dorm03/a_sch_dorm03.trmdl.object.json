@@ -37,30 +37,25 @@
       "role": "mesh",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 7280
-    },
-    {
-      "path": "field_graphic/common_model/a_sch_dorm03/a_sch_dorm03.trmbf",
-      "role": "vertex_index_buffers",
-      "evidence": "TRMSH",
-      "required": true,
-      "exists": true,
-      "size_bytes": 3613196
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_dorm03/a_sch_dorm03.trmtr",
       "role": "material_parameters",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 158988
+      "exists": false,
+      "size_bytes": null
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_dorm03/a_sch_dorm03.trmsh",
+    "field_graphic/common_model/a_sch_dorm03/a_sch_dorm03.trmtr"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -70,15 +65,10 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "6C2D926BE677B9CA7D0BE23A05C91AA7FBCBCBBFAB56920538D0B131E4DBD1A7",
+  "fingerprint": "2EFC4800EB997E04DCC19A2680F1B44343B57D16E80522E80C577354F69BF530",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
-    {
-      "path": "field_graphic/common_model/a_sch_dorm03/a_sch_dorm03.trmbf",
-      "required": true,
-      "sha256": "7C3400DCDBFA9BA52709F94EFB37BBF47774E9D0553C41EF651FCD5829D81483"
-    },
     {
       "path": "field_graphic/common_model/a_sch_dorm03/a_sch_dorm03.trmdl",
       "required": true,
@@ -87,40 +77,12 @@
     {
       "path": "field_graphic/common_model/a_sch_dorm03/a_sch_dorm03.trmsh",
       "required": true,
-      "sha256": "72149605653617422E407647855D6D9DB78B599E22EC0C4E834380B55695E6F1"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_dorm03/a_sch_dorm03.trmtr",
       "required": true,
-      "sha256": "52EAE545B155F7694B5BAB963D55034DA89EB07B357A419E55939798F5BF29C0"
+      "sha256": null
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 84,
-    "primitive_count": 84,
-    "materials_count": 83,
-    "uv_primitive_count": 84,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_dorm03.bin",
-        "bytes": 213428468,
-        "sha256": "D9E62485C4DBD909F791524DE7638A52A3BA8F1DA3CEA4041606EC7312C36DCF"
-      },
-      {
-        "path": "a_sch_dorm03_textures/a_sch_dorm01_windowglass01_rgn.png",
-        "bytes": 32128,
-        "sha256": "7A3C611F472A8A887E425E65EEB40272081731345FE95970D644393D70D05D25"
-      },
-      {
-        "path": "a_sch_dorm03_textures/metallicRoughness.png",
-        "bytes": 31150,
-        "sha256": "9F44F47CD6B2D6886F3724475C732C533370E5AFC8F60E46C9A5E7AC509E5665"
-      }
-    ],
-    "gltf_sha256": "FF29639546CBE222B586096C337E22614425918ADA07B89059264F0BDB3AC06B"
-  }
+  ]
 }
