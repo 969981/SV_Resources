@@ -1,0 +1,174 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/objects_un_plan_rolling_snowball01",
+  "kind": "all",
+  "completed_utc": "2026-11-07T16:38:45.966992+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 10,
+  "selection_sha256": "c169770aeda83dcbc6d298d4af37b623d687906544bfe586153114218a8e903d",
+  "index": {
+    "available": 10,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 10,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 4,
+      "BNTX": 5,
+      "BY_EXTENSION:trcol": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 5,
+      "ok": 5,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/objects_un_plan_rolling_snowball01",
+      "cursor": "field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/_inspection/e00621a708e8e4f1.jsonl",
+    "source_files": 10,
+    "inspection_records": 10,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 9
+    },
+    "manifest_sha256": "04D9BE8D1BF3713693F7A340AC9ABA30B9923D1EA51151803ED41A8E4F66DD4B"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/_inspection/e00621a708e8e4f1.jsonl",
+      "bytes": 7394,
+      "sha256": "04D9BE8D1BF3713693F7A340AC9ABA30B9923D1EA51151803ED41A8E4F66DD4B"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01.trmbf.flatbuffer.json",
+      "bytes": 51826,
+      "sha256": "67593A30E4F944CCD018367EEC012449C99BC79203C477E64B984744A8858103"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01.trmdl.flatbuffer.json",
+      "bytes": 736,
+      "sha256": "F4F8ABBE8D1A39E6E18C75090C31D97237C33DC0A3E6A0226DC255CFD5D41267"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01.trmdl.object.json",
+      "bytes": 5761,
+      "sha256": "77DB4E1869AB1003DA0A1C9709BADC2CC1C0A93F674B7C66985283A4A49EE9C4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01.trmsh.flatbuffer.json",
+      "bytes": 1279,
+      "sha256": "1E24B73105A3D3494B7DD9598FB4C7BB8F99BE021562D3F86C3257F372875152"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01.trmtr.flatbuffer.json",
+      "bytes": 2461,
+      "sha256": "36614856DEE0575F01FC189A3AD1AD0D3AD6AD208981273411C9D57F1F14B9B5"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_alb.bntx.json",
+      "bytes": 336,
+      "sha256": "FF94098E4B37027FE42B167D412ECA92530D0F6B9EEF6563B02DDD18BD345A2D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_ao.bntx.json",
+      "bytes": 334,
+      "sha256": "2FC07F9B721DD41ED6E90DA5B44B2D7A8176ED3626287F4B6D4E39300FC8CB0B"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_nrm.bntx.json",
+      "bytes": 335,
+      "sha256": "8911D9B6C8146C88B9D7D7222DA839080995E7C2E1F9DBFA6BB80210E97B4618"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_rgn.bntx.json",
+      "bytes": 335,
+      "sha256": "5B3E5948D981675D160D0ECA7E4D6B493AF52C19379AAA425A0F23F526527A9C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_white.bntx.json",
+      "bytes": 337,
+      "sha256": "92EB279D61FC0CD696DB815CDEBF677C1A9B95C0F058DD75F963F232916A3382"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_alb.png",
+      "bytes": 7207,
+      "sha256": "66386E4C3C751FDD0014A1B447482DE5AFA9536F9C66C017F532E2865F29DC6F"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_ao.png",
+      "bytes": 865,
+      "sha256": "6BB148B6D3916FCF52D114C54419AD8D7A3EAF6584B991DDCD67917E073F3AED"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_nrm.png",
+      "bytes": 1312,
+      "sha256": "096BE47163B8E0E9A8790208AD3AFE4C4E0FFB9AA66F78A1B068E20F6BDD2808"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_rgn.png",
+      "bytes": 349,
+      "sha256": "416C21DC063FFAABE4AEDADD6FEBF515A65A03CA192BB013B5DE6272AD67ED56"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_plan_rolling_snowball01/objects_un_plan_rolling_snowball01_white.png",
+      "bytes": 454,
+      "sha256": "4AF17D05FD143E64DC15AC823F123101C965325A035E5096517456C47932D6F6"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
