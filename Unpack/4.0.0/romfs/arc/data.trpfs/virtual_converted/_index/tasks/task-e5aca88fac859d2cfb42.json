@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_class2g#00000.part1.part1.part0.part1.part0.part1.part0",
+  "input_fingerprint": "F073BDA37BBC33C7CAD9964BA37E31ABD27B67819FABE87015F093B9F049EA20",
+  "input_files": 2,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1,
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_class2g/a_sch_class2g_hallwaywall01.trmtr",
+      "source_sha256": "BD9F1471530C3E0CDB9AF06ACC6F877329F6E8407EE563E4575D5C90E461F5E9",
+      "bytes": 11440,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "0400000028F8FFFF040000000600000034250000881D000028160000C80E0000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          4,
+          4294965288,
+          4,
+          6
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_sch_class2g/a_sch_class2g_hallwaywall01.trmtr.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    },
+    {
+      "source": "field_graphic/common_model/a_sch_class2g/a_sch_class2g_lmg01_lgt.bntx",
+      "source_sha256": "7946BD7DBF5FBA23F4F2A3DF428234801757A1CBC0F36C3ECC87FEB27F67B190",
+      "bytes": 528488,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010080068100800",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_class2g/_inspection/d36f941df165f7d0.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_class2g/_inspection/d36f941df165f7d0.jsonl",
+      "sha256": "AE8231865E2C27E45F7A6259E9EC3CE771311F34B58CADE4F37CCCE841ABE89D",
+      "bytes": 1265
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_class2g/a_sch_class2g_hallwaywall01.trmtr.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_class2g/a_sch_class2g_hallwaywall01.trmtr.flatbuffer.json",
+      "sha256": "D667E138A647B249C4E86BB973CFE7642669EBA9C20912E505677CFDC2EBF40C",
+      "bytes": 16135
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_class2g/a_sch_class2g_lmg01_lgt.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_class2g/a_sch_class2g_lmg01_lgt.bntx.json",
+      "sha256": "BCD9A0DC9D43198EEF622C35DCF41A0CBBEBEBF2C7802F917200BD9A286905C9",
+      "bytes": 302
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_class2g/a_sch_class2g_lmg01_lgt.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 1
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_class2g",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
