@@ -41,20 +41,20 @@ FixedSymbolDumper9 联接 fixed_symbol_table_array、各地区朱/紫双版本�
 
 ## 3. 新增真实无界面生成工具
 
-目录：tools/pkNX/pkNX.EncounterCLI/
+目录：tools/SV.PkNXEncounterCLI/
 
-- pkNX.EncounterCLI.csproj：直接链接仓库现有 pkNX 的 Gen9 Encounter、Location、Models C# 文件，不重写野生/固定遭遇规则；.NET 10，不依赖 WinForms 界面。
+- SV.PkNXEncounterCLI.csproj：直接链接仓库现有 pkNX 的 Gen9 Encounter、Location、Models C# 文件，不重写野生/固定遭遇规则；.NET 10，不依赖 WinForms 界面。
 - ResourcesShim.cs：读取真正的 pkNX Resources/all_fog.txt，不允许空值。
 - NativeRaidExporter.cs：读取 18 个原始 RaidEnemyTableArray，复用原项目 FlatBuffers 部分类型的 SerializePKHeX。
 - Program.cs：原生 SHA-256 入口，只允许真实 61 项 M2 提取 manifest；读取每一个原生文件时逐一验证原始字节大小和 SHA。缺少 TRCOL 则记录精确缺失源路径，已经生成的原生普通 Raid 仍能独立验收，不回填 PKHeX 参考二进制。
 
 构建：
 
-    dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release
+    dotnet build tools/SV.PkNXEncounterCLI/SV.PkNXEncounterCLI.csproj -c Release
 
 具备原生 61 项材料以后：
 
-    dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll \
+    dotnet tools/SV.PkNXEncounterCLI/bin/Release/net10.0/SV.PkNXEncounterCLI.dll \
       --virtual-root Unpack/4.0.0/romfs/arc/data.trpfs/virtual \
       --verified-manifest Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json \
       --output /tmp/sv-native-pkhex

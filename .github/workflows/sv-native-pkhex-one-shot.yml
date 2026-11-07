@@ -90,6 +90,7 @@ jobs:
             tools/gftool/**
             tools/HashCaches/SV/**
             tools/pkNX/**
+            tools/SV.PkNXEncounterCLI/**
             tools/PKHeX.Gen9LegalityProbe/**
             Unpack/4.0.0/romfs/arc/data.trpfd/_index/**
 
@@ -159,7 +160,7 @@ jobs:
       - name: Compile exact pkNX Gen9 parser including real Kitakami fog source
         shell: pwsh
         run: |
-          dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release --nologo
+          dotnet build tools/SV.PkNXEncounterCLI/SV.PkNXEncounterCLI.csproj -c Release --nologo
           if ($LASTEXITCODE -ne 0) { throw 'Native Gen9 pkNX headless engine build failed' }
 
       - name: Generate genuine raid (+ wild/fixed if collision available) PKHeX binaries
@@ -172,7 +173,7 @@ jobs:
             $argsList+=@('--verified-trcol-manifest',$collision)
             Write-Host 'Using original Havok source SHA evidence, not inferred geometry.'
           }
-          dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @argsList
+          dotnet tools/SV.PkNXEncounterCLI/bin/Release/net10.0/SV.PkNXEncounterCLI.dll @argsList
           if ($LASTEXITCODE -ne 0) { Write-Warning "Not all native Gen9 templates closed; inspect generated native-encounter-build.json or failure." }
 
       - name: Independently checkout fixed PKHeX Gen9 legality reference

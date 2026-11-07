@@ -2,14 +2,14 @@ name: SV native 4.0.0 to PKHeX - real pkNX encounter rebuild
 on:
   pull_request:
     paths:
-      - 'tools/pkNX/pkNX.EncounterCLI/**'
+      - 'tools/SV.PkNXEncounterCLI/**'
       - '.github/workflows/sv-pkhex-native-headless.yml'
       - 'scripts/Compare-SV-Native-PKHeX-Encounters.py'
       - 'tests/test_sv_native_pkhex_comparison.py'
   push:
     branches: [master]
     paths:
-      - 'tools/pkNX/pkNX.EncounterCLI/**'
+      - 'tools/SV.PkNXEncounterCLI/**'
       - '.github/workflows/sv-pkhex-native-headless.yml'
       - 'scripts/Compare-SV-Native-PKHeX-Encounters.py'
       - 'tests/test_sv_native_pkhex_comparison.py'
@@ -28,6 +28,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             tools/pkNX/**
+            tools/SV.PkNXEncounterCLI/**
             scripts/Compare-SV-Native-PKHeX-Encounters.py
             scripts/Audit-SV-PKHeX-Encounters.py
             tests/test_sv_native_pkhex_comparison.py
@@ -39,8 +40,8 @@ jobs:
           python-version: '3.12'
       - name: Compile unmodified native pkNX Gen9 encounter rules, without GUI
         run: |
-          dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release --nologo
-          test -s tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/all_fog.txt
+          dotnet build tools/SV.PkNXEncounterCLI/SV.PkNXEncounterCLI.csproj -c Release --nologo
+          test -s tools/SV.PkNXEncounterCLI/bin/Release/net10.0/all_fog.txt
       - name: Synthetic delta and native evidence tests
         run: python -m unittest discover -s tests -p test_sv_native_pkhex_comparison.py -v
 
@@ -56,6 +57,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             tools/pkNX/**
+            tools/SV.PkNXEncounterCLI/**
             scripts/Audit-SV-PKHeX-Encounters.py
             scripts/Compare-SV-Native-PKHeX-Encounters.py
             Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json
@@ -78,13 +80,13 @@ jobs:
           fi
       - name: Build exact pkNX Gen9 CLI
         if: steps.source.outputs.available == 'true'
-        run: dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release --nologo
+        run: dotnet build tools/SV.PkNXEncounterCLI/SV.PkNXEncounterCLI.csproj -c Release --nologo
       - name: Run real world spawner and collider algorithm
         if: steps.source.outputs.available == 'true'
         id: native
         continue-on-error: true
         run: |
-          dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll \
+          dotnet tools/SV.PkNXEncounterCLI/bin/Release/net10.0/SV.PkNXEncounterCLI.dll \
             --virtual-root Unpack/4.0.0/romfs/arc/data.trpfs/virtual \
             --verified-manifest Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json \
             --output "$RUNNER_TEMP/sv-native-pkhex"
