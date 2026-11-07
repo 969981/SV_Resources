@@ -1,0 +1,194 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/objects_un_c03marblemonument01",
+  "kind": "all",
+  "completed_utc": "2026-11-07T14:46:02.016136+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 14,
+  "selection_sha256": "5d309e67ef1a55a54e0b9ac3b85a5757a796a3877cf32185074b3d70b7d26bc1",
+  "index": {
+    "available": 14,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 14,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 8,
+      "BY_EXTENSION:trcol": 1,
+      "BNTX": 5
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 5,
+      "ok": 5,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/objects_un_c03marblemonument01",
+      "cursor": "field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/_inspection/42e84e36354765c1.jsonl",
+    "source_files": 14,
+    "inspection_records": 14,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 13
+    },
+    "manifest_sha256": "FD03E3B548876F39632F62A7B38C6B9272608B1545FFC335DAF4AF2FA724CAF8"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/_inspection/42e84e36354765c1.jsonl",
+      "bytes": 10368,
+      "sha256": "FD03E3B548876F39632F62A7B38C6B9272608B1545FFC335DAF4AF2FA724CAF8"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01.trmbf.flatbuffer.json",
+      "bytes": 45037,
+      "sha256": "186B51698103F57BCC877659255C5BFD3FA95644A043E4B6EA7C0A4121BDA2C4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01.trmdl.flatbuffer.json",
+      "bytes": 900,
+      "sha256": "F487E69D9FDDA6947EA3434B0661967545A3E6A18A9C3487D2D2F5E6EB30DBA2"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01.trmdl.object.json",
+      "bytes": 7863,
+      "sha256": "9BA8EB95F6ECC794F1629B44950252424C666E8137087375102AC55015DA7168"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01.trmsh.flatbuffer.json",
+      "bytes": 1243,
+      "sha256": "414662FB3A4D4CEA5F14BBBC7ED90F334DACF87992CD20F3F7106693A47692C7"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01.trmtr.flatbuffer.json",
+      "bytes": 2839,
+      "sha256": "5869FB833608BDBEF4C2098C0C323817443B26EE87E81EDFA1DA8EA41DC2BFB9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_lod1.trmbf.flatbuffer.json",
+      "bytes": 36103,
+      "sha256": "6941D6F1B9925A8A50DBB641AC74B4EBC8192AF5F09CA4140D189EF87947A1F4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_lod1.trmsh.flatbuffer.json",
+      "bytes": 1253,
+      "sha256": "DA013FED500EB281C5FCF2BFCFAD7B6259B2FA4C656EDE823E63C66CB40B08F9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_lod2.trmbf.flatbuffer.json",
+      "bytes": 28507,
+      "sha256": "4E5E5F88EB72994FF09A4BA27BD1D875EB78638064E826D124B4EF11AD7045A5"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_lod2.trmsh.flatbuffer.json",
+      "bytes": 1253,
+      "sha256": "ED0EC33B11082B6BFA40DCEFF4EACBF40A10652D098444F5A742AED484864464"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_alb.bntx.json",
+      "bytes": 336,
+      "sha256": "9D7CAAC0F66C47076B0845C283BDAEE65D6670199B8A175EC7FF14E7306F78E0"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_ao.bntx.json",
+      "bytes": 333,
+      "sha256": "989CE121C5FDA6A0584EA94A7D43B75A8C3EA290C7C5F414AB21CA66BCDD484B"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_mtl.bntx.json",
+      "bytes": 336,
+      "sha256": "F77A70FAEF314A8EDCF5A131797EF8A7F978C500B7D313792F0B5465F92A34FC"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_nrm.bntx.json",
+      "bytes": 336,
+      "sha256": "4918FE70CB4A80BE52ED48E851BC92548F37E4AFC47262E32C9869BAD893897E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_rgn.bntx.json",
+      "bytes": 336,
+      "sha256": "F57A382D41A7FC3F03941E09523516F419FA60DD3E655C93C52D239FD81EF819"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_alb.png",
+      "bytes": 54831,
+      "sha256": "99353132F09B31D7DAE766B7EFC9F775C8CDF73218352A7E602D46F90E9646C1"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_ao.png",
+      "bytes": 6348,
+      "sha256": "8BD15CC315D529A5EC10B1007B47220C2882FACA2570FA0AC8FC339F5731F595"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_mtl.png",
+      "bytes": 4998,
+      "sha256": "8E3A700096824C366C6BAB9EC0C0FD0245939D01B701952D7BFE2B79055F0337"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_nrm.png",
+      "bytes": 41547,
+      "sha256": "A3B362A275875B663C3E7CA775EBD397928DB1589E22FF43A0544788BAF732D8"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03marblemonument01/objects_un_c03marblemonument01_obj01_rgn.png",
+      "bytes": 17925,
+      "sha256": "564344F43F9BBB4A0ED49AED2E851E95F04D0535713A42CBF32AE85E4152F387"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
