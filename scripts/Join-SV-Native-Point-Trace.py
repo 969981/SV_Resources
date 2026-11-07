@@ -66,13 +66,17 @@ def point_identity(e):
 
 
 def disjoint_trace_diagnostics(trace: Path, target_wild: list[dict], target_fixed: list[dict]):
-    wild_keys = {target_wild_key(row) for row in target_wild}
-    fixed_keys = {target_fixed_key(row) for row in target_fixed}
+    # Encounter rows are a MULTISET: the same serialized wild key can occur in
+    # multiple BinLinker location-area arrays. Do not reject duplicates or let a
+    # single traced serialization prove multiple target occurrences.
+    wild_targets = Counter(target_wild_key(row) for row in target_wild)
+    fixed_targets = Counter(target_fixed_key(row) for row in target_fixed)
+    wild_keys = set(wild_targets)
+    fixed_keys = set(fixed_targets)
     wild_base_keys = {t[:5]+t[7:] for t in wild_keys}
-    if len(wild_keys)!=len(target_wild):
-        raise ValueError("Duplicate wild case keys; multiplicity must be explicitly handled")
-    # Individual fixed templates may legitimately share species+level+locations, so no
-    # unique requirement here. Matching by this key alone can be ambiguous.
+    # Fixed templates can be emitted by multiple game+TableKey configurations.
+    # A matching stage event is evidence of a source candidate, not a unique
+    # source proof for every repeated raw .pkl record.
     wild_output=defaultdict(list)
     wild_weather=defaultdict(list)
     wild_candidate=defaultdict(list)
@@ -123,6 +127,7 @@ def disjoint_trace_diagnostics(trace: Path, target_wild: list[dict], target_fixe
         "wild_before":wild_before,"wild_after":wild_after,"fixed_output":fixed_output,
         "fixed_wanders":fixed_wanders,"fixed_primaries":fixed_primaries,
         "event_counts":event_counts,
+        "wild_targets":wild_targets,"fixed_targets":fixed_targets,
     }
 
 
@@ -154,12 +159,19 @@ def analyze(trace:Path,target_dir:Path,native_dir:Path,original_bridge_manifest:
     wild_matched=0
     wild_points=0
     fixed_matched=0
+    wild_seen=Counter()
+    fixed_seen=Counter()
     fixed_158_from_wander=0
     fixed_strict_false_158=0
     for t in raw_wild:
         key=target_wild_key(t)
         emitted=data["wild_output"].get(key,[])
-        if emitted: wild_matched+=1
+        ordinal=wild_seen[key]
+        wild_seen[key]+=1
+        # Count each actual serialization at most once against a repeated
+        # native-only target; duplicates are not automatically independent proof.
+        linked=ordinal<len(emitted)
+        if linked: wild_matched+=1
         base=key[:5]+key[7:]
         origin_events=[e for e in data["wild_weather"].get(base,[])
                        if int(e["minLevel"]) <= key[6]+1 and int(e["maxLevel"])>=key[5]-1]
@@ -178,6 +190,9 @@ def analyze(trace:Path,target_dir:Path,native_dir:Path,original_bridge_manifest:
         wild_result.append({
             **t,
             "serialized_match_count":len(emitted),
+            "target_duplicate_ordinal":ordinal+1,
+            "target_multiplicity":data["wild_targets"][key],
+            "this_occurrence_serialization_verified":linked,
             "candidate_point_count":len(sources),
             "original_point_sources_json":json.dumps(sources,ensure_ascii=False),
             "preconsolidation_level_ranges_json":json.dumps(before_ranges),
@@ -195,7 +210,10 @@ def analyze(trace:Path,target_dir:Path,native_dir:Path,original_bridge_manifest:
     for t in raw_fixed:
         key=target_fixed_key(t)
         emitted=data["fixed_output"].get(key,[])
-        if emitted: fixed_matched+=1
+        ordinal=fixed_seen[key]
+        fixed_seen[key]+=1
+        linked=ordinal<len(emitted)
+        if linked: fixed_matched+=1
         events=[]
         for e in emitted:
             symbol=(e["game"],e["tableKey"],int(e["tableIndex"]))
@@ -215,6 +233,9 @@ def analyze(trace:Path,target_dir:Path,native_dir:Path,original_bridge_manifest:
             })
         fixed_result.append({**t,
             "serializations_found":len(emitted),
+            "target_duplicate_ordinal":ordinal+1,
+            "target_multiplicity":data["fixed_targets"][key],
+            "this_occurrence_serialization_verified":linked,
             "location158_inferred_wander_candidates":sum(
                 bool(x["location158AddedByWander"]) for x in events),
             "original_table_key_evidence_json":json.dumps(events[:25],ensure_ascii=False),
@@ -231,8 +252,13 @@ def analyze(trace:Path,target_dir:Path,native_dir:Path,original_bridge_manifest:
     result={
         "status":"ORIGINAL_NATIVE_30F_POINT_PROVENANCE_CORRELATED_NOT_GAME_RNG_VALIDATED",
         "wild_cases":len(raw_wild),"wild_exact_final_serializations":wild_matched,
+        "wild_distinct_serialized_keys":len(data["wild_targets"]),
+        "wild_keys_with_duplicate_target_occurrences":sum(n>1 for n in data["wild_targets"].values()),
+        "wild_target_occurrences_not_yet_verified":len(raw_wild)-wild_matched,
         "wild_cases_with_candidate_original_points":wild_points,
         "fixed_cases":len(raw_fixed),"fixed_with_original_tablekey_link":fixed_matched,
+        "fixed_distinct_serialized_keys":len(data["fixed_targets"]),
+        "fixed_target_occurrences_not_yet_verified":len(raw_fixed)-fixed_matched,
         "fixed_158_wander_observations":fixed_158_from_wander,
         "fixed_158_wander_observations_with_no_strict_containment":fixed_strict_false_158,
         "trace_event_counts":dict(data["event_counts"]),
