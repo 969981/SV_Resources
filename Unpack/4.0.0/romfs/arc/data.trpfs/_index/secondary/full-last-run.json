@@ -2,440 +2,20 @@
   "schemaVersion": 1,
   "source_version": "4.0.0",
   "parallel_workers": 4,
-  "elapsed_seconds": 59.25,
+  "elapsed_seconds": 84.281,
   "selected_count": 12,
-  "input_files": 354,
-  "files_per_second": 5.97,
+  "input_files": 532,
+  "files_per_second": 6.31,
   "completed_count": 12,
-  "parsed_records": 354,
-  "structurally_parsed": 318,
-  "inspected_unparsed": 36,
+  "parsed_records": 532,
+  "structurally_parsed": 477,
+  "inspected_unparsed": 55,
   "error_count": 0,
-  "partial_count": 4,
+  "partial_count": 1,
   "attempts": [
     {
-      "task": "field_graphic/terrain_model/ground_un_region00_com_cliff01#00000",
-      "fingerprint": "EC1E64FF5A6871FFDBFEDCEB8A6E2D50F9DCC871BA82539D435862DEC0FF3430",
-      "input_files": 12,
-      "status": "PARTIAL",
-      "unresolved": 2,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BNTX": 3,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 3,
-          "ok": 3,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region00_com_cliff01",
-          "cursor": "field_graphic/terrain_model/ground_un_region00_com_cliff01/ground_un_region00_com_cliff01.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/ground_un_region00_com_cliff01/ground_un_region00_com_cliff01.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 16,
-      "parsed_records": 12,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region00_com_cliff01/_inspection/e4d1136d44531f56.jsonl",
-      "inspection_sha256": "5236AD505ACE89F10674A21E8FD3865BD30A7086F53EC1AF5CFCD36880846036",
-      "structurally_parsed": 11,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 17,
-      "elapsed_seconds": 7.813,
-      "updated_utc": "2026-11-07T11:28:52.971018+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/ground_un_region00_com_cliff02#00000",
-      "fingerprint": "70779496CD8014FA30FE98C5AB47546819EE9429E081035F3A338CE5A4873604",
-      "input_files": 11,
-      "status": "PARTIAL",
-      "unresolved": 2,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BNTX": 2,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 2,
-          "ok": 2,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region00_com_cliff02",
-          "cursor": "field_graphic/terrain_model/ground_un_region00_com_cliff02/ground_un_region00_com_cliff02.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/ground_un_region00_com_cliff02/ground_un_region00_com_cliff02.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 14,
-      "parsed_records": 11,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region00_com_cliff02/_inspection/99b281d6dc869be2.jsonl",
-      "inspection_sha256": "658A098267AAF8640827366549956FE055CAC0BB9785514175132DF8696D671F",
-      "structurally_parsed": 10,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 15,
-      "elapsed_seconds": 7.86,
-      "updated_utc": "2026-11-07T11:28:53.002872+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/ground_un_region00_com_cliff03#00000",
-      "fingerprint": "AD7C55872FB572B90BE74035D93F1D24E244F48DB596E87C3A3C0AC8EA6061CD",
-      "input_files": 11,
-      "status": "PARTIAL",
-      "unresolved": 2,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BNTX": 2,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 2,
-          "ok": 2,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region00_com_cliff03",
-          "cursor": "field_graphic/terrain_model/ground_un_region00_com_cliff03/ground_un_region00_com_cliff03.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/ground_un_region00_com_cliff03/ground_un_region00_com_cliff03.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 14,
-      "parsed_records": 11,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region00_com_cliff03/_inspection/357c10cf46bfd80a.jsonl",
-      "inspection_sha256": "ADD6E118DFD212782519598F100CD27AC67E2E44E0238AFA4B4DA9F631A68AA6",
-      "structurally_parsed": 10,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 15,
-      "elapsed_seconds": 7.844,
-      "updated_utc": "2026-11-07T11:28:53.037006+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/ground_un_region00_com_cliff05#00000",
-      "fingerprint": "DA006391106C0D17873205A079D92CCB45235D59546C359EEAF9BF00E1896679",
-      "input_files": 10,
-      "status": "PARTIAL",
-      "unresolved": 2,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BNTX": 1,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 1,
-          "ok": 1,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region00_com_cliff05",
-          "cursor": "field_graphic/terrain_model/ground_un_region00_com_cliff05/ground_un_region00_com_cliff05.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/ground_un_region00_com_cliff05/ground_un_region00_com_cliff05.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 12,
-      "parsed_records": 10,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region00_com_cliff05/_inspection/791a39f2771356fa.jsonl",
-      "inspection_sha256": "8B0870A5A724FD445368E54748BF91B585DA37B6F35964699F0391F9C4DF5F6A",
-      "structurally_parsed": 9,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 13,
-      "elapsed_seconds": 7.782,
-      "updated_utc": "2026-11-07T11:28:53.065073+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/ground_un_region01_cliff25#00000",
-      "fingerprint": "A6E0AE8B2D5E2F748560ECB8F5F68E7F0ED2B911DC071B353407C684AC2B7F8D",
-      "input_files": 20,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BNTX": 2,
-        "FLATBUFFER_CANDIDATE": 16,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 2,
-          "ok": 2,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 2,
-            "parsed": 0,
-            "converted": 2,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff25",
-          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff25/ground_un_region01_cliff25_11.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 31,
-      "parsed_records": 20,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff25/_inspection/89405ca46ab8acec.jsonl",
-      "inspection_sha256": "1616C91C73D65B054B713DE5D0F5771342E996C09F9B6A4CA51E1F43B44C65C1",
-      "structurally_parsed": 18,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 32,
-      "elapsed_seconds": 12.89,
-      "updated_utc": "2026-11-07T11:28:53.136088+00:00"
-    },
-    {
-      "task": "field_graphic/terrain_model/ground_un_region01_cliff27#00000",
-      "fingerprint": "E41FCFAC7727EB59DDB3BF0938C4640C463D0E36450892B59FB6FF939F676813",
-      "input_files": 22,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BNTX": 4,
-        "FLATBUFFER_CANDIDATE": 16,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 4,
-          "ok": 4,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 2,
-            "parsed": 0,
-            "converted": 2,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff27",
-          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff27/ground_un_region01_cliff27_11.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 37,
-      "parsed_records": 22,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff27/_inspection/3f71dfe19e40e7b9.jsonl",
-      "inspection_sha256": "65F19B5B35039C5B8A18813A87AA044D7487ACC225037613718F63273823E71A",
-      "structurally_parsed": 20,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 38,
-      "elapsed_seconds": 13.547,
-      "updated_utc": "2026-11-07T11:28:53.233001+00:00"
-    },
-    {
-      "task": "field_graphic/terrain_model/ground_un_region01_cliff28#00000",
-      "fingerprint": "358CD8E89C7615CF95A7E3C4480616099FA4C0E575CA6B3A907C63B91EC6DD76",
+      "task": "field_graphic/terrain_model/ground_un_region01_cliff53#00000",
+      "fingerprint": "ED778AC20F5402E39BEF8F93C4EFE7F3F3A7BC7F6A8D8DA596BF88B443D3E8B8",
       "input_files": 29,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -482,26 +62,158 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff28",
-          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff28/ground_un_region01_cliff28_10.trmdl",
+          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff53",
+          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff53/ground_un_region01_cliff53_10.trmdl",
           "issues": []
         }
       },
       "outputs": 44,
       "parsed_records": 29,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff28/_inspection/4e91be1d5f06eb4a.jsonl",
-      "inspection_sha256": "FAEF952D763F541F54A4D5F896285F7AE0C085A3071744F25A81337F44117671",
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff53/_inspection/439451a500fbb9a8.jsonl",
+      "inspection_sha256": "B8BBE5C5228EEA220770E12DB039F1670A76DA676F0C83C058C0BA6944CE0427",
       "structurally_parsed": 26,
       "inspected_unparsed": 3,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 45,
-      "elapsed_seconds": 18.0,
-      "updated_utc": "2026-11-07T11:28:53.326321+00:00"
+      "elapsed_seconds": 18.812,
+      "updated_utc": "2026-11-07T11:32:35.117887+00:00"
     },
     {
-      "task": "field_graphic/terrain_model/ground_un_region01_cliff29#00000",
-      "fingerprint": "9D06F8E8F5642F943FE3E28F8E9AAF8CCFCDDDECC54D99ED1E2D989747187B44",
+      "task": "field_graphic/terrain_model/ground_un_region01_cliff54#00000",
+      "fingerprint": "693C7C8AE0EC13B912DC9216C1FA6748213478B66466BF9F5B733DACF90CCFD4",
+      "input_files": 29,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 24,
+        "BNTX": 2,
+        "BY_EXTENSION:trcol": 3
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 2,
+          "ok": 2,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 3,
+            "parsed": 0,
+            "converted": 3,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff54",
+          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff54/ground_un_region01_cliff54_03.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 44,
+      "parsed_records": 29,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff54/_inspection/dcdde0ace1d45da4.jsonl",
+      "inspection_sha256": "A48F39058FCFEF16145DC10A5836A179F538E4B11DF7D00771423DD685868A42",
+      "structurally_parsed": 26,
+      "inspected_unparsed": 3,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 45,
+      "elapsed_seconds": 18.468,
+      "updated_utc": "2026-11-07T11:32:35.215944+00:00"
+    },
+    {
+      "task": "field_graphic/terrain_model/ground_un_region01_cliff55#00000",
+      "fingerprint": "7BEEC11A6A0092C9D99BE6BA2ED64C1C53EB2880D8FEB487309FD8060D16D691",
+      "input_files": 49,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 4,
+        "FLATBUFFER_CANDIDATE": 40,
+        "BY_EXTENSION:trcol": 5
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 4,
+          "ok": 4,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 5,
+            "parsed": 0,
+            "converted": 5,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff55",
+          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff55/ground_un_region01_cliff55_22.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 74,
+      "parsed_records": 49,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff55/_inspection/582a13a447936177.jsonl",
+      "inspection_sha256": "E791C192A242316DB7DF20F0BE98D9B6684174FE623BB610CFBC1D5EA94705E3",
+      "structurally_parsed": 44,
+      "inspected_unparsed": 5,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 75,
+      "elapsed_seconds": 30.578,
+      "updated_utc": "2026-11-07T11:32:35.367353+00:00"
+    },
+    {
+      "task": "field_graphic/terrain_model/ground_un_region01_cliff56#00000",
+      "fingerprint": "F65F3E2268C11C0922713589F49E92896C638A4B735245DB8D8B5DDD6034A6EC",
       "input_files": 38,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -548,33 +260,33 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff29",
-          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff29/ground_un_region01_cliff29_10.trmdl",
+          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff56",
+          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff56/ground_un_region01_cliff56_10.trmdl",
           "issues": []
         }
       },
       "outputs": 57,
       "parsed_records": 38,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff29/_inspection/37041da7a4ea4a04.jsonl",
-      "inspection_sha256": "5825D7E02CA41E7F9AA5F90483FEC0EEFE832789EEE204A42EBE1AEAB78D0BCC",
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff56/_inspection/9d56e5e9045f047a.jsonl",
+      "inspection_sha256": "3672E4CF4EE70A196E0FE4FCCFF9FD88045122ED18CAF56DDD05441E1E414549",
       "structurally_parsed": 34,
       "inspected_unparsed": 4,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 58,
-      "elapsed_seconds": 24.14,
-      "updated_utc": "2026-11-07T11:28:53.442614+00:00"
+      "elapsed_seconds": 23.937,
+      "updated_utc": "2026-11-07T11:32:35.473544+00:00"
     },
     {
-      "task": "field_graphic/terrain_model/ground_un_region01_cliff31#00000",
-      "fingerprint": "C8F73ADBE7247272F860551BDC9E1ABA8FB98A86E4E878B635615E56FC6EECFE",
-      "input_files": 67,
+      "task": "field_graphic/terrain_model/ground_un_region01_cliff57#00000",
+      "fingerprint": "114E80840243E840C4635FFD9EB5E8A22BCF097B6D96EF9275C8DDA9184139B6",
+      "input_files": 65,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
+        "BNTX": 2,
         "FLATBUFFER_CANDIDATE": 56,
-        "BNTX": 4,
         "BY_EXTENSION:trcol": 7
       },
       "stages": {
@@ -596,8 +308,8 @@
         },
         "bntx": {
           "kind": "bntx",
-          "processed": 4,
-          "ok": 4,
+          "processed": 2,
+          "ok": 2,
           "blocked": 0,
           "skipped": 0,
           "failed": 0
@@ -614,34 +326,237 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff31",
-          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff31/ground_un_region01_cliff31_22.trmdl",
+          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff57",
+          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff57/ground_un_region01_cliff57_22.trmdl",
           "issues": []
         }
       },
-      "outputs": 102,
-      "parsed_records": 67,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff31/_inspection/c94e40bdc67cf24e.jsonl",
-      "inspection_sha256": "EF5FFCB28406F96B5286B72F57AA2617B6FF7B7D0F1F28A75FF6B10A3B30F35C",
-      "structurally_parsed": 60,
+      "outputs": 96,
+      "parsed_records": 65,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff57/_inspection/4bb55694ecc08e47.jsonl",
+      "inspection_sha256": "16BB8FD68E2BB83870099472053521F6DA3A171BAFFF020E171CBC6809CFA35A",
+      "structurally_parsed": 58,
       "inspected_unparsed": 7,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 103,
-      "elapsed_seconds": 36.985,
-      "updated_utc": "2026-11-07T11:28:53.647303+00:00"
+      "published": 97,
+      "elapsed_seconds": 37.453,
+      "updated_utc": "2026-11-07T11:32:35.642964+00:00"
     },
     {
-      "task": "field_graphic/terrain_model/ground_un_region01_cliff50#00000",
-      "fingerprint": "C0DB97C617D42ADB9A596A560E7089914CB3183D3C3921B0B4A989C5DBE4A98D",
-      "input_files": 58,
+      "task": "field_graphic/terrain_model/ground_un_region01_cliff_ladder01#00000",
+      "fingerprint": "A27B33A49C22587B8CA38D3192AEC07DE3EF0548B1F374A0F361B4A049D121A5",
+      "input_files": 14,
+      "status": "PARTIAL",
+      "unresolved": 2,
+      "returncode": 2,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 8,
+        "BY_EXTENSION:trcol": 1,
+        "BNTX": 5
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 5,
+          "ok": 5,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 1,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff_ladder01",
+          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff_ladder01/ground_un_region01_cliff_ladder01.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/ground_un_region01_cliff_ladder01/ground_un_region01_cliff_ladder01.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 20,
+      "parsed_records": 14,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff_ladder01/_inspection/041f034c5b1e09fb.jsonl",
+      "inspection_sha256": "A40875ADAB761605BC24B41E843A4702F43A7CB0B277EAED23B6BDD13A72A402",
+      "structurally_parsed": 13,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 21,
+      "elapsed_seconds": 5.469,
+      "updated_utc": "2026-11-07T11:32:35.689687+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/ground_un_region01_rock01#00000",
+      "fingerprint": "944297FB07DDE046A59F2C5D1F48B8A7F9B802AC5644D6E9F81153926BA14EE0",
+      "input_files": 15,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "FLATBUFFER_CANDIDATE": 48,
+        "BNTX": 6,
+        "FLATBUFFER_CANDIDATE": 8,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 6,
+          "ok": 6,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 1,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/ground_un_region01_rock01",
+          "cursor": "field_graphic/terrain_model/ground_un_region01_rock01/ground_un_region01_rock01_02.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 24,
+      "parsed_records": 15,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_rock01/_inspection/c7458db95ed076ce.jsonl",
+      "inspection_sha256": "C3C891D7A79D7FD963BB4EF49D758D532A73B12DF8DBFE20E8679B0589FA27F5",
+      "structurally_parsed": 14,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 25,
+      "elapsed_seconds": 5.469,
+      "updated_utc": "2026-11-07T11:32:35.730288+00:00"
+    },
+    {
+      "task": "field_graphic/terrain_model/ground_un_region03_cave01#00000",
+      "fingerprint": "5EBB386153A8369BB561C001441DF84D9094B5E259FF653EECFC7D409B24F91F",
+      "input_files": 13,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 12,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 2,
+            "parsed": 0,
+            "converted": 2,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/ground_un_region03_cave01",
+          "cursor": "field_graphic/terrain_model/ground_un_region03_cave01/ground_un_region03_cave01_fade_outside_mesh.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 19,
+      "parsed_records": 13,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region03_cave01/_inspection/ce3663bf90b7ad8d.jsonl",
+      "inspection_sha256": "741743984DDF054969B14E4697BE420FCD166174BF76F21C076AFF57CE609038",
+      "structurally_parsed": 12,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 20,
+      "elapsed_seconds": 10.281,
+      "updated_utc": "2026-11-07T11:32:35.766512+00:00"
+    },
+    {
+      "task": "field_graphic/terrain_model/ground_un_region03_cave20#00000",
+      "fingerprint": "54EFC65620DF26CCAD63786469BA686A641BEB1983A3C2F0A43988F999CABA68",
+      "input_files": 13,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 8,
         "BNTX": 4,
-        "BY_EXTENSION:trcol": 6
+        "BY_EXTENSION:trcol": 1
       },
       "stages": {
         "messages": {
@@ -670,9 +585,9 @@
         },
         "models": {
           "counts": {
-            "seen": 6,
+            "seen": 1,
             "parsed": 0,
-            "converted": 6,
+            "converted": 1,
             "promoted": 0,
             "blocked": 0,
             "failed": 0,
@@ -680,34 +595,34 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff50",
-          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff50/ground_un_region01_cliff50_10.trmdl",
+          "prefix": "field_graphic/terrain_model/ground_un_region03_cave20",
+          "cursor": "field_graphic/terrain_model/ground_un_region03_cave20/ground_un_region03_cave20.trmdl",
           "issues": []
         }
       },
-      "outputs": 89,
-      "parsed_records": 58,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff50/_inspection/1fd90aaffe79f504.jsonl",
-      "inspection_sha256": "841F6270DFFD4DBC356B435087E1D933730B53B13205B434C3717684E2B5CFE2",
-      "structurally_parsed": 52,
-      "inspected_unparsed": 6,
+      "outputs": 25,
+      "parsed_records": 13,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region03_cave20/_inspection/eae485c07af96ec1.jsonl",
+      "inspection_sha256": "8F73AB8F2878A947C8A0951B653B8690AE34CC9DCC89963574E7316FF8C79382",
+      "structurally_parsed": 12,
+      "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 90,
-      "elapsed_seconds": 33.531,
-      "updated_utc": "2026-11-07T11:28:53.836723+00:00"
+      "published": 26,
+      "elapsed_seconds": 5.219,
+      "updated_utc": "2026-11-07T11:32:35.813588+00:00"
     },
     {
-      "task": "field_graphic/terrain_model/ground_un_region01_cliff51#00000",
-      "fingerprint": "6A0BF6DB31867243A2AAD05EBE5F4AD5481F4CFEBB309A2522D12E1C988DC453",
-      "input_files": 38,
+      "task": "field_graphic/terrain_model/ground_un_region03_cliff01#00000",
+      "fingerprint": "6D731A59A3EDC8C37D7999D6A5D8C16F92D4AB7FC8612C89C453AD09C684EDF7",
+      "input_files": 92,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "FLATBUFFER_CANDIDATE": 32,
+        "FLATBUFFER_CANDIDATE": 80,
         "BNTX": 2,
-        "BY_EXTENSION:trcol": 4
+        "BY_EXTENSION:trcol": 10
       },
       "stages": {
         "messages": {
@@ -736,9 +651,9 @@
         },
         "models": {
           "counts": {
-            "seen": 4,
+            "seen": 10,
             "parsed": 0,
-            "converted": 4,
+            "converted": 10,
             "promoted": 0,
             "blocked": 0,
             "failed": 0,
@@ -746,34 +661,34 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff51",
-          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff51/ground_un_region01_cliff51_04.trmdl",
+          "prefix": "field_graphic/terrain_model/ground_un_region03_cliff01",
+          "cursor": "field_graphic/terrain_model/ground_un_region03_cliff01/ground_un_region03_cliff10.trmdl",
           "issues": []
         }
       },
-      "outputs": 57,
-      "parsed_records": 38,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff51/_inspection/c57485a45a8ddde3.jsonl",
-      "inspection_sha256": "F0373F8CE11ED5B3B49A5A4C773D38D82F67AF5010F576486F416CB74D67DE40",
-      "structurally_parsed": 34,
-      "inspected_unparsed": 4,
+      "outputs": 135,
+      "parsed_records": 92,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region03_cliff01/_inspection/efcec96f97b236e7.jsonl",
+      "inspection_sha256": "324D3B7FDB0FB4982F1ACC04C7F1F7DF3B0F9331F6ED5D69C5186BF5BE9A60FC",
+      "structurally_parsed": 82,
+      "inspected_unparsed": 10,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 58,
-      "elapsed_seconds": 23.36,
-      "updated_utc": "2026-11-07T11:28:53.957450+00:00"
+      "published": 136,
+      "elapsed_seconds": 49.609,
+      "updated_utc": "2026-11-07T11:32:36.077929+00:00"
     },
     {
-      "task": "field_graphic/terrain_model/ground_un_region01_cliff52#00000",
-      "fingerprint": "EEC819D318102E07EFDEAC6668D30B088D889E6CD291310448570D3B25EB4285",
-      "input_files": 38,
+      "task": "field_graphic/terrain_model/ground_un_region03_cliff11#00000",
+      "fingerprint": "F9EB602FE115F9EB7E84E095A2A86A3D4BA56C265F2F95E94A472A8F7CF494F8",
+      "input_files": 92,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "FLATBUFFER_CANDIDATE": 32,
-        "BY_EXTENSION:trcol": 4,
-        "BNTX": 2
+        "FLATBUFFER_CANDIDATE": 80,
+        "BNTX": 2,
+        "BY_EXTENSION:trcol": 10
       },
       "stages": {
         "messages": {
@@ -802,9 +717,9 @@
         },
         "models": {
           "counts": {
-            "seen": 4,
+            "seen": 10,
             "parsed": 0,
-            "converted": 4,
+            "converted": 10,
             "promoted": 0,
             "blocked": 0,
             "failed": 0,
@@ -812,24 +727,90 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/ground_un_region01_cliff52",
-          "cursor": "field_graphic/terrain_model/ground_un_region01_cliff52/ground_un_region01_cliff52_05.trmdl",
+          "prefix": "field_graphic/terrain_model/ground_un_region03_cliff11",
+          "cursor": "field_graphic/terrain_model/ground_un_region03_cliff11/ground_un_region03_cliff20.trmdl",
           "issues": []
         }
       },
-      "outputs": 57,
-      "parsed_records": 38,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region01_cliff52/_inspection/1aecc50c66d1f0ca.jsonl",
-      "inspection_sha256": "8AC3BC9F2E5F005FDCA93540DFBCAC9F09AFEDE19043A4A83BFEC2E635751825",
-      "structurally_parsed": 34,
-      "inspected_unparsed": 4,
+      "outputs": 135,
+      "parsed_records": 92,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region03_cliff11/_inspection/edf84be83d606caa.jsonl",
+      "inspection_sha256": "CFCAD3A9F2D4C76B8667C01CEF95CED2BD31C0D7B63E43DEA8BDA01666FC5E57",
+      "structurally_parsed": 82,
+      "inspected_unparsed": 10,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 58,
-      "elapsed_seconds": 22.032,
-      "updated_utc": "2026-11-07T11:28:54.076036+00:00"
+      "published": 136,
+      "elapsed_seconds": 47.688,
+      "updated_utc": "2026-11-07T11:32:36.360047+00:00"
+    },
+    {
+      "task": "field_graphic/terrain_model/ground_un_region03_cliff21#00000",
+      "fingerprint": "A5D8C0E8A9AD45694CF0A51429261BA44DDEFDDA5FD298E91B8553D85C9DD3AD",
+      "input_files": 83,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 72,
+        "BNTX": 2,
+        "BY_EXTENSION:trcol": 9
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 2,
+          "ok": 2,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 9,
+            "parsed": 0,
+            "converted": 9,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/ground_un_region03_cliff21",
+          "cursor": "field_graphic/terrain_model/ground_un_region03_cliff21/ground_un_region03_cliff29.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 122,
+      "parsed_records": 83,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/ground_un_region03_cliff21/_inspection/5aa0ec902622efbd.jsonl",
+      "inspection_sha256": "31F754A8FE44C6DA83125803E7F2B228617374A5B0FC3C6368EB7840460CFEE2",
+      "structurally_parsed": 74,
+      "inspected_unparsed": 9,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 123,
+      "elapsed_seconds": 43.265,
+      "updated_utc": "2026-11-07T11:32:36.601611+00:00"
     }
   ],
-  "updated_utc": "2026-11-07T11:28:54.421722+00:00",
+  "updated_utc": "2026-11-07T11:32:36.952472+00:00",
   "policy": "UNKNOWN_FORMATS_AND_VISUAL_REVIEW_NOT_AUTOMATICALLY_CONFIRMED"
 }
