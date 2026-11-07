@@ -1,0 +1,104 @@
+name: SV - PKHeX Gen9 encounter format audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Audit-SV-PKHeX-Encounters.py'
+      - 'scripts/Rebuild-SV-PKHeX-Encounter-Binary.py'
+      - 'tests/test_sv_pkhex_encounter_audit.py'
+      - 'tests/test_sv_pkhex_encounter_rebuild.py'
+      - '.github/workflows/sv-pkhex-encounter-audit.yml'
+  pull_request:
+    paths:
+      - 'scripts/Audit-SV-PKHeX-Encounters.py'
+      - 'scripts/Rebuild-SV-PKHeX-Encounter-Binary.py'
+      - 'tests/test_sv_pkhex_encounter_audit.py'
+      - 'tests/test_sv_pkhex_encounter_rebuild.py'
+      - '.github/workflows/sv-pkhex-encounter-audit.yml'
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/Rebuild-SV-PKHeX-Encounter-Binary.py
+            tests/test_sv_pkhex_encounter_audit.py
+            tests/test_sv_pkhex_encounter_rebuild.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Byte-level PKHeX layout regression tests
+        run: |
+          python -m py_compile scripts/Audit-SV-PKHeX-Encounters.py scripts/Rebuild-SV-PKHeX-Encounter-Binary.py
+          python -m unittest discover -s tests -p test_sv_pkhex_encounter_audit.py -v
+          python -m unittest discover -s tests -p test_sv_pkhex_encounter_rebuild.py -v
+
+  pkhex-reference:
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/Rebuild-SV-PKHeX-Encounter-Binary.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Sparse fetch pinned public PKHeX reference (GPLv3)
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="$RUNNER_TEMP/PKHeX"
+          mkdir -p "$target"
+          git -C "$target" init -q
+          git -C "$target" remote add origin https://github.com/kwsch/PKHeX.git
+          git -C "$target" sparse-checkout init --no-cone
+          git -C "$target" sparse-checkout set --no-cone 'PKHeX.Core/Resources/legality/wild/Gen9/*'
+          git -C "$target" -c protocol.version=2 fetch -q --depth=1 --filter=blob:none origin 0660d1e1f4924b8478daec73281bb8071a82ad19
+          git -C "$target" -c advice.detachedHead=false checkout -q --detach FETCH_HEAD
+          echo "SV_PKHEX_ROOT=$target" >> "$GITHUB_ENV"
+          git -C "$target" rev-parse HEAD
+      - name: Decode actual PKHeX reference binary tables, read-only
+        run: python scripts/Audit-SV-PKHeX-Encounters.py --pkhex-root "$SV_PKHEX_ROOT" --output "$RUNNER_TEMP/pkhex-audit"
+      - name: Lossless binary round-trip against pinned PKHeX, 6 game data tables
+        run: |
+          python scripts/Rebuild-SV-PKHeX-Encounter-Binary.py \
+            --input "$RUNNER_TEMP/pkhex-audit" \
+            --output "$RUNNER_TEMP/pkhex-roundtrip" \
+            --reference "$SV_PKHEX_ROOT/PKHeX.Core/Resources/legality/wild/Gen9" \
+            --require-exact-match
+      - name: Verify pinned PKHeX counts and alignment
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r=json.loads((Path(os.environ["RUNNER_TEMP"])/"pkhex-audit/summary.json").read_text("utf-8"))
+          expected={"wild":26861,"fixed":977,"raid_paldea":454,
+                    "raid_kitakami":133,"raid_blueberry":113,"outbreak":12636}
+          assert {k:r["sources"][k]["records"] for k in expected} == expected
+          assert r["sources"]["wild"]["area_count"] == 400
+          assert r["sources"]["wild"]["distinct_met_locations"] == 79
+          assert r["sources"]["wild"]["distinct_area_locations"] == 80
+          assert r["sources"]["wild"]["empty_area_count"] == 21
+          print("Pinned PKHeX reference data decoded and row counts match.")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv-pkhex-reference-gen9-audit
+          path: |
+            ${{ runner.temp }}/pkhex-audit/
+            ${{ runner.temp }}/pkhex-roundtrip/rebuild-report.json
+          if-no-files-found: warn
+          retention-days: 30

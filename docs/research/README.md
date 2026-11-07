@@ -48,3 +48,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## SV 4.0.0 第四轮 Lua C/F/S 核对
 
 - [7 个 C 类 `SETTABUP` 注册、12 个 F 原生调用、12 个新 S Hash](sv-lua-native-4.0.0-phase4.md) — 含 `GetInt8` 的精确 FNV 计算、S 增量工作流与证据等级。
+
+## 朱紫遭遇到 PKHeX 数据库的证据链
+
+- [SV 4.0.0 → PKHeX Gen9 遭遇结构与实际 .pkl 对账](sv-pkhex-gen9-encounter-bridge.md) — 原生表、pkNX 聚合流程、场景与版本条件、野生/固定/团体战/活动模板差异；工具与 CI 证明参考数据，不冒充重新提取 SV 4.0.0。
