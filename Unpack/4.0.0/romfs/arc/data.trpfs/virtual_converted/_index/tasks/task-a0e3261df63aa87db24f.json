@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_com_hairsalon01#00000.part0.part0.part0.part0.part0.part0.part0",
+  "input_fingerprint": "3186FFB5B10B10A5C76FCA20F004A504E9D08CC0546A8ADC6EEBE72DFFBB5CD3",
+  "input_files": 2,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1,
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmbf",
+      "source_sha256": "73784835B8B7EA9913105638CD79BD6D74BA0654ADE477CB9D0722E049ACE12E",
+      "bytes": 5326124,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "0C000000080008000000040008000000040000004F0000001C3A51004C365100",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          524296,
+          262144,
+          8
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "FLATC_OUTPUT_OVERSIZE"
+    },
+    {
+      "source": "field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmdl",
+      "source_sha256": "7B8CC583FABC27FDA2BF35E8C1B601E433A9B7C95B19B3407170C8FF4C40AFD4",
+      "bytes": 188,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1800000000001200240000000400000008000C0010001400120000006C000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          36,
+          4
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_hairsalon01/_inspection/693c851a77023d84.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_hairsalon01/_inspection/693c851a77023d84.jsonl",
+      "sha256": "39AA55D415A7312706A73C7E9111CFEDC0B44F39EEDE879E281FF82E7FA57786",
+      "bytes": 1271
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmdl.flatbuffer.json",
+      "sha256": "1E227B7FAA89F2C3C7900D5C196D523F1FFE42C874821F42AC5E3A612F6B5CF9",
+      "bytes": 708
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmdl.object.json",
+      "sha256": "61FEB08079FE0140878C863A9C083D010796DFD1D8BD8F8BBEB76500A3323348",
+      "bytes": 2439
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmsh,field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_com_hairsalon01",
+      "cursor": "field_graphic/common_model/a_com_hairsalon01/a_com_hairsalon01.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
