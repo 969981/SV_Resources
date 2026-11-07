@@ -169,18 +169,31 @@ def build(index_dir: Path, *, include_collision_candidates: bool = True) -> dict
     entries = []
     for path, (group, purpose) in targets.items():
         matches = hits[path]
-        for match in matches:
-            i = match["pack_index"]
+        # pkNX reads *.bin; game dump also exposes *.bfbs. Native TRPFD has
+        # both for many logical assets; exact source has priority.
+        exact = [m for m in matches if m["source_virtual_path"].lower() == path.lower()]
+        alternative = [m for m in matches if m not in exact]
+        chosen = exact if exact else alternative
+        if not matches:
+            status = "MISSING_TRPFD_PATH"
+        elif len(chosen) != 1:
+            status = "AMBIGUOUS_NATIVE_PATH"
+        elif exact:
+            status = "LOCATED_NATIVE_INDEX"
+        else:
+            status = "LOCATED_ALIAS_ONLY"
+        if len(chosen) == 1:
+            i = chosen[0]["pack_index"]
             selected[i] = pack_rows[i]
         entries.append({"expected": path, "group": group, "purpose": purpose,
-                        "hits": matches, "status": ("LOCATED_NATIVE_INDEX" if len(matches) == 1
-                         else "MISSING_TRPFD_PATH" if not matches else "AMBIGUOUS_NATIVE_PATH")})
+                        "hits": chosen, "alternates": alternative if exact else [],
+                        "status": status})
     by_group = {}
     for group in sorted(set(v[0] for v in targets.values())):
         subset = [e for e in entries if e["group"] == group]
         by_group[group] = {
             "expected": len(subset),
-            "located": sum(e["status"] == "LOCATED_NATIVE_INDEX" for e in subset),
+            "located": sum(e["status"] in ("LOCATED_NATIVE_INDEX", "LOCATED_ALIAS_ONLY") for e in subset),
             "missing": sum(e["status"] == "MISSING_TRPFD_PATH" for e in subset),
             "ambiguous": sum(e["status"] == "AMBIGUOUS_NATIVE_PATH" for e in subset),
         }
@@ -192,7 +205,7 @@ def build(index_dir: Path, *, include_collision_candidates: bool = True) -> dict
                   "pack_count": len(pack_rows), "unnamed_files": bad_rows,
                   "file_index_sha256": filehash(f_index),
                   "pack_index_sha256": filehash(p_index)},
-        "summary": {"targets": len(entries), "located": sum(e["status"] == "LOCATED_NATIVE_INDEX" for e in entries),
+        "summary": {"targets": len(entries), "located": sum(e["status"] in ("LOCATED_NATIVE_INDEX", "LOCATED_ALIAS_ONLY") for e in entries),
                     "missing": sum(e["status"] == "MISSING_TRPFD_PATH" for e in entries),
                     "ambiguous": sum(e["status"] == "AMBIGUOUS_NATIVE_PATH" for e in entries),
                     "selected_packs": len(selected),
