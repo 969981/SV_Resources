@@ -45,8 +45,8 @@
       "role": "vertex_index_buffers",
       "evidence": "TRMSH",
       "required": true,
-      "exists": true,
-      "size_bytes": 23154032
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_2_shop01/a_sch_2_shop01.trmtr",
@@ -55,14 +55,6 @@
       "required": true,
       "exists": true,
       "size_bytes": 155088
-    },
-    {
-      "path": "field_graphic/common_model/a_sch_2_shop01/a_sch_2_shop01.tracm",
-      "role": "material_animation",
-      "evidence": "PREFIX_CANDIDATE",
-      "required": false,
-      "exists": true,
-      "size_bytes": 197800
     },
     {
       "path": "field_graphic/common_model/a_sch_2_shop01/a_sch_2_shop01_ball01_alb.bntx",
@@ -97,10 +89,12 @@
       "size_bytes": 708720
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_2_shop01/a_sch_2_shop01.trmbf"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -110,19 +104,14 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "B466BD51AF75D80008C6C8AB29B3BB5D7105B1FB439A387EF1174BBA847DDD7F",
+  "fingerprint": "3C11C9E3A6D92041D73F81BF55BAC41CE61392BC73F1AF3A647B81A29DB86E19",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
     {
-      "path": "field_graphic/common_model/a_sch_2_shop01/a_sch_2_shop01.tracm",
-      "required": false,
-      "sha256": "3AB2AAF5A107C6E16FD6F2AC78756990FAF6C311AE0BDF891FA9C72E0195DB2C"
-    },
-    {
       "path": "field_graphic/common_model/a_sch_2_shop01/a_sch_2_shop01.trmbf",
       "required": true,
-      "sha256": "18A29FE62C4A4FC495942CD4DD8576FD1E3C904F84FCBEF79489648AFDFCF750"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_2_shop01/a_sch_2_shop01.trmdl",
@@ -159,48 +148,5 @@
       "required": false,
       "sha256": "2973E11E9771674F1BD7495A86F5C2772B97D9084E74572EE0CE10FB105399ED"
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 452,
-    "primitive_count": 452,
-    "materials_count": 81,
-    "uv_primitive_count": 452,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_2_shop01.bin",
-        "bytes": 987302148,
-        "sha256": "E3B0DDC4EF9AD0BE80FA506DAA602AD046848833CB283D2FDCA94135E73C6ED8"
-      },
-      {
-        "path": "a_sch_2_shop01_textures/a_sch_2_shop01_ball01_alb.png",
-        "bytes": 65689,
-        "sha256": "0621D11C69886BC178A8E5446BF10A397C8D701A9569AE1964C0FC41994D184E"
-      },
-      {
-        "path": "a_sch_2_shop01_textures/a_sch_2_shop01_carpet01_alb.png",
-        "bytes": 667749,
-        "sha256": "4105B506B4F5F9E5F506E0F2423E49F0A54F6DFA8A8B340D27E2D8B08AF0C258"
-      },
-      {
-        "path": "a_sch_2_shop01_textures/a_sch_2_shop01_carpet01_nrm.png",
-        "bytes": 2249357,
-        "sha256": "61800AA8FACB800C89E23F8CC962AB2386655A9819A7BD8A340B2D89F7C36266"
-      },
-      {
-        "path": "a_sch_2_shop01_textures/a_sch_2_shop01_carpet01_rgn.png",
-        "bytes": 933658,
-        "sha256": "51227D149A8146CAB735BB5D721297A5710BDC1E15B1298A7E49D8A67B3202CE"
-      },
-      {
-        "path": "a_sch_2_shop01_textures/metallicRoughness.png",
-        "bytes": 930252,
-        "sha256": "9D6CF60F8139636FEB8258B140035637B421AE454BF5BB40A9C46E5CDF2CE7B6"
-      }
-    ],
-    "gltf_sha256": "18D571A6DDB15E693C309B05DE09793BC1BCFB72C08FC5B54E506CFF533084FF"
-  }
+  ]
 }
