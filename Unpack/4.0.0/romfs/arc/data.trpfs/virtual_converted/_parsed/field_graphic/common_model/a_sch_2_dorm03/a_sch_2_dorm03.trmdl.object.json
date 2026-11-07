@@ -45,8 +45,8 @@
       "role": "vertex_index_buffers",
       "evidence": "TRMSH",
       "required": true,
-      "exists": true,
-      "size_bytes": 5358692
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03.trmtr",
@@ -57,10 +57,12 @@
       "size_bytes": 104944
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03.trmbf"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -70,14 +72,14 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "1BC17F671BF02CC23939D7579816DF46E5637005FE16DA61E4E5577E26057AB4",
+  "fingerprint": "C78E4EB78FCB644644B3A0988B05DD0AF5F33854E3D003BABD948879312FDC80",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
     {
       "path": "field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03.trmbf",
       "required": true,
-      "sha256": "8F8D90FA84992AF128A1D04D4D8B64F9D085AD593E1D20FFF08EAE263A84013F"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03.trmdl",
@@ -94,38 +96,5 @@
       "required": true,
       "sha256": "14CC645DDFF33A34AD79BBF1A298631FEC92AA60D27084C3CAFF95A94A5049AF"
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 93,
-    "primitive_count": 93,
-    "materials_count": 54,
-    "uv_primitive_count": 93,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_2_dorm03.bin",
-        "bytes": 177469056,
-        "sha256": "83433F3A6DBDFD6161C0BEAD3B523FE1E376606E0B71AA5A525DE4F9977C2546"
-      },
-      {
-        "path": "a_sch_2_dorm03_textures/a_sch_2_dorm02_chair01_body01_nrm.png",
-        "bytes": 79563,
-        "sha256": "D25FBB996AE413F0A23A951F91F8A3874393512CE317A97F8E442EC0A130ABA4"
-      },
-      {
-        "path": "a_sch_2_dorm03_textures/a_sch_2_dorm02_chair01_body01_rgn.png",
-        "bytes": 41336,
-        "sha256": "D194FDFB4EF7927328AC2B493B8694EB531D312B0DF0147D00523827D6340E53"
-      },
-      {
-        "path": "a_sch_2_dorm03_textures/metallicRoughness.png",
-        "bytes": 40951,
-        "sha256": "F1253261373463914AD85AF41A388539BD9532DA9578CAB69AF44A2475966032"
-      }
-    ],
-    "gltf_sha256": "571BAEE1ED249823F5843C07318F1D9171B64E253D4A72F2D28B294FD7339C89"
-  }
+  ]
 }
