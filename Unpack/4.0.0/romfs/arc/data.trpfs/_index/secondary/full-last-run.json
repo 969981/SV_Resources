@@ -2,561 +2,17 @@
   "schemaVersion": 1,
   "source_version": "4.0.0",
   "parallel_workers": 4,
-  "elapsed_seconds": 70.844,
+  "elapsed_seconds": 71.796,
   "selected_count": 12,
-  "input_files": 547,
-  "files_per_second": 7.72,
+  "input_files": 630,
+  "files_per_second": 8.77,
   "completed_count": 12,
-  "parsed_records": 547,
-  "structurally_parsed": 530,
-  "inspected_unparsed": 17,
+  "parsed_records": 630,
+  "structurally_parsed": 618,
+  "inspected_unparsed": 12,
   "error_count": 0,
-  "partial_count": 10,
+  "partial_count": 12,
   "attempts": [
-    {
-      "task": "field_graphic/terrain_model/objects_un_base_flag02_fighting#00000",
-      "fingerprint": "9F93ED25AA29B8E2506677A18A8116426DB59F36FE2A446154283B7495179019",
-      "input_files": 15,
-      "status": "PARTIAL",
-      "unresolved": 2,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BY_EXTENSION:trcol": 1,
-        "BNTX": 6
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 6,
-          "ok": 6,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_base_flag02_fighting",
-          "cursor": "field_graphic/terrain_model/objects_un_base_flag02_fighting/objects_un_base_flag02_fighting.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_flag02_fighting/objects_un_base_flag02_fighting.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 22,
-      "parsed_records": 15,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_flag02_fighting/_inspection/034b54de88777a0d.jsonl",
-      "inspection_sha256": "506A6EB99798E908B9AD1FF4FA42167D5549CDD307B36AABFFEB33B308436A23",
-      "structurally_parsed": 14,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 23,
-      "elapsed_seconds": 13.313,
-      "updated_utc": "2026-11-07T13:04:42.235071+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_base_flag02_poison#00000",
-      "fingerprint": "3204CBE2B369B8A1057A2201197979D1EE5F556A4E43F8BDDA2D1D0773D3DE46",
-      "input_files": 15,
-      "status": "PARTIAL",
-      "unresolved": 2,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BY_EXTENSION:trcol": 1,
-        "BNTX": 6
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 6,
-          "ok": 6,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_base_flag02_poison",
-          "cursor": "field_graphic/terrain_model/objects_un_base_flag02_poison/objects_un_base_flag02_poison.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_flag02_poison/objects_un_base_flag02_poison.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 22,
-      "parsed_records": 15,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_flag02_poison/_inspection/218a3a782f084e37.jsonl",
-      "inspection_sha256": "77740DDDE481151073260F7B05D4C0586E6262E5F0563C2175CA18A4B2B96638",
-      "structurally_parsed": 14,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 23,
-      "elapsed_seconds": 13.328,
-      "updated_utc": "2026-11-07T13:04:42.291613+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_base_gate01_dark#00000",
-      "fingerprint": "03A23ECBA1DA33626AF9F042A4E0AD7065A5AEB163CE226FAD456DD96E6C3C7B",
-      "input_files": 68,
-      "status": "PARTIAL",
-      "unresolved": 4,
-      "returncode": 2,
-      "formats": {
-        "BNTX": 26,
-        "FLATBUFFER_CANDIDATE": 40,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 26,
-          "ok": 26,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 3,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 3,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_base_gate01_dark",
-          "cursor": "field_graphic/terrain_model/objects_un_base_gate01_dark/objects_un_base_gate01_dark_open.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_dark/objects_un_base_gate01_dark.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_dark/objects_un_base_gate01_dark_close.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_dark/objects_un_base_gate01_dark_open.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 111,
-      "parsed_records": 68,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_gate01_dark/_inspection/91a0370c291b3f90.jsonl",
-      "inspection_sha256": "E773EB9FFA1DA8EC86347402DAA6C706A56FBB43878F2254A4DAFE5303B459D0",
-      "structurally_parsed": 66,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 112,
-      "elapsed_seconds": 43.594,
-      "updated_utc": "2026-11-07T13:04:42.605217+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_base_gate01_fairy#00000",
-      "fingerprint": "4DE83DD0DFAA41B6492537137C8AFA752B1580C34A192CA96B953134378DCFBB",
-      "input_files": 62,
-      "status": "PARTIAL",
-      "unresolved": 4,
-      "returncode": 2,
-      "formats": {
-        "BNTX": 26,
-        "FLATBUFFER_CANDIDATE": 34,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 26,
-          "ok": 26,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 3,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 3,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_base_gate01_fairy",
-          "cursor": "field_graphic/terrain_model/objects_un_base_gate01_fairy/objects_un_base_gate01_fairy_open.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_fairy/objects_un_base_gate01_fairy.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_fairy/objects_un_base_gate01_fairy_close.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_fairy/objects_un_base_gate01_fairy_open.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 95,
-      "parsed_records": 62,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_gate01_fairy/_inspection/05cdf7b605f5ba8c.jsonl",
-      "inspection_sha256": "625776E14684697C20B7B0A9F0D051A43CBFA9EF474AE85750F46628E59E2D18",
-      "structurally_parsed": 60,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 96,
-      "elapsed_seconds": 39.5,
-      "updated_utc": "2026-11-07T13:04:42.892787+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_base_gate01_fighting#00000",
-      "fingerprint": "5B90DFA15864B512C26A0B2F2F9AF0FC8269F34C4E1070093E9595F8151BE200",
-      "input_files": 62,
-      "status": "PARTIAL",
-      "unresolved": 4,
-      "returncode": 2,
-      "formats": {
-        "BNTX": 26,
-        "FLATBUFFER_CANDIDATE": 34,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 26,
-          "ok": 26,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 3,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 3,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_base_gate01_fighting",
-          "cursor": "field_graphic/terrain_model/objects_un_base_gate01_fighting/objects_un_base_gate01_fighting_open.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_fighting/objects_un_base_gate01_fighting.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_fighting/objects_un_base_gate01_fighting_close.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_fighting/objects_un_base_gate01_fighting_open.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 90,
-      "parsed_records": 62,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_gate01_fighting/_inspection/fc598180b23031c0.jsonl",
-      "inspection_sha256": "1C06C0F2393A820AD33D6C080F77D162E101412B11CCD7A44E7DFB4396147866",
-      "structurally_parsed": 60,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 91,
-      "elapsed_seconds": 34.406,
-      "updated_utc": "2026-11-07T13:04:43.154917+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_base_gate01_fire#00000",
-      "fingerprint": "2703EA62D46F16BC59D74AB026A5FFCFD197AEA7C588082583B3E4E39EA24CFB",
-      "input_files": 62,
-      "status": "PARTIAL",
-      "unresolved": 4,
-      "returncode": 2,
-      "formats": {
-        "BNTX": 26,
-        "FLATBUFFER_CANDIDATE": 34,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 26,
-          "ok": 26,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 3,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 3,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_base_gate01_fire",
-          "cursor": "field_graphic/terrain_model/objects_un_base_gate01_fire/objects_un_base_gate01_fire_open.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_fire/objects_un_base_gate01_fire.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_fire/objects_un_base_gate01_fire_close.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_fire/objects_un_base_gate01_fire_open.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 105,
-      "parsed_records": 62,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_gate01_fire/_inspection/9848fe13c212616f.jsonl",
-      "inspection_sha256": "B2FC7C07C9757CBB0DFF40BB409A9DFB059287CF51886E493B8A3557A0E21CA7",
-      "structurally_parsed": 60,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 106,
-      "elapsed_seconds": 34.547,
-      "updated_utc": "2026-11-07T13:04:43.450602+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_base_gate01_poison#00000",
-      "fingerprint": "08E03134D8FC6204B90555B9DD1DDD7BD30016EC355BFE43FB429884F45F25BC",
-      "input_files": 62,
-      "status": "PARTIAL",
-      "unresolved": 4,
-      "returncode": 2,
-      "formats": {
-        "BNTX": 26,
-        "FLATBUFFER_CANDIDATE": 34,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 26,
-          "ok": 26,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 3,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 3,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_base_gate01_poison",
-          "cursor": "field_graphic/terrain_model/objects_un_base_gate01_poison/objects_un_base_gate01_poison_open.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_poison/objects_un_base_gate01_poison.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_poison/objects_un_base_gate01_poison_close.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/terrain_model/objects_un_base_gate01_poison/objects_un_base_gate01_poison_open.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 90,
-      "parsed_records": 62,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_gate01_poison/_inspection/f676951040a90c20.jsonl",
-      "inspection_sha256": "E27E3BB43A1A56741A2845537AD450676A8EE02C7B729F76C3E6835807DEA649",
-      "structurally_parsed": 60,
-      "inspected_unparsed": 2,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 91,
-      "elapsed_seconds": 27.969,
-      "updated_utc": "2026-11-07T13:04:43.710223+00:00",
-      "partial_attempts": 2
-    },
     {
       "task": "field_graphic/terrain_model/objects_un_base_grandstand01_paint#00000",
       "fingerprint": "510AE31A9E6BDA78880C0D3F3EA1F48EB5B7811133484D0D4395117422500E04",
@@ -625,75 +81,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 21,
-      "elapsed_seconds": 8.312,
-      "updated_utc": "2026-11-07T13:04:43.779183+00:00",
-      "partial_attempts": 1
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_base_grandstand02#00000",
-      "fingerprint": "67C06F092761AB25F385B199222ED39D20973458872BEAE93F3DA9C3BDB4F93D",
-      "input_files": 19,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BNTX": 10,
-        "FLATBUFFER_CANDIDATE": 8,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 10,
-          "ok": 10,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 1,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_base_grandstand02",
-          "cursor": "field_graphic/terrain_model/objects_un_base_grandstand02/objects_un_base_grandstand02.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 43,
-      "parsed_records": 19,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_grandstand02/_inspection/cea8b9e95f13a6c2.jsonl",
-      "inspection_sha256": "E8F970574434812F91A2249EE56FF7214A8A906C02FF2C4935E165BEC0369A08",
-      "structurally_parsed": 18,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 44,
-      "elapsed_seconds": 8.859,
-      "updated_utc": "2026-11-07T13:04:43.883816+00:00"
+      "elapsed_seconds": 12.953,
+      "updated_utc": "2026-11-07T13:10:08.481133+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_base_grandstand02_paint#00000",
@@ -763,75 +153,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 31,
-      "elapsed_seconds": 8.797,
-      "updated_utc": "2026-11-07T13:04:43.960554+00:00",
-      "partial_attempts": 1
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_base_house01#00000",
-      "fingerprint": "CE83A46E0C1028EC0648AE42D818A6FABDC6266EEFC1ACB32048571A644F2B0A",
-      "input_files": 74,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BNTX": 65,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 65,
-          "ok": 65,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 1,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_base_house01",
-          "cursor": "field_graphic/terrain_model/objects_un_base_house01/objects_un_base_house01.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 168,
-      "parsed_records": 74,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house01/_inspection/6cec2217f7b5e777.jsonl",
-      "inspection_sha256": "A6F3DF9E332DFB84ABEFE1EC2C4D2E9C6DA34F5911AC91BD83CB7C353016FAE1",
-      "structurally_parsed": 73,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 169,
-      "elapsed_seconds": 10.891,
-      "updated_utc": "2026-11-07T13:04:44.356476+00:00"
+      "elapsed_seconds": 12.922,
+      "updated_utc": "2026-11-07T13:10:08.557081+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_base_house01_option#00000",
@@ -901,11 +225,699 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 143,
-      "elapsed_seconds": 8.453,
-      "updated_utc": "2026-11-07T13:04:44.712858+00:00",
+      "elapsed_seconds": 16.016,
+      "updated_utc": "2026-11-07T13:10:08.894261+00:00",
+      "partial_attempts": 2
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_base_house01_slope01#00000",
+      "fingerprint": "127A4EA7BE39A0727E8F7D46E9400C232BCCD782BAF05C106F3C0AAC593273AF",
+      "input_files": 19,
+      "status": "PARTIAL",
+      "unresolved": 2,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 10,
+        "FLATBUFFER_CANDIDATE": 8,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 10,
+          "ok": 10,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 1,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_base_house01_slope01",
+          "cursor": "field_graphic/terrain_model/objects_un_base_house01_slope01/objects_un_base_house01_slope01.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house01_slope01/objects_un_base_house01_slope01.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 30,
+      "parsed_records": 19,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house01_slope01/_inspection/26cc41f2d53ec47c.jsonl",
+      "inspection_sha256": "9A54BD33BFF80D139891EF09563B34AE44CF6A07B33E867F4C8A78CA86C4734C",
+      "structurally_parsed": 18,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 31,
+      "elapsed_seconds": 13.016,
+      "updated_utc": "2026-11-07T13:10:08.995671+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_base_house01_stand01#00000",
+      "fingerprint": "67DBCCCD6CE127D018E4FBC0881996461B450D4D581715E1352A07A24F541E22",
+      "input_files": 14,
+      "status": "PARTIAL",
+      "unresolved": 2,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 5,
+        "FLATBUFFER_CANDIDATE": 8,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 5,
+          "ok": 5,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 1,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_base_house01_stand01",
+          "cursor": "field_graphic/terrain_model/objects_un_base_house01_stand01/objects_un_base_house01_stand01.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house01_stand01/objects_un_base_house01_stand01.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 20,
+      "parsed_records": 14,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house01_stand01/_inspection/d5962269875ccb52.jsonl",
+      "inspection_sha256": "B89E582B0E1E96F430D6B9E2C4209DD5ACA49C61F94BCEF3BEB58E449748B450",
+      "structurally_parsed": 13,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 21,
+      "elapsed_seconds": 9.172,
+      "updated_utc": "2026-11-07T13:10:09.051343+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_base_house01_stand02#00000",
+      "fingerprint": "52F4FE9258E4F900CC95C0AE846AC24D7B4477949580B2C8E6F16D6DC17F5293",
+      "input_files": 14,
+      "status": "PARTIAL",
+      "unresolved": 2,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 5,
+        "FLATBUFFER_CANDIDATE": 8,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 5,
+          "ok": 5,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 1,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_base_house01_stand02",
+          "cursor": "field_graphic/terrain_model/objects_un_base_house01_stand02/objects_un_base_house01_stand02.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house01_stand02/objects_un_base_house01_stand02.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 20,
+      "parsed_records": 14,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house01_stand02/_inspection/72f979b88b0ba7ab.jsonl",
+      "inspection_sha256": "35BE0A591AA3BC3626054F81B38B23CC0A2251F799223604B21FD0D4DC7BF8B0",
+      "structurally_parsed": 13,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 21,
+      "elapsed_seconds": 9.329,
+      "updated_utc": "2026-11-07T13:10:09.107516+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_base_house01_stand03#00000",
+      "fingerprint": "07011869482161574B9F2F1248CE120E9628CD4E2A62114E1ADDBCA2AE4D370E",
+      "input_files": 14,
+      "status": "PARTIAL",
+      "unresolved": 2,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 5,
+        "FLATBUFFER_CANDIDATE": 8,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 5,
+          "ok": 5,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 1,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_base_house01_stand03",
+          "cursor": "field_graphic/terrain_model/objects_un_base_house01_stand03/objects_un_base_house01_stand03.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house01_stand03/objects_un_base_house01_stand03.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 20,
+      "parsed_records": 14,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house01_stand03/_inspection/0fda7b7c7d230002.jsonl",
+      "inspection_sha256": "8CEA5ADD354475E7107F2B2C274E4AE6E0CB442B75D38F0558A838F8425D4835",
+      "structurally_parsed": 13,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 21,
+      "elapsed_seconds": 11.453,
+      "updated_utc": "2026-11-07T13:10:09.174288+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_base_house02_dark#00000",
+      "fingerprint": "A4F8078C6B57BE5C870C0C5965A1CDB7AD4EB56F69ABCE53F940382AD49BE833",
+      "input_files": 94,
+      "status": "PARTIAL",
+      "unresolved": 4,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 66,
+        "FLATBUFFER_CANDIDATE": 27,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 66,
+          "ok": 66,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 3,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 3,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_base_house02_dark",
+          "cursor": "field_graphic/terrain_model/objects_un_base_house02_dark/objects_un_base_house02_dark_curtain_animation.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_dark/objects_un_base_house02_dark.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_dark/objects_un_base_house02_dark_curtain.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_dark/objects_un_base_house02_dark_curtain_animation.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 184,
+      "parsed_records": 94,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house02_dark/_inspection/1574bab22c0c8f6b.jsonl",
+      "inspection_sha256": "D6BDFFE6F2A9AE40DD8274CE7B7CD14B51D08C4F9DF2D18E5C4571E670FA5920",
+      "structurally_parsed": 93,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 185,
+      "elapsed_seconds": 31.719,
+      "updated_utc": "2026-11-07T13:10:09.638689+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_base_house02_fairy#00000",
+      "fingerprint": "5E14551723845DACEB6F6D35C53DFD0B44480B65EE3AEB4DB4FF2A2A8D4A7DCE",
+      "input_files": 93,
+      "status": "PARTIAL",
+      "unresolved": 4,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 66,
+        "FLATBUFFER_CANDIDATE": 26,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 66,
+          "ok": 66,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 3,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 3,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_base_house02_fairy",
+          "cursor": "field_graphic/terrain_model/objects_un_base_house02_fairy/objects_un_base_house02_fairy_curtain_animation.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_fairy/objects_un_base_house02_fairy.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_fairy/objects_un_base_house02_fairy_curtain.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_fairy/objects_un_base_house02_fairy_curtain_animation.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 162,
+      "parsed_records": 93,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house02_fairy/_inspection/9bd2ca4ad777bc68.jsonl",
+      "inspection_sha256": "6A139A8487C85E3CE56112A45AF2887C1B730CB6AD82D9C57C6F3D769943AAA2",
+      "structurally_parsed": 92,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 163,
+      "elapsed_seconds": 30.5,
+      "updated_utc": "2026-11-07T13:10:10.049588+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_base_house02_fighting#00000",
+      "fingerprint": "CB0C3FD728A2B459485C556CAA000E99E8933F68A6DE4E02652C34C0197EE146",
+      "input_files": 93,
+      "status": "PARTIAL",
+      "unresolved": 4,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 66,
+        "FLATBUFFER_CANDIDATE": 26,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 66,
+          "ok": 66,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 3,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 3,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_base_house02_fighting",
+          "cursor": "field_graphic/terrain_model/objects_un_base_house02_fighting/objects_un_base_house02_fighting_curtain_animation.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_fighting/objects_un_base_house02_fighting.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_fighting/objects_un_base_house02_fighting_curtain.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_fighting/objects_un_base_house02_fighting_curtain_animation.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 162,
+      "parsed_records": 93,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house02_fighting/_inspection/8c6a18d8c5e75932.jsonl",
+      "inspection_sha256": "83BF2958EA421065DFFFF9BFDF6BD9D74631D52DB2CAD92474F136704B4208D2",
+      "structurally_parsed": 92,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 163,
+      "elapsed_seconds": 30.359,
+      "updated_utc": "2026-11-07T13:10:10.475944+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_base_house02_fire#00000",
+      "fingerprint": "924302B0913A2EA8576075F682904EB5D2CA97FF4A2E02B042EBD52AEEEAEB2F",
+      "input_files": 93,
+      "status": "PARTIAL",
+      "unresolved": 4,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 66,
+        "FLATBUFFER_CANDIDATE": 26,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 66,
+          "ok": 66,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 3,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 3,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_base_house02_fire",
+          "cursor": "field_graphic/terrain_model/objects_un_base_house02_fire/objects_un_base_house02_fire_curtain_animation.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_fire/objects_un_base_house02_fire.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_fire/objects_un_base_house02_fire_curtain.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_fire/objects_un_base_house02_fire_curtain_animation.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 183,
+      "parsed_records": 93,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house02_fire/_inspection/ce1f1825ee612955.jsonl",
+      "inspection_sha256": "B11A75979FAF6DE92DC8F9D6BACB082FF89E21F56FF929E59366EC4C61CAE3C1",
+      "structurally_parsed": 92,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 184,
+      "elapsed_seconds": 29.75,
+      "updated_utc": "2026-11-07T13:10:10.951614+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_base_house02_poison#00000",
+      "fingerprint": "1B314C1180BDC7A195A501FC6C3371FB3648BAD1DBA075B92715938DF62CD0B1",
+      "input_files": 88,
+      "status": "PARTIAL",
+      "unresolved": 4,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 61,
+        "FLATBUFFER_CANDIDATE": 26,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 61,
+          "ok": 61,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 3,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 3,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_base_house02_poison",
+          "cursor": "field_graphic/terrain_model/objects_un_base_house02_poison/objects_un_base_house02_poison_curtain_animation.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_poison/objects_un_base_house02_poison.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_poison/objects_un_base_house02_poison_curtain.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            },
+            {
+              "source": "field_graphic/terrain_model/objects_un_base_house02_poison/objects_un_base_house02_poison_curtain_animation.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 152,
+      "parsed_records": 88,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_base_house02_poison/_inspection/4a1089f5a5e7654c.jsonl",
+      "inspection_sha256": "735EC469AD7645F1345CAB55BCC3DF0C55B7A033A4D9C91FFDC4911496E58F91",
+      "structurally_parsed": 87,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 153,
+      "elapsed_seconds": 20.312,
+      "updated_utc": "2026-11-07T13:10:11.341383+00:00",
       "partial_attempts": 1
     }
   ],
-  "updated_utc": "2026-11-07T13:04:45.338522+00:00",
+  "updated_utc": "2026-11-07T13:10:11.964277+00:00",
   "policy": "UNKNOWN_FORMATS_AND_VISUAL_REVIEW_NOT_AUTOMATICALLY_CONFIRMED"
 }
