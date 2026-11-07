@@ -1,0 +1,184 @@
+name: SV 4.0.0 original assets to PKHeX embedded encounter database
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/Export-SV-Native-To-PKHeX-Database.py'
+      - 'tools/PKHeX.Gen9EmbeddedResourceCheck/**'
+      - 'tests/test_sv_native_pkhex_bridge.py'
+      - 'docs/4.0.0/Verification/SV-Native-To-PKHeX-Databases.md'
+      - '.github/workflows/sv-native-to-pkhex-database.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Export-SV-Native-To-PKHeX-Database.py'
+      - 'tools/PKHeX.Gen9EmbeddedResourceCheck/**'
+      - 'tests/test_sv_native_pkhex_bridge.py'
+      - 'docs/4.0.0/Verification/SV-Native-To-PKHeX-Databases.md'
+      - '.github/workflows/sv-native-to-pkhex-database.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  offline-schema-and-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Export-SV-Native-To-PKHeX-Database.py
+            scripts/Audit-SV-PKHeX-Encounters.py
+            tests/test_sv_native_pkhex_bridge.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: No-ROM Gen9 format and SHA authenticity tests
+        run: |
+          python -m py_compile scripts/Export-SV-Native-To-PKHeX-Database.py
+          python -m unittest discover -s tests -p test_sv_native_pkhex_bridge.py -v
+
+  real-native-action-artifact-replay:
+    needs: offline-schema-and-provenance
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Export-SV-Native-To-PKHeX-Database.py
+            scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/Stage-SV-Native-PKHeX-Resources.py
+            tools/PKHeX.Gen9EmbeddedResourceCheck/**
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Recover only genuinely extracted original SV 4.0.0 pkl and provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/native-proof"
+          gh run download 42356030937 -R "$GITHUB_REPOSITORY" \
+            -n SV-400-actual-native-pkhex-comparison \
+            -D "$RUNNER_TEMP/native-proof"
+          native_build="$(find "$RUNNER_TEMP/native-proof" -name native-encounter-build.json -print -quit)"
+          source_manifest="$(find "$RUNNER_TEMP/native-proof" -name encounter-native-extraction.json -print -quit)"
+          collision_manifest="$(find "$RUNNER_TEMP/native-proof" -name encounter-trcol-extraction.json -print -quit)"
+          test -s "$native_build" && test -s "$source_manifest" && test -s "$collision_manifest"
+          for name in encounter_wild_paldea.pkl encounter_fixed_paldea.pkl \
+                      encounter_gem_paldea.pkl encounter_gem_kitakami.pkl encounter_gem_blueberry.pkl; do
+            test -s "$(dirname "$native_build")/$name"
+          done
+          echo "SV_NATIVE_OUTPUT=$(dirname "$native_build")" >> "$GITHUB_ENV"
+          echo "SV_SOURCE_MANIFEST=$source_manifest" >> "$GITHUB_ENV"
+          echo "SV_COLLISION_MANIFEST=$collision_manifest" >> "$GITHUB_ENV"
+
+      - name: Checkout exact immutable PKHeX reference and bilingual names
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/PKHeX-pinned"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/kwsch/PKHeX.git
+          git -C "$root" sparse-checkout init --no-cone
+          git -C "$root" sparse-checkout set --no-cone \
+            'PKHeX.Core/**' \
+            'Directory.Build.props' \
+            'Directory.Build.targets' \
+            'global.json' \
+            'icon.png'
+          git -C "$root" -c protocol.version=2 fetch -q --depth=1 --filter=blob:none origin \
+            0660d1e1f4924b8478daec73281bb8071a82ad19
+          git -C "$root" -c advice.detachedHead=false checkout -q --detach FETCH_HEAD
+          test "$(git -C "$root" rev-parse HEAD)" = "0660d1e1f4924b8478daec73281bb8071a82ad19"
+          echo "SV_PINNED_PKHEX=$root" >> "$GITHUB_ENV"
+
+      - name: Convert actual five native pkl into PKHeX overlay, audit and SQLite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Export-SV-Native-To-PKHeX-Database.py \
+            --native-output "$SV_NATIVE_OUTPUT" \
+            --source-manifest "$SV_SOURCE_MANIFEST" \
+            --collision-manifest "$SV_COLLISION_MANIFEST" \
+            --pkhex-root "$SV_PINNED_PKHEX" \
+            --output "$RUNNER_TEMP/SV-Native-To-PKHeX"
+          python - <<'PY'
+          import json,os,sqlite3
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'SV-Native-To-PKHeX'
+          report=json.loads((root/'SV400_Native_To_PKHeX_Manifest.json').read_text('utf-8'))
+          assert report['provenance']['original_source_entries']==61
+          assert report['provenance']['original_collision_entries']==223
+          tables=report['tables']
+          assert tables['wild']['native_records']==29840
+          assert tables['wild']['pkhex_reference_records']==26861
+          assert (tables['wild']['native_only'],tables['wild']['pkhex_only'])==(3655,676)
+          assert tables['fixed']['native_records']==977
+          assert (tables['fixed']['native_only'],tables['fixed']['pkhex_only'])==(203,203)
+          for kind in ('raid_paldea','raid_kitakami','raid_blueberry'):
+              assert tables[kind]['byte_exact'] is True
+              assert tables[kind]['native_only']==0
+          with sqlite3.connect(root/'SV400_Native_Encounters_For_PKHeX.sqlite') as db:
+              assert db.execute("SELECT COUNT(*) FROM encounters").fetchone()[0]>30000
+              assert db.execute("SELECT COUNT(*) FROM encounters WHERE species_name_zh='阿柏蛇'").fetchone()[0]>0
+              assert db.execute("SELECT COUNT(*) FROM sources").fetchone()[0]==5
+              assert db.execute("SELECT COUNT(*) FROM pkhex_reference_only").fetchone()[0]==879
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as f:
+              f.write('## Real SV 4.0.0 unpack to PKHeX binary conversion\\n\\n')
+              f.write(f"Source files: 61+223 SHA-proven, consumed {report['provenance']['consumed_input_files']}\\n\\n")
+              for key,item in tables.items():
+                  f.write(f"- {key}: native {item['native_records']}; PKHeX {item['pkhex_reference_records']}; native-only {item['native_only']}; reference-only {item['pkhex_only']}; exact bytes {item['byte_exact']}\\n")
+              f.write('\\nOutputs are for isolated PKHeX.Core rebuild and source research only. No runtime RNG proof.\\n')
+          PY
+
+      - name: Stage verified original pkl only into isolated pinned PKHeX.Core, rebuild and inspect embedded bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          isolated="$RUNNER_TEMP/PKHeX-Native-Isolated"
+          cp -a "$SV_PINNED_PKHEX" "$isolated"
+          python scripts/Stage-SV-Native-PKHeX-Resources.py \
+            --native-output "$SV_NATIVE_OUTPUT" \
+            --isolated-pkhex-root "$isolated" \
+            --original-pkhex-root "$SV_PINNED_PKHEX" \
+            --evidence "$RUNNER_TEMP/SV-Native-To-PKHeX/isolated-pkhex-stage-proof.json"
+          dotnet build tools/PKHeX.Gen9EmbeddedResourceCheck/PKHeX.Gen9EmbeddedResourceCheck.csproj \
+            -c Release --nologo "-p:PKHeXRoot=$isolated"
+          dotnet tools/PKHeX.Gen9EmbeddedResourceCheck/bin/Release/net10.0/PKHeX.Gen9EmbeddedResourceCheck.dll \
+            --native-output "$SV_NATIVE_OUTPUT" \
+            --output "$RUNNER_TEMP/SV-Native-To-PKHeX/compiled-embedded-gen9-proof.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'SV-Native-To-PKHeX'/'compiled-embedded-gen9-proof.json'
+          j=json.loads(p.read_text('utf-8-sig'))
+          assert j['status']=='ISOLATED_COMPILED_PKHEX_CORE_EMBEDS_FIVE_ACTUAL_NATIVE_GEN9_TABLES'
+          assert j['verified']==5
+          assert all(v['exact_binary_match'] for v in j['files'])
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as f:
+              f.write("\n## Actual isolated PKHeX.Core compiled-resource proof\n\nFive original-native .pkl SHA-256 values matched compiled embedded assembly resources.\n")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV-400-source-attested-native-PKHeX-encounter-bridge
+          path: |
+            ${{ runner.temp }}/SV-Native-To-PKHeX/*.sqlite
+            ${{ runner.temp }}/SV-Native-To-PKHeX/*.csv
+            ${{ runner.temp }}/SV-Native-To-PKHeX/*.json
+            ${{ runner.temp }}/SV-Native-To-PKHeX/PKHeX_Source_Overlay/**
+          if-no-files-found: warn
+          retention-days: 30
