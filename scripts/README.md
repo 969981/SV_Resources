@@ -166,3 +166,5 @@ py -3 -m unittest discover -s tests -p test_za_lua_native_evidence.py -v
 ## PKHeX Gen9 遭遇数据库参考格式研究
 
 `scripts/Audit-SV-PKHeX-Encounters.py`：离线只读读取 PKHeX.Core Gen9 .pkl 参考数据库，导出 wild/fixed/raid/outbreak CSV 与 SHA-256、可选同名 pkNX 真正导出文件对账；不是 Python pickle。用法：`python scripts/Audit-SV-PKHeX-Encounters.py --pkhex-root E:/Tools/PKHeX --output E:/Temp/SV-PKHeX-Audit`，可加 `--pknx-generated E:/Temp/SV-PkNX-Dump`。测试 `python -m unittest discover -s tests -p test_sv_pkhex_encounter_audit.py -v`，Obsidian 文档见 `docs/research/sv-pkhex-gen9-encounter-bridge.md`。
+
+同时可使用 `scripts/Rebuild-SV-PKHeX-Encounter-Binary.py` 从该脚本生成的标准化 CSV 恢复 wild、fixed、三地区 raid、outbreak 六个 PKHeX 原生 `.pkl` 到独立输出目录。需要保留 `pkhex_wild_areas.csv`（包含空区域块），以防丢失 0-slot 原始区域。`--reference <PKHeX/PKHeX.Core/Resources/legality/wild/Gen9>` 加上 `--require-exact-match` 可进行与已验证 PKHeX 资源的逐字节一致性验收，默认不改动原文件；`dist`、`might` 仍需专用格式适配。
