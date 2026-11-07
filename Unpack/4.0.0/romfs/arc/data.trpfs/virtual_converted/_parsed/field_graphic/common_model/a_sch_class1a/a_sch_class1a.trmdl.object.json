@@ -45,8 +45,8 @@
       "role": "vertex_index_buffers",
       "evidence": "TRMSH",
       "required": true,
-      "exists": true,
-      "size_bytes": 7016820
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_class1a/a_sch_class1a.trmtr",
@@ -55,20 +55,14 @@
       "required": true,
       "exists": true,
       "size_bytes": 104300
-    },
-    {
-      "path": "field_graphic/common_model/a_sch_class1a/a_sch_class1a.tranm",
-      "role": "bone_animation",
-      "evidence": "PREFIX_CANDIDATE",
-      "required": false,
-      "exists": true,
-      "size_bytes": 48
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_class1a/a_sch_class1a.trmbf"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -78,19 +72,14 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "AA770383562897D4C97BACBD903B48948650EC7F5703CB6BE42580BE99F62D80",
+  "fingerprint": "3E04541DA4D9BF996C041861DE4B964BFC01B4A77FAED8954D507ACFCC4EA7BA",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
     {
-      "path": "field_graphic/common_model/a_sch_class1a/a_sch_class1a.tranm",
-      "required": false,
-      "sha256": "A2B49B0FFA9FA9373302376EA098E8527C533F2ABED76FE21AB28410D62FAD14"
-    },
-    {
       "path": "field_graphic/common_model/a_sch_class1a/a_sch_class1a.trmbf",
       "required": true,
-      "sha256": "C23D1D7EC8F6D011420B403D829053A56D1BCB923138738F26854951AC3624C4"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_class1a/a_sch_class1a.trmdl",
@@ -107,23 +96,5 @@
       "required": true,
       "sha256": "59F7A11F1B9356A968F2D3FEFD6FA426DE8FF804DFE0919C29318FFBFD563155"
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 61,
-    "primitive_count": 61,
-    "materials_count": 56,
-    "uv_primitive_count": 61,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_class1a.bin",
-        "bytes": 264409248,
-        "sha256": "96830B9DD23DCDC053A111FF2B5D123C0257325446CBBEC1CFEACBB9D2418F37"
-      }
-    ],
-    "gltf_sha256": "2F6695A2F2587FD5E7664B9A3D498734AE7EA2292EEA06BA8C6550AFF5E8AC6F"
-  }
+  ]
 }
