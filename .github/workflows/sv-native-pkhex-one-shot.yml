@@ -6,9 +6,13 @@ on:
     branches: [master]
     paths:
       - '.github/workflows/sv-native-pkhex-one-shot.yml'
+      - 'scripts/Sweep-SV-Collision-Tolerance.py'
+      - 'tests/test_sv_collision_tolerance_sweep.py'
   pull_request:
     paths:
       - '.github/workflows/sv-native-pkhex-one-shot.yml'
+      - 'scripts/Sweep-SV-Collision-Tolerance.py'
+      - 'tests/test_sv_collision_tolerance_sweep.py'
 
 permissions:
   contents: read
@@ -37,6 +41,8 @@ jobs:
             tests/test_sv_pkhex_havok_references.py
             tests/test_sv_pkhex_trcol_extract.py
             tests/test_sv_native_pkhex_comparison.py
+            tests/test_sv_collision_tolerance_sweep.py
+            scripts/Sweep-SV-Collision-Tolerance.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -47,6 +53,7 @@ jobs:
           python -m unittest discover -s tests -p test_sv_pkhex_havok_references.py -v
           python -m unittest discover -s tests -p test_sv_pkhex_trcol_extract.py -v
           python -m unittest discover -s tests -p test_sv_native_pkhex_comparison.py -v
+          python -m unittest discover -s tests -p test_sv_collision_tolerance_sweep.py -v
 
   original-data-rebuild:
     needs: safe-preflight
@@ -85,6 +92,7 @@ jobs:
             scripts/Extract-SV-PKHeX-TRCOL-Packs.py
             scripts/Compare-SV-Native-PKHeX-Encounters.py
             scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/Sweep-SV-Collision-Tolerance.py
             scripts/deps/oo2core_8_win64.dll
             tools/SV.TrinityDump/**
             tools/gftool/**
@@ -196,6 +204,30 @@ jobs:
         run: |
           python scripts/Compare-SV-Native-PKHeX-Encounters.py --native-manifest Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json --build-evidence "$env:RUNNER_TEMP/SV-native-pkhex-gen9/native-encounter-build.json" --generated "$env:RUNNER_TEMP/SV-native-pkhex-gen9" --reference "$env:SV_PKHEX_REF/PKHeX.Core/Resources/legality/wild/Gen9" --output "$env:RUNNER_TEMP/SV-native-pkhex-diff"
           if ($LASTEXITCODE -ne 0) { Write-Warning "PKHeX reference differs or only subset of templates exists; see exact diff report." }
+
+      - name: Source-verified independent 30/10/0 geometry sensitivity builds
+        shell: pwsh
+        run: |
+          python scripts/Sweep-SV-Collision-Tolerance.py `
+            --repo . `
+            --virtual-root Unpack/4.0.0/romfs/arc/data.trpfs/virtual `
+            --verified-manifest Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json `
+            --verified-trcol-manifest Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json `
+            --baseline "$env:RUNNER_TEMP/SV-native-pkhex-gen9" `
+            --reference "$env:SV_PKHEX_REF/PKHeX.Core/Resources/legality/wild/Gen9" `
+            --output "$env:RUNNER_TEMP/SV-collision-tolerance"
+          if ($LASTEXITCODE -ne 0) { throw 'Collision tolerance sweep failed source/baseline verification' }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV-400-original-collision-tolerance-30-10-0
+          path: |
+            ${{ runner.temp }}/SV-collision-tolerance/sv-400-collision-tolerance-report.json
+            ${{ runner.temp }}/SV-collision-tolerance/T*/comparison/*.json
+            ${{ runner.temp }}/SV-collision-tolerance/T*/comparison/*.csv
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Run actual pinned PKHeX LegalityAnalysis on PK9 samples AND native-generated Gen9 templates
         continue-on-error: true
