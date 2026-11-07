@@ -64,3 +64,5 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## 真实原生 4.0.0 → PKHeX 合法性模板生成
 
 - [朱紫 4.0.0 原生 → PKHeX 遭遇库：野生／固定／Raid 原始算法、独立 .NET 10 CLI、SHA 证明和逐字段对账](sv-pkhex-encounter-native-regeneration.md) — 详细说明 `EncounterSlotDumper9`、`FixedSymbolDumper9`、18 张团体战原始表的生成路径；TRCOL 不齐时仍保留可独立验证的原生 Raid 输出。
+
+- [SV 4.0.0 原生→PKHeX 真实差异与合法性回归证据（2026-11-07）](sv-4.0.0-pkhex-native-delta-evidence-2026-11-07.md)：223 个 TRCOL 全部 SHA 校验，700 条 Raid byte exact，固定 202 组地点差异（191 组地点 158），北上乡野生跨区和真实 PK9 双版本 LegalityAnalysis。
