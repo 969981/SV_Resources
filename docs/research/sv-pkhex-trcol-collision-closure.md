@@ -70,3 +70,23 @@ status: SCHEMA_PARSER_READY
         → per-slot location, crossover, weather, time, level audit
 
 不能因 61 项显式路径已定位、或当前 PKHeX 参考二进制有 26,861 个槽，就宣称真实游戏已经导出了相同数量。依照原生哈希与几何验证逐步闭合证据。
+
+## 2026-11-07 原生场景 4.0.0 的真实碰撞外键对账
+
+证据：[原生 Actions #42332863513](https://github.com/969981/SV_Resources/actions/runs/42332863513) 从实际验证 SHA-256 的四个 SV 4.0.0 TRSCN 解析。
+
+| 原生场景 | 对象 | 有效碰撞 | Havok | Box |
+|---|---:|---:|---:|---:|
+| 帕底亚 resident_area_collision | 110 | 110 | 105 | 5 |
+| 北上乡 field_1 | 60 | 60 | 60 | 0 |
+| 蓝莓学园 field_2 | 57 | 57 | 57 | 0 |
+| 第零区 a_w23_field_area_col | 8 | 7 | 4 | 3 |
+| 合计 | 235 | 234 | 226 | 8 |
+
+**226 个 Havok 引用实际引用 223 个不同的原生 TRCOL，223/223 在真实 TRPFD 中唯一定位，缺失 0、歧义 0。** 原生 0-based pack indices：8009, 9913, 9914, 9915, 9925, 9926, 9927。
+
+真实例子：field_graphic/terrain_model/world_area/world_area_01_col.trcol，原生 TRPFD hash=A232B11C28B22EAB，PackIndex=9925。
+
+已新增 scripts/Extract-SV-PKHeX-TRCOL-Packs.py：由真实 TrcolFilePath 而非猜测文件名选择 pack，复用 SV.TrinityDump 校验原始成员及 SHA；只有得到 encounter-trcol-extraction.json 的 TRCOL_ORIGINAL_SHA256_VERIFIED 状态，才能给 pkNX.EncounterCLI 的 --verified-trcol-manifest 使用。
+
+**证据分界：定位 223 项并非提取 223 项，更不能代表 pkNX Havok AABB 计算及 26,861 野生合法性槽已经完成。** 源校验、原生生成、PKHeX 差异与真实 PK9 LegalityAnalysis 四级验收仍独立进行。
