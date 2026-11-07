@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_2_clubroom08#00000.part0.part1.part1.part1.part1.part0.part1.part1.part0",
+  "input_fingerprint": "E9B3ED42E47F4F0E68DF73B2B19F8B68FE986082FBA93CD897A1B6B67C34027B",
+  "input_files": 1,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_2_clubroom08/a_sch_2_clubroom08_lmg20_lgt.bntx",
+      "source_sha256": "EA86362850D7C8E37AE7E03F31352227C3F5D666E453749A8AF521B2FCF4E2E8",
+      "bytes": 528488,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010080068100800",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_clubroom08/_inspection/1767acbcf7771e28.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_clubroom08/_inspection/1767acbcf7771e28.jsonl",
+      "sha256": "E8F6DE92DFB3641DF9D7201910D314AC634923D52715A6F1B67D53D666D7739B",
+      "bytes": 564
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_clubroom08/a_sch_2_clubroom08_lmg20_lgt.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_clubroom08/a_sch_2_clubroom08_lmg20_lgt.bntx.json",
+      "sha256": "A5922BA0F0F265B61208E6AC2AC3C54F516073D5D8EFD0AF6F6423D9005ABCE8",
+      "bytes": 312
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_2_clubroom08/a_sch_2_clubroom08_lmg20_lgt.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 1
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_2_clubroom08",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
