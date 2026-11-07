@@ -1,0 +1,101 @@
+name: SV 4.0.0 PK9 actual legality flip and location 158 provenance audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/Audit-SV-PK9-Native-Flips.py'
+      - 'tests/test_sv_pk9_native_flip_triage.py'
+      - '.github/workflows/sv-pk9-verdict-158-forensics.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Audit-SV-PK9-Native-Flips.py'
+      - 'tests/test_sv_pk9_native_flip_triage.py'
+      - '.github/workflows/sv-pk9-verdict-158-forensics.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  no-rom-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Audit-SV-PK9-Native-Flips.py
+            tests/test_sv_pk9_native_flip_triage.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and run provenance guard tests
+        run: |
+          python -m py_compile scripts/Audit-SV-PK9-Native-Flips.py
+          python -m unittest discover -s tests -p test_sv_pk9_native_flip_triage.py -v
+
+  actual-source-three-artifact-audit:
+    if: github.event_name != 'pull_request'
+    needs: no-rom-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Audit-SV-PK9-Native-Flips.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download exact original Actions ZIPs by artifact ID
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sv-source"
+          for spec in \
+            '13560353303 original b2ca8f3cb6a1db048ea8d066891f0984c0eb6b0dc44c1b924aaead8bf4fc9ba9' \
+            '13565872802 forensics 320f3b60bf9d22495098cbd389e51f93f1f02a41865eebc4d866a79c5afc1040' \
+            '13566440574 pk9 eb1a93a2effca5bedaef14540150e63de2134d401e9b46c1ad3af6c46c5ef9a0'; do
+            read -r artifact_id name digest <<< "$spec"
+            url="https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip"
+            curl --fail --location --silent --show-error \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H 'Accept: application/vnd.github+json' "$url" \
+              -o "$RUNNER_TEMP/sv-source/$name.zip"
+            echo "$digest  $RUNNER_TEMP/sv-source/$name.zip" | sha256sum --check
+            unzip -tqq "$RUNNER_TEMP/sv-source/$name.zip"
+          done
+      - name: Actually audit source SHA and 88 LegalityAnalysis cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Audit-SV-PK9-Native-Flips.py \
+            --original-zip "$RUNNER_TEMP/sv-source/original.zip" \
+            --forensics-zip "$RUNNER_TEMP/sv-source/forensics.zip" \
+            --pk9-zip "$RUNNER_TEMP/sv-source/pk9.zip" \
+            --output "$RUNNER_TEMP/sv-pk9-verdict-triage"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path(os.environ['RUNNER_TEMP'])/'sv-pk9-verdict-triage/sv-400-pk9-verdict-root-cause-audit.json'
+          a = json.loads(p.read_text('utf-8'))
+          assert a['verified_collision_trcol'] == 223
+          assert a['candidate_count'] == 88 and a['verdict_flips'] == 24
+          assert a['overall_classifications']['both_valid_different_encounter_class'] == 16
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as f:
+              f.write('# SV 4.0.0 PK9 real provenance audit\n\n')
+              f.write('88 same-SHA PK9, 24 false->true, 16 valid-but-different encounter class, 48 same-class valid.\n\n')
+              f.write('These PK9 samples are native-template-generated; no independent in-game RNG verification.\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV-400-native-pk9-legality-flip-158-triage
+          path: |
+            ${{ runner.temp }}/sv-pk9-verdict-triage/*.json
+            ${{ runner.temp }}/sv-pk9-verdict-triage/*.csv
+          if-no-files-found: warn
+          retention-days: 30
