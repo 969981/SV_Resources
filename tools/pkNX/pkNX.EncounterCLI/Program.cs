@@ -48,13 +48,19 @@ internal static class Program
             bool hasTraceOutput = parameters.TryGetValue("--trace-output", out var traceOutput);
             if (hasTraceTargets != hasTraceOutput)
                 throw new ArgumentException("--trace-targets and --trace-output must both be supplied");
+            if (!hasTraceTargets && parameters.ContainsKey("--trace-fixed-only"))
+                throw new ArgumentException("--trace-fixed-only requires source-verified --trace-targets and --trace-output");
             if (hasTraceTargets)
             {
                 var fullTrace = Path.GetFullPath(traceOutput!);
                 if (fullTrace.StartsWith(source.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar,
                                          StringComparison.OrdinalIgnoreCase))
                     throw new ArgumentException("Diagnostic trace cannot be placed inside original game virtual assets");
-                EncounterTraceSV.Enable(Path.GetFullPath(targets!), fullTrace);
+                bool fixedOnly = parameters.TryGetValue("--trace-fixed-only", out var fixedOnlySetting) &&
+                    string.Equals(fixedOnlySetting, "true", StringComparison.OrdinalIgnoreCase);
+                if (parameters.ContainsKey("--trace-fixed-only") && fixedOnlySetting is not ("true" or "false"))
+                    throw new ArgumentException("--trace-fixed-only must be true or false");
+                EncounterTraceSV.Enable(Path.GetFullPath(targets!), fullTrace, fixedOnly);
             }
             var verified = LoadVerifiedSources(manifest);
             string? trcolEvidence = parameters.TryGetValue("--verified-trcol-manifest", out var trcolManifest)
@@ -196,7 +202,7 @@ internal static class Program
         foreach (var key in new[] { "--virtual-root", "--verified-manifest", "--output" })
             if (!result.ContainsKey(key))
                 throw new ArgumentException($"Missing mandatory {key}");
-        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode")))
+        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode" or "--trace-fixed-only")))
             throw new ArgumentException("Unsupported option");
         return result;
     }
