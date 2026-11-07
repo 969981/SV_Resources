@@ -2,385 +2,17 @@
   "schemaVersion": 1,
   "source_version": "4.0.0",
   "parallel_workers": 4,
-  "elapsed_seconds": 274.203,
+  "elapsed_seconds": 245.875,
   "selected_count": 12,
-  "input_files": 2363,
-  "files_per_second": 8.62,
+  "input_files": 2386,
+  "files_per_second": 9.7,
   "completed_count": 12,
-  "parsed_records": 2363,
-  "structurally_parsed": 2170,
-  "inspected_unparsed": 193,
+  "parsed_records": 2386,
+  "structurally_parsed": 2213,
+  "inspected_unparsed": 173,
   "error_count": 0,
   "partial_count": 10,
   "attempts": [
-    {
-      "task": "field_graphic/common_model/a_sch_2_class1#00000",
-      "fingerprint": "B1D5D0D6585DDEFBFBABA8C302EFCD8FFC3DB236190065628D172B46BE5B7408",
-      "input_files": 216,
-      "status": "PARTIAL",
-      "unresolved": 21,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 27,
-        "BNTX": 188,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 188,
-          "ok": 169,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 19
-        },
-        "models": {
-          "counts": {
-            "seen": 3,
-            "parsed": 0,
-            "converted": 2,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/common_model/a_sch_2_class1",
-          "cursor": "field_graphic/common_model/a_sch_2_class1/a_sch_2_class1_hallwaywall01.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/common_model/a_sch_2_class1/a_sch_2_class1_24hours_time_trannsition.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 560,
-      "parsed_records": 216,
-      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_class1/_inspection/c1887ff019866200.jsonl",
-      "inspection_sha256": "97CE9BC6E8D27D4D713C62D76E512CBB7736DC8C795BEED0AD66A1DC2123DE5B",
-      "structurally_parsed": 196,
-      "inspected_unparsed": 20,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 561,
-      "elapsed_seconds": 65.812,
-      "updated_utc": "2026-11-07T00:33:09.562674+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/common_model/a_sch_2_class2#00000",
-      "fingerprint": "F073634E5D981D4725358887DB8512CB3A22883B2D53C7DDEDD49A4046CA5B6B",
-      "input_files": 219,
-      "status": "PARTIAL",
-      "unresolved": 21,
-      "returncode": 2,
-      "formats": {
-        "BNTX": 191,
-        "FLATBUFFER_CANDIDATE": 27,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 191,
-          "ok": 172,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 19
-        },
-        "models": {
-          "counts": {
-            "seen": 3,
-            "parsed": 0,
-            "converted": 2,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/common_model/a_sch_2_class2",
-          "cursor": "field_graphic/common_model/a_sch_2_class2/a_sch_2_class2_hallwaywall01.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/common_model/a_sch_2_class2/a_sch_2_class2_24hours_time_trannsition.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 571,
-      "parsed_records": 219,
-      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_class2/_inspection/fb3cf36c8487d76c.jsonl",
-      "inspection_sha256": "EC68F96B4846A38CCCB1247BABA4C9844B03E34E599DD4F3433168787B43CA0D",
-      "structurally_parsed": 199,
-      "inspected_unparsed": 20,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 572,
-      "elapsed_seconds": 69.422,
-      "updated_utc": "2026-11-07T00:33:11.164362+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/common_model/a_sch_2_clubroom01#00000",
-      "fingerprint": "2E25521BD23486B4E9B603B26BF803A5348A233166B38F7206E14873479AC032",
-      "input_files": 195,
-      "status": "PARTIAL",
-      "unresolved": 24,
-      "returncode": 2,
-      "formats": {
-        "BNTX": 156,
-        "FLATBUFFER_CANDIDATE": 37,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 156,
-          "ok": 136,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 20
-        },
-        "models": {
-          "counts": {
-            "seen": 5,
-            "parsed": 0,
-            "converted": 3,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 2,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/common_model/a_sch_2_clubroom01",
-          "cursor": "field_graphic/common_model/a_sch_2_clubroom01/a_sch_2_clubroom01_table_collision.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/common_model/a_sch_2_clubroom01/a_sch_2_clubroom01_24hours_time_trannsition.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/common_model/a_sch_2_clubroom01/a_sch_2_clubroom01_runningmachine01.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 474,
-      "parsed_records": 195,
-      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_clubroom01/_inspection/690c690a505a7d15.jsonl",
-      "inspection_sha256": "D926332CCF1C5DB59D88AC5358ADE1A83BEC18D29A0CE0017B4A2AF5A8F04E22",
-      "structurally_parsed": 172,
-      "inspected_unparsed": 23,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 475,
-      "elapsed_seconds": 79.375,
-      "updated_utc": "2026-11-07T00:33:12.432377+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/common_model/a_sch_2_clubroom02#00000",
-      "fingerprint": "825AC2088DBE34EC7D563BB1E4D4CB63C8D4F51B5B99EBF357E487E10B022DE6",
-      "input_files": 146,
-      "status": "PARTIAL",
-      "unresolved": 18,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 34,
-        "BNTX": 110,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 110,
-          "ok": 96,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 14
-        },
-        "models": {
-          "counts": {
-            "seen": 5,
-            "parsed": 0,
-            "converted": 3,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 2,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/common_model/a_sch_2_clubroom02",
-          "cursor": "field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_table_collision.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_24hours_time_trannsition.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            },
-            {
-              "source": "field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_shishiodoshi01_loop.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 340,
-      "parsed_records": 146,
-      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_clubroom02/_inspection/0a9a4d77bb8cb7ae.jsonl",
-      "inspection_sha256": "DB5D8B2E7CF5951FD8FF0C90D1374A29081A2B440821A444A457F7A6E0646F98",
-      "structurally_parsed": 129,
-      "inspected_unparsed": 17,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 341,
-      "elapsed_seconds": 82.187,
-      "updated_utc": "2026-11-07T00:33:13.429920+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/common_model/a_sch_2_clubroom03#00000",
-      "fingerprint": "83DD0EF18B154FE0F80A5F05936C239D0472FAB81A6E1F5E62B8F1B70C86B5D2",
-      "input_files": 138,
-      "status": "PARTIAL",
-      "unresolved": 20,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 22,
-        "BNTX": 114,
-        "BY_EXTENSION:trcol": 2
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 114,
-          "ok": 97,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 17
-        },
-        "models": {
-          "counts": {
-            "seen": 4,
-            "parsed": 0,
-            "converted": 3,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/common_model/a_sch_2_clubroom03",
-          "cursor": "field_graphic/common_model/a_sch_2_clubroom03/a_sch_2_clubroom03_table_collision.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/common_model/a_sch_2_clubroom03/a_sch_2_clubroom03_24hours_time_trannsition.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 341,
-      "parsed_records": 138,
-      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_clubroom03/_inspection/45f1d2f5408cd34e.jsonl",
-      "inspection_sha256": "665A002392475C275C800C4EC14CE2D9679B1725EF355532795010068986063C",
-      "structurally_parsed": 118,
-      "inspected_unparsed": 20,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 342,
-      "elapsed_seconds": 86.61,
-      "updated_utc": "2026-11-07T00:33:14.443071+00:00",
-      "partial_attempts": 2
-    },
     {
       "task": "field_graphic/common_model/a_sch_2_clubroom04#00000",
       "fingerprint": "1E4341091A24F2D9CADDC822AE07D979EE0D68712AA18F42252DAE44845ACD36",
@@ -449,9 +81,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 391,
-      "elapsed_seconds": 72.234,
-      "updated_utc": "2026-11-07T00:33:15.554364+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 77.812,
+      "updated_utc": "2026-11-07T00:48:08.441389+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/common_model/a_sch_2_clubroom05#00000",
@@ -521,9 +153,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 658,
-      "elapsed_seconds": 75.515,
-      "updated_utc": "2026-11-07T00:33:17.310256+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 79.312,
+      "updated_utc": "2026-11-07T00:48:10.156037+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/common_model/a_sch_2_clubroom06#00000",
@@ -601,9 +233,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 647,
-      "elapsed_seconds": 109.078,
-      "updated_utc": "2026-11-07T00:33:19.104918+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 116.937,
+      "updated_utc": "2026-11-07T00:48:11.903048+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/common_model/a_sch_2_clubroom07#00000",
@@ -673,9 +305,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 1145,
-      "elapsed_seconds": 85.062,
-      "updated_utc": "2026-11-07T00:33:22.120602+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 114.391,
+      "updated_utc": "2026-11-07T00:48:14.828029+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/common_model/a_sch_2_clubroom08#00000",
@@ -745,20 +377,21 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 666,
-      "elapsed_seconds": 104.578,
-      "updated_utc": "2026-11-07T00:33:24.150252+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 136.094,
+      "updated_utc": "2026-11-07T00:48:16.818491+00:00",
+      "partial_attempts": 2
     },
     {
-      "task": "field_graphic/common_model/a_sch_2_entrance01_sea#00000",
-      "fingerprint": "F0AC27BE6C1A0EF1B2985720D3C4E035B6EEAF74F3F91066FB0D416456FA7767",
-      "input_files": 10,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
+      "task": "field_graphic/common_model/a_sch_2_dorm01#00000",
+      "fingerprint": "8CC40C8C7A38F132414AB96F631CA00985FC83EEF04EFD2D653213D8D2C4F1FF",
+      "input_files": 134,
+      "status": "PARTIAL",
+      "unresolved": 18,
+      "returncode": 2,
       "formats": {
-        "FLATBUFFER_CANDIDATE": 4,
-        "BNTX": 6
+        "FLATBUFFER_CANDIDATE": 20,
+        "BNTX": 113,
+        "BY_EXTENSION:trcol": 1
       },
       "stages": {
         "messages": {
@@ -779,8 +412,276 @@
         },
         "bntx": {
           "kind": "bntx",
-          "processed": 6,
-          "ok": 6,
+          "processed": 113,
+          "ok": 96,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 17
+        },
+        "models": {
+          "counts": {
+            "seen": 3,
+            "parsed": 0,
+            "converted": 3,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/common_model/a_sch_2_dorm01",
+          "cursor": "field_graphic/common_model/a_sch_2_dorm01/a_sch_2_dorm01_ceiling01.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 336,
+      "parsed_records": 134,
+      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_dorm01/_inspection/9939816415c985a3.jsonl",
+      "inspection_sha256": "9C320D097B92174B4C179A8D8B778D02077A8715EB5E9EB77C41BE4514E95656",
+      "structurally_parsed": 116,
+      "inspected_unparsed": 18,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 337,
+      "elapsed_seconds": 46.906,
+      "updated_utc": "2026-11-07T00:48:17.950450+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/common_model/a_sch_2_dorm02#00000",
+      "fingerprint": "2B43C4B91B8596D8778A3EF34258009797271CE3E269698C18D9D9EB905DF378",
+      "input_files": 166,
+      "status": "PARTIAL",
+      "unresolved": 21,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 145,
+        "FLATBUFFER_CANDIDATE": 20,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 145,
+          "ok": 126,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 19
+        },
+        "models": {
+          "counts": {
+            "seen": 3,
+            "parsed": 0,
+            "converted": 3,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/common_model/a_sch_2_dorm02",
+          "cursor": "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02_ceiling01.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 427,
+      "parsed_records": 166,
+      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_dorm02/_inspection/e4a2139e9960eb6b.jsonl",
+      "inspection_sha256": "2173DDAC4AC1F60D7477F108D00407D4927EBC46A12AE61CD7380A3F1276B896",
+      "structurally_parsed": 146,
+      "inspected_unparsed": 20,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 428,
+      "elapsed_seconds": 52.5,
+      "updated_utc": "2026-11-07T00:48:19.076123+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/common_model/a_sch_2_dorm03#00000",
+      "fingerprint": "DF03AF363B6358ACA7C786203E88DE380B1454EBE06941D1100D23BA220BB00A",
+      "input_files": 175,
+      "status": "PARTIAL",
+      "unresolved": 22,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 154,
+        "FLATBUFFER_CANDIDATE": 20,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 154,
+          "ok": 134,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 20
+        },
+        "models": {
+          "counts": {
+            "seen": 3,
+            "parsed": 0,
+            "converted": 3,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/common_model/a_sch_2_dorm03",
+          "cursor": "field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03_ceiling01.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 450,
+      "parsed_records": 175,
+      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_dorm03/_inspection/71f8c200c2c92834.jsonl",
+      "inspection_sha256": "3A05F5F3CF83EEC95E14FB6096D570F7BB6F64D904252AA743580B964AD1B677",
+      "structurally_parsed": 153,
+      "inspected_unparsed": 22,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 451,
+      "elapsed_seconds": 56.375,
+      "updated_utc": "2026-11-07T00:48:20.278839+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/common_model/a_sch_2_entrance01#00000",
+      "fingerprint": "3C9EAD8C05B8E8A692FFBCE3A8614A544C6DFFCE7EA15163801E463D6FDB9A19",
+      "input_files": 168,
+      "status": "PARTIAL",
+      "unresolved": 75,
+      "returncode": 2,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 13,
+        "BNTX": 154,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 154,
+          "ok": 139,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 15
+        },
+        "models": {
+          "counts": {
+            "seen": 2,
+            "parsed": 0,
+            "converted": 2,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/common_model/a_sch_2_entrance01",
+          "cursor": "field_graphic/common_model/a_sch_2_entrance01/a_sch_2_entrance01_bottom01.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 402,
+      "parsed_records": 168,
+      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_entrance01/_inspection/1905cfb8b7a284bd.jsonl",
+      "inspection_sha256": "A47D454E8CAE2F17E11A8D3A7E8F5861C8A5C505A5D95B8D429C87BE8EECD403",
+      "structurally_parsed": 151,
+      "inspected_unparsed": 17,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 403,
+      "elapsed_seconds": 69.922,
+      "updated_utc": "2026-11-07T00:48:21.517385+00:00",
+      "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/common_model/a_sch_2_shop01#00000",
+      "fingerprint": "6874E285FF9A5C4CD713AFA348B30B8066CFFE0E0791DEED20AB5A2730CB8120",
+      "input_files": 251,
+      "status": "PARTIAL",
+      "unresolved": 1,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 11,
+        "BNTX": 239,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 239,
+          "ok": 239,
           "blocked": 0,
           "skipped": 0,
           "failed": 0
@@ -797,26 +698,27 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/common_model/a_sch_2_entrance01_sea",
-          "cursor": "field_graphic/common_model/a_sch_2_entrance01_sea/a_sch_2_entrance01_sea.trmdl",
+          "prefix": "field_graphic/common_model/a_sch_2_shop01",
+          "cursor": "field_graphic/common_model/a_sch_2_shop01/a_sch_2_shop01.trmdl",
           "issues": []
         }
       },
-      "outputs": 27,
-      "parsed_records": 10,
-      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_entrance01_sea/_inspection/721ed9e1aa879b73.jsonl",
-      "inspection_sha256": "1738C94E48296A6C863F3F956FB9FDFAF5A21BF3811DFE83067183BF6DC3E458",
-      "structurally_parsed": 10,
-      "inspected_unparsed": 0,
+      "outputs": 716,
+      "parsed_records": 251,
+      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_2_shop01/_inspection/8283b94877e73e26.jsonl",
+      "inspection_sha256": "79208E3F0C59280C8CB08915E2019DDA796503C7063829B06CDBF1317ACB2F5D",
+      "structurally_parsed": 249,
+      "inspected_unparsed": 2,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 28,
-      "elapsed_seconds": 9.938,
-      "updated_utc": "2026-11-07T00:33:24.398388+00:00"
+      "published": 717,
+      "elapsed_seconds": 61.5,
+      "updated_utc": "2026-11-07T00:48:23.391155+00:00",
+      "partial_attempts": 1
     },
     {
-      "task": "field_graphic/common_model/a_sch_cafe01_lunch01#00000",
-      "fingerprint": "E82D11AF016A1201ADA98CED0C3E1FECB8106F3E2601A960DA2343C31C6AF9B5",
+      "task": "field_graphic/common_model/a_sch_cafe01_lunch02#00000",
+      "fingerprint": "CD85DDB71AFF728A104047BBF9F673D02F7749BE9F20D9C17E154DCBFA15F59A",
       "input_files": 53,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -863,24 +765,90 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/common_model/a_sch_cafe01_lunch01",
-          "cursor": "field_graphic/common_model/a_sch_cafe01_lunch01/a_sch_cafe01_lunch01.trmdl",
+          "prefix": "field_graphic/common_model/a_sch_cafe01_lunch02",
+          "cursor": "field_graphic/common_model/a_sch_cafe01_lunch02/a_sch_cafe01_lunch02.trmdl",
           "issues": []
         }
       },
-      "outputs": 132,
+      "outputs": 143,
       "parsed_records": 53,
-      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_cafe01_lunch01/_inspection/689e2226e62392bd.jsonl",
-      "inspection_sha256": "30ED2E100F6166A9A453B0EE685579018AC7939A650EE2608ED84365F7B98063",
+      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_cafe01_lunch02/_inspection/d52c189c1e23edea.jsonl",
+      "inspection_sha256": "D216AD88EDA524C5DAD57B95F4EF2D4ED35DF78B5E68F76BF95A1C21B308FA6B",
       "structurally_parsed": 52,
       "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 133,
-      "elapsed_seconds": 11.5,
-      "updated_utc": "2026-11-07T00:33:24.723592+00:00"
+      "published": 144,
+      "elapsed_seconds": 11.172,
+      "updated_utc": "2026-11-07T00:48:23.940727+00:00"
+    },
+    {
+      "task": "field_graphic/common_model/a_sch_cafe01_lunch03#00000",
+      "fingerprint": "3A5196E948B3B2D36D8A55CC0E37F9D449C5D217ED8EA288FC8B86A141632DBB",
+      "input_files": 53,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BNTX": 48,
+        "FLATBUFFER_CANDIDATE": 4,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 48,
+          "ok": 48,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 1,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/common_model/a_sch_cafe01_lunch03",
+          "cursor": "field_graphic/common_model/a_sch_cafe01_lunch03/a_sch_cafe01_lunch03.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 143,
+      "parsed_records": 53,
+      "inspection_manifest": "parsed/field_graphic/common_model/a_sch_cafe01_lunch03/_inspection/d6f1f8a55d72d2dc.jsonl",
+      "inspection_sha256": "85249101EA984CC54DDF0E0470730FF25935A18017CDDA6A2B7CAAD509C493FC",
+      "structurally_parsed": 52,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 144,
+      "elapsed_seconds": 11.891,
+      "updated_utc": "2026-11-07T00:48:24.300047+00:00"
     }
   ],
-  "updated_utc": "2026-11-07T00:33:25.187904+00:00",
+  "updated_utc": "2026-11-07T00:48:24.747888+00:00",
   "policy": "UNKNOWN_FORMATS_AND_VISUAL_REVIEW_NOT_AUTOMATICALLY_CONFIRMED"
 }
