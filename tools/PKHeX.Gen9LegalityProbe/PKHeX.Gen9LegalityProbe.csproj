@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>PKHeX Gen9 LegalityAnalysis on real PK9 samples and native regenerated encounter slots</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Use exactly the SAME pinned PKHeX commit as the reference table.
+         Required CI property; no silently mismatched NuGet fallback. -->
+    <ProjectReference Include="$(PKHeXRoot)/PKHeX.Core/PKHeX.Core.csproj" />
+  </ItemGroup>
+</Project>

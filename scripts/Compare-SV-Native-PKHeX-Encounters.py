@@ -101,6 +101,20 @@ def validate(native:dict, built:dict, native_manifest_path:Path)->dict:
             use.get("sha256")!=true["native_sha256"] or
             int(use.get("bytes",-1))!=int(true["native_bytes"])):
             raise ValueError(f"Native source SHA/size evidence mismatch: {path}")
+    trcol_manifest=built.get("originalTrcolManifest")
+    if trcol_manifest:
+        trcol=load_json(Path(trcol_manifest))
+        if trcol.get("status")!="TRCOL_ORIGINAL_SHA256_VERIFIED" or trcol.get("source")!="SV-4.0.0-original-TRPFD-TRPFS":
+            raise ValueError("TRCOL manifest does not prove original native SHA verification")
+        extras=trcol.get("targets",[])
+        if len(extras)!=trcol.get("unique_trcol_paths"):
+            raise ValueError("Incomplete verified collision manifest")
+        for item in extras:
+            name=item["source_virtual_path"]
+            if (name in by_path or item.get("status")!="TRCOL_ORIGINAL_SHA256_VERIFIED" or
+                not name.lower().endswith(".trcol")):
+                raise ValueError("Unproven/colliding original TRCOL")
+            by_path[name]=item
     if built.get("unverifiedExtraFiles"):
         raise ValueError("Unverified extra native TRCOL paths included in generated binaries")
     required=("message/dat/English/common/place_name.dat",

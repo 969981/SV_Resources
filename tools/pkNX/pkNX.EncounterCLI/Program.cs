@@ -39,8 +39,22 @@ internal static class Program
                 throw new ArgumentException("Native outputs must be separate from the original game virtual/ tree.");
             Directory.CreateDirectory(output);
             var verified = LoadVerifiedSources(manifest);
+            string? trcolEvidence = parameters.TryGetValue("--verified-trcol-manifest", out var trcolManifest)
+                ? Path.GetFullPath(trcolManifest) : null;
+            var externalVerified = trcolEvidence is null ? new Dictionary<string, NativeFileRecord>(StringComparer.OrdinalIgnoreCase)
+                : LoadVerifiedTrcol(trcolEvidence);
+            foreach (var entry in externalVerified)
+                if (!verified.TryAdd(entry.Key, entry.Value))
+                    throw new InvalidDataException($"Duplicate base/TRCOL original source: {entry.Key}");
             var rom = new NativeVirtualFileSystem(source, verified);
             Console.WriteLine($"Native SV verified source manifest: {verified.Count} entries");
+            // Raid generation does not depend on English place names or native collision geometry.
+            var products = new List<string>();
+            products.AddRange(NativeRaidExporter.Generate(rom, output));
+            Console.WriteLine("Generated 3 independent original Tera raid tables.");
+            string? collisionBlocker = null;
+            try
+            {
             // Use exact GameDumperSV location-map construction. Area location is
             // an AHTB entry INDEX, not a name hash or array sorted by strings.
             var config = new EncounterDumpConfigSV
@@ -57,14 +71,6 @@ internal static class Program
                 WritePickle = true,
             };
             Console.WriteLine($"Native place names (English AHTB order): {config.PlaceNameMap.Count}");
-            // Raid templates require the eighteen original RaidEnemyTable arrays
-            // and no field collider. Generate and attest them independently.
-            var products = new List<string>();
-            products.AddRange(NativeRaidExporter.Generate(rom, output));
-            Console.WriteLine("Generated 3 independent original Tera raid tables.");
-            string? collisionBlocker = null;
-            try
-            {
                 var field = new PaldeaFieldModel(rom);
                 var scene = new PaldeaSceneModel(rom, field);
                 Console.WriteLine("Native field and collision scene loaded.");
@@ -75,11 +81,9 @@ internal static class Program
                 products.Add(FixedName);
                 Console.WriteLine($"Generated from raw symbol tables + geometry: {FixedName}");
             }
-            catch (FileNotFoundException missing)
+            catch (Exception ex) when (ex is FileNotFoundException or InvalidDataException or KeyNotFoundException)
             {
-                // Collision dependencies are original Havok TRCOL references.
-                // Never use the PKHeX reference file as a substitute.
-                collisionBlocker = $"MISSING_ORIGINAL_NATIVE_ASSET: {missing.Message}";
+                collisionBlocker = $"ORIGINAL_WORLD_SCHEMA_OR_DEPENDENCY_BLOCKED: {ex.GetType().Name}: {ex.Message}";
                 Console.Error.WriteLine(collisionBlocker);
             }
 
@@ -110,6 +114,8 @@ internal static class Program
                     "Ordinary Tera raids, distributions, outbreak and HOME transfer rules are separate pipelines.",
                 },
                 originalM2Manifest = manifest,
+                originalTrcolManifest = trcolEvidence,
+                originalTrcolEntries = externalVerified.Count,
                 originalSourceRoot = source,
                 originalM2Entries = verified.Count,
                 sourceFilesActuallyRead = input,
@@ -162,7 +168,7 @@ internal static class Program
         foreach (var key in new[] { "--virtual-root", "--verified-manifest", "--output" })
             if (!result.ContainsKey(key))
                 throw new ArgumentException($"Missing mandatory {key}");
-        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output")))
+        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest")))
             throw new ArgumentException("Unsupported option");
         return result;
     }
@@ -192,14 +198,41 @@ internal static class Program
         return result;
     }
 
+    private static Dictionary<string, NativeFileRecord> LoadVerifiedTrcol(string path)
+    {
+        using var doc = JsonDocument.Parse(File.ReadAllBytes(path));
+        var root = doc.RootElement;
+        if (root.GetProperty("status").GetString() != "TRCOL_ORIGINAL_SHA256_VERIFIED" ||
+            root.GetProperty("source").GetString() != "SV-4.0.0-original-TRPFD-TRPFS")
+            throw new InvalidDataException("Not actual original TRCOL SHA evidence");
+        var result = new Dictionary<string,NativeFileRecord>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in root.GetProperty("targets").EnumerateArray())
+        {
+            if (item.GetProperty("status").GetString()!="TRCOL_ORIGINAL_SHA256_VERIFIED")
+                throw new InvalidDataException("A native collision dependency has not been verified");
+            var name = item.GetProperty("source_virtual_path").GetString()
+                ?? throw new InvalidDataException("Missing native collision path");
+            if (!name.EndsWith(".trcol",StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Non-collision dependency listed in TRCOL proof: {name}");
+            var sha = item.GetProperty("native_sha256").GetString() ?? "";
+            var len = item.GetProperty("native_bytes").GetInt64();
+            if (sha.Length != 64 || !sha.All(Uri.IsHexDigit) || len < 0 ||
+                !result.TryAdd(name,new NativeFileRecord(sha.ToUpperInvariant(),len,true)))
+                throw new InvalidDataException($"Invalid source TRCOL SHA or duplicate: {name}");
+        }
+        if (result.Count != root.GetProperty("unique_trcol_paths").GetInt32())
+            throw new InvalidDataException("TRCOL count differs from original scene dependency manifest");
+        return result;
+    }
+
     private static Dictionary<string, (string Name, int Index)> MakePlaceNameMap(NativeVirtualFileSystem rom)
     {
         const string prefix = "message/dat/English/common/place_name";
         var config = new TextConfig(GameVersion.SV);
         var names = new TextFile(rom.GetPackedFile(prefix + ".dat"), config).Lines;
         var ahtb = new AHTB(rom.GetPackedFile(prefix + ".tbl"));
-        if (names.Length == 0 || ahtb.Count != names.Length)
-            throw new InvalidDataException("English place_name DAT/TBL index alignment mismatch.");
+        if (names.Length == 0 || ahtb.Count < names.Length)
+            throw new InvalidDataException("English DAT has zero entries or more lines than AHTB keys.");
         return ahtb.ToIndexedDictionary(names);
     }
 
