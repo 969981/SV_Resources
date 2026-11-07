@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_com_house_obj#00000.part1.part0.part0.part1.part0.part1.part1.part1",
+  "input_fingerprint": "7D01F1E570F0A4A42B4EB93950418F285F58984CBA065E6C9A553EC618C1349B",
+  "input_files": 2,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 2
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmdl",
+      "source_sha256": "553D36019726CC15441A7AA367CE3AECAC95DCED9D25E81616E2672B6DA6AE86",
+      "bytes": 204,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1800000000001200240000000400000008000C00100014001200000074000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          36,
+          4
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    },
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmsh",
+      "source_sha256": "20462A72E6D89FFF80BD7A52CF3E394EB41203B76C90E7D1B1AAD24EC80BB565",
+      "bytes": 624,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1000000000000A000C000000040008000A0000002C000000040000001D000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          16,
+          655360,
+          12,
+          524292
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmsh.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/_inspection/abbf40c30ffe0e59.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/_inspection/abbf40c30ffe0e59.jsonl",
+      "sha256": "8C32518C837243DE9E6403067DF411E74B544EC9E353893ACD0D78982C771703",
+      "bytes": 1412
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmdl.flatbuffer.json",
+      "sha256": "329F3F533CD533E5079E8ED7E0F73225AF7293C234AB3B19E51577B7851A2ABF",
+      "bytes": 713
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmdl.object.json",
+      "sha256": "55B094ACDFAC6D9215F3CB856E49A21B2B2760DDDC671781E81476B3A600AEC0",
+      "bytes": 2942
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmsh.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmsh.flatbuffer.json",
+      "sha256": "524C29639B1D23AE4AEC18F9314C1A2D1923FEB5695CF01E058D9EF8BEAE4CF9",
+      "bytes": 1356
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmbf,field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_com_house_obj",
+      "cursor": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant05.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
