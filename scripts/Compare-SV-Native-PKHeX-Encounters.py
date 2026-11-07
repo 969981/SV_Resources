@@ -87,20 +87,6 @@ def validate(native:dict, built:dict, native_manifest_path:Path)->dict:
         raise ValueError("Partial reconstruction must record exact native collision blocker")
     if Path(built.get("originalM2Manifest","")).resolve()!=native_manifest_path.resolve():
         raise ValueError("Native input manifest path differs from builder evidence")
-    used=built.get("sourceFilesActuallyRead",[])
-    if not used:
-        raise ValueError("No actual original source inputs read")
-    seen=set()
-    for use in used:
-        path=use["path"]
-        if path in seen or path not in by_path:
-            raise ValueError(f"Unrecognized or repeated native source file: {path}")
-        seen.add(path)
-        true=by_path[path]
-        if (not use.get("verifiedByOriginalM2Manifest") or
-            use.get("sha256")!=true["native_sha256"] or
-            int(use.get("bytes",-1))!=int(true["native_bytes"])):
-            raise ValueError(f"Native source SHA/size evidence mismatch: {path}")
     trcol_manifest=built.get("originalTrcolManifest")
     if trcol_manifest:
         trcol=load_json(Path(trcol_manifest))
@@ -115,6 +101,20 @@ def validate(native:dict, built:dict, native_manifest_path:Path)->dict:
                 not name.lower().endswith(".trcol")):
                 raise ValueError("Unproven/colliding original TRCOL")
             by_path[name]=item
+    used=built.get("sourceFilesActuallyRead",[])
+    if not used:
+        raise ValueError("No actual original source inputs read")
+    seen=set()
+    for use in used:
+        path=use["path"]
+        if path in seen or path not in by_path:
+            raise ValueError(f"Unrecognized or repeated native source file: {path}")
+        seen.add(path)
+        true=by_path[path]
+        if (not use.get("verifiedByOriginalM2Manifest") or
+            use.get("sha256")!=true["native_sha256"] or
+            int(use.get("bytes",-1))!=int(true["native_bytes"])):
+            raise ValueError(f"Native source SHA/size evidence mismatch: {path}")
     if built.get("unverifiedExtraFiles"):
         raise ValueError("Unverified extra native TRCOL paths included in generated binaries")
     required=("message/dat/English/common/place_name.dat",
