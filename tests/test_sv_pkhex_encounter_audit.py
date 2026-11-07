@@ -93,6 +93,9 @@ class PKHeXEncounterAuditTests(unittest.TestCase):
             report = mod.audit(pkhex, base / "report", generated)
             self.assertEqual(report["sources"]["wild"]["records"], 2)
             self.assertEqual(report["sources"]["wild"]["area_count"], 2)
+            self.assertEqual(report["sources"]["wild"]["distinct_area_locations"], 2)
+            self.assertEqual(report["sources"]["wild"]["distinct_met_locations"], 2)
+            self.assertEqual(report["sources"]["wild"]["empty_area_count"], 0)
             self.assertTrue(report["diffs"]["wild"]["exact_binary_match"])
             self.assertEqual(report["sources"]["fixed"]["status"],
                              "NOT_IN_PKHEX_CHECKOUT")
