@@ -22,6 +22,13 @@ class RemainingSVTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             M.interval_relation(80,73,70,75)
 
+    def test_real_source_fixed_tablekey_namespaces(self):
+        self.assertEqual(M.parse_original_fixed_area("su1_area03_07"),("area03","NORMAL"))
+        self.assertEqual(M.parse_original_fixed_area("t_su1_area03_18"),("area03","T_PREFIX"))
+        self.assertEqual(M.parse_original_fixed_area("t_su1_area11_14"),("area11","T_PREFIX"))
+        with self.assertRaises(ValueError):
+            M.parse_original_fixed_area("other_area03_07")
+
     def test_source_case_identity_preserves_duplicate_occurrences(self):
         record=dict(location_id="176",cross_from_id="194",species_national="774",
                     form_raw="31",native_level_min="58",native_level_max="68",
