@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_dorm04#00000.part1.part0.part1.part1.part0.part1.part0",
+  "input_fingerprint": "8B52B33F3DF3E6EED6FD95A08FC4CFD236C1837A907C3E55866032EB35A3EE65",
+  "input_files": 2,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 2
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_dorm04/a_sch_dorm04_lmg03_lgt.bntx",
+      "source_sha256": "AB8F4F81035F37164DD59F715C45647E95DBEBAB9C166DE8402E64C73E971F22",
+      "bytes": 528488,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010080068100800",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    },
+    {
+      "source": "field_graphic/common_model/a_sch_dorm04/a_sch_dorm04_lmg04_lgt.bntx",
+      "source_sha256": "A2B21A1476146D905082BA360F2299EB00204DF097D3E30A49CD332E43467CAE",
+      "bytes": 528488,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010080068100800",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_dorm04/_inspection/fe57354a794f3198.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_dorm04/_inspection/fe57354a794f3198.jsonl",
+      "sha256": "EFD891CEA9227810E7D5DF818B4301D9ED07FD4B3AD6BF01435708CADFCB2013",
+      "bytes": 1104
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_dorm04/a_sch_dorm04_lmg03_lgt.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_dorm04/a_sch_dorm04_lmg03_lgt.bntx.json",
+      "sha256": "C8A73BB480F4677E7FFF7C5D304C7DE65BE92156FBC56AC57170335A4756F34E",
+      "bytes": 300
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_dorm04/a_sch_dorm04_lmg04_lgt.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_dorm04/a_sch_dorm04_lmg04_lgt.bntx.json",
+      "sha256": "131ADB02DAC53B3812BC080C1AE7756E41D11957E0B08B9AA3BB27D7047D153F",
+      "bytes": 300
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_dorm04/a_sch_dorm04_lmg03_lgt.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    },
+    {
+      "source": "field_graphic/common_model/a_sch_dorm04/a_sch_dorm04_lmg04_lgt.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 2
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_dorm04",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
