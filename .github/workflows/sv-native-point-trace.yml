@@ -7,6 +7,9 @@ on:
       - 'tools/pkNX/pkNX.EncounterCLI/Program.cs'
       - 'scripts/Join-SV-Native-Point-Trace.py'
       - 'tests/test_sv_native_point_trace_join.py'
+      - 'scripts/Compare-SV-Terarium-176-194-Native-AB.py'
+      - 'scripts/Verify-SV-Fixed-158-Collision-Sources.py'
+      - 'tests/test_sv_fixed_collision_source_proof.py'
       - '.github/workflows/sv-native-point-trace.yml'
   push:
     branches: [master]
@@ -15,6 +18,9 @@ on:
       - 'tools/pkNX/pkNX.EncounterCLI/Program.cs'
       - 'scripts/Join-SV-Native-Point-Trace.py'
       - 'tests/test_sv_native_point_trace_join.py'
+      - 'scripts/Compare-SV-Terarium-176-194-Native-AB.py'
+      - 'scripts/Verify-SV-Fixed-158-Collision-Sources.py'
+      - 'tests/test_sv_fixed_collision_source_proof.py'
       - '.github/workflows/sv-native-point-trace.yml'
   workflow_dispatch:
 
@@ -38,6 +44,8 @@ jobs:
             tools/pkNX/**
             scripts/Join-SV-Native-Point-Trace.py
             tests/test_sv_native_point_trace_join.py
+            tests/test_sv_fixed_collision_source_proof.py
+            scripts/Verify-SV-Fixed-158-Collision-Sources.py
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
@@ -51,6 +59,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'pkNX native trace instrumented headless parser could not compile' }
           python -m unittest discover -s tests -p test_sv_native_point_trace_join.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Native original point trace tests failed' }
+          python -m unittest discover -s tests -p test_sv_fixed_collision_source_proof.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Original collision source SHA tests failed' }
 
   original-native-replay:
     needs: compile-no-rom
@@ -89,6 +99,8 @@ jobs:
             scripts/Extract-SV-PKHeX-TRCOL-Packs.py
             scripts/Compare-SV-Native-PKHeX-Encounters.py
             scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/Compare-SV-Terarium-176-194-Native-AB.py
+            scripts/Verify-SV-Fixed-158-Collision-Sources.py
             scripts/Join-SV-Native-Point-Trace.py
             scripts/Sweep-SV-Collision-Tolerance.py
             scripts/deps/oo2core_8_win64.dll
@@ -208,6 +220,64 @@ jobs:
           "Wild 666: $($report.wild_exact_final_serializations) native final matches and $($report.wild_cases_with_candidate_original_points) point candidates." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           "Fixed 189: $($report.fixed_with_original_tablekey_link) matched source TableKeys; 158 wander observations $($report.fixed_158_wander_observations)." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           "The original five native pkl SHA-256 values matched the untraced 30f baseline; this is not gameplay RNG proof." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - name: Download independent pinned Gen9 30f wild diff and actual 236 fixed source case review
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force "$env:RUNNER_TEMP/SV-400-AB-30f" | Out-Null
+          New-Item -ItemType Directory -Force "$env:RUNNER_TEMP/SV-400-AB-worldend" | Out-Null
+          gh run download 42356030937 -R $env:GITHUB_REPOSITORY -n SV-400-original-collision-tolerance-30-10-0 -D "$env:RUNNER_TEMP/SV-400-AB-30f"
+          if ($LASTEXITCODE -ne 0) { throw 'Original PKHeX pinned source diff unavailable' }
+          gh run download 42376052498 -R $env:GITHUB_REPOSITORY -n SV400-original-source-remaining-115-wild-worldend-46-fixed-review -D "$env:RUNNER_TEMP/SV-400-AB-worldend"
+          if ($LASTEXITCODE -ne 0) { throw 'Original WorldEnd FixedSymbol case evidence unavailable' }
+          if (-not (Test-Path "$env:RUNNER_TEMP/SV-400-AB-30f/T30/comparison/wild_native_only.csv")) { throw 'Pinned original wild differential missing' }
+          if (-not (Test-Path "$env:RUNNER_TEMP/SV-400-AB-worldend/SV400_236_Worldend_158_Fixed_Source_Area_Grouped.csv")) { throw 'Original fixed 236 cases missing' }
+
+      - name: Generate real native 4.0.0 four isolated Terarium 176 194 level AB variants
+        shell: pwsh
+        run: |
+          $argsList=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual','--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json','--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json')
+          foreach ($mode in @('terarium-176-194-unadjusted-only','terarium-176-194-adjusted-only','terarium-176-194-strict-overlap','terarium-176-194-raw-point-levels')) {
+            $dest="$env:RUNNER_TEMP/SV400-native-AB-$mode"
+            dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @argsList --output $dest --level-ab-mode $mode
+            if ($LASTEXITCODE -ne 0) { throw "Original 4.0.0 isolated AB failed for mode $mode" }
+          }
+
+      - name: Verify actual wild AB vs pinned PKHeX and reject any non-target or fixed/raid modification
+        shell: pwsh
+        run: |
+          $p=$env:RUNNER_TEMP
+          python scripts/Compare-SV-Terarium-176-194-Native-AB.py --baseline "$env:SV_POINT_GENERATED" --manifest "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" --tolerance "$p/SV-400-AB-30f" --auditor scripts/Audit-SV-PKHeX-Encounters.py --variant "terarium-176-194-unadjusted-only=$p/SV400-native-AB-terarium-176-194-unadjusted-only" --variant "terarium-176-194-adjusted-only=$p/SV400-native-AB-terarium-176-194-adjusted-only" --variant "terarium-176-194-strict-overlap=$p/SV400-native-AB-terarium-176-194-strict-overlap" --variant "terarium-176-194-raw-point-levels=$p/SV400-native-AB-terarium-176-194-raw-point-levels" --output "$p/SV400-native-AB-comparison"
+          if ($LASTEXITCODE -ne 0) { throw 'Real original Terarium level AB changed unauthorized source or output fields' }
+          $result=Get-Content "$p/SV400-native-AB-comparison/SV400_Terarium_176_194_Native_AB_vs_PKHeX_Reference.json" -Raw | ConvertFrom-Json
+          $result.reference_parity_comparison | Format-Table -AutoSize | Out-String | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - name: Rebuild original fixed-only source sidecar with real AreaInfo Tag Type and exact TRSCN/TRCOL SHA
+        shell: pwsh
+        run: |
+          $argsList=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual','--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json','--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json')
+          $dir="$env:RUNNER_TEMP/SV400-native-AB-fixed-only"
+          $trace="$env:RUNNER_TEMP/SV400-native-AB-fixed-events/fixed-only.jsonl"
+          dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @argsList --output $dir --level-ab-mode baseline --trace-targets "$env:SV_TARGET_PROVENANCE" --trace-output $trace --trace-fixed-only true
+          if ($LASTEXITCODE -ne 0) { throw 'Original fixed-only AreaInfo collision source extraction failed' }
+          python scripts/Verify-SV-Fixed-158-Collision-Sources.py --events $trace --manifest "$dir/native-encounter-build.json" --cases "$env:RUNNER_TEMP/SV-400-AB-worldend/SV400_236_Worldend_158_Fixed_Source_Area_Grouped.csv" --output "$env:RUNNER_TEMP/SV400-native-AB-fixed-source"
+          if ($LASTEXITCODE -ne 0) { throw 'Source worldend area/collider/placement SHA proof missing' }
+          $fixed=Get-Content "$env:RUNNER_TEMP/SV400-native-AB-fixed-source/SV400_236_Worldend_158_Original_AreaInfo_Collision_Manifest.json" -Raw | ConvertFrom-Json
+          if ($fixed.cases_linked -ne 236) { throw 'Original fixed 236 cases not all linked' }
+          "Real WorldEnd collision source: $($fixed.cases_linked) source cases; $($fixed.fixed_wander_worldend_events_verified) verified collision events." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-real-original-level-AB-WorldEnd-158-AreaInfo-TRCOL
+          path: |
+            ${{ runner.temp }}/SV400-native-AB-comparison/*.csv
+            ${{ runner.temp }}/SV400-native-AB-comparison/*.json
+            ${{ runner.temp }}/SV400-native-AB-fixed-source/*.csv
+            ${{ runner.temp }}/SV400-native-AB-fixed-source/*.json
+            ${{ runner.temp }}/SV400-native-AB-fixed-events/*.jsonl
+          retention-days: 30
+          if-no-files-found: warn
 
       - uses: actions/upload-artifact@v4
         if: always()
