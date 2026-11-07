@@ -20,9 +20,10 @@ public static class EncounterTraceSV
     private static readonly HashSet<int> FixedTargets = [];
     private static readonly HashSet<int> WildSpecies = [];
 
+    private static bool fixedOnly;
     public static bool Enabled => writer is not null;
 
-    public static void Enable(string targetDirectory, string jsonlFile)
+    public static void Enable(string targetDirectory, string jsonlFile, bool onlyFixed = false)
     {
         if (writer is not null)
             throw new InvalidOperationException("Gen9 encounter trace already enabled");
@@ -30,6 +31,7 @@ public static class EncounterTraceSV
         FixedTargets.Clear();
         WildSpecies.Clear();
         Counts.Clear();
+        fixedOnly = onlyFixed;
         string wild = Path.Combine(targetDirectory, "wild_level_range_pairs.csv");
         string fix = Path.Combine(targetDirectory, "fixed_158_counterfactual_pairs.csv");
         int w = LoadTargets(wild, (row) =>
@@ -51,6 +53,7 @@ public static class EncounterTraceSV
             stage = "trace_start", source = "SV_4_0_0_original_game_pkNX",
             wildTargetRows = w, fixedTargetRows = f,
             targetPairs = WildTargets.Count, fixedSpecies = FixedTargets.Count,
+            fixedOnly = onlyFixed,
             claim = "SOURCE_CANDIDATE_TRACE_NOT_LEGALITY_OR_RNG_PROOF",
         });
     }
@@ -90,7 +93,8 @@ public static class EncounterTraceSV
     }
 
     public static bool Wild(int location, int species) =>
-        writer is not null && WildSpecies.Contains(species) && WildTargets.Contains((location, species));
+        writer is not null && !fixedOnly &&
+        WildSpecies.Contains(species) && WildTargets.Contains((location, species));
 
     public static bool Fixed(int species) =>
         writer is not null && FixedTargets.Contains(species);
@@ -118,6 +122,7 @@ public static class EncounterTraceSV
                                        "PARTIAL_NATIVE_TRACE_INCOMPLETE_NOT_EVIDENCE" });
         writer.Dispose();
         writer = null;
+        fixedOnly = false;
         if (manifestPath is not null)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(manifestPath))!);
