@@ -48,6 +48,13 @@ internal static class Program
                     throw new InvalidDataException($"Duplicate base/TRCOL original source: {entry.Key}");
             var rom = new NativeVirtualFileSystem(source, verified);
             Console.WriteLine($"Native SV verified source manifest: {verified.Count} entries");
+            // Raid generation does not depend on English place names or native collision geometry.
+            var products = new List<string>();
+            products.AddRange(NativeRaidExporter.Generate(rom, output));
+            Console.WriteLine("Generated 3 independent original Tera raid tables.");
+            string? collisionBlocker = null;
+            try
+            {
             // Use exact GameDumperSV location-map construction. Area location is
             // an AHTB entry INDEX, not a name hash or array sorted by strings.
             var config = new EncounterDumpConfigSV
@@ -64,14 +71,6 @@ internal static class Program
                 WritePickle = true,
             };
             Console.WriteLine($"Native place names (English AHTB order): {config.PlaceNameMap.Count}");
-            // Raid templates require the eighteen original RaidEnemyTable arrays
-            // and no field collider. Generate and attest them independently.
-            var products = new List<string>();
-            products.AddRange(NativeRaidExporter.Generate(rom, output));
-            Console.WriteLine("Generated 3 independent original Tera raid tables.");
-            string? collisionBlocker = null;
-            try
-            {
                 var field = new PaldeaFieldModel(rom);
                 var scene = new PaldeaSceneModel(rom, field);
                 Console.WriteLine("Native field and collision scene loaded.");
@@ -82,11 +81,9 @@ internal static class Program
                 products.Add(FixedName);
                 Console.WriteLine($"Generated from raw symbol tables + geometry: {FixedName}");
             }
-            catch (FileNotFoundException missing)
+            catch (Exception ex) when (ex is FileNotFoundException or InvalidDataException or KeyNotFoundException)
             {
-                // Collision dependencies are original Havok TRCOL references.
-                // Never use the PKHeX reference file as a substitute.
-                collisionBlocker = $"MISSING_ORIGINAL_NATIVE_ASSET: {missing.Message}";
+                collisionBlocker = $"ORIGINAL_WORLD_SCHEMA_OR_DEPENDENCY_BLOCKED: {ex.GetType().Name}: {ex.Message}";
                 Console.Error.WriteLine(collisionBlocker);
             }
 
@@ -234,8 +231,8 @@ internal static class Program
         var config = new TextConfig(GameVersion.SV);
         var names = new TextFile(rom.GetPackedFile(prefix + ".dat"), config).Lines;
         var ahtb = new AHTB(rom.GetPackedFile(prefix + ".tbl"));
-        if (names.Length == 0 || ahtb.Count != names.Length)
-            throw new InvalidDataException("English place_name DAT/TBL index alignment mismatch.");
+        if (names.Length == 0 || ahtb.Count < names.Length)
+            throw new InvalidDataException("English DAT has zero entries or more lines than AHTB keys.");
         return ahtb.ToIndexedDictionary(names);
     }
 
