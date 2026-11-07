@@ -168,3 +168,12 @@ py -3 -m unittest discover -s tests -p test_za_lua_native_evidence.py -v
 `scripts/Audit-SV-PKHeX-Encounters.py`：离线只读读取 PKHeX.Core Gen9 .pkl 参考数据库，导出 wild/fixed/raid/outbreak CSV 与 SHA-256、可选同名 pkNX 真正导出文件对账；不是 Python pickle。用法：`python scripts/Audit-SV-PKHeX-Encounters.py --pkhex-root E:/Tools/PKHeX --output E:/Temp/SV-PKHeX-Audit`，可加 `--pknx-generated E:/Temp/SV-PkNX-Dump`。测试 `python -m unittest discover -s tests -p test_sv_pkhex_encounter_audit.py -v`，Obsidian 文档见 `docs/research/sv-pkhex-gen9-encounter-bridge.md`。
 
 同时可使用 `scripts/Rebuild-SV-PKHeX-Encounter-Binary.py` 从该脚本生成的标准化 CSV 恢复 wild、fixed、三地区 raid、outbreak 六个 PKHeX 原生 `.pkl` 到独立输出目录。需要保留 `pkhex_wild_areas.csv`（包含空区域块），以防丢失 0-slot 原始区域。`--reference <PKHeX/PKHeX.Core/Resources/legality/wild/Gen9>` 加上 `--require-exact-match` 可进行与已验证 PKHeX 资源的逐字节一致性验收，默认不改动原文件；`dist`、`might` 仍需专用格式适配。
+
+## SV 4.0.0 原生遭遇资源精准恢复到 PKHeX
+
+- Locate-SV-PKHeX-Native-Packs.py：遍历真实 TRPFD 原始文件索引，定位 61 项 pkNX 野生、点位、区域、场景、固定符号、团体战和地名依赖，返回 11 包的精确列表、原始 hash 和缺失状态。只查索引，不冒充提取。
+- Extract-SV-PKHeX-Native-Packs.py：使用已经通过 SHA256 恢复的原始 Trinity 源和本仓库原有 GFTool.Core process_batch，定向处理 11 个原生包，验证 61 个真实文件原始 hash、大小与 SHA256。源容器只读，独立输出审核分支；未解决 Havok TRCOL 动态依赖不能称为完整 PKHeX 重建。
+- 实测索引定位：python scripts/Locate-SV-PKHeX-Native-Packs.py
+- 合成验证：python -m unittest discover -s tests -p test_sv_native_encounter_locator.py -v；python -m unittest discover -s tests -p test_sv_encounter_native_extract.py -v
+- 自动化：.github/workflows/sv-encounter-native-locate.yml、.github/workflows/sv-encounter-native-extract.yml。
+- Obsidian 研究文档：docs/research/sv-4.0.0-pkhex-native-recovery.md。
