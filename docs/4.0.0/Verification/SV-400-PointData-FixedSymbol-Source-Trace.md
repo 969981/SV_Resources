@@ -1,7 +1,7 @@
 ---
 title: SV 4.0.0 原生遭遇｜逐 PointData 与固定地点 158 证据追踪
 tags: [SV, 4.0.0, pkNX, PKHeX, PointData, TRCOL, FixedSymbol, Provenance, Obsidian]
-status: TRACE_CODE_PENDING_REAL_4_0_0_REPLAY
+status: VERIFIED_ORIGINAL_GEN9_POINTDATA_CANDIDATES_NOT_GAME_RNG
 updated: 2026-11-07
 ---
 
@@ -48,3 +48,33 @@ GitHub Actions：`.github/workflows/sv-native-point-trace.yml`；会在 master �
 - 出现点与等级正确不意味着 PID、EC、IV 和异色 RNG 算法被证明，最终合法性仍需独立实机 PK9 与实际游戏生成流程的回归。
 
 对应其它笔记：[[SV-Native-To-PKHeX-Databases]]、[[SV-400-Native-Encounter-Root-Cause-Triage]]、[[SV-Collision-Tolerance-Experiment]]。
+
+
+## 真实游戏原始数据追踪已经闭合（2026-11-07）
+
+- [真实重建及追踪 #42369111259](https://github.com/969981/SV_Resources/actions/runs/42369111259)：原始 83 分卷恢复、61 项必要资源 + 223 个 TRCOL SHA 验收、5 张实际原生 Gen9 .pkl 生成成功；和未加追踪的独立 30f 基线相比，5 张文件的 SHA-256 全部一致。此运行的最终关联步骤曾由于内部 Sex/Form 与实际 PKHeX 二进制编码不同，误报 wild 为零；不是游戏原始资源不匹配。
+- [原始追踪日志二次校验 #42372660548](https://github.com/969981/SV_Resources/actions/runs/42372660548) 在同一份 7.8GB 未修改的原始 JSONL 上按真实序列化规则转换：Sex=0/3 -> gender_raw=255，Sex=1 -> 0，Sex=2 -> 1；粉蝶虫/粉蝶蛹/彩粉蝶（664/665/666）Form 强制 30，小陨星（774）Form 强制 31。结果：**野生 666/666 原始序列化事件和 PointData 候选、固定 189/189 TableKey**。重复野生模板严格按多重集合一对一匹配（666 条 / 606 个不同键），没有重复计数。
+- 所有转换仅作用于只读追踪日志的分析过程，未修改原生 PKHeX .pkl 数据，更没有自动加入官方 LegalityAnalysis 规则。
+
+### 原生 PointData 与等级合并
+
+基于实际记录，新增 `scripts/Summarize-SV-Native-Level-Merge-Differences.py`，按同一份已验证的 666 条 CSV 构建源点等级对照：
+
+| 实测源数据特征 | 数量 |
+|---|---:|
+| 与原生最终序列化槽匹配 | 666/666 |
+| 找到至少一个原生 PointData 候选 | 666/666 |
+| PKHeX 参考等级区间在合并前**出现过** | 551/666 |
+| 合并前有多个等级区间 | 664/666 |
+| 合并后等级区间数减少 | 576/666 |
+| 最终原生区间在合并后出现 | 666/666 |
+
+另有 115 条 PKHeX 参考等级区间没有直接出现于 pkNX 合并前的区间列表。它们的原始 PointData 来源全部在 DLC：北上乡 `encount_data_su1.bin` **22 条**，蓝莓学园 `encount_data_su2.bin` **93 条**，帕底亚主世界 **0 条**；其中物种 774（小陨星）有 35 条。已另输出 `SV400_115_Reference_Level_Not_Present_Premerge.csv`，供后续优先追踪蓝莓学园区域/等级及版本/flag 条件。它们不是由简单把最终区间拆开就一定能修正的记录。\n\n典型物种 673，`location=40`，`cross_from=109`：`encount_data_100000.bin` PointData 索引 51626 生成 52–55，索引 53267 生成 53–56，原始合并前两区间均存在；之后输出 52–56。固定 PKHeX 参考为 52–55。**合并步骤确实使等级范围扩大**，但需独立查证哪些游戏生成条件允许/禁止另一个源点，不应为了与参考匹配直接全局禁用相邻区间合并。
+
+### 固定遭遇地点 158
+
+189 条 fixed 差异已能关联具体的 `FixedSymbol.TableKey`。大量额外 158 是通过 `subarea_su01worldend` 的 inferred wander 判定产生的，其中不少事件严格 `ContainsPoint` 也命中，故**不能单凭取消 30f 容差修正**。应定位 `AreaInfo.Tag`、`AreaInfo.Type`、地点映射与可实际进入的世界边界，再做受控 A/B；目前没有实机的合法性验证。
+
+### 仍未闭合
+
+逐个 `TRSCN` collider 到特定 `.trcol` SHA 的行级绑定、旗标/剧情/版本条件和真实游戏 PID/EC/IV/异色 RNG 都未验证。独立 PKHeX 中普通 Tera Raid 三表与参考一致，但 Wild/Fixed 的生成参考差异仍在。**原始数据完全可追踪 ≠ PKHeX 全库逐项一致或游戏实际合法**。

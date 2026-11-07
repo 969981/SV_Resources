@@ -14,7 +14,7 @@ SPEC.loader.exec_module(M)
 class PointTraceTests(unittest.TestCase):
     def wild_target(self):
         return dict(location_id="156",cross_from_id="158",species_national="23",
-                    form_raw="0",gender_raw="1",native_level_min="23",
+                    form_raw="0",gender_raw="255",native_level_min="23",
                     native_level_max="29",time_forbidden_mask="0",weather_allowed_mask="15")
 
     def fixed_target(self):
@@ -23,11 +23,33 @@ class PointTraceTests(unittest.TestCase):
 
     def test_exact_wild_identity(self):
         t=self.wild_target()
-        actual=dict(location=156,crossFrom=158,species=23,form=0,gender=1,
+        actual=dict(location=156,crossFrom=158,species=23,form=0,gender=0,
                     minLevel=23,maxLevel=29,timeMask=0,weatherMask=15)
         self.assertEqual(M.target_wild_key(t),M.wild_key(actual))
         self.assertNotEqual(M.target_wild_key(t),M.wild_key(dict(actual,weatherMask=31)))
         self.assertNotEqual(M.target_wild_key(t),M.wild_key(dict(actual,minLevel=24)))
+
+    def test_gen9_gender_source_enum_to_written_byte(self):
+        # The original 666 cases all have PKHeX gender_raw 255.
+        self.assertEqual([M.gen9_gender_byte(x) for x in (0,1,2,3)],
+                         [255,0,1,255])
+        for raw, byte in [(0,255),(1,0),(2,1),(3,255)]:
+            native=dict(location=156,crossFrom=158,species=23,form=0,
+                        gender=raw,minLevel=23,maxLevel=29,timeMask=0,weatherMask=15)
+            target=self.wild_target() | {"gender_raw":str(byte)}
+            self.assertEqual(M.wild_key(native),M.target_wild_key(target))
+        with self.assertRaises(ValueError):
+            M.gen9_gender_byte(255)
+
+    def test_minior_and_vivillon_form_override_applies_before_join(self):
+        for species, form in ((664,30),(665,30),(666,30),(774,31)):
+            native=dict(location=156,crossFrom=158,species=species,form=0,
+                        gender=0,minLevel=23,maxLevel=29,timeMask=0,weatherMask=15)
+            target=self.wild_target() | {"species_national":str(species),
+                                         "form_raw":str(form)}
+            self.assertEqual(M.wild_key(native),M.target_wild_key(target))
+            self.assertEqual(M.base_wild_key(native),
+                             (156,158,species,form,255,0,15))
 
     def test_exact_fixed_four_slot_location_identity(self):
         t=self.fixed_target()
@@ -51,7 +73,7 @@ class PointTraceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/"trace.jsonl"
             event=dict(stage="wild_serialized",location=156,crossFrom=158,species=23,
-                       form=0,gender=1,minLevel=23,maxLevel=29,timeMask=0,weatherMask=15)
+                       form=0,gender=0,minLevel=23,maxLevel=29,timeMask=0,weatherMask=15)
             end=dict(stage="trace_finished",status="REAL_NATIVE_POINT_PROVENANCE_RECORDED_NOT_GAME_RUNTIME_PROVED")
             path.write_text("\n".join(json.dumps(e) for e in [event,end])+"\n",encoding="utf-8")
             row=self.wild_target()
@@ -66,9 +88,9 @@ class PointTraceTests(unittest.TestCase):
             path=Path(tmp)/"trace.jsonl"
             events=[
                 dict(stage="wild_serialized",location=156,crossFrom=158,species=23,form=0,
-                     gender=1,minLevel=23,maxLevel=29,timeMask=0,weatherMask=15),
+                     gender=0,minLevel=23,maxLevel=29,timeMask=0,weatherMask=15),
                 dict(stage="wild_weather_assigned",location=156,crossFrom=158,species=23,form=0,
-                     gender=1,minLevel=23,maxLevel=27,timeMask=0,weatherMask=15,
+                     gender=0,minLevel=23,maxLevel=27,timeMask=0,weatherMask=15,
                      sourcePointAsset="world/data/encount/point_data/point_data/encount_data_su1.bin",
                      sourcePointIndex=77,pointX=1.0,pointY=1.5,pointZ=3.0),
                 dict(stage="fixed_serialized",game="sl",tableKey="example",tableIndex=8,species=23,

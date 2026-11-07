@@ -1,0 +1,129 @@
+name: SV 4.0.0 actual archived PointData trace reanalysis
+on:
+  pull_request:
+    paths:
+      - 'scripts/Join-SV-Native-Point-Trace.py'
+      - 'tests/test_sv_native_point_trace_join.py'
+      - 'scripts/Summarize-SV-Native-Level-Merge-Differences.py'
+      - 'tests/test_sv_gen9_level_merge_audit.py'
+      - '.github/workflows/sv-native-point-trace-archive-replay.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Join-SV-Native-Point-Trace.py'
+      - 'tests/test_sv_native_point_trace_join.py'
+      - 'scripts/Summarize-SV-Native-Level-Merge-Differences.py'
+      - 'tests/test_sv_gen9_level_merge_audit.py'
+      - '.github/workflows/sv-native-point-trace-archive-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-attested-real-archive-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Join-SV-Native-Point-Trace.py
+            tests/test_sv_native_point_trace_join.py
+            scripts/Summarize-SV-Native-Level-Merge-Differences.py
+            tests/test_sv_gen9_level_merge_audit.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate Gen9 source enum to serialized byte interpretation
+        run: |
+          python -m py_compile scripts/Join-SV-Native-Point-Trace.py
+          python -m unittest discover -s tests -p test_sv_native_point_trace_join.py -v
+          python -m unittest discover -s tests -p test_sv_gen9_level_merge_audit.py -v
+      - name: Recover real source-verified 4.0.0 archive and SHA evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/raw" "$RUNNER_TEMP/build" "$RUNNER_TEMP/original" "$RUNNER_TEMP/targets"
+          gh run download 42369111259 -R "$GITHUB_REPOSITORY" -n SV400-original-point-events-raw-targeted-trace -D "$RUNNER_TEMP/raw"
+          gh run download 42369111259 -R "$GITHUB_REPOSITORY" -n SV400-original-point-level-and-fixed-158-attributed-evidence -D "$RUNNER_TEMP/build"
+          gh run download 42362541291 -R "$GITHUB_REPOSITORY" -n SV-400-source-attested-native-PKHeX-encounter-bridge -D "$RUNNER_TEMP/original"
+          gh run download 42365891420 -R "$GITHUB_REPOSITORY" -n SV400-source-verified-wild-level-fixed-158-root-cause-triage -D "$RUNNER_TEMP/targets"
+          test -s "$RUNNER_TEMP/raw/point-events.jsonl"
+          test -s "$RUNNER_TEMP/build/SV-400-traced-native/native-encounter-build.json"
+          test -s "$RUNNER_TEMP/original/SV400_Native_To_PKHeX_Manifest.json"
+          test -s "$RUNNER_TEMP/targets/wild_level_range_pairs.csv"
+      - name: Verify the real traced five table SHA values against unmodified native .pkl
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          r=Path(os.environ['RUNNER_TEMP'])
+          a=json.loads((r/'original/SV400_Native_To_PKHeX_Manifest.json').read_text('utf-8-sig'))
+          b=json.loads((r/'build/SV-400-traced-native/native-encounter-build.json').read_text('utf-8-sig'))
+          assert a['status']=='NATIVE_SOURCE_VERIFIED_PKHEX_BINARY_COMPATIBLE_NOT_FULL_LEGALITY_PARITY'
+          assert a['provenance']['original_source_entries']==61 and a['provenance']['original_collision_entries']==223
+          assert b['status']=='GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES' and b['originalTrcolEntries']==223
+          assert not b.get('collisionBlocker') and not b.get('unverifiedExtraFiles')
+          original={x['name']:x for x in b['generated']}
+          root=r/'original/PKHeX_Source_Overlay/PKHeX.Core/Resources/legality/wild/Gen9'
+          kinds={'wild':'encounter_wild_paldea.pkl','fixed':'encounter_fixed_paldea.pkl',
+            'raid_paldea':'encounter_gem_paldea.pkl','raid_kitakami':'encounter_gem_kitakami.pkl',
+            'raid_blueberry':'encounter_gem_blueberry.pkl'}
+          for kind,name in kinds.items():
+              data=(root/name).read_bytes()
+              assert hashlib.sha256(data).hexdigest().upper()==original[name]['sha256']==a['tables'][kind]['native_sha256']
+              assert len(data)==original[name]['bytes']
+          print('SOURCE VERIFIED: 61+223 actual original game sources; five .pkl SHA identical')
+          PY
+      - name: Reanalyze 7.8GB real trace, preserving repeated wild template occurrences
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Join-SV-Native-Point-Trace.py \
+            --trace "$RUNNER_TEMP/raw/point-events.jsonl" \
+            --targets "$RUNNER_TEMP/targets" \
+            --native-output "$RUNNER_TEMP/original/PKHeX_Source_Overlay/PKHeX.Core/Resources/legality/wild/Gen9" \
+            --bridge-manifest "$RUNNER_TEMP/original/SV400_Native_To_PKHeX_Manifest.json" \
+            --output "$RUNNER_TEMP/linked"
+          python scripts/Summarize-SV-Native-Level-Merge-Differences.py \
+            --source "$RUNNER_TEMP/linked/SV400_666_wild_point_provenance.csv" \
+            --validation-json "$RUNNER_TEMP/linked/SV400_Point_Trace_Validation.json" \
+            --output "$RUNNER_TEMP/level-audit"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          j=json.loads((Path(os.environ['RUNNER_TEMP'])/'linked/SV400_Point_Trace_Validation.json').read_text('utf-8-sig'))
+          assert j['status']=='ORIGINAL_NATIVE_30F_POINT_PROVENANCE_CORRELATED_NOT_GAME_RNG_VALIDATED'
+          assert j['wild_cases']==666 and j['wild_distinct_serialized_keys']==606
+          assert j['wild_exact_final_serializations']==666 and j['wild_target_occurrences_not_yet_verified']==0
+          assert j['fixed_cases']==189 and j['fixed_with_original_tablekey_link']==189
+          assert j['wild_cases_with_candidate_original_points']==666
+          lvl=json.loads((Path(os.environ['RUNNER_TEMP'])/'level-audit/SV400_666_Gen9_Level_Merge_Audit.json').read_text('utf-8-sig'))
+          assert lvl['status']=='ACTUAL_ORIGINAL_666_GEN9_PREMERGE_LEVEL_RESEARCH_NOT_RNG_PROOF'
+          assert lvl['pkhex_reference_interval_present_premerge']==551, lvl
+          assert lvl['multiple_intervals_premerge']==664, lvl
+          assert lvl['fewer_intervals_after_merge']==576, lvl
+          assert lvl['reference_interval_not_present_premerge']==115, lvl
+          assert lvl['unresolved_by_original_point_file']=={'encount_data_su1.bin':22,'encount_data_su2.bin':93}, lvl
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as f:
+              f.write('## Gen9 real original-data trace reanalysis\n\n')
+              f.write(f"Wild serialized original records: **{j['wild_exact_final_serializations']}/666**; candidate PointData: **{j['wild_cases_with_candidate_original_points']}/666**\\n\\n")
+              f.write(f"Fixed TableKey original records: **{j['fixed_with_original_tablekey_link']}/189**\\n\\n")
+              f.write(f"Original PKHeX level interval present before consolidation: **{lvl['pkhex_reference_interval_present_premerge']}/666**; multiple premerge ranges {lvl['multiple_intervals_premerge']}/666; fewer after consolidation {lvl['fewer_intervals_after_merge']}/666.\\n")
+              f.write('Five original .pkl SHA match independently sourced 30f baseline. PointData source candidates are not game RNG proof.\\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-true-Gen9-gender-normalized-666-wild-189-fixed-source-joins
+          path: |
+            ${{ runner.temp }}/linked/*.csv
+            ${{ runner.temp }}/linked/*.json
+            ${{ runner.temp }}/level-audit/*.csv
+            ${{ runner.temp }}/level-audit/*.json
+          retention-days: 30
+          if-no-files-found: warn

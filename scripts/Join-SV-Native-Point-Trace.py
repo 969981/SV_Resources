@@ -32,9 +32,40 @@ def sha(path: Path):
     return h.hexdigest().upper()
 
 
+def gen9_gender_byte(raw_sex: int) -> int:
+    """Convert pkNX internal EncountPokeData Sex to the written EncounterSlot9 byte.
+
+    PaldeaEncounter.Gender: Sex=1 => 0; Sex=2 => 1; otherwise -1.
+    BinaryWriter serializes unchecked (byte)-1 as 255.  The original
+    trace recorded `slot.Sex` BEFORE this transformation.
+    """
+    if raw_sex == 1:
+        return 0
+    if raw_sex == 2:
+        return 1
+    if raw_sex in (0, 3):
+        return 255
+    raise ValueError(f"Unexpected original pkNX wild sex enum: {raw_sex}")
+
+
+def gen9_form_byte(species: int, raw_form: int) -> int:
+    """Match EncounterSlotDumper9.SerializeLocationSet form overrides."""
+    if species in (664, 665, 666):  # Scatterbug / Spewpa / Vivillon
+        return 30
+    if species == 774:             # Minior
+        return 31
+    if not 0 <= raw_form <= 255:
+        raise ValueError(f"Invalid form in native trace: {raw_form}")
+    return raw_form
+
+
 def wild_key(t):
-    return tuple(int(t[k]) for k in ("location","crossFrom","species","form",
-                                   "gender","minLevel","maxLevel","timeMask","weatherMask"))
+    species=int(t["species"])
+    return (int(t["location"]),int(t["crossFrom"]),species,
+            gen9_form_byte(species,int(t["form"])),
+            gen9_gender_byte(int(t["gender"])),
+            int(t["minLevel"]),int(t["maxLevel"]),
+            int(t["timeMask"]),int(t["weatherMask"]))
 
 
 def target_wild_key(t):
@@ -44,7 +75,11 @@ def target_wild_key(t):
 
 
 def base_wild_key(e):
-    return tuple(int(e[k]) for k in ("location","crossFrom","species","form","gender","timeMask","weatherMask"))
+    species=int(e["species"])
+    return (int(e["location"]),int(e["crossFrom"]),species,
+            gen9_form_byte(species,int(e["form"])),
+            gen9_gender_byte(int(e["gender"])),
+            int(e["timeMask"]),int(e["weatherMask"]))
 
 
 def target_fixed_key(t):
@@ -284,6 +319,8 @@ def analyze(trace:Path,target_dir:Path,native_dir:Path,original_bridge_manifest:
         "wild_distinct_serialized_keys":len(data["wild_targets"]),
         "wild_keys_with_duplicate_target_occurrences":sum(n>1 for n in data["wild_targets"].values()),
         "wild_target_occurrences_not_yet_verified":len(raw_wild)-wild_matched,
+        "trace_gender_encoding":"raw_pkNX_Sex_0_or_3_to_255_1_to_0_2_to_1",
+        "trace_form_encoding":"scatterbug_spewpa_vivillon_to_30_minior_to_31",
         "wild_cases_with_candidate_original_points":wild_points,
         "fixed_cases":len(raw_fixed),"fixed_with_original_tablekey_link":fixed_matched,
         "fixed_distinct_serialized_keys":len(data["fixed_targets"]),
@@ -297,6 +334,7 @@ def analyze(trace:Path,target_dir:Path,native_dir:Path,original_bridge_manifest:
         "interpretation":[
            "Raw PointData ordinals and fixed TableKey are source candidates, not yet uniquely proven causes of PKHeX-reference differences.",
            "Trace does not capture exact TRCOL file-to-collider mapping; the original 223 collision SHA manifests attest resource set, not individual collider body provenance.",
+           "Raw pkNX trace Sex/Form are converted to the actual Gen9 EncounterSlot9 on-disk bytes before comparison.",
            "Matching 30f source output SHA ensures the diagnostic hook did not alter encounter templates.",
            "Only runtime game capture and matching PK9/EC/PID/IVs with native code closes RNG legality.",
         ],
