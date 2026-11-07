@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_dorm01#00000.part1.part0.part0.part1.part1.part0.part0",
+  "input_fingerprint": "C7BE59CF255F81257C02204277D9E51717912D073FDA4C192C03A0B8E137054F",
+  "input_files": 1,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_dorm01/a_sch_dorm01_lmg01_lgt.bntx",
+      "source_sha256": "B5A8D71E39601377315601E6447F35D04F786D99496AEA3F29E652CDEF1C1F4D",
+      "bytes": 528488,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010080068100800",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_dorm01/_inspection/06fb7a6993aae696.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_dorm01/_inspection/06fb7a6993aae696.jsonl",
+      "sha256": "41E611F579C5664E9C697B15679AA5A11F6E6A92DB470B7C4439FD89F83973D5",
+      "bytes": 552
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_dorm01/a_sch_dorm01_lmg01_lgt.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_dorm01/a_sch_dorm01_lmg01_lgt.bntx.json",
+      "sha256": "D024D4C3C3C74F2D595F4A217967E9827EFE95E5180FAB1ACBCCD9B206670A5B",
+      "bytes": 300
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_dorm01/a_sch_dorm01_lmg01_lgt.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 1
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_dorm01",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
