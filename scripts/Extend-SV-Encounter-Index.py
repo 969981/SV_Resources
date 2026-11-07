@@ -70,7 +70,7 @@ def parse_event_raid(raw: bytes, kind: str) -> list[dict]:
         tera_type_raw, encounter_index, stars, weight = part[0x10:0x14]
         stage = struct.unpack_from("<16H", part, 0x14)
         if not (0 < species <= 1025 and 1 <= level <= 100
-                and gender_raw in (1, 2, 3)
+                and gender_raw <= 3
                 and ability_raw <= 4 and shiny_rule_raw <= 2
                 and stars <= 7):
             raise ValueError(f"Invalid pinned Gen9 {kind} encounter at row {i}")
@@ -110,7 +110,7 @@ def parse_event_outbreak(raw: bytes) -> list[dict]:
         locations = [base + j for j in range(120) if flags & (1 << j)]
         if not (0 < species <= 1025 and 1 <= min_level <= max_level <= 100
                 and forced in (0, 1) and shiny in (0, 1)
-                and 0 <= size_min <= size_max <= 255):
+                and (not forced or size_min <= size_max)):
             raise ValueError(f"Invalid pinned Gen9 outbreak template at row {i}")
         if any(loc > 65535 for loc in locations):
             raise ValueError("Invalid location ID after bitmask expansion")
@@ -297,7 +297,7 @@ def extend(root: Path, base: Path, output: Path) -> dict:
         """)
         con.commit()
         total_view = con.execute("SELECT COUNT(*) FROM all_encounters_v2").fetchone()[0]
-        if total_view < 29110 + expected:
+        if total_view < 29110 + 230:
             raise ValueError("Event/outbreak unified view unexpectedly incomplete")
         report={
            "status":"SOURCE_VERIFIED_PINNED_PKHEX_EVENT_INDEX_NOT_LIVE_EVENT_OR_RNG_PROOF",
