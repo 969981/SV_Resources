@@ -95,3 +95,11 @@ PKHeX 基准固定 commit：0660d1e1f4924b8478daec73281bb8071a82ad19。
 4. 官方 6 份源 PK9 中有 3 份真正匹配 EncounterSlot9，另外 3 份匹配 GO wild、旧世代野生、Gen9 Egg。真实原生新生成的 PK9 候选还需要在同一 Runner 的 PKHeX.Gen9LegalityProbe 中运行；官方测试样本不能冒充朱紫 4.0.0 游戏实机捕获样本。
 
 已经合并的复核代码：scripts/Extract-SV-PKHeX-TRCOL-Packs.py、tools/PKHeX.Gen9LegalityProbe/、.github/workflows/sv-pk9-legality-runtime.yml；端到端工作流 .github/workflows/sv-native-pkhex-one-shot.yml。脚本要求真实 SHA 证明和原始碰撞文件，拒绝从 PKHeX 参考表回填游戏原生数据。
+
+## 4.0.0 ROM 与历史 BCAT 的严格边界（源码审计）
+
+pkNX 的 tools/pkNX/pkNX.WinForms/Dumping/Gen9/MassOutbreakRipper.cs 将特殊大量出现资源独立地从历史活动目录读取，不是从当前 retail RomFS 的三张普通 Raid / 野生表直接得出。它按活动版本寻找 zone_main_array_2_0_0、zone_su1_array_2_0_0、zone_su2_array_3_0_0、pokedata_array_2_0_0/3_0_0，再读取游戏原生 outbreak_point_data + 地图碰撞计算特殊大量出现地点许可，最终生成 PKHeX 的 28B EncounterOutbreak9 记录。PKHeX 参考 outbreak 12,636 条属于历史活动累积表。
+
+因此 4.0.0 原生 RomFS 可以独立重建 wild、fixed 和三地区普通 raid；不可能仅凭该 ROM 原生文件独立恢复全部历史 BCAT/Mystery Gift 派送事件。普通 raid 必须与历史 Distribution / Might 特殊团体战、特殊大量出现、HOME 来源转换的合法性模板分开。
+
+未来如需完整合法性回归，历史 BCAT 每批还需保留活动 ID、版本和时间区间、官方资料的原始 SHA、来源及实际可用性；绝不可从 PKHeX 最终资源逆向伪造这些原始活动资料。
