@@ -35,6 +35,7 @@ jobs:
             tests/test_sv_native_encounter_locator.py
             tests/test_sv_encounter_native_extract.py
             tests/test_sv_pkhex_havok_references.py
+            tests/test_sv_pkhex_trcol_extract.py
             tests/test_sv_native_pkhex_comparison.py
       - uses: actions/setup-python@v5
         with:
@@ -44,6 +45,7 @@ jobs:
           python -m unittest discover -s tests -p test_sv_native_encounter_locator.py -v
           python -m unittest discover -s tests -p test_sv_encounter_native_extract.py -v
           python -m unittest discover -s tests -p test_sv_pkhex_havok_references.py -v
+          python -m unittest discover -s tests -p test_sv_pkhex_trcol_extract.py -v
           python -m unittest discover -s tests -p test_sv_native_pkhex_comparison.py -v
 
   original-data-rebuild:
