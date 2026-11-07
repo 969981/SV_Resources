@@ -86,3 +86,12 @@ PKHeX 基准固定 commit：0660d1e1f4924b8478daec73281bb8071a82ad19。
 4. 真正的合法性回归：用宝可梦 PK9、具体遭遇地点、时段、PID/EC/IV 和 HOME 转移样本实际运行 PKHeX LegalityAnalysis。包括太晶 RNG、剧情锁闪与大型活动特殊模板。本阶段不等于源数据重建，仍需独立完成。
 
 参考：[[sv-4.0.0-pkhex-native-recovery]]、[[sv-pkhex-trcol-collision-closure]]、[[sv-pkhex-gen9-encounter-bridge]]。
+
+## 2026-11-07 实际验证：原生数据重建阻塞、地名映射修复与真实 PK9 合法性运行
+
+1. [原生 Actions #42332863513](https://github.com/969981/SV_Resources/actions/runs/42332863513) 已验证 61 项核心源文件，识别 223 个独立 Havok TRCOL 原始文件，全数在 7 个 TRPFD 包中定位；尚需按包实际提取并 SHA 验证。
+2. 首次真正运行原生 pkNX.EncounterCLI 的阻塞不是 PKHeX .pkl 格式，而是 English place_name DAT/TBL index alignment mismatch。根因是新增 CLI 误以为 AHTB Count 与 TextFile.Lines.Length 必须相等。原 pkNX AHTB.ToIndexedDictionary(ReadOnlySpan<string>) 只按真实文本行数遍历键；已修正成 AHTB.Count >= Lines.Length，并将三份 native Tera raid 导出移到地名与碰撞判定之前。需要重新运行真实源验收。
+3. [真实 PK9 回归 Actions #42333802130](https://github.com/969981/SV_Resources/actions/runs/42333802130)：checkout 同一个 PKHeX commit 0660d1e1 的 PKHeX.Core 源和官方 6 份公开 legal PK9；真正执行 LegalityAnalysis，6/6 解析完成且合法。把每份文件拷贝的 MetLevel 改成 0、重算 checksum，反例 6/6 被判非法。
+4. 官方 6 份源 PK9 中有 3 份真正匹配 EncounterSlot9，另外 3 份匹配 GO wild、旧世代野生、Gen9 Egg。真实原生新生成的 PK9 候选还需要在同一 Runner 的 PKHeX.Gen9LegalityProbe 中运行；官方测试样本不能冒充朱紫 4.0.0 游戏实机捕获样本。
+
+已经合并的复核代码：scripts/Extract-SV-PKHeX-TRCOL-Packs.py、tools/PKHeX.Gen9LegalityProbe/、.github/workflows/sv-pk9-legality-runtime.yml；端到端工作流 .github/workflows/sv-native-pkhex-one-shot.yml。脚本要求真实 SHA 证明和原始碰撞文件，拒绝从 PKHeX 参考表回填游戏原生数据。
