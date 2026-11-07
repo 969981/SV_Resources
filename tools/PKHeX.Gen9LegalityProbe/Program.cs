@@ -120,7 +120,7 @@ internal static class Program
                         checks.Add(new {
                             species=pk.Species,form=pk.Form,metLocation=pk.MetLocation,
                             metLevel=pk.MetLevel,version=pk.Version.ToString(),
-                            pid=$"{pk.PID:X8}", ivs=pk.IVs,legal=result
+                            pid=$"{pk.PID:X8}", ivs=new [] { pk.IV_HP, pk.IV_ATK, pk.IV_DEF, pk.IV_SPA, pk.IV_SPD, pk.IV_SPE },legal=result
                         });
                     }
                     nativeRows[name]=new {
@@ -170,8 +170,6 @@ internal static class Program
             return 3;
         }
     }
-
-    private static object _unused=0;
 
     private static AnalysisResult Analyze(PK9 pk)
     {
