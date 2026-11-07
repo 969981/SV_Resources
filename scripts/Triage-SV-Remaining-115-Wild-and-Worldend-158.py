@@ -163,6 +163,7 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
     fixed_types=Counter()
     affected_areas=Counter()
     source_classes=Counter()
+    exclusive_source_classes=Counter()
     fixed_split=[]
     gained=[]
     lost=[]
@@ -183,6 +184,9 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
             "ROW_MATCHED_BOTH_MULTIPLICITY_AMBIGUOUS" if (origin,variant)==(1,1) else
             "UNMATCHED_BOTH")
         fixed_types[typ]+=1
+        exclusive_class=("DUN_SUFFIX" if "DUN_SUFFIX" in classes else
+                         "T_PREFIX" if "T_PREFIX" in classes else "NORMAL")
+        exclusive_source_classes[(typ,exclusive_class)]+=1
         for cls in classes:
             source_classes[(typ,cls)]+=1
         for area in prefixes:
@@ -194,6 +198,7 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
             "species_national":row["species_national"],"form_raw":row["form_raw"],
             "level":row["level"],"area_keys":";".join(prefixes),
             "tablekey_prefix_classes":";".join(classes),
+            "exclusive_source_class":exclusive_class,
             "original_locations":row["old_locations"],
             "hypothetical_locations":row["hypothetical_locations"],
             "source_fixed_symbol_keys_json":row["source_symbols_json"],
@@ -210,6 +215,16 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
         "ROW_MATCHED_BOTH_MULTIPLICITY_AMBIGUOUS":1,
     }):
         raise ValueError("Unexpected WorldEnd 236 source event row outcome groups")
+    expected_exclusive=Counter({
+        ("NATIVE_ONLY_TO_MATCHED","NORMAL"):147,
+        ("NATIVE_ONLY_TO_MATCHED","T_PREFIX"):28,
+        ("NATIVE_ONLY_TO_MATCHED","DUN_SUFFIX"):14,
+        ("MATCHED_TO_REFERENCE_LOSS","NORMAL"):38,
+        ("MATCHED_TO_REFERENCE_LOSS","T_PREFIX"):8,
+        ("ROW_MATCHED_BOTH_MULTIPLICITY_AMBIGUOUS","NORMAL"):1,
+    })
+    if exclusive_source_classes!=expected_exclusive:
+        raise ValueError(f"Exclusive original fixed source-key classification drifted: {exclusive_source_classes}")
 
     output.mkdir(parents=True,exist_ok=True)
     write_csv(output/"SV400_115_DLC_Level_Relation_Source_Review.csv",triage)
@@ -246,7 +261,10 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
             "true_multiset_reference_lost":fixed_status["reference_matches_lost"],
             "baseline_matches":fixed_status["original_matching_pinned_pkhex"],
             "whatif_matches":fixed_status["counterfactual_matching_pinned_pkhex"],
-            "key_prefix_groups":[
+            "exclusive_key_prefix_groups":[
+                {"row_outcome":typ,"prefix":cls,"count":count}
+                for (typ,cls),count in exclusive_source_classes.most_common()],
+            "key_prefix_groups_nonexclusive":[
                 {"row_outcome":typ,"prefix":cls,"count":count}
                 for (typ,cls),count in source_classes.most_common()],
             "most_common_loss_area_keys":[
@@ -258,6 +276,7 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
         "limits":[
             "115 is an exhaustive subset of 666 already validated PointData candidate cases; individual candidate points are not confirmed as unique causes.",
             "WorldEnd 236 row labels are NOT a one-to-one reference alignment; row labels show 189 gains/46 losses/1 both but the independently computed multiset counts are 190 gains/47 losses.",
+            "Some rows have source symbols in multiple key families. exclusive_key_prefix_groups prioritizes DUN_SUFFIX over T_PREFIX over NORMAL, while key_prefix_groups_nonexclusive may overlap.",
             "This report cannot infer which 47 original encounters should be kept using only source TableKeys and PKHeX reference consistency.",
             "Original game story flags, original AreaInfo.Tag/Type, per-TRCOL-body provenance, and in-game RNG were not verified.",
             "DO NOT change official PKHeX legality resources or native .pkl based on these read-only classifications.",
