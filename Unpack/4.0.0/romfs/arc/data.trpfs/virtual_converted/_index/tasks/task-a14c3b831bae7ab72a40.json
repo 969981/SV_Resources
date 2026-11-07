@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_2_clubroom02#00000.part0.part1.part0.part0.part0.part1",
+  "input_fingerprint": "43464A1E725788038EFED1A3AE13D099286FFFCD9FE9C0AD7E43D1F11DA7465B",
+  "input_files": 2,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1,
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lattice01_rgn.bntx",
+      "source_sha256": "7A091B08D745600EEEDCBBAE18D7A20FEDDC7BCD4F8AB6B95FD9BA624F5D70A5",
+      "bytes": 708720,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A00100D00A0070D00A00",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lattice01_rgn.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    },
+    {
+      "source": "field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lmg01_lgt.bntx",
+      "source_sha256": "4F247CDF984F64097776FCD2B83355DECF9EBC7F67707D9826738A3B2B32A138",
+      "bytes": 3149928,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010300068103000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lattice01_rgn.png",
+      "path": "virtual_converted/field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lattice01_rgn.png",
+      "sha256": "671211FC357673A9918BD429DA190E1F6B4814AFD3011887D4C34F01F4ED49B3",
+      "bytes": 1355559
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_clubroom02/_inspection/72be8f2751b55a36.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_clubroom02/_inspection/72be8f2751b55a36.jsonl",
+      "sha256": "A4CA8D0C9B5732367EB3C7E5467122A757B665AE3F26341A66F4D8E5C12D2056",
+      "bytes": 1260
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lattice01_rgn.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lattice01_rgn.bntx.json",
+      "sha256": "7E1512344CC6BBA56CE55024FE9977FBC121BC1E1D4814E22C20A295C4CC1F6B",
+      "bytes": 318
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lmg01_lgt.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lmg01_lgt.bntx.json",
+      "sha256": "1C155B56D1495800C3EF769F45EBBA8D620FF24821768EBD67C1A8E3507ACEAC",
+      "bytes": 315
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_2_clubroom02/a_sch_2_clubroom02_lmg01_lgt.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 1
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_2_clubroom02",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
