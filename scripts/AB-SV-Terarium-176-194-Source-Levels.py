@@ -65,7 +65,12 @@ def evaluate(linked:Path,validation:Path,remaining:Path,review:Path,out:Path)->d
         or review_status.get("status")!="SV400_REAL_SOURCE_115_WILD_236_WORLDEND_DIAGNOSTICS_NOT_GENERATOR_PATCH"
         or review_status.get("wild",{}).get("cases")!=115
         or review_status.get("wild",{}).get("location_176_plus_194")!=78
-        or hashfile(remaining)!=review_status["provenance"]["input_sha256"]["115_dlc_wild"]):
+        # The manifest's "115_dlc_wild" is the INPUT compact-level CSV;
+        # the 115-case review CSV is an enriched OUTPUT with its own SHA.
+        # Pin both authentic master artifacts, never compare different layers.
+        or hashfile(remaining)!="499DB0E4BD93C0A34E3C4BCBFACB889DF5C8EB7807E2EAA6866ABBB9F19971CF"
+        or review_status["provenance"]["input_sha256"]["115_dlc_wild"]!="B48027923F34FAE2E7736031EEDE11C3FEE63B1AAF903BA9B8BE2BC006C46C33"
+        or hashfile(review)!="3FE77945608ABC6B7D152646022B65267022B0B236B31F82EA9008E9E1176C4B"):
         raise ValueError("Not the original SHA-verified SV 4.0.0 666/115 linked source evidence")
 
     remaining_rows=list(rows(remaining))
