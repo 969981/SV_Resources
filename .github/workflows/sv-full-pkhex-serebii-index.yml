@@ -8,7 +8,9 @@ on:
       - '.github/workflows/sv-full-pkhex-serebii-index.yml'
       - 'scripts/Build-SV-PKHeX-Serebii-Index.py'
       - 'scripts/Extend-SV-Encounter-Index.py'
+      - 'scripts/Build-SV-Serebii-Review-Queue.py'
       - 'tests/test_sv_event_outbreak_index.py'
+      - 'tests/test_sv_serebii_review_queue.py'
       - 'data/reference/sv400-serebii-selected-locations.json'
       - 'tests/test_sv_full_pkhex_serebii_index.py'
   pull_request:
@@ -16,7 +18,9 @@ on:
       - '.github/workflows/sv-full-pkhex-serebii-index.yml'
       - 'scripts/Build-SV-PKHeX-Serebii-Index.py'
       - 'scripts/Extend-SV-Encounter-Index.py'
+      - 'scripts/Build-SV-Serebii-Review-Queue.py'
       - 'tests/test_sv_event_outbreak_index.py'
+      - 'tests/test_sv_serebii_review_queue.py'
       - 'data/reference/sv400-serebii-selected-locations.json'
       - 'tests/test_sv_full_pkhex_serebii_index.py'
 
@@ -35,8 +39,10 @@ jobs:
             scripts/Build-SV-PKHeX-Serebii-Index.py
             scripts/Audit-SV-PKHeX-Encounters.py
             scripts/Extend-SV-Encounter-Index.py
+            scripts/Build-SV-Serebii-Review-Queue.py
             tests/test_sv_full_pkhex_serebii_index.py
             tests/test_sv_event_outbreak_index.py
+            tests/test_sv_serebii_review_queue.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -44,6 +50,7 @@ jobs:
           python -m py_compile scripts/Build-SV-PKHeX-Serebii-Index.py
           python -m unittest discover -s tests -p test_sv_full_pkhex_serebii_index.py -v
           python -m unittest discover -s tests -p test_sv_event_outbreak_index.py -v
+          python -m unittest discover -s tests -p test_sv_serebii_review_queue.py -v
 
   build-genuine-pkhex-reference:
     if: github.event_name != 'pull_request'
@@ -58,6 +65,7 @@ jobs:
             scripts/Build-SV-PKHeX-Serebii-Index.py
             scripts/Audit-SV-PKHeX-Encounters.py
             scripts/Extend-SV-Encounter-Index.py
+            scripts/Build-SV-Serebii-Review-Queue.py
             data/reference/sv400-serebii-selected-locations.json
       - uses: actions/setup-python@v5
         with:
@@ -128,6 +136,23 @@ jobs:
                   f.write(f"- {k}: {v}\n")
               f.write("\nSerebii category links are not template dates or current availability.\n")
           PY
+      - name: Generate explicit Serebii coverage gap and deduplicated verification queue
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Build-SV-Serebii-Review-Queue.py \
+            --database "$RUNNER_TEMP/sv-index-events/SV400_PKHeX_Serebii_Extended_Encounter_Index.sqlite" \
+            --output "$RUNNER_TEMP/sv-serebii-review"
+          python - <<'PY'
+          from pathlib import Path
+          import os,json
+          p=Path(os.environ['RUNNER_TEMP'])/'sv-serebii-review'
+          r=json.loads((p/'SV400_Serebii_Review_Queue_Manifest.json').read_text('utf-8'))
+          assert r['deduplicated_review_tasks']>1000
+          assert r['underlying_encounter_view_rows']>29110
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as f:
+              f.write(f"\n## External evidence review queue\n\n{r['deduplicated_review_tasks']} deduplicated review tasks; NOT independently Serebii verified.\n")
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -139,5 +164,7 @@ jobs:
             ${{ runner.temp }}/sv-index-events/*.sqlite
             ${{ runner.temp }}/sv-index-events/*.csv
             ${{ runner.temp }}/sv-index-events/*.json
+            ${{ runner.temp }}/sv-serebii-review/*.csv
+            ${{ runner.temp }}/sv-serebii-review/*.json
           if-no-files-found: warn
           retention-days: 30
