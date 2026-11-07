@@ -115,3 +115,15 @@ Windows PowerShell 示例：
 5. 在 PKHeX 的独立测试分支里更新资源并运行 `PKHeX.Core` legality 单元测试，比较新旧版本中有效/无效样本的回归。**先审计，后升级数据库**；对外提交源码改动也需尊重原项目的许可和审核。
 
 相关：[[sv-gameplay-data]]、[[sv-m2-parallel-extraction]]、[[resource-file-identification]]。
+
+## 八、可逆重建验证（确认确实能够写回 PKHeX .pkl 格式）
+
+在上述读出 CSV 后，使用新增 `scripts/Rebuild-SV-PKHeX-Encounter-Binary.py`（只写入独立临时目录，绝不覆盖 PKHeX 资源）将标准化 CSV 重新序列化为 PKHeX 原生资源：
+
+    python scripts/Rebuild-SV-PKHeX-Encounter-Binary.py --input E:/Temp/SV-PKHeX-Audit --output E:/Temp/SV-PKHeX-Rebuild --reference E:/Tools/PKHeX/PKHeX.Core/Resources/legality/wild/Gen9 --require-exact-match
+
+生成 wild、fixed、paldea/kitakami/blueberry 三套 raid 与 outbreak 六个 .pkl。对于 wild 额外输出 `pkhex_wild_areas.csv` 保存 21 个无槽区域等完整区域块；没有它无法往返恢复同一二进制。重建器逐字段检查范围、连续索引、地点与槽一致性，并按 SHA-256 验证**字节完全一致**。原生游戏的权重和几何逻辑仍需要前置 pkNX 管线才能生成正确输入；对已知 PKHeX 数据进行可逆重建并不能证明另一个游戏版本数据完全一致。
+
+真实资源 CI：`.github/workflows/sv-pkhex-encounter-audit.yml` 从 PKHeX 固定提交 `0660d1e1f4924b8478daec73281bb8071a82ad19` 只读取所需资源，导出 CSV，重建六种文件并校验 exact SHA，Artifact 只上传审计 CSV 与重建对账报告，不上传原版二进制。测试：`python -m unittest discover -s tests -p test_sv_pkhex_encounter_rebuild.py -v`。
+
+PKHeX 源码许可证：GPLv3，公开复制、修改和分发其程序/资源须尊重相应许可与源头声明；游戏资产额外有版权约束。推荐本项目存储可复现实验脚本和 SHA 证据，不直接把 PKHeX 原版二进制复制进仓库。
