@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_com_house_obj#00000.part0.part1.part1.part1.part1.part1.part1.part1.part1",
+  "input_fingerprint": "02FFB543ED4ACDDF5BC69A14932CBE2035D53D7B3243DF54605BDE6835F8949F",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmdl",
+      "source_sha256": "73F9127C11BA1FAA0345AC097F01753CEC17246CF3F81CF79C1C61F9524FDFC3",
+      "bytes": 220,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1800000000001200240000000400000008000C0010001400120000007C000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          36,
+          4
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/_inspection/305b78303e68096f.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/_inspection/305b78303e68096f.jsonl",
+      "sha256": "EF68C9AB324020CC63386A8A50E9078D03025193AAA0E4CE8628608B3BE17BAD",
+      "bytes": 718
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmdl.flatbuffer.json",
+      "sha256": "B0B76F638F5FDE717D5239DC7583C9B3FD26766D0A2B9B22DD54A801DEFCFC0F",
+      "bytes": 734
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmdl.object.json",
+      "sha256": "6D12983778BFA07E979E2C37611A8D0DE80377A3B56DA108C781836E33C0C5D6",
+      "bytes": 2571
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmsh,field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_com_house_obj",
+      "cursor": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
