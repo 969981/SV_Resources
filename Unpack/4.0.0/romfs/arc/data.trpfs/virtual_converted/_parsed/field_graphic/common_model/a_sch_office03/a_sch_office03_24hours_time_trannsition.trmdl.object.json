@@ -53,16 +53,16 @@
       "role": "skeleton",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 600
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_office03/a_sch_office03_24hours_time_trannsition.trmtr",
       "role": "material_parameters",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 2640
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_office03/a_sch_office03_24hours_time_trannsition.tranm",
@@ -81,10 +81,13 @@
       "size_bytes": 2216
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_office03/a_sch_office03_24hours_time_trannsition.trskl",
+    "field_graphic/common_model/a_sch_office03/a_sch_office03_24hours_time_trannsition.trmtr"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -94,7 +97,7 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "5AEA000E81E144FAF996621BA02504D3EDD82F70C3C80124EE18299E27A5C86F",
+  "fingerprint": "00EC7FDF9493F6E14EBF29D867E83A53DB6939C79589485C47A38B0078D070F5",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
@@ -126,30 +129,12 @@
     {
       "path": "field_graphic/common_model/a_sch_office03/a_sch_office03_24hours_time_trannsition.trmtr",
       "required": true,
-      "sha256": "CDF5F24A5F35A07779238EBEA17CCAA28F9B60E74E1B606E1906C1F0F18AC373"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_office03/a_sch_office03_24hours_time_trannsition.trskl",
       "required": true,
-      "sha256": "E2B367FC5EEDC16935A028C3A23103E46BA17A4FA06544F64DC44E2D17AE8E96"
+      "sha256": null
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 2,
-    "primitive_count": 2,
-    "materials_count": 1,
-    "uv_primitive_count": 2,
-    "skin_count": 1,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_office03_24hours_time_trannsition.bin",
-        "bytes": 10672,
-        "sha256": "E6FAA4BDBEB3D9D562FD9DBB12CA3BA44942A49DF106F30200DC79AA3BA3BC9F"
-      }
-    ],
-    "gltf_sha256": "7E159F5944E6629D7F643883CE37C92F5B90AE1CA1A16241B8198336C4528201"
-  }
+  ]
 }
