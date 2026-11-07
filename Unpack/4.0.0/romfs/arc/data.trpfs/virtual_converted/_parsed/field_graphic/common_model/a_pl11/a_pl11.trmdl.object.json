@@ -53,38 +53,16 @@
       "role": "material_parameters",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 57576
-    },
-    {
-      "path": "field_graphic/common_model/a_pl11/a_pl11_battlevenue_base01_alb.bntx",
-      "role": "texture",
-      "evidence": "PREFIX_CANDIDATE",
-      "required": false,
-      "exists": true,
-      "size_bytes": 94320
-    },
-    {
-      "path": "field_graphic/common_model/a_pl11/a_pl11_battlevenue_base01_ao.bntx",
-      "role": "texture",
-      "evidence": "PREFIX_CANDIDATE",
-      "required": false,
-      "exists": true,
-      "size_bytes": 53360
-    },
-    {
-      "path": "field_graphic/common_model/a_pl11/a_pl11_battlevenue_base01_mtl.bntx",
-      "role": "texture",
-      "evidence": "PREFIX_CANDIDATE",
-      "required": false,
-      "exists": true,
-      "size_bytes": 8304
+      "exists": false,
+      "size_bytes": null
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_pl11/a_pl11.trmtr"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -94,7 +72,7 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "773FB8F1A52CFD46F60AF0334D20C0F96399CD467979D34D46338D0634D9239C",
+  "fingerprint": "EBB1AA7291545E8C68E78B815C883C03ABC8A5DC32B80D073D7E7E04E26AB4C8",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
@@ -116,60 +94,7 @@
     {
       "path": "field_graphic/common_model/a_pl11/a_pl11.trmtr",
       "required": true,
-      "sha256": "0A09D46D49F78DB441A311C08572805CF0D2473E2F1AA05AB9A2FF0C39B69B50"
-    },
-    {
-      "path": "field_graphic/common_model/a_pl11/a_pl11_battlevenue_base01_alb.bntx",
-      "required": false,
-      "sha256": "110963B68252CD06E33ED892D1DC87020A21712AEAF0771917AA5E057F638544"
-    },
-    {
-      "path": "field_graphic/common_model/a_pl11/a_pl11_battlevenue_base01_ao.bntx",
-      "required": false,
-      "sha256": "2E957D28DFFC5433B679C6D28407D649DC19B15447C9416AE3BAA92780960C6A"
-    },
-    {
-      "path": "field_graphic/common_model/a_pl11/a_pl11_battlevenue_base01_mtl.bntx",
-      "required": false,
-      "sha256": "2AC5D36851F0C18CF1A13834B3F2EF51E1B38204967494AAF099B93B969B18F8"
+      "sha256": null
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 43,
-    "primitive_count": 43,
-    "materials_count": 32,
-    "uv_primitive_count": 43,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_pl11.bin",
-        "bytes": 169204748,
-        "sha256": "3882B1CE3B9AB0CC4CFE7B8163C9EF95E6AE6BF2CA519261933D56AD87E4F964"
-      },
-      {
-        "path": "a_pl11_textures/a_pl11_battlevenue_base01_alb.png",
-        "bytes": 3976,
-        "sha256": "2B241ECE75EE8F7E27593E851020A7074AE94CF3B9423ECC60E5A149CCE8CB55"
-      },
-      {
-        "path": "a_pl11_textures/a_pl11_battlevenue_base01_mtl.png",
-        "bytes": 152,
-        "sha256": "E10C13F4F388D6B5F1A1C6A30F06F84E29069686F0C02115C4F33C690A5395C2"
-      },
-      {
-        "path": "a_pl11_textures/a_pl11_battlevenue_base01_ao.png",
-        "bytes": 16980,
-        "sha256": "72AA6392A2BDDBF609ED7ACAF0E0C07207860EBED286B3033B4010DDAF653180"
-      },
-      {
-        "path": "a_pl11_textures/metallicRoughness.png",
-        "bytes": 185,
-        "sha256": "DD3D348F0326B942940F0C503A1EB95B5651049941B4B8E7846E53B54AD48911"
-      }
-    ],
-    "gltf_sha256": "791ACFB110197A8C1100EDE9B02D440845388B8BC585542A7B9A9836583C58DC"
-  }
+  ]
 }
