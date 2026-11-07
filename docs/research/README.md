@@ -52,3 +52,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## 朱紫遭遇到 PKHeX 数据库的证据链
 
 - [SV 4.0.0 → PKHeX Gen9 遭遇结构与实际 .pkl 对账](sv-pkhex-gen9-encounter-bridge.md) — 原生表、pkNX 聚合流程、场景与版本条件、野生/固定/团体战/活动模板差异；工具与 CI 证明参考数据，不冒充重新提取 SV 4.0.0。
+
+## 原生 4.0.0 遭遇包精准恢复
+
+- [SV 4.0.0 原生 61 项遭遇文件与 11 个 Trinity 包的定位、提取和 PKHeX 对账](sv-4.0.0-pkhex-native-recovery.md) — Obsidian 中区分原始索引证据、真正的 61 项文件提取证据，以及尚未闭合的 Havok TRCOL / pkNX 合法性重建。
