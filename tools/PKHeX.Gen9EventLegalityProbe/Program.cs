@@ -119,7 +119,7 @@ internal static class Program
                 },
             };
             var target=Path.Combine(output,"sv400-pkhex-event-legality-smoke.json");
-            File.WriteAllText(target,JsonSerializer.Serialize(payload,Json)+"\n",Encoding.UTF8);
+            File.WriteAllText(target,JsonSerializer.Serialize(payload,Json)+"\n",new UTF8Encoding(false));
             Console.WriteLine(JsonSerializer.Serialize(new {
                 status, officialPK9Fixtures=official.Count,
                 officialValid, officialNegativeInvalid, sources=sourceHashes.Count
