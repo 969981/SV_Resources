@@ -173,18 +173,19 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
                 continue;
             if (collider.ContainsPoint(w.X, w.Y, w.Z))
             {
-                var composite = GetCompositePoint(w, areaMin, areaMax, areaAdjust, Location);
+                var composite = GetCompositePoint(w, areaMin, areaMax, areaAdjust, Location,
+                    EncounterLevelABSV.UseRawPointRange(fieldIndex, Location));
                 Local.Add(composite); // native
             }
             // Don't check here for cross-area, as our areaMin/areaMax is not valid for that crossover case.
         }
     }
 
-    private static LocationPointDetail GetCompositePoint(LocationPointDetail original, int areaMin, int areaMax, int adjust, int location)
+    private static LocationPointDetail GetCompositePoint(LocationPointDetail original, int areaMin, int areaMax, int adjust, int location, bool useRawPointRange)
     {
         var ep = original.Point;
-        var newX = Math.Max(ep.LevelRange.X, areaMin);
-        var newY = Math.Min(ep.LevelRange.Y, areaMax);
+        var newX = useRawPointRange ? ep.LevelRange.X : Math.Max(ep.LevelRange.X, areaMin);
+        var newY = useRawPointRange ? ep.LevelRange.Y : Math.Min(ep.LevelRange.Y, areaMax);
         var newPoint = ep with { LevelRange = new PackedVec2f { X = newX, Y = newY } };
         return new LocationPointDetail(newPoint)
         {
