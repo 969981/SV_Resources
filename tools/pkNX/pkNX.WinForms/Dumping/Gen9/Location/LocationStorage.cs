@@ -37,14 +37,63 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         {
             point.AssignWeatherPermissions(fieldIndex);
             foreach (var slot in point.Slots)
+            {
+                TraceIntegrated(point, slot, 0, "local");
                 Add(slot);
+            }
         }
         foreach (var point in Nearby)
         {
             point.AssignWeatherPermissions(fieldIndex);
             foreach (var slot in point.Slots)
+            {
+                TraceIntegrated(point, slot, point.Location, "cross");
                 AddCrossover(slot, point.Location);
+            }
         }
+    }
+
+    private void TraceIntegrated(LocationPointDetail point, PaldeaEncounter slot, int crossFrom, string kind)
+    {
+        if (!EncounterTraceSV.Wild(Location, slot.Species) &&
+            !EncounterTraceSV.Wild(point.Location, slot.Species))
+            return;
+        EncounterTraceSV.Write(new {
+            stage="wild_weather_assigned", kind, fieldIndex=fieldIndex.ToString(),
+            location=Location, crossFrom,
+            originLocation=point.Location, areaName=AreaName,
+            sourcePointAsset=point.SourcePointAsset, sourcePointIndex=point.SourcePointIndex,
+            pointX=point.X, pointY=point.Y, pointZ=point.Z,
+            species=slot.Species, form=slot.Form, gender=slot.Sex,
+            minLevel=slot.MinLevel, maxLevel=slot.MaxLevel,
+            timeMask=slot.Time, weatherMask=(byte)slot.Weather,
+            pointRawMin=point.RawPointMinLevel, pointRawMax=point.RawPointMaxLevel,
+            effectivePointMin=point.Point.LevelRange.X, effectivePointMax=point.Point.LevelRange.Y,
+            areaAdjust=point.LevelAdjust, clippingMin=point.ClippingAreaMin,
+            clippingMax=point.ClippingAreaMax
+        });
+    }
+
+    private void TraceConsolidation(string stage)
+    {
+        if (!EncounterTraceSV.Enabled) return;
+        foreach (var slot in Slots)
+            TraceSlot(stage, Location, 0, slot);
+        foreach (var (crossFrom, crossed) in SlotsCrossover)
+            foreach (var slot in crossed.Slots)
+                TraceSlot(stage, Location, crossFrom, slot);
+    }
+
+    private static void TraceSlot(string stage, int location, int crossFrom, PaldeaEncounter slot)
+    {
+        if (!EncounterTraceSV.Wild(location, slot.Species) &&
+            !EncounterTraceSV.Wild(crossFrom, slot.Species))
+            return;
+        EncounterTraceSV.Write(new {
+            stage, location, crossFrom, species=slot.Species, form=slot.Form,
+            gender=slot.Sex, minLevel=slot.MinLevel, maxLevel=slot.MaxLevel,
+            timeMask=slot.Time, weatherMask=(byte)slot.Weather
+        });
     }
 
     /// <summary>
@@ -52,6 +101,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
     /// </summary>
     public void Consolidate()
     {
+        TraceConsolidation("wild_before_consolidate");
         var len = -1;
         while (len != Slots.Count)
         {
@@ -60,6 +110,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         }
         foreach (var loc in SlotsCrossover.Values)
             loc.Consolidate();
+        TraceConsolidation("wild_after_consolidate");
     }
 
     private static void ConsolidateEncounters(List<PaldeaEncounter> encounters)
@@ -121,19 +172,28 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
                 continue;
             if (collider.ContainsPoint(w.X, w.Y, w.Z))
             {
-                var composite = GetCompositePoint(w.Point, areaMin, areaMax, areaAdjust, Location);
+                var composite = GetCompositePoint(w, areaMin, areaMax, areaAdjust, Location);
                 Local.Add(composite); // native
             }
             // Don't check here for cross-area, as our areaMin/areaMax is not valid for that crossover case.
         }
     }
 
-    private static LocationPointDetail GetCompositePoint(PointData ep, int areaMin, int areaMax, int adjust, int location)
+    private static LocationPointDetail GetCompositePoint(LocationPointDetail original, int areaMin, int areaMax, int adjust, int location)
     {
+        var ep = original.Point;
         var newX = Math.Max(ep.LevelRange.X, areaMin);
         var newY = Math.Min(ep.LevelRange.Y, areaMax);
         var newPoint = ep with { LevelRange = new PackedVec2f { X = newX, Y = newY } };
-        return new LocationPointDetail(newPoint) { Location = location, LevelAdjust = adjust };
+        return new LocationPointDetail(newPoint)
+        {
+            Location = location, LevelAdjust = adjust,
+            SourcePointIndex = original.SourcePointIndex,
+            SourcePointAsset = original.SourcePointAsset,
+            RawPointMinLevel = original.RawPointMinLevel,
+            RawPointMaxLevel = original.RawPointMaxLevel,
+            ClippingAreaMin = areaMin, ClippingAreaMax = areaMax
+        };
     }
 
     /// <summary>
@@ -144,26 +204,60 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         foreach (var spawner in Local)
         {
             var boost = spawner.LevelAdjust;
-            foreach (var pd in pokeData.Table)
+            for (int criteriaIndex=0;criteriaIndex<pokeData.Table.Count;criteriaIndex++)
             {
+                var pd = pokeData.Table[criteriaIndex];
                 if (!IsAbleToSpawnAt(pd, spawner, AreaName, scene, fieldIndex))
                     continue;
 
-                // Add encount
+                // These are the SAME pkNX candidates and order as without tracing.
                 var point = spawner.Point;
-                spawner.Add(PaldeaEncounter.GetNew(pd, point));
-                if (pd.BandPoke != 0) // Add band encount
-                    spawner.Add(PaldeaEncounter.GetBand(pd, point));
+                var normal=PaldeaEncounter.GetNew(pd, point);
+                spawner.Add(normal);
+                TraceGenerated(spawner, pd, normal, criteriaIndex, 0, false);
+                if (pd.BandPoke != 0)
+                {
+                    var band=PaldeaEncounter.GetBand(pd, point);
+                    spawner.Add(band);
+                    TraceGenerated(spawner, pd, band, criteriaIndex, 0, true);
+                }
 
                 if (boost == 0)
                     continue;
 
-                // Add adjusted encount (different level range)
-                spawner.Add(PaldeaEncounter.GetNew(pd, point, boost));
-                if (pd.BandPoke != 0) // Add band encount
-                    spawner.Add(PaldeaEncounter.GetBand(pd, point, boost));
+                var adjusted=PaldeaEncounter.GetNew(pd, point, boost);
+                spawner.Add(adjusted);
+                TraceGenerated(spawner, pd, adjusted, criteriaIndex, boost, false);
+                if (pd.BandPoke != 0)
+                {
+                    var band=PaldeaEncounter.GetBand(pd, point, boost);
+                    spawner.Add(band);
+                    TraceGenerated(spawner, pd, band, criteriaIndex, boost, true);
+                }
             }
         }
+    }
+
+    private void TraceGenerated(LocationPointDetail spawner, EncountPokeData pd,
+        PaldeaEncounter result, int criteriaIndex, int appliedBoost, bool band)
+    {
+        if (!EncounterTraceSV.Wild(Location, result.Species))
+            return;
+        EncounterTraceSV.Write(new {
+            stage="wild_raw_candidate", fieldIndex=fieldIndex.ToString(),
+            areaName=AreaName, location=Location,
+            pointSource=spawner.SourcePointAsset, pointIndex=spawner.SourcePointIndex,
+            pointX=spawner.X, pointY=spawner.Y, pointZ=spawner.Z,
+            rawPointMin=spawner.RawPointMinLevel, rawPointMax=spawner.RawPointMaxLevel,
+            clippedPointMin=spawner.Point.LevelRange.X, clippedPointMax=spawner.Point.LevelRange.Y,
+            areaLevelMin=spawner.ClippingAreaMin, areaLevelMax=spawner.ClippingAreaMax,
+            areaAdjust=spawner.LevelAdjust, appliedBoost, criteriaIndex, band,
+            criteriaMinLevel=pd.MinLevel, criteriaMaxLevel=pd.MaxLevel,
+            criteriaArea=pd.Area, criteriaLocation=pd.LocationName,
+            species=result.Species, form=result.Form, gender=result.Sex,
+            minLevel=result.MinLevel, maxLevel=result.MaxLevel,
+            timeMask=result.Time
+        });
     }
 
     private static bool IsAbleToSpawnAt(EncountPokeData pd, LocationPointDetail ep, string areaName, PaldeaSceneModel scene, PaldeaFieldIndex fieldIndex)
