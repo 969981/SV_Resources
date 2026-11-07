@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_com_house_obj#00000.part1.part0.part1.part0.part1.part0.part1.part0",
+  "input_fingerprint": "987361CF043BE5A73BFE71AF76AF9D1076C232ECAAFB9655ED4D41013FD31E41",
+  "input_files": 2,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 2
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmbf",
+      "source_sha256": "BC6D111986EB2C3A6F897DDC2B5606AD4F68C8720FEB514B92DC2986F3F24803",
+      "bytes": 38500,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "0C0000000800080000000400080000000400000002000000B82B000004000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          524296,
+          262144,
+          8
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmbf.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    },
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmdl",
+      "source_sha256": "94E41C31783B4B2A4FB9C7730C49DD4C1E64810EF058810D7D0129BDAC2531A7",
+      "bytes": 324,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "180000000000120028000000040008000C0010001400180012000000D4000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          40,
+          524292
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/_inspection/eb867f36fec75d10.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/_inspection/eb867f36fec75d10.jsonl",
+      "sha256": "A154BCB3026BFB52FD9151FF9F3BD94B6BA505AE67C0A06A19ED74ADF3019B97",
+      "bytes": 1510
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmbf.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmbf.flatbuffer.json",
+      "sha256": "4BD8F3135571419A9450B6762697A14A94C8A97CA780B0904AA4916FA3B3E64E",
+      "bytes": 125530
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmdl.flatbuffer.json",
+      "sha256": "A137E17D58021CF81978F2BE3F3F584F7A76ABC81F9AC4125619D079490C928E",
+      "bytes": 862
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmdl.object.json",
+      "sha256": "A1F1B45F436797AD73286AAB8AE2492A68F4BBBBC36506BF41D4212B9AD86AF7",
+      "bytes": 3326
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmsh,field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trskl,field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_com_house_obj",
+      "cursor": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_brown_darkgreen_flower.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
