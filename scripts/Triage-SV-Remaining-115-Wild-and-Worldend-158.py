@@ -56,6 +56,14 @@ def interval_relation(nlo:int,nhi:int,plo:int,phi:int)->str:
     return "PARTIAL_OVERLAP"
 
 
+def parse_original_fixed_area(tablekey:str)->tuple[str,str]:
+    """Recognize both real fixed symbol families: su1_ and t_su1_."""
+    match=re.fullmatch(r"(t_)?su1_(area\d+)_\d+",tablekey)
+    if match is None:
+        raise ValueError(f"Unexpected original North Kitakami fixed TableKey: {tablekey}")
+    return match.group(2), "T_PREFIX" if match.group(1) else "NORMAL"
+
+
 def write_csv(path:Path,table:list[dict]):
     if not table:
         raise ValueError("Refusing empty original evidence report")
@@ -165,11 +173,9 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
         symbols=json.loads(row["source_symbols_json"])
         if not symbols or any(len(x)!=3 for x in symbols):
             raise ValueError("WorldEnd change lacks actual FixedSymbol.TableKey evidence")
-        parsed=[re.fullmatch(r"(t_)?su1_(area\d+)_\d+",str(item[1])) for item in symbols]
-        if any(match is None for match in parsed):
-            raise ValueError("Unexpected original North Kitakami fixed TableKey")
-        prefixes=sorted({match.group(2) for match in parsed})
-        classes=sorted({"T_PREFIX" if match.group(1) else "NORMAL" for match in parsed})
+        parsed=[parse_original_fixed_area(str(item[1])) for item in symbols]
+        prefixes=sorted({area for area,cls in parsed})
+        classes=sorted({cls for area,cls in parsed})
         typ="NATIVE_ONLY_TO_MATCHED" if (origin,variant)==(0,1) else (
             "MATCHED_TO_REFERENCE_LOSS" if (origin,variant)==(1,0) else
             "ROW_MATCHED_BOTH_MULTIPLICITY_AMBIGUOUS" if (origin,variant)==(1,1) else
