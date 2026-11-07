@@ -2,154 +2,17 @@
   "schemaVersion": 1,
   "source_version": "4.0.0",
   "parallel_workers": 4,
-  "elapsed_seconds": 40.594,
+  "elapsed_seconds": 42.718,
   "selected_count": 12,
-  "input_files": 557,
-  "files_per_second": 13.72,
+  "input_files": 593,
+  "files_per_second": 13.88,
   "completed_count": 12,
-  "parsed_records": 557,
-  "structurally_parsed": 545,
-  "inspected_unparsed": 12,
+  "parsed_records": 593,
+  "structurally_parsed": 580,
+  "inspected_unparsed": 13,
   "error_count": 0,
   "partial_count": 11,
   "attempts": [
-    {
-      "task": "field_graphic/terrain_model/objects_un_sandwichshop01_door01#00000",
-      "fingerprint": "49A6319E1BCFFA78825673654030C19B873A5AFC7AF6F00FDBFC3BA6B4B14B90",
-      "input_files": 23,
-      "status": "PARTIAL",
-      "unresolved": 2,
-      "returncode": 2,
-      "formats": {
-        "BNTX": 7,
-        "FLATBUFFER_CANDIDATE": 16
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 7,
-          "ok": 7,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_sandwichshop01_door01",
-          "cursor": "field_graphic/terrain_model/objects_un_sandwichshop01_door01/objects_un_sandwichshop01_door01.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/objects_un_sandwichshop01_door01/objects_un_sandwichshop01_door01.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 32,
-      "parsed_records": 23,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_sandwichshop01_door01/_inspection/28af81ccb3b17f6c.jsonl",
-      "inspection_sha256": "B36C7EDB2D7AAC94FC6B2BEC0265F05B19ED99B4FCFE90075E3A5B5FFEF54B16",
-      "structurally_parsed": 23,
-      "inspected_unparsed": 0,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 33,
-      "elapsed_seconds": 10.375,
-      "updated_utc": "2026-11-07T17:57:55.872532+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_shoppingbank02#00000",
-      "fingerprint": "C461D883B428F96F585CDDBC8513A643E050CBA5D06FAC43BE0B69958F691618",
-      "input_files": 37,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 14,
-        "BNTX": 22,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 22,
-          "ok": 22,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 1,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_shoppingbank02",
-          "cursor": "field_graphic/terrain_model/objects_un_shoppingbank02/objects_un_shoppingbank02.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 85,
-      "parsed_records": 37,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_shoppingbank02/_inspection/931e9c9c6d2a644d.jsonl",
-      "inspection_sha256": "1B52352BF7B5FABDC78ABAE82EF5527ED85BEEEDC0950FAAF6286626392FEB17",
-      "structurally_parsed": 36,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 86,
-      "elapsed_seconds": 10.484,
-      "updated_utc": "2026-11-07T17:57:56.041062+00:00"
-    },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingbookstore01#00000",
       "fingerprint": "2A691A181095383D31C6D4D56FDB0797B7975DF57988AE7653DA4879AB205B24",
@@ -218,9 +81,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 75,
-      "elapsed_seconds": 10.453,
-      "updated_utc": "2026-11-07T17:57:56.194268+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 11.188,
+      "updated_utc": "2026-11-07T18:00:52.298156+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingcarrier01#00000",
@@ -290,9 +153,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 80,
-      "elapsed_seconds": 17.046,
-      "updated_utc": "2026-11-07T17:57:56.361972+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 17.125,
+      "updated_utc": "2026-11-07T18:00:52.462511+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingdrugstore01#00000",
@@ -366,9 +229,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 89,
-      "elapsed_seconds": 14.25,
-      "updated_utc": "2026-11-07T17:57:56.542484+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 17.485,
+      "updated_utc": "2026-11-07T18:00:52.642664+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingpicnic01#00000",
@@ -438,9 +301,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 164,
-      "elapsed_seconds": 15.0,
-      "updated_utc": "2026-11-07T17:57:56.912360+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 18.844,
+      "updated_utc": "2026-11-07T18:00:52.972094+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingpostoffice01#00000",
@@ -510,9 +373,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 53,
-      "elapsed_seconds": 7.031,
-      "updated_utc": "2026-11-07T17:57:57.033139+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 7.5,
+      "updated_utc": "2026-11-07T18:00:53.100993+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingselect01#00000",
@@ -582,9 +445,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 78,
-      "elapsed_seconds": 14.469,
-      "updated_utc": "2026-11-07T17:57:57.187581+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 14.766,
+      "updated_utc": "2026-11-07T18:00:53.257343+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingselect02#00000",
@@ -654,9 +517,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 127,
-      "elapsed_seconds": 14.594,
-      "updated_utc": "2026-11-07T17:57:57.472352+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 15.281,
+      "updated_utc": "2026-11-07T18:00:53.510416+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingsmartphone01#00000",
@@ -730,9 +593,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 84,
-      "elapsed_seconds": 13.062,
-      "updated_utc": "2026-11-07T17:57:57.648581+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 14.656,
+      "updated_utc": "2026-11-07T18:00:53.728245+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingsupermarket01#00000",
@@ -806,9 +669,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 69,
-      "elapsed_seconds": 12.328,
-      "updated_utc": "2026-11-07T17:57:57.789180+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 14.016,
+      "updated_utc": "2026-11-07T18:00:53.871417+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_shoppingvariety01#00000",
@@ -878,11 +741,149 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 59,
-      "elapsed_seconds": 6.25,
-      "updated_utc": "2026-11-07T17:57:57.909427+00:00",
+      "elapsed_seconds": 6.297,
+      "updated_utc": "2026-11-07T18:00:53.994423+00:00",
+      "partial_attempts": 2
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_shoppingvariety02#00000",
+      "fingerprint": "B8FDA6FCD98F02C7506605415D5D06D50913652499E419D19C4E1A9F5F518176",
+      "input_files": 35,
+      "status": "PARTIAL",
+      "unresolved": 2,
+      "returncode": 2,
+      "formats": {
+        "BNTX": 20,
+        "FLATBUFFER_CANDIDATE": 14,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 20,
+          "ok": 20,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 1,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_shoppingvariety02",
+          "cursor": "field_graphic/terrain_model/objects_un_shoppingvariety02/objects_un_shoppingvariety02.trmdl",
+          "issues": [
+            {
+              "source": "field_graphic/terrain_model/objects_un_shoppingvariety02/objects_un_shoppingvariety02.trmdl",
+              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+            }
+          ]
+        }
+      },
+      "outputs": 62,
+      "parsed_records": 35,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_shoppingvariety02/_inspection/8c480bc2928bc471.jsonl",
+      "inspection_sha256": "2ACCEC977225C498C1B61382469984324D2ED05BE195E72B5414BC2BA91D1714",
+      "structurally_parsed": 34,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 63,
+      "elapsed_seconds": 6.265,
+      "updated_utc": "2026-11-07T18:00:54.122935+00:00",
       "partial_attempts": 1
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_skewers_cart01#00000",
+      "fingerprint": "D0A88EED9772B1B78F0DE6D703FFCC6017D147A9AB11121179A7CDABE81FF39D",
+      "input_files": 61,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 8,
+        "BNTX": 52,
+        "BY_EXTENSION:trcol": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 52,
+          "ok": 52,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 1,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_skewers_cart01",
+          "cursor": "field_graphic/terrain_model/objects_un_skewers_cart01/objects_un_skewers_cart01.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 169,
+      "parsed_records": 61,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_skewers_cart01/_inspection/cc1785c545c6ead0.jsonl",
+      "inspection_sha256": "F828A1D848DD812632AB712B901FEF476F6E7AAAEEA9E12F0AC64BD9CC24AA40",
+      "structurally_parsed": 60,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 170,
+      "elapsed_seconds": 6.875,
+      "updated_utc": "2026-11-07T18:00:54.461974+00:00"
     }
   ],
-  "updated_utc": "2026-11-07T17:57:58.439019+00:00",
+  "updated_utc": "2026-11-07T18:00:54.997286+00:00",
   "policy": "UNKNOWN_FORMATS_AND_VISUAL_REVIEW_NOT_AUTOMATICALLY_CONFIRMED"
 }
