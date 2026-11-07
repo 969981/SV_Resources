@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_2_clubroom07#00000.part0.part0.part0.part0.part1.part1.part1.part0.part1",
+  "input_fingerprint": "367FC7132FD127051CEB5377D94BDBB9443E0D418A86E92AB9B9571815FDD3A0",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmdl",
+      "source_sha256": "CF7EB1AA57E63D68A60A6A547BE084AE4B4D23B580F36CDBA3486E0C72127E81",
+      "bytes": 196,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1800000000001200240000000400000008000C00100014001200000070000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          36,
+          4
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_clubroom07/_inspection/63e508c0a92680e4.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_clubroom07/_inspection/63e508c0a92680e4.jsonl",
+      "sha256": "1AB539C5F5BC2C297D1AF658653A34EB0498893C38FAAB98FA01E4BBF5E649A2",
+      "bytes": 700
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmdl.flatbuffer.json",
+      "sha256": "6B1EDB9EF622EC59EC7B52BE58DC95FD4D6E5BDEA09F7E4305402472FF07DFE3",
+      "bytes": 712
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmdl.object.json",
+      "sha256": "9BB9CC81F977D3FD2B78C0B26CBE8CAA5D5D17B712C39A3AC2911F5C0C40DDD3",
+      "bytes": 2461
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmsh,field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_2_clubroom07",
+      "cursor": "field_graphic/common_model/a_sch_2_clubroom07/a_sch_2_clubroom07.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
