@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_office02#00000.part0.part0.part0.part0.part0.part0",
+  "input_fingerprint": "AE9AEBB67C34D23B2E00A9214D7DC8BAA49FA3DDCB2D8C5E083E95C410A34069",
+  "input_files": 3,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1,
+    "STRUCTURE_PARSED": 2
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_office02/a_sch_office02.trmbf",
+      "source_sha256": "504C10009462785D0B3C0109473679F1E872E45978ABD0FAF03EF023C24E3462",
+      "bytes": 5997468,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "0C000000080008000000040008000000040000000A000000C4795B0060765B00",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          524296,
+          262144,
+          8
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "FLATC_OUTPUT_OVERSIZE"
+    },
+    {
+      "source": "field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl",
+      "source_sha256": "F50C51FB4A7C1F77B37DA327E0CA8F24E0AE51433A9A309A9A2FC1581FAEA79B",
+      "bytes": 188,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1800000000001200240000000400000008000C0010001400120000006C000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          36,
+          4
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    },
+    {
+      "source": "field_graphic/common_model/a_sch_office02/a_sch_office02.trmsh",
+      "source_sha256": "9FA5C1D734EFC038A6596BF5E95E4EB4620A498D7EBE4BD309FEA52AB16D6689",
+      "bytes": 6996,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1000000000000A000C000000040008000A000000240000000400000014000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          16,
+          655360,
+          12,
+          524292
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmsh.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office02/_inspection/7cf01d66717adb14.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office02/_inspection/7cf01d66717adb14.jsonl",
+      "sha256": "4C0D0B19F69A62403539888003F4D1ADDE7933C6101E7A98C46D83C3A54ACC9C",
+      "bytes": 1942
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.flatbuffer.json",
+      "sha256": "2DAEBE2342B34F2B909D7125489A3523C45339CEBE527BC00E22496C66BAAC72",
+      "bytes": 695
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl.object.json",
+      "sha256": "9DA816B50FDFFC02BAAB902A902565759502EEEA4C72C1007CA73C4E81F91C71",
+      "bytes": 2802
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmsh.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office02/a_sch_office02.trmsh.flatbuffer.json",
+      "sha256": "E2D37FC5FB9D9453E67525BD1102D72057B16DC29159AFF23DB5942D4B9C12ED",
+      "bytes": 13559
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_sch_office02/a_sch_office02.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_office02",
+      "cursor": "field_graphic/common_model/a_sch_office02/a_sch_office02.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
