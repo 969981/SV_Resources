@@ -56,4 +56,32 @@ class NativeEmbeddedLegalityTests(unittest.TestCase):
         native["nativeTemplateSampleChecks"][stage.FILES[0]]["attempted"]=0
         with self.assertRaises(ValueError):diff.compare(base,native,proof)
 
+    def test_delta_candidate_same_sha_and_targeted_verdict_flip(self):
+        x={"sourcePath":"actual.pk9","originalSourceSHA256":"A"*64,
+           "original":{"Parsed":True,"Valid":True,"MatchedEncounterType":"EncounterSlot9","InvalidChecks":[]},
+           "modified":{"Parsed":True,"Valid":False,"MatchedEncounterType":"EncounterInvalid","InvalidChecks":[]},
+           "invalidLocationNegativeControl":None}
+        base={"pkhexSource":"pin",
+              "sourceSamplesFromOfficialPKHeXTests":[dict(x,sourcePath=f"{i}.pk9") for i in range(6)],
+              "deltaCandidatePK9Count":1,
+              "deltaCandidateTests":[{
+                  "name":"fixed_158_0025_015_001.pk9",
+                  "originalSourceSHA256":"B"*64,
+                  "species":25,"form":0,"metLocation":158,"metLevel":15,
+                  "legality":{"Parsed":True,"Valid":False,"MatchedEncounterType":"EncounterInvalid","InvalidChecks":[]},
+              }]}
+        native=json.loads(json.dumps(base))
+        native["nativeTemplateSampleChecks"]={
+            name:{"attempted":4,"valid":4,"exactEncounterClassMatched":4} for name in stage.FILES}
+        native["deltaCandidateTests"][0]["legality"]={
+            "Parsed":True,"Valid":True,"MatchedEncounterType":"EncounterFixed9","InvalidChecks":[]}
+        proof={"status":diff.STATUS,"resources":[{"name":name} for name in stage.FILES]}
+        compared=diff.compare(base,native,proof)
+        self.assertEqual(compared["targeted_native_delta_pk9_compared"],1)
+        self.assertEqual(compared["targeted_native_delta_verdict_flips"],1)
+        self.assertEqual(compared["targeted_native_delta_by_category"]["fixed_added_location_158"]["reference_rejected_native_valid"],1)
+        native["deltaCandidateTests"][0]["originalSourceSHA256"]="0"*64
+        with self.assertRaises(ValueError):
+            diff.compare(base,native,proof)
+
 if __name__=="__main__":unittest.main()

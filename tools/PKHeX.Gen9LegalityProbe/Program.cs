@@ -33,6 +33,14 @@ internal static class Program
             string suite=Path.GetFullPath(parameters["--pkhex-tests"]);
             string? native=parameters.TryGetValue("--native-output",out var original)
                 ? Path.GetFullPath(original) : null;
+            string? deltaCandidateDir=parameters.TryGetValue("--delta-candidate-dir",out var deltaDir)
+                ? Path.GetFullPath(deltaDir):null;
+            if (parameters.TryGetValue("--prepare-native-delta",out var realDiff))
+            {
+                if(native is null || deltaCandidateDir is null)
+                    throw new ArgumentException("Native source and delta-candidate-dir are both mandatory for generating source-verified PK9 deltas.");
+                DeltaFixtureMaker.Prepare(native,Path.GetFullPath(realDiff),deltaCandidateDir);
+            }
             var source=Path.Combine(suite,"Legality","Legal");
             if (!Directory.Exists(source))
                 throw new DirectoryNotFoundException($"Official PKHeX Gen9 Legal fixtures missing: {source}");
@@ -145,7 +153,44 @@ internal static class Program
                     };
                 }
             }
+            var targetedRows=new List<object>();
+            if (deltaCandidateDir is not null)
+            {
+                var proof=Path.Combine(deltaCandidateDir,"delta-source-proof.json");
+                if(!File.Exists(proof))
+                    throw new InvalidDataException("Differential PK9 cases must have exact original-source fixture provenance");
+                using var deltaProof=JsonDocument.Parse(File.ReadAllBytes(proof));
+                if(deltaProof.RootElement.GetProperty("status").GetString()!="NATIVE_PKNX_DIFF_SOURCE_PK9_FIXTURES_NOT_GAME_CAPTURED")
+                    throw new InvalidDataException("Source differential PK9 proof is invalid");
+                var expected=deltaProof.RootElement.GetProperty("cases").EnumerateArray()
+                    .ToDictionary(z=>z.GetProperty("name").GetString()!,
+                                  z=>z.GetProperty("sha256").GetString()!,StringComparer.Ordinal);
+                var files=Directory.GetFiles(deltaCandidateDir,"*.pk9",SearchOption.TopDirectoryOnly)
+                    .OrderBy(z=>z,StringComparer.Ordinal).ToArray();
+                if(files.Length<3 || files.Length!=expected.Count ||
+                   deltaProof.RootElement.GetProperty("totalCases").GetInt32()!=expected.Count)
+                    throw new InvalidDataException("Missing, duplicated or untracked native PK9 delta fixtures");
+                foreach(var file in files)
+                {
+                    var raw=File.ReadAllBytes(file);
+                    var name=Path.GetFileName(file);
+                    if(raw.Length!=344 || !expected.TryGetValue(name,out var checkedSha) || checkedSha!=Sha(raw))
+                        throw new InvalidDataException($"Native PK9 differential fixture changed or invalid: {name}");
+                    var pk=new PK9(raw);
+                    if(!pk.ChecksumValid || pk.Sanity!=0)
+                        throw new InvalidDataException($"Generated PK9 delta fixture malformed: {name}");
+                    var result=Analyze(pk);
+                    targetedRows.Add(new
+                    {
+                        name,originalSourceSHA256=checkedSha,
+                        species=pk.Species,form=pk.Form,metLocation=pk.MetLocation,
+                        metLevel=pk.MetLevel,legality=result,
+                    });
+                }
+            }
             var final=new {
+                deltaCandidatePK9Count=targetedRows.Count,
+                deltaCandidateTests=targetedRows,
                 status=fixtureParsed==fixtures.Length && fixtureValid==fixtures.Length && mutInvalid>=1 && nativeWildLocationControls>=1 && nativeWildLocationInvalid==nativeWildLocationControls
                     ? (nativeRows.Count>0 ? "REFERENCE_PK9_BASELINE_AND_NATIVE_CANDIDATE_ANALYSIS_RUN"
                         : "REAL_REFERENCE_PK9_BASELINE_ONLY_NATIVE_DATA_NOT_LOADED")
@@ -171,7 +216,7 @@ internal static class Program
             File.WriteAllText(path,JsonSerializer.Serialize(final,Json)+"\n",Encoding.UTF8);
             Console.WriteLine(JsonSerializer.Serialize(new{
                 final.status,final.actualOriginalPk9Fixtures,final.validOfficialReferenceFixtures,
-                final.invalidMutationControls,nativeTables=nativeRows.Count},Json));
+                final.invalidMutationControls,nativeTables=nativeRows.Count,deltaCandidates=targetedRows.Count},Json));
             return final.status=="REFERENCE_PK9_BASELINE_FAILURE" ? 2 : 0;
         }
         catch(Exception ex)
@@ -256,7 +301,7 @@ internal static class Program
                 throw new ArgumentException("Usage: --pkhex-tests <pinned Tests folder> --output <report folder> [--native-output <original generated pkl folder>]");
         }
         if (!d.ContainsKey("--pkhex-tests") || !d.ContainsKey("--output") ||
-            d.Keys.Any(x=>x is not ("--pkhex-tests" or "--output" or "--native-output")))
+            d.Keys.Any(x=>x is not ("--pkhex-tests" or "--output" or "--native-output" or "--delta-candidate-dir" or "--prepare-native-delta")))
             throw new ArgumentException("Required --pkhex-tests and --output");
         return d;
     }

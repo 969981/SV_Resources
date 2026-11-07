@@ -9,11 +9,42 @@ on:
         description: One-shot original SV 4.0.0 native reconstruction run ID
         required: true
         type: string
+  push:
+    branches: [master]
+    paths:
+      - 'tools/PKHeX.Gen9LegalityProbe/**'
+      - 'scripts/Compare-SV-PK9-Embedded-Legality.py'
+      - 'tests/test_sv_pkhex_embedded_legality.py'
+      - '.github/workflows/sv-pkhex-two-build-real.yml'
+  pull_request:
+    paths:
+      - 'tools/PKHeX.Gen9LegalityProbe/**'
+      - 'scripts/Compare-SV-PK9-Embedded-Legality.py'
+      - 'tests/test_sv_pkhex_embedded_legality.py'
+      - '.github/workflows/sv-pkhex-two-build-real.yml'
 permissions:
   contents: read
   actions: read
 jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Stage-SV-Native-PKHeX-Resources.py
+            scripts/Compare-SV-PK9-Embedded-Legality.py
+            tests/test_sv_pkhex_embedded_legality.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check PK9 SHA evidence and real verdict flips in synthetic tests
+        run: python -m unittest discover -s tests -p test_sv_pkhex_embedded_legality.py -v
   two-builds:
+    if: github.event_name != 'pull_request'
+    needs: preflight
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
@@ -37,7 +68,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          SOURCE_RUN_ID: ${{ github.event.workflow_run.id || github.event.inputs.source_run_id }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id || github.event.inputs.source_run_id || '42336889324' }}
         run: |
           set -euo pipefail
           test -n "$SOURCE_RUN_ID"
@@ -48,6 +79,10 @@ jobs:
           native=$(dirname "$manifest")
           export SV_NATIVE_OUTPUT="$native"
           echo "SV_NATIVE_OUTPUT=$native" >> "$GITHUB_ENV"
+          delta=$(find "$RUNNER_TEMP/native-artifact" -name wild_native_only.csv | head -1)
+          test -n "$delta"
+          test -s "$(dirname "$delta")/fixed_native_only.csv"
+          echo "SV_NATIVE_DELTA_DIR=$(dirname "$delta")" >> "$GITHUB_ENV"
           python - <<'PY'
           import json,os
           from pathlib import Path
@@ -74,7 +109,7 @@ jobs:
         run: |
           set -euo pipefail
           dotnet build tools/PKHeX.Gen9LegalityProbe/PKHeX.Gen9LegalityProbe.csproj -c Release --nologo "-p:PKHeXRoot=$SV_PKHEX_ORIGINAL"
-          dotnet tools/PKHeX.Gen9LegalityProbe/bin/Release/net10.0/PKHeX.Gen9LegalityProbe.dll --pkhex-tests "$SV_PKHEX_ORIGINAL/Tests/PKHeX.Core.Tests" --native-output "$SV_NATIVE_OUTPUT" --output "$RUNNER_TEMP/PK9-base"
+          dotnet tools/PKHeX.Gen9LegalityProbe/bin/Release/net10.0/PKHeX.Gen9LegalityProbe.dll --pkhex-tests "$SV_PKHEX_ORIGINAL/Tests/PKHeX.Core.Tests" --native-output "$SV_NATIVE_OUTPUT" --output "$RUNNER_TEMP/PK9-base" --delta-candidate-dir "$RUNNER_TEMP/PK9-delta-fixtures" --prepare-native-delta "$SV_NATIVE_DELTA_DIR"
       - name: Copy source then embed FIVE native source SHA-verified Gen9 encounter resources
         shell: bash
         run: |
@@ -89,7 +124,7 @@ jobs:
         run: |
           set -euo pipefail
           dotnet build tools/PKHeX.Gen9LegalityProbe/PKHeX.Gen9LegalityProbe.csproj -t:Rebuild -c Release --nologo "-p:PKHeXRoot=$SV_PKHEX_NATIVE"
-          dotnet tools/PKHeX.Gen9LegalityProbe/bin/Release/net10.0/PKHeX.Gen9LegalityProbe.dll --pkhex-tests "$SV_PKHEX_ORIGINAL/Tests/PKHeX.Core.Tests" --native-output "$SV_NATIVE_OUTPUT" --output "$RUNNER_TEMP/PK9-native"
+          dotnet tools/PKHeX.Gen9LegalityProbe/bin/Release/net10.0/PKHeX.Gen9LegalityProbe.dll --pkhex-tests "$SV_PKHEX_ORIGINAL/Tests/PKHeX.Core.Tests" --native-output "$SV_NATIVE_OUTPUT" --output "$RUNNER_TEMP/PK9-native" --delta-candidate-dir "$RUNNER_TEMP/PK9-delta-fixtures"
       - name: Compare same original PK9 SHA and real LegalityAnalysis verdicts
         shell: bash
         run: |
@@ -102,5 +137,6 @@ jobs:
             ${{ runner.temp }}/PK9-base/*.json
             ${{ runner.temp }}/PK9-native/*.json
             ${{ runner.temp }}/PK9-comparison/*.json
+            ${{ runner.temp }}/PK9-delta-fixtures/delta-source-proof.json
           if-no-files-found: warn
           retention-days: 30
