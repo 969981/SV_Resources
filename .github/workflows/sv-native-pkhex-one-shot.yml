@@ -1,0 +1,210 @@
+name: SV 4.0.0 ORIGINAL native -> PKHeX one-shot reconstruction
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/sv-native-pkhex-one-shot.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/sv-native-pkhex-one-shot.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sv-native-pkhex-one-shot
+  cancel-in-progress: false
+
+jobs:
+  safe-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Locate-SV-PKHeX-Native-Packs.py
+            scripts/Extract-SV-PKHeX-Native-Packs.py
+            scripts/Resolve-SV-PKHeX-Havok-References.py
+            scripts/Compare-SV-Native-PKHeX-Encounters.py
+            scripts/Audit-SV-PKHeX-Encounters.py
+            tests/test_sv_native_encounter_locator.py
+            tests/test_sv_encounter_native_extract.py
+            tests/test_sv_pkhex_havok_references.py
+            tests/test_sv_native_pkhex_comparison.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fail-closed, no-ROM dependency and binary schema tests
+        run: |
+          python -m unittest discover -s tests -p test_sv_native_encounter_locator.py -v
+          python -m unittest discover -s tests -p test_sv_encounter_native_extract.py -v
+          python -m unittest discover -s tests -p test_sv_pkhex_havok_references.py -v
+          python -m unittest discover -s tests -p test_sv_native_pkhex_comparison.py -v
+
+  original-data-rebuild:
+    needs: safe-preflight
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: windows-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Reject insufficient disk; restore original private game data read-only
+        shell: pwsh
+        run: |
+          $disk = Get-PSDrive D -ErrorAction Stop
+          if ($disk.Free -lt 36GB) { throw 'Need >=36 GiB for 8GiB original archive restore and full SHA verification' }
+
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/workflows/sv-native-pkhex-one-shot.yml
+            violet_4.0.0_romfs_transfer_manifest.json
+            4.0.0/1/arc/data.trpfd
+            4.0.0/1/arc/data.trpfs.7z.*
+            scripts/SV-RomFS.Transfer.psm1
+            scripts/Restore-SV-Violet-RomFS.ps1
+            scripts/Prepare-SV-Trinity.ps1
+            scripts/Run-SV-FullExtract.py
+            scripts/sv_m2_parallel.py
+            scripts/Locate-SV-PKHeX-Native-Packs.py
+            scripts/Extract-SV-PKHeX-Native-Packs.py
+            scripts/Resolve-SV-PKHeX-Havok-References.py
+            scripts/Compare-SV-Native-PKHeX-Encounters.py
+            scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/deps/oo2core_8_win64.dll
+            tools/SV.TrinityDump/**
+            tools/gftool/**
+            tools/HashCaches/SV/**
+            tools/pkNX/**
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index/**
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Reproduce 61/61 locations from real original TRPFD
+        shell: pwsh
+        run: |
+          git config core.longpaths true
+          python scripts/Locate-SV-PKHeX-Native-Packs.py
+          if ($LASTEXITCODE -ne 0) { throw 'Native file index lookup failed' }
+          $m = Get-Content 'Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json' -Raw | ConvertFrom-Json
+          if ($m.summary.located -ne 61 -or $m.summary.selected_packs -ne 11 -or $m.summary.missing -ne 0 -or $m.summary.ambiguous -ne 0) {
+            throw 'Original game file index does not match proven 4.0.0 61-file/11-pack evidence'
+          }
+          Write-Host '61 original pkNX encounter sources found in 11 native packs.'
+
+      - name: Verify source 7z divisions, cache SHA and native decoder inputs
+        shell: pwsh
+        run: |
+          if (@(Get-ChildItem '4.0.0/1/arc/data.trpfs.7z.*' -File).Count -ne 83) { throw '83 original native TRPFS segments are required' }
+          if (-not (Test-Path 'scripts/deps/oo2core_8_win64.dll' -PathType Leaf)) { throw 'Oodle source dependency missing' }
+          $report=Get-Content 'tools/HashCaches/SV/hashcache-report.json' -Raw | ConvertFrom-Json
+          $sha=(Get-FileHash 'tools/HashCaches/SV/GFPAKHashCache.bin' -Algorithm SHA256).Hash
+          if ($sha -ne [string]$report.sha256) { throw 'Original game hash name cache SHA256 mismatch' }
+
+      - name: Restore and SHA verify 8GB original SV native archive in isolated workspace
+        shell: pwsh
+        run: |
+          $path=Join-Path $env:RUNNER_TEMP 'SV-4.0.0-PKHeX-Original'
+          New-Item -ItemType Directory -Force $path | Out-Null
+          New-Item -ItemType Directory -Force 'tools/_local' | Out-Null
+          Copy-Item 'tools/HashCaches/SV/GFPAKHashCache.bin' 'tools/_local/GFPAKHashCache.bin' -Force
+          & ./scripts/Prepare-SV-Trinity.ps1 -Workspace $path -SkipHashBuild
+          if (-not $?) { throw 'Restored original SV 4.0.0 TRPFD/TRPFS checksum failed' }
+          "SV_NATIVE_ROMFS=$path" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Extract 11 exact native packages and verify ALL 61 pkNX source files
+        shell: pwsh
+        run: |
+          python scripts/Extract-SV-PKHeX-Native-Packs.py --repo . --workspace $env:SV_NATIVE_ROMFS --selection Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json --max-packs 32 --max-packed-mib 64
+          if ($LASTEXITCODE -ne 0) { throw 'Original SV native files or their SHA256 were not verified' }
+
+      - name: Discover Havok collision file names from actual native TRSCN, not filenames guessed
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          python scripts/Resolve-SV-PKHeX-Havok-References.py --repo .
+          if ($LASTEXITCODE -ne 0) { throw 'Havok native TRCOL dependency resolver did not close all paths' }
+
+      - name: Compile exact pkNX Gen9 parser including real Kitakami fog source
+        shell: pwsh
+        run: |
+          dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release --nologo
+          if ($LASTEXITCODE -ne 0) { throw 'Native Gen9 pkNX headless engine build failed' }
+
+      - name: Generate genuine raid (+ wild/fixed if collision available) PKHeX binaries
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll --virtual-root Unpack/4.0.0/romfs/arc/data.trpfs/virtual --verified-manifest Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json --output "$env:RUNNER_TEMP/SV-native-pkhex-gen9"
+          if ($LASTEXITCODE -ne 0) { Write-Warning "Not all native Gen9 templates closed; inspect generated native-encounter-build.json or failure." }
+
+      - name: Independently checkout fixed PKHeX Gen9 legality reference
+        shell: pwsh
+        run: |
+          $root=Join-Path $env:RUNNER_TEMP 'PKHeX-Reference'
+          New-Item -ItemType Directory -Force $root | Out-Null
+          git -C $root init -q
+          git -C $root remote add origin https://github.com/kwsch/PKHeX.git
+          git -C $root sparse-checkout init --no-cone
+          git -C $root sparse-checkout set --no-cone 'PKHeX.Core/Resources/legality/wild/Gen9/*'
+          git -C $root -c protocol.version=2 fetch -q --depth=1 --filter=blob:none origin 0660d1e1f4924b8478daec73281bb8071a82ad19
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot fetch independent pinned PKHeX reference' }
+          git -C $root -c advice.detachedHead=false checkout -q --detach FETCH_HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot check out pinned PKHeX source' }
+          "SV_PKHEX_REF=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Compare new original-game PKHeX templates with independent reference, field by field
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          python scripts/Compare-SV-Native-PKHeX-Encounters.py --native-manifest Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json --build-evidence "$env:RUNNER_TEMP/SV-native-pkhex-gen9/native-encounter-build.json" --generated "$env:RUNNER_TEMP/SV-native-pkhex-gen9" --reference "$env:SV_PKHEX_REF/PKHeX.Core/Resources/legality/wild/Gen9" --output "$env:RUNNER_TEMP/SV-native-pkhex-diff"
+          if ($LASTEXITCODE -ne 0) { Write-Warning "PKHeX reference differs or only subset of templates exists; see exact diff report." }
+
+      - name: Clearly publish PASS, PARTIAL and BLOCKED state without changing Git sources
+        shell: pwsh
+        run: |
+          $diff=Join-Path $env:RUNNER_TEMP 'SV-native-pkhex-diff/native-comparison.json'
+          $build=Join-Path $env:RUNNER_TEMP 'SV-native-pkhex-gen9/native-encounter-build.json'
+          if (Test-Path $diff) {
+            $j=Get-Content $diff -Raw | ConvertFrom-Json
+            Write-Host "Native-vs-PKHeX status: $($j.status)"
+            "## Native PKHeX result: $($j.status)" | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+            foreach($p in $j.tables.PSObject.Properties) {
+              Write-Host "$($p.Name): $($p.Value.status); native=$($p.Value.native_records); reference=$($p.Value.reference_records)"
+            }
+          } elseif(Test-Path $build) {
+            $j=Get-Content $build -Raw | ConvertFrom-Json
+            "Native generation status: $($j.status); blocker=$($j.collisionBlocker)" | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          } else {
+            'Native build was blocked; no source-based PKHeX binary has been proven.' | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV-400-actual-native-pkhex-comparison
+          path: |
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-dependencies.json
+            ${{ runner.temp }}/SV-native-pkhex-gen9/*.pkl
+            ${{ runner.temp }}/SV-native-pkhex-gen9/*.json
+            ${{ runner.temp }}/SV-native-pkhex-diff/*.json
+            ${{ runner.temp }}/SV-native-pkhex-diff/*.csv
+          if-no-files-found: warn
+          retention-days: 30
