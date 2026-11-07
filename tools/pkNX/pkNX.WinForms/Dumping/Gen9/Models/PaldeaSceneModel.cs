@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Security.Cryptography;
 using pkNX.Containers;
 using pkNX.Structures.FlatBuffers.SV;
 using pkNX.Structures.FlatBuffers.SV.Trinity;
@@ -23,38 +24,46 @@ public class PaldeaSceneModel
     public Dictionary<string, HavokCollision.AABBTree>[] AreaCollisionTrees { get; } = [[], [], []];
     public Dictionary<string, BoxCollision9>[] AreaCollisionBoxes { get; } = [[], [], []];
     public Dictionary<string, PaldeaPointPivot>[] PaldeaType { get; } = [[], [], []];
+    // Metadata only, NOT used by the native collider/spawn algorithm.
+    public Dictionary<string, EncounterCollisionOriginSV>[] AreaCollisionOrigins { get; } = [[], [], []];
 
     public PaldeaSceneModel(IFileInternal ROM, PaldeaFieldModel field)
     {
         // NOTE: Safe to only use _0 because _1 is identical.
-        var area_collision = FlatBufferConverter.DeserializeFrom<TrinitySceneObjectTemplate>(ROM.GetPackedFile("world/scene/parts/field/resident_event/resident_area_collision_/resident_area_collision_0.trscn"));
+        const string paldeaMainTrscn = "world/scene/parts/field/resident_event/resident_area_collision_/resident_area_collision_0.trscn";
+        var area_collision = FlatBufferConverter.DeserializeFrom<TrinitySceneObjectTemplate>(ROM.GetPackedFile(paldeaMainTrscn));
         Debug.Assert(area_collision.ObjectTemplateName == "resident_area_collision");
 
         // NOTE: Safe to only use _0 because _1 is identical.
-        var a0 = ROM.GetPackedFile("world/scene/parts/field/room/a_w23_field/a_w23_field_area_col_/a_w23_field_area_col_0.trscn");
+        const string paldeaAreaZeroTrscn = "world/scene/parts/field/room/a_w23_field/a_w23_field_area_col_/a_w23_field_area_col_0.trscn";
+        var a0 = ROM.GetPackedFile(paldeaAreaZeroTrscn);
         var a_w23_field_area_col = FlatBufferConverter.DeserializeFrom<TrinitySceneObjectTemplate>(a0);
         Debug.Assert(a_w23_field_area_col.ObjectTemplateName == "a_w23_field_area_col");
 
-        foreach (var obj in area_collision.Objects.Concat(a_w23_field_area_col.Objects))
-            AddIfAppropriate(ROM, field, PaldeaFieldIndex.Paldea, a_w23_field_area_col.Objects, obj);
+        foreach (var obj in area_collision.Objects)
+            AddIfAppropriate(ROM, field, PaldeaFieldIndex.Paldea, a_w23_field_area_col.Objects, obj, paldeaMainTrscn);
+        foreach (var obj in a_w23_field_area_col.Objects)
+            AddIfAppropriate(ROM, field, PaldeaFieldIndex.Paldea, a_w23_field_area_col.Objects, obj, paldeaAreaZeroTrscn);
 
         // NOTE: Safe to only use _0 because _1 is identical.
-        var area_collision_su1 = FlatBufferConverter.DeserializeFrom<TrinitySceneObjectTemplate>(ROM.GetPackedFile("world/scene/parts/field/main/field_1/field_main/resident_event/resident_area_collision_/resident_area_collision_0.trscn"));
+        const string kitakamiTrscn = "world/scene/parts/field/main/field_1/field_main/resident_event/resident_area_collision_/resident_area_collision_0.trscn";
+        var area_collision_su1 = FlatBufferConverter.DeserializeFrom<TrinitySceneObjectTemplate>(ROM.GetPackedFile(kitakamiTrscn));
         Debug.Assert(area_collision_su1.ObjectTemplateName == "resident_area_collision");
 
         foreach (var obj in area_collision_su1.Objects)
-            AddIfAppropriate(ROM, field, PaldeaFieldIndex.Kitakami, [], obj);
+            AddIfAppropriate(ROM, field, PaldeaFieldIndex.Kitakami, [], obj, kitakamiTrscn);
 
         // NOTE: Safe to only use _0 because _1 is identical.
-        var area_collision_su2 = FlatBufferConverter.DeserializeFrom<TrinitySceneObjectTemplate>(ROM.GetPackedFile("world/scene/parts/field/main/field_2/field_main/resident_event/resident_area_collision_/resident_area_collision_0.trscn"));
+        const string terariumTrscn = "world/scene/parts/field/main/field_2/field_main/resident_event/resident_area_collision_/resident_area_collision_0.trscn";
+        var area_collision_su2 = FlatBufferConverter.DeserializeFrom<TrinitySceneObjectTemplate>(ROM.GetPackedFile(terariumTrscn));
         Debug.Assert(area_collision_su2.ObjectTemplateName == "resident_area_collision");
 
         foreach (var obj in area_collision_su2.Objects)
-            AddIfAppropriate(ROM, field, PaldeaFieldIndex.Terarium, [], obj);
+            AddIfAppropriate(ROM, field, PaldeaFieldIndex.Terarium, [], obj, terariumTrscn);
     }
 
     private void AddIfAppropriate(IFileInternal ROM, PaldeaFieldModel field, PaldeaFieldIndex index,
-        IList<TrinitySceneObjectTemplateEntry> a0, TrinitySceneObjectTemplateEntry obj)
+        IList<TrinitySceneObjectTemplateEntry> a0, TrinitySceneObjectTemplateEntry obj, string trscnSource)
     {
         if (!(obj.SubObjects.Count > 0 && obj.SubObjects[0].Type == "trinity_CollisionComponent"))
             return;
@@ -74,14 +83,14 @@ public class PaldeaSceneModel
                 var sceneObject = FlatBufferConverter.DeserializeFrom<TrinitySceneObject>(sObj.Data);
                 Debug.Assert(sceneObject.ObjectName == sObj.ObjectTemplateExtra);
 
-                AddSceneObject(index, sObj.ObjectTemplateName, sceneObject, collision, field, ROM);
+                AddSceneObject(index, sObj.ObjectTemplateName, sceneObject, collision, field, ROM, trscnSource);
                 PaldeaType[(int)index][sObj.ObjectTemplateName] = isAtlantisObj;
                 break;
             }
             case "trinity_SceneObject":
             {
                 var sceneObject = FlatBufferConverter.DeserializeFrom<TrinitySceneObject>(obj.Data);
-                AddSceneObject(index, sceneObject.ObjectName, sceneObject, collision, field, ROM);
+                AddSceneObject(index, sceneObject.ObjectName, sceneObject, collision, field, ROM, trscnSource);
                 PaldeaType[(int)index][sceneObject.ObjectName] = isAtlantisObj;
                 break;
             }
@@ -101,7 +110,7 @@ public class PaldeaSceneModel
         return PaldeaPointPivot.Overworld;
     }
 
-    private void AddSceneObject(PaldeaFieldIndex index, string name, TrinitySceneObject sceneObject, CollisionUnion shape, PaldeaFieldModel field, IFileInternal ROM)
+    private void AddSceneObject(PaldeaFieldIndex index, string name, TrinitySceneObject sceneObject, CollisionUnion shape, PaldeaFieldModel field, IFileInternal ROM, string trscnSource)
     {
         AreaNames[(int)index].Add(name);
         AreaInfos[(int)index][name] = field.FindAreaInfo(index, name);
@@ -116,10 +125,18 @@ public class PaldeaSceneModel
                 Position = sceneObject.ObjectPosition.Field02,
                 Size = box!.Field02,
             };
+            if (EncounterTraceSV.Enabled)
+                AreaCollisionOrigins[(int)index][name] = new(
+                    trscnSource, "BOX", "", "",
+                    sceneObject.ObjectPosition.Field02.ToString(), box.Field02.ToString());
         }
         else if (shape.TryGet(out Havok? havok))
         {
             var havokData = ROM.GetPackedFile(havok!.TrcolFilePath);
+            if (EncounterTraceSV.Enabled)
+                AreaCollisionOrigins[(int)index][name] = new(
+                    trscnSource, "HAVOK_TRCOL", havok.TrcolFilePath,
+                    Convert.ToHexString(SHA256.HashData(havokData.Span)), null, null);
             AreaCollisionTrees[(int)index][name] = HavokCollision.ParseAABBTree(havokData);
         }
     }
