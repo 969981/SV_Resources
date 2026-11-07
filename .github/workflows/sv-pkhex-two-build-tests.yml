@@ -1,0 +1,36 @@
+name: SV native Gen9 two-build PK9 legality guards
+on:
+  pull_request:
+    paths:
+      - 'scripts/Stage-SV-Native-PKHeX-Resources.py'
+      - 'scripts/Compare-SV-PK9-Embedded-Legality.py'
+      - 'tests/test_sv_pkhex_embedded_legality.py'
+      - '.github/workflows/sv-pkhex-two-build-tests.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Stage-SV-Native-PKHeX-Resources.py'
+      - 'scripts/Compare-SV-PK9-Embedded-Legality.py'
+      - 'tests/test_sv_pkhex_embedded_legality.py'
+      - '.github/workflows/sv-pkhex-two-build-tests.yml'
+permissions:
+  contents: read
+jobs:
+  no-rom-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Stage-SV-Native-PKHeX-Resources.py
+            scripts/Compare-SV-PK9-Embedded-Legality.py
+            tests/test_sv_pkhex_embedded_legality.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify all five native source SHA and same-PK9 specimen guardrails
+        run: |
+          python -m py_compile scripts/Stage-SV-Native-PKHeX-Resources.py scripts/Compare-SV-PK9-Embedded-Legality.py
+          python -m unittest discover -s tests -p test_sv_pkhex_embedded_legality.py -v
