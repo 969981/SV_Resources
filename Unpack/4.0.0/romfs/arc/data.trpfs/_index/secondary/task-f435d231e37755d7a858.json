@@ -1,0 +1,164 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/plants_me_tree_bamboo_small02",
+  "kind": "all",
+  "completed_utc": "2026-11-07T20:06:22.922892+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 11,
+  "selection_sha256": "6c27bf99d7a1e34b2543cbe4e9611bce67bb1a5618a621fbfb9573b7220530ca",
+  "index": {
+    "available": 11,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 11,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 8,
+      "BY_EXTENSION:trcol": 1,
+      "BNTX": 2
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 2,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/plants_me_tree_bamboo_small02",
+      "cursor": "field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/_inspection/630628e0dd89ed11.jsonl",
+    "source_files": 11,
+    "inspection_records": 11,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 10
+    },
+    "manifest_sha256": "661BFF6E0432DCD77E787F436760558DE4B161FDD4217E57717550F4C2D94E44"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/_inspection/630628e0dd89ed11.jsonl",
+      "bytes": 8109,
+      "sha256": "661BFF6E0432DCD77E787F436760558DE4B161FDD4217E57717550F4C2D94E44"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02.trmbf.flatbuffer.json",
+      "bytes": 34718,
+      "sha256": "1FF53DAD4B51A4C938A5D37E28ACBFBDCFD385AAB613EAE2D43D9C24A7785500"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02.trmdl.flatbuffer.json",
+      "bytes": 924,
+      "sha256": "E2128BF306AFE87EF9B1BA1E409EF7E901EF65B5BD93CB028D4C6EDC977C0837"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02.trmdl.object.json",
+      "bytes": 6285,
+      "sha256": "415C404E6A47BE3B831E9470A0AF484118BD7E47005D06D9A8CC983F714A8103"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02.trmsh.flatbuffer.json",
+      "bytes": 1437,
+      "sha256": "E1B8C19B0544A5C3AD698C8860CCB6F12CA020B81B5C9E196A56F0A93FE6E889"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02.trmtr.flatbuffer.json",
+      "bytes": 7767,
+      "sha256": "75C10DB75A971A3175FBBB25E5A29BC0755ED141386B93C1CBBBA83EAF7AB4EC"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02_lod1.trmbf.flatbuffer.json",
+      "bytes": 24493,
+      "sha256": "2A0F35BCF5FE3FED7B77B9F6D72E4A146EEA3C18D68262CA68F15B3BA49CC69A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02_lod1.trmsh.flatbuffer.json",
+      "bytes": 1446,
+      "sha256": "0953F0A2BE6360F819B87059A9422F221822C56B419181E3B2E5D73826FA806C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02_lod2.trmbf.flatbuffer.json",
+      "bytes": 974,
+      "sha256": "4B4326578D36EA45D709E508D8C4801FFFA8C27155B1CD974004D18DFA7D26AE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02_lod2.trmsh.flatbuffer.json",
+      "bytes": 1242,
+      "sha256": "05438B65FE87ACD7753DE6C6A5AD5D195C6E50F48B232A3ED9E0545E02D8139E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02_lod_alb.bntx.json",
+      "bytes": 333,
+      "sha256": "91AE12116DCB19D2CF4E19756042DFF05EF27936159DF0F32EDB81D9A1159688"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02_lod_nrm.bntx.json",
+      "bytes": 331,
+      "sha256": "01FA568522B8DBF2FCAE68C386FFEFD7B7DD9DB4A853E3D6F300EBD7B4D840D4"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02_lod_alb.png",
+      "bytes": 42790,
+      "sha256": "665ED1CA6BDFFB98C2C6F59895FA06C81D33D3D9EC104A6D8B138475C46C05BB"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/plants_me_tree_bamboo_small02/plants_me_tree_bamboo_small02_lod_nrm.png",
+      "bytes": 5157,
+      "sha256": "ABC683F568946F86C3DF52529A2DAEA1D2475494A9AE1079B7870239C71C9591"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
