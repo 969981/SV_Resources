@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "task": "effect/paint_surface/all#00000",
+  "input_fingerprint": "D950A93FA5BC7799EADAF6FFD3F12CD776BE85F116962F085F8DA8ED4F27A996",
+  "input_files": 1,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1
+  },
+  "sources": [
+    {
+      "source": "effect/paint_surface/all/paint_surface_all.bntx",
+      "source_sha256": "16725E4A370C022E4794A8D11C4C95A6CB6F305FD4BE8FEEAA889E71FA22F5AB",
+      "bytes": 2617456,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40D00100000000A00100F0270070F02700",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/effect/paint_surface/all/_inspection/d1beaa7b9a1bd147.jsonl",
+      "path": "virtual_converted/_parsed/effect/paint_surface/all/_inspection/d1beaa7b9a1bd147.jsonl",
+      "sha256": "5886F0974A0B20AF82D57D06FB33852125188B5858CE8DF9C7D3B16D12B6324D",
+      "bytes": 533
+    },
+    {
+      "pipeline_path": "parsed/effect/paint_surface/all/paint_surface_all.bntx.json",
+      "path": "virtual_converted/_parsed/effect/paint_surface/all/paint_surface_all.bntx.json",
+      "sha256": "AED66A03FD34765158457EA508222A37A700CB4D08720DB655E3ED8659EBBC8A",
+      "bytes": 281
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "effect/paint_surface/all/paint_surface_all.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 1
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "effect/paint_surface/all",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
