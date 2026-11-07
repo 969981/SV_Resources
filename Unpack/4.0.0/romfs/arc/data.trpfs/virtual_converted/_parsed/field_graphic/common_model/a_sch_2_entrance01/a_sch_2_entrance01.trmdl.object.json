@@ -45,8 +45,8 @@
       "role": "vertex_index_buffers",
       "evidence": "TRMSH",
       "required": true,
-      "exists": true,
-      "size_bytes": 6933792
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_2_entrance01/a_sch_2_entrance01.trmtr",
@@ -73,10 +73,12 @@
       "size_bytes": 1405040
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_2_entrance01/a_sch_2_entrance01.trmbf"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -86,14 +88,14 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "680982203400AE0E469352A88F9682B74702593C4712E28CF1C3651FBDB7F0F2",
+  "fingerprint": "E1CF6A6287FD438A7C49C3245D33B8A49EA8742B13FD2250FFD37F0490C7CF3A",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
     {
       "path": "field_graphic/common_model/a_sch_2_entrance01/a_sch_2_entrance01.trmbf",
       "required": true,
-      "sha256": "4B1BB63604FCB81C628F5AA0F62C3239274BDD369D7D4B13416F51D42DF92243"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_2_entrance01/a_sch_2_entrance01.trmdl",
@@ -120,28 +122,5 @@
       "required": false,
       "sha256": "5B4B55FA7C79169B7904EEBA87926A3ABAB33151A664AEA088DC9A74EEE45C24"
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 56,
-    "primitive_count": 56,
-    "materials_count": 55,
-    "uv_primitive_count": 56,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_2_entrance01.bin",
-        "bytes": 219786604,
-        "sha256": "94AD870DF5007ADEC6085F63F209B85985F6B437AE7B6D8CA48E6841441297B5"
-      },
-      {
-        "path": "a_sch_2_entrance01_textures/a_sch_2_entrance01_base01_attic01_alb.png",
-        "bytes": 673703,
-        "sha256": "446A8301E2292BCD613DAF34EC484030EEF194A378EFB3313EE778C61A79C062"
-      }
-    ],
-    "gltf_sha256": "FF93C198637CE48639946D2E3717C320CAD6A8A5426EBDA0A52B6A903B0C6997"
-  }
+  ]
 }
