@@ -249,3 +249,27 @@ jobs:
             ${{ runner.temp }}/SV-PK9-legality/*.json
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Enforce actual original-source -> PKHeX and PK9 evidence gates
+        if: always()
+        shell: pwsh
+        run: |
+          $source='Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json'
+          $col='Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json'
+          $build=Join-Path $env:RUNNER_TEMP 'SV-native-pkhex-gen9/native-encounter-build.json'
+          $diff=Join-Path $env:RUNNER_TEMP 'SV-native-pkhex-diff/native-comparison.json'
+          $legality=Join-Path $env:RUNNER_TEMP 'SV-PK9-legality/pk9-legality-analysis.json'
+          $all=@($source,$col,$build,$diff,$legality)
+          $missing=@($all | Where-Object { -not (Test-Path $_ -PathType Leaf) })
+          if ($missing.Count -gt 0) { throw "Not validated: absent original source/geometry/native/diff/PK9 evidence: $($missing -join ', ')" }
+          $a=Get-Content $source -Raw | ConvertFrom-Json
+          $b=Get-Content $col -Raw | ConvertFrom-Json
+          $c=Get-Content $build -Raw | ConvertFrom-Json
+          $d=Get-Content $diff -Raw | ConvertFrom-Json
+          $e=Get-Content $legality -Raw | ConvertFrom-Json
+          if ($a.status -ne '61_NATIVE_TARGETS_EXTRACTED_SHA256_VERIFIED') { throw 'Original game 61 input source not validated' }
+          if ($b.status -ne 'TRCOL_ORIGINAL_SHA256_VERIFIED' -or $b.unique_trcol_paths -ne 223) { throw '223 original Havok dependency data not yet validated' }
+          if ($c.status -ne 'GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES') { throw "Not complete: native generator=$($c.status) collisionBlocker=$($c.collisionBlocker)" }
+          if ($d.status -eq 'NATIVE_PKHEX_FIELD_LEVEL_DIFFERENCES_REQUIRE_INVESTIGATION') { throw 'Actual native generator differs from pinned PKHeX; inspect uploaded field CSV' }
+          if ($e.actualOriginalPk9Fixtures -lt 1 -or $e.validOfficialReferenceFixtures -lt 1) { throw 'Real PK9 legality samples did not pass' }
+          Write-Host 'All source/geometry/PKHeX comparison/PK9 probe evidence produced.'
