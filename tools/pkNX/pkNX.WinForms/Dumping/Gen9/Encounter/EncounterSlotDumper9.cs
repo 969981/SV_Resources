@@ -224,6 +224,14 @@ public static class EncounterSlotDumper9
         bw.Write(crossover);
         foreach (var slot in slots)
         {
+            if (EncounterTraceSV.Wild(loc, slot.Species) ||
+                EncounterTraceSV.Wild(crossover, slot.Species))
+                EncounterTraceSV.Write(new {
+                    stage="wild_serialized", location=loc, crossFrom=crossover,
+                    species=slot.Species, form=slot.Form, gender=slot.Sex,
+                    minLevel=slot.MinLevel, maxLevel=slot.MaxLevel,
+                    timeMask=slot.Time, weatherMask=(byte)slot.Weather
+                });
             ushort species = slot.Species;
             byte form = slot.Species switch
             {
