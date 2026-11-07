@@ -121,6 +121,25 @@ class NativeSVComparisonTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 mod.compare(src,evidence,out,ref,root/"diff")
 
+    def test_native_raid_binary_still_compares_if_collision_is_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            src,evidence,out,ref,built=prepare(root)
+            raid=struct.pack("<HBBBBBBHHHHBBBBhh",
+                150,0,1,2,5,1,75,33,45,85,99,12,7,6,10,-1,100)
+            name=mod.NAMES["raid_paldea"]
+            (out/name).write_bytes(raid)
+            (ref/name).write_bytes(raid)
+            built["generated"]=[{"name":name,"bytes":len(raid),"sha256":mod.sha(raid)}]
+            built["status"]="GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES_PARTIAL"
+            built["collisionBlocker"]="MISSING_ORIGINAL_NATIVE_ASSET: field/area/havok.trcol"
+            evidence.write_text(json.dumps(built),"utf-8")
+            outcome=mod.compare(src,evidence,out,ref,root/"diff")
+            self.assertEqual(outcome["tables"]["raid_paldea"]["status"],"EXACT_BINARY_MATCH")
+            self.assertEqual(outcome["tables"]["wild"]["status"],"NOT_GENERATED_FROM_NATIVE")
+            self.assertEqual(outcome["tables"]["fixed"]["status"],"NOT_GENERATED_FROM_NATIVE")
+            self.assertEqual(outcome["status"],"NATIVE_TABLES_MATCH_BYTE_FOR_BYTE_BUT_PARTIAL_LEGALITY_COVERAGE")
+
     def test_preserves_multiplicity_and_ignores_order(self):
         orig=[{"location_id":6,"cross_from_id":0,"species_national":25,
                "form_raw":0,"gender_raw":0,"level_min":5,"level_max":9,
