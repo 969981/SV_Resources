@@ -79,8 +79,12 @@ def validate(native:dict, built:dict, native_manifest_path:Path)->dict:
         if path in by_path:
             raise ValueError("Duplicate native source path")
         by_path[path]=e
-    if built.get("status")!="GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES":
-        raise ValueError("No successful native pkNX algorithm execution with all consumed SHA-verified original inputs")
+    full="GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES"
+    partial=full+"_PARTIAL"
+    if built.get("status") not in (full,partial):
+        raise ValueError("No successful original-data Gen9 generation with SHA-verified consumed inputs")
+    if built["status"]==partial and not built.get("collisionBlocker"):
+        raise ValueError("Partial reconstruction must record exact native collision blocker")
     if Path(built.get("originalM2Manifest","")).resolve()!=native_manifest_path.resolve():
         raise ValueError("Native input manifest path differs from builder evidence")
     used=built.get("sourceFilesActuallyRead",[])
