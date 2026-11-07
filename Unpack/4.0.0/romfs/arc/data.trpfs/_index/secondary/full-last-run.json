@@ -2,155 +2,17 @@
   "schemaVersion": 1,
   "source_version": "4.0.0",
   "parallel_workers": 4,
-  "elapsed_seconds": 26.922,
+  "elapsed_seconds": 35.828,
   "selected_count": 12,
-  "input_files": 250,
-  "files_per_second": 9.29,
+  "input_files": 213,
+  "files_per_second": 5.95,
   "completed_count": 12,
-  "parsed_records": 250,
-  "structurally_parsed": 240,
-  "inspected_unparsed": 10,
+  "parsed_records": 213,
+  "structurally_parsed": 207,
+  "inspected_unparsed": 6,
   "error_count": 0,
-  "partial_count": 7,
+  "partial_count": 6,
   "attempts": [
-    {
-      "task": "field_graphic/terrain_model/objects_un_pobjdrinkingfountain01#00000",
-      "fingerprint": "AC729678D1201E66328119B8EF5609B4729C06F031823A2D8ED25801A770F0EE",
-      "input_files": 15,
-      "status": "PARTIAL",
-      "unresolved": 2,
-      "returncode": 2,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BNTX": 6,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 6,
-          "ok": 6,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 1,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_pobjdrinkingfountain01",
-          "cursor": "field_graphic/terrain_model/objects_un_pobjdrinkingfountain01/objects_un_pobjdrinkingfountain01.trmdl",
-          "issues": [
-            {
-              "source": "field_graphic/terrain_model/objects_un_pobjdrinkingfountain01/objects_un_pobjdrinkingfountain01.trmdl",
-              "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
-            }
-          ]
-        }
-      },
-      "outputs": 22,
-      "parsed_records": 15,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pobjdrinkingfountain01/_inspection/56ea87480e9e421d.jsonl",
-      "inspection_sha256": "A85D0D7F1B933388C56DBECE4BC68EB63D4C594B586436A062D5D390BFA97FC8",
-      "structurally_parsed": 14,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 23,
-      "elapsed_seconds": 9.422,
-      "updated_utc": "2026-11-07T17:33:18.708730+00:00",
-      "partial_attempts": 2
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_pobjwaterplace01#00000",
-      "fingerprint": "8B7094E4C1096F8CCB9D68330482ACA2E23EF6703AAAEBAFF79F2CE9C25EC3B5",
-      "input_files": 14,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BNTX": 5,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 5,
-          "ok": 5,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 1,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_pobjwaterplace01",
-          "cursor": "field_graphic/terrain_model/objects_un_pobjwaterplace01/objects_un_pobjwaterplace01.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 28,
-      "parsed_records": 14,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pobjwaterplace01/_inspection/4a8038ab6ba5e11a.jsonl",
-      "inspection_sha256": "E1CF52D911ECA49ECC02CA71EE044EA54C1A8A25729C9830A53F27AACC9DCFDC",
-      "structurally_parsed": 13,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 29,
-      "elapsed_seconds": 9.563,
-      "updated_utc": "2026-11-07T17:33:18.768385+00:00"
-    },
     {
       "task": "field_graphic/terrain_model/objects_un_pokecen01_circle01#00000",
       "fingerprint": "AB19A869780520306FFE489B3838FF23F5CD85D5AB4D271DC124C18382C9E4E6",
@@ -219,9 +81,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 13,
-      "elapsed_seconds": 9.281,
-      "updated_utc": "2026-11-07T17:33:18.796775+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 12.828,
+      "updated_utc": "2026-11-07T17:35:57.521417+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_pokecen01_machine01#00000",
@@ -291,9 +153,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 65,
-      "elapsed_seconds": 10.531,
-      "updated_utc": "2026-11-07T17:33:18.918287+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 14.656,
+      "updated_utc": "2026-11-07T17:35:57.680285+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_pokecen01_machine02#00000",
@@ -363,9 +225,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 54,
-      "elapsed_seconds": 8.047,
-      "updated_utc": "2026-11-07T17:33:19.033215+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 13.797,
+      "updated_utc": "2026-11-07T17:35:57.814803+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_pokecen01_tablet01#00000",
@@ -435,9 +297,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 42,
-      "elapsed_seconds": 6.641,
-      "updated_utc": "2026-11-07T17:33:19.118050+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 12.781,
+      "updated_utc": "2026-11-07T17:35:57.931853+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_pokecen01_tablet02#00000",
@@ -507,9 +369,9 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 48,
-      "elapsed_seconds": 6.625,
-      "updated_utc": "2026-11-07T17:33:19.213106+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 9.594,
+      "updated_utc": "2026-11-07T17:35:58.061052+00:00",
+      "partial_attempts": 2
     },
     {
       "task": "field_graphic/terrain_model/objects_un_pokemoncenter01#00000",
@@ -579,145 +441,13 @@
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 89,
-      "elapsed_seconds": 10.125,
-      "updated_utc": "2026-11-07T17:33:19.395700+00:00",
-      "partial_attempts": 1
+      "elapsed_seconds": 14.094,
+      "updated_utc": "2026-11-07T17:35:58.292996+00:00",
+      "partial_attempts": 2
     },
     {
-      "task": "field_graphic/terrain_model/objects_un_post01#00000",
-      "fingerprint": "E96744A7B432C415DC155373E7626E657D3B497959B12BA88A4612B02FB5BAE8",
-      "input_files": 14,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 8,
-        "BNTX": 5,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 5,
-          "ok": 5,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 1,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_post01",
-          "cursor": "field_graphic/terrain_model/objects_un_post01/objects_un_post01.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 28,
-      "parsed_records": 14,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_post01/_inspection/ceafefe07b084a61.jsonl",
-      "inspection_sha256": "BFE5569B77FCDC9C47644BCFE759FE7EEEF5970C741FFF1E5F62213168AA1D06",
-      "structurally_parsed": 13,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 29,
-      "elapsed_seconds": 6.468,
-      "updated_utc": "2026-11-07T17:33:19.467323+00:00"
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_postbox01#00000",
-      "fingerprint": "1628E9193E770348DC85CB22BB976F5FEAA0FD390CBDC59E31F7FD986DB96E97",
-      "input_files": 10,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "FLATBUFFER_CANDIDATE": 4,
-        "BNTX": 5,
-        "BY_EXTENSION:trcol": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 5,
-          "ok": 5,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 1,
-            "parsed": 0,
-            "converted": 1,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_postbox01",
-          "cursor": "field_graphic/terrain_model/objects_un_postbox01/objects_un_postbox01.trmdl",
-          "issues": []
-        }
-      },
-      "outputs": 24,
-      "parsed_records": 10,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_postbox01/_inspection/1f5f5029b4b0a287.jsonl",
-      "inspection_sha256": "FC196D7AD51C1F83186E261F713C304DD5716385F5AC97225BED4B16351494E0",
-      "structurally_parsed": 9,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 25,
-      "elapsed_seconds": 6.437,
-      "updated_utc": "2026-11-07T17:33:19.520376+00:00"
-    },
-    {
-      "task": "field_graphic/terrain_model/objects_un_pot01#00000",
-      "fingerprint": "64A2291A4CE76816C2311907E7B3CB7D2C7FAFD3E73969D3A5CB670A1A40EB39",
+      "task": "field_graphic/terrain_model/objects_un_pot03#00000",
+      "fingerprint": "2C0EA48A86698C184972D321125FC8B8895105BE302BCCA1E085FDD405D7C8F4",
       "input_files": 4,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -762,26 +492,26 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_pot01",
-          "cursor": "field_graphic/terrain_model/objects_un_pot01/objects_un_pot01.trmdl",
+          "prefix": "field_graphic/terrain_model/objects_un_pot03",
+          "cursor": "field_graphic/terrain_model/objects_un_pot03/objects_un_pot03.trmdl",
           "issues": []
         }
       },
       "outputs": 8,
       "parsed_records": 4,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pot01/_inspection/2f09ab38f64ba6ea.jsonl",
-      "inspection_sha256": "FF7829550E1014F4BA9677D0725B2DC4C23B565DD866DA57E66293661AC56E89",
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pot03/_inspection/23660a91b3e41575.jsonl",
+      "inspection_sha256": "AF4114E0B172445650B614C8DE5C4FD80A639636C538E1293E53472E8C499DC1",
       "structurally_parsed": 4,
       "inspected_unparsed": 0,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 9,
-      "elapsed_seconds": 5.797,
-      "updated_utc": "2026-11-07T17:33:19.540206+00:00"
+      "elapsed_seconds": 8.641,
+      "updated_utc": "2026-11-07T17:35:58.341428+00:00"
     },
     {
-      "task": "field_graphic/terrain_model/objects_un_pot02#00000",
-      "fingerprint": "BC41B89C282F49552692D0524FAC4A3564EFF87F42536E487D04E410AD616884",
+      "task": "field_graphic/terrain_model/objects_un_pot04#00000",
+      "fingerprint": "33412792A02C294F177A349B6A33958CDC42D143C2687EDA4DB17DC4AB8E7F59",
       "input_files": 4,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -826,24 +556,280 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "field_graphic/terrain_model/objects_un_pot02",
-          "cursor": "field_graphic/terrain_model/objects_un_pot02/objects_un_pot02.trmdl",
+          "prefix": "field_graphic/terrain_model/objects_un_pot04",
+          "cursor": "field_graphic/terrain_model/objects_un_pot04/objects_un_pot04.trmdl",
           "issues": []
         }
       },
       "outputs": 8,
       "parsed_records": 4,
-      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pot02/_inspection/f0fc47029f1f2ae7.jsonl",
-      "inspection_sha256": "9A2AA7A108E0BED41AF70C96F15589D65D0A82EBF0452E713A3CFFC6F2504953",
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pot04/_inspection/c9f48a466beb0c05.jsonl",
+      "inspection_sha256": "F7AB59D3889B7018DCDBACC44F74286F7DB344CB116F3CBFA601F9DF1BF21912",
       "structurally_parsed": 4,
       "inspected_unparsed": 0,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 9,
-      "elapsed_seconds": 4.704,
-      "updated_utc": "2026-11-07T17:33:19.560036+00:00"
+      "elapsed_seconds": 8.719,
+      "updated_utc": "2026-11-07T17:35:58.366334+00:00"
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_pot05#00000",
+      "fingerprint": "D882DE797C3F58196F749BBBB168EEDEB62922BC7B382834CED263B94D80F32E",
+      "input_files": 4,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 4
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 1,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_pot05",
+          "cursor": "field_graphic/terrain_model/objects_un_pot05/objects_un_pot05.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 8,
+      "parsed_records": 4,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pot05/_inspection/9bb641eb2b0351aa.jsonl",
+      "inspection_sha256": "1B0677319835F8855DBF8B9E6DA675229DB0E0C450936B2D82C62E05B18B32AA",
+      "structurally_parsed": 4,
+      "inspected_unparsed": 0,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 9,
+      "elapsed_seconds": 8.313,
+      "updated_utc": "2026-11-07T17:35:58.392797+00:00"
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_pot06#00000",
+      "fingerprint": "9162EC3CFA602CA78BB95C270039BAFCA5D1299ABEC100959E436F61E20FC182",
+      "input_files": 4,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 4
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 1,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_pot06",
+          "cursor": "field_graphic/terrain_model/objects_un_pot06/objects_un_pot06.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 8,
+      "parsed_records": 4,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pot06/_inspection/a16205ec83d383ca.jsonl",
+      "inspection_sha256": "5E05E6657DC864827B61C23936924B839663F11DE9DCA1D4746D25E87ED5F9B6",
+      "structurally_parsed": 4,
+      "inspected_unparsed": 0,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 9,
+      "elapsed_seconds": 8.437,
+      "updated_utc": "2026-11-07T17:35:58.417914+00:00"
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_pot07#00000",
+      "fingerprint": "3D5C9833C0F0ECF5B7F2739EBB1D4BFCDB532DFF658693CE4F4FBBE1BAEB8361",
+      "input_files": 4,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 4
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 1,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_pot07",
+          "cursor": "field_graphic/terrain_model/objects_un_pot07/objects_un_pot07.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 8,
+      "parsed_records": 4,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pot07/_inspection/6ed1cc95c001e7c0.jsonl",
+      "inspection_sha256": "10EFB18FF9313C0696A6D3CDFBA96504399CE3641031C6B1428E170BB265E4BD",
+      "structurally_parsed": 4,
+      "inspected_unparsed": 0,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 9,
+      "elapsed_seconds": 8.031,
+      "updated_utc": "2026-11-07T17:35:58.444124+00:00"
+    },
+    {
+      "task": "field_graphic/terrain_model/objects_un_pot08#00000",
+      "fingerprint": "AD10DAC3B0F35E6B568A9E3DE55DCD9625A61734AA4098B2057F5249DE5CEB0B",
+      "input_files": 4,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 4
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 1,
+            "parsed": 0,
+            "converted": 1,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "field_graphic/terrain_model/objects_un_pot08",
+          "cursor": "field_graphic/terrain_model/objects_un_pot08/objects_un_pot08.trmdl",
+          "issues": []
+        }
+      },
+      "outputs": 8,
+      "parsed_records": 4,
+      "inspection_manifest": "parsed/field_graphic/terrain_model/objects_un_pot08/_inspection/cfc2b7ac63899971.jsonl",
+      "inspection_sha256": "7B1297BADCD01E9847F660328097AB4E57BB737FB3613A25D9D2B53B84480192",
+      "structurally_parsed": 4,
+      "inspected_unparsed": 0,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 9,
+      "elapsed_seconds": 6.984,
+      "updated_utc": "2026-11-07T17:35:58.469249+00:00"
     }
   ],
-  "updated_utc": "2026-11-07T17:33:20.063058+00:00",
+  "updated_utc": "2026-11-07T17:35:59.132812+00:00",
   "policy": "UNKNOWN_FORMATS_AND_VISUAL_REVIEW_NOT_AUTOMATICALLY_CONFIRMED"
 }
