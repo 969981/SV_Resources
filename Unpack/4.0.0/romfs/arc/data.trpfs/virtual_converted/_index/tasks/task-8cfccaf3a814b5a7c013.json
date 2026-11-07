@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_com_house_obj#00000.part1.part1.part0.part0.part0.part0.part1.part1.part0",
+  "input_fingerprint": "CF79D3DAD12585E380ECADA53B92F64410AA7105762E2D98D2FFE75A50FD8262",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmdl",
+      "source_sha256": "84D43F78EC475F69DAEC425FF898D7F63C033E89F7BC20357A078E83DDCD031A",
+      "bytes": 244,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1800000000001200240000000400000008000C00100014001200000088000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          36,
+          4
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/_inspection/6c9807b4ff761949.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/_inspection/6c9807b4ff761949.jsonl",
+      "sha256": "56A9CD9F7392695F84E1D73EA1ED8D042159366E74B9AFC2DD8A520C358F0326",
+      "bytes": 742
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmdl.flatbuffer.json",
+      "sha256": "563B19457E3BDE400FE059594CBF4C051E777953649384C1A6080A9957CB875A",
+      "bytes": 763
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmdl.object.json",
+      "sha256": "3CE5D303A75E17AFFFE1F1EEBAB543DB2CAC41168E14374DABAF60AAD92138B1",
+      "bytes": 2706
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmsh,field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_com_house_obj",
+      "cursor": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant06_white_green_flower.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}

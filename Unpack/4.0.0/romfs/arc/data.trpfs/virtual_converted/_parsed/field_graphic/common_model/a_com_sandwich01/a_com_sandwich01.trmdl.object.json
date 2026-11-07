@@ -37,30 +37,25 @@
       "role": "mesh",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 6024
-    },
-    {
-      "path": "field_graphic/common_model/a_com_sandwich01/a_com_sandwich01.trmbf",
-      "role": "vertex_index_buffers",
-      "evidence": "TRMSH",
-      "required": true,
-      "exists": true,
-      "size_bytes": 5720052
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_com_sandwich01/a_com_sandwich01.trmtr",
       "role": "material_parameters",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 117812
+      "exists": false,
+      "size_bytes": null
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_com_sandwich01/a_com_sandwich01.trmsh",
+    "field_graphic/common_model/a_com_sandwich01/a_com_sandwich01.trmtr"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -70,15 +65,10 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "1CDB32E4FE8E2268AD1F9D3A1B2DEEBB5ECC39A5F9E5D748C6E0CB82A4677D9B",
+  "fingerprint": "543A44865971FD8997895C6259506EFBD278172B50FB9BEFA7B3E2EB46D9BFC3",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
-    {
-      "path": "field_graphic/common_model/a_com_sandwich01/a_com_sandwich01.trmbf",
-      "required": true,
-      "sha256": "4A99E5FC6C460264C17F04A1DCAF1B5E812354CD6469DD1C905A3F19766D59F9"
-    },
     {
       "path": "field_graphic/common_model/a_com_sandwich01/a_com_sandwich01.trmdl",
       "required": true,
@@ -87,30 +77,12 @@
     {
       "path": "field_graphic/common_model/a_com_sandwich01/a_com_sandwich01.trmsh",
       "required": true,
-      "sha256": "1DC77111AF21A1B03C579D308213AACD4736A21A1B2C09EA4004B82110BADABD"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_com_sandwich01/a_com_sandwich01.trmtr",
       "required": true,
-      "sha256": "4B799971E3CE5792A2CE5A460C28442C1690EF4FC650A38528F7263B02500157"
+      "sha256": null
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 60,
-    "primitive_count": 60,
-    "materials_count": 59,
-    "uv_primitive_count": 60,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_com_sandwich01.bin",
-        "bytes": 187143752,
-        "sha256": "0B3AA11DE7515D9F3A0C28353900D48473CF4F7FCD25929EB562C74EC399093B"
-      }
-    ],
-    "gltf_sha256": "4B8F562804E20A6CDDFFCBA81A7E971BA1648D1D2C86E953C8E609AB159B5E41"
-  }
+  ]
 }
