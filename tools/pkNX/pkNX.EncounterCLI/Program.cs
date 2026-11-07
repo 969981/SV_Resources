@@ -23,6 +23,7 @@ internal static class Program
         string? output = null;
         string? source = null;
         string? manifest = null;
+        bool traceComplete = false;
         try
         {
             var parameters = Parse(args);
@@ -38,6 +39,18 @@ internal static class Program
                                   StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("Native outputs must be separate from the original game virtual/ tree.");
             Directory.CreateDirectory(output);
+            bool hasTraceTargets = parameters.TryGetValue("--trace-targets", out var targets);
+            bool hasTraceOutput = parameters.TryGetValue("--trace-output", out var traceOutput);
+            if (hasTraceTargets != hasTraceOutput)
+                throw new ArgumentException("--trace-targets and --trace-output must both be supplied");
+            if (hasTraceTargets)
+            {
+                var fullTrace = Path.GetFullPath(traceOutput!);
+                if (fullTrace.StartsWith(source.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar,
+                                         StringComparison.OrdinalIgnoreCase))
+                    throw new ArgumentException("Diagnostic trace cannot be placed inside original game virtual assets");
+                EncounterTraceSV.Enable(Path.GetFullPath(targets!), fullTrace);
+            }
             var verified = LoadVerifiedSources(manifest);
             string? trcolEvidence = parameters.TryGetValue("--verified-trcol-manifest", out var trcolManifest)
                 ? Path.GetFullPath(trcolManifest) : null;
@@ -129,6 +142,7 @@ internal static class Program
                 }).ToArray(),
             };
             WriteJson(Path.Combine(output, "native-encounter-build.json"), result);
+            traceComplete = extra.Length == 0 && collisionBlocker is null;
             if (extra.Length > 0)
             {
                 Console.Error.WriteLine($"{extra.Length} native source(s) lack M2 SHA manifest verification; cannot mark exact legality verified.");
@@ -153,6 +167,12 @@ internal static class Program
             }
             return 3;
         }
+        finally
+        {
+            if (EncounterTraceSV.Enabled)
+                EncounterTraceSV.Close(output is null ? null :
+                    Path.Combine(output, "native-encounter-point-trace-manifest.json"),traceComplete);
+        }
     }
 
     private static Dictionary<string,string> Parse(string[] args)
@@ -168,7 +188,7 @@ internal static class Program
         foreach (var key in new[] { "--virtual-root", "--verified-manifest", "--output" })
             if (!result.ContainsKey(key))
                 throw new ArgumentException($"Missing mandatory {key}");
-        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest")))
+        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output")))
             throw new ArgumentException("Unsupported option");
         return result;
     }
