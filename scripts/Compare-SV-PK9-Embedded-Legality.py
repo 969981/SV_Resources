@@ -42,6 +42,49 @@ def compare(base:dict,modified:dict,stage:dict)->dict:
     names={r["name"] for r in stage["resources"]}
     if set(samples)!=names or any(int(x.get("attempted",0))<=0 for x in samples.values()):
         raise ValueError("All five native regenerated templates must actually generate PK9 legality candidates")
+    original_deltas=base.get("deltaCandidateTests",[])
+    native_deltas=modified.get("deltaCandidateTests",[])
+    if len(original_deltas)!=len(native_deltas) or (
+        base.get("deltaCandidatePK9Count",0)!=len(original_deltas) or
+        modified.get("deltaCandidatePK9Count",0)!=len(native_deltas)
+    ):
+        raise ValueError("Different number of identical source-generated differential PK9 between two builds")
+    a={x["name"]:x for x in original_deltas}
+    b={x["name"]:x for x in native_deltas}
+    if len(a)!=len(original_deltas) or len(b)!=len(native_deltas) or a.keys()!=b.keys():
+        raise ValueError("Source-generated PK9 differential specimen identity mismatch")
+    delta_comparison=[]
+    for name in sorted(a):
+        x,y=a[name],b[name]
+        if x["originalSourceSHA256"]!=y["originalSourceSHA256"]:
+            raise ValueError(f"Original game-derived differential PK9 changed SHA between builds: {name}")
+        for key in ("species","form","metLocation","metLevel"):
+            if x[key]!=y[key]:
+                raise ValueError(f"Differential PK9 {key} changed between builds: {name}")
+        changes={key:{"pkhex_reference":x["legality"].get(key),
+                      "sv_400_embedded":y["legality"].get(key)}
+                 for key in FIELDS if x["legality"].get(key)!=y["legality"].get(key)}
+        family="fixed_added_location_158" if name.startswith("fixed_158_") else (
+            "wild_kitakami_native_only_crossover" if name.startswith("cross_") else
+            "wild_native_new_max_level" if name.startswith("level_") else "unknown")
+        delta_comparison.append({
+            "name":name,"category":family,"sha256":x["originalSourceSHA256"],
+            "species":x["species"],"metLocation":x["metLocation"],"metLevel":x["metLevel"],
+            "reference_valid":x["legality"]["Valid"],"native_valid":y["legality"]["Valid"],
+            "reference_encounter_type":x["legality"]["MatchedEncounterType"],
+            "native_encounter_type":y["legality"]["MatchedEncounterType"],
+            "changed":changes,
+        })
+    family_stats={}
+    for family in sorted(set(x["category"] for x in delta_comparison)):
+        group=[x for x in delta_comparison if x["category"]==family]
+        family_stats[family]={
+            "cases":len(group),
+            "verdict_flips":sum(x["reference_valid"]!=x["native_valid"] for x in group),
+            "reference_rejected_native_valid":sum(not x["reference_valid"] and x["native_valid"] for x in group),
+            "reference_valid_native_rejected":sum(x["reference_valid"] and not x["native_valid"] for x in group),
+            "any_legality_change":sum(bool(x["changed"]) for x in group),
+        }
     return {"status":"REAL_PKHEX_LEGALITYANALYSIS_REFERENCE_VS_NATIVE_EMBEDDED_COMPARED",
             "pkhexSource":base["pkhexSource"],"official_pk9_compared":len(rows),
             "changed_official_pk9":sum(bool(x["changed"]) for x in rows),
@@ -49,9 +92,16 @@ def compare(base:dict,modified:dict,stage:dict)->dict:
                                            "exactEncounterClassMatched":v.get("exactEncounterClassMatched")}
                                        for k,v in samples.items()},
             "original_fixture_differences":rows,
+            "targeted_native_delta_pk9_compared":len(delta_comparison),
+            "targeted_native_delta_verdict_flips":sum(
+                x["reference_valid"]!=x["native_valid"] for x in delta_comparison),
+            "targeted_native_delta_by_category":family_stats,
+            "targeted_native_delta_case_differences":delta_comparison,
             "limitations":["PK9 official fixtures are independently sourced PKHeX tests, not SV 4.0.0 game-captured encounters.",
                            "Native-generated candidate PK9 checks are template compatibility evidence, not proof of encounter RNG/shiny locks or HOME.",
-                           "The original PKHeX.Core source and modified source must be compiled separately."]}
+                           "The original PKHeX.Core source and modified source must be compiled separately.",
+                           "All targeted changed-location and crossover PK9 are controlled generated fixtures, not captured SV 4.0.0 specimens.",
+                           "A verdict flip proves the impact of swapping the embedded tables for that exact PK9, not the real-world reachability of the changed encounter."]}
 
 def main()->int:
     p=argparse.ArgumentParser(description=__doc__)
