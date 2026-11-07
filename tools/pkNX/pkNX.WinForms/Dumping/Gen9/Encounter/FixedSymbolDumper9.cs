@@ -20,7 +20,7 @@ public static class FixedSymbolDumper9
         var array = rom.GetPackedFile("world/data/field/fixed_symbol/fixed_symbol_table/fixed_symbol_table_array.bin");
         var fsymData = FlatBufferConverter.DeserializeFrom<FixedSymbolTableArray>(array);
         string fixedTableSha256 = EncounterTraceSV.Enabled
-            ? Convert.ToHexString(SHA256.HashData(array.Span)) : "";
+            ? Convert.ToHexString(SHA256.HashData(array)) : "";
         foreach (var (game, gamePoints) in new[] { ("sl", points: fsym.PointsScarlet), ("vl", points: fsym.PointsViolet) })
         {
             using var gw = File.CreateText(Path.Combine(config.Path, $"titan_fixed_{game}.txt"));
