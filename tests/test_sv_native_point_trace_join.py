@@ -46,6 +46,21 @@ class PointTraceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 M.disjoint_trace_diagnostics(path,[self.wild_target()],[self.fixed_target()])
 
+    def test_duplicate_wild_targets_are_multiset_not_an_error(self):
+        # A single native serialization must not prove two identical CSV rows.
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/"trace.jsonl"
+            event=dict(stage="wild_serialized",location=156,crossFrom=158,species=23,
+                       form=0,gender=1,minLevel=23,maxLevel=29,timeMask=0,weatherMask=15)
+            end=dict(stage="trace_finished",status="REAL_NATIVE_POINT_PROVENANCE_RECORDED_NOT_GAME_RUNTIME_PROVED")
+            path.write_text("\n".join(json.dumps(e) for e in [event,end])+"\n",encoding="utf-8")
+            row=self.wild_target()
+            events=M.disjoint_trace_diagnostics(path,[row,row],[self.fixed_target()])
+            key=M.target_wild_key(row)
+            self.assertEqual(events["wild_targets"][key],2)
+            self.assertEqual(len(events["wild_output"][key]),1)
+            self.assertEqual(min(events["wild_targets"][key],len(events["wild_output"][key])),1)
+
     def test_completed_trace_target_link(self):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/"trace.jsonl"
