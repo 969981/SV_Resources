@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_office01#00000.part0.part0.part0.part1.part1.part1.part1.part1.part0",
+  "input_fingerprint": "F8292458920677E747623D7EF50E780C6C332FA3525EBBE75D9FFF7586E10DB0",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmdl",
+      "source_sha256": "B265546A6BFDE7EC51D8EEEC0EFD4754A97E7A1D5D9E6A42102884445079CBA1",
+      "bytes": 300,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "180000000000120028000000040008000C0010001400180012000000C4000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          40,
+          524292
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office01/_inspection/97db4f2706eeff1b.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office01/_inspection/97db4f2706eeff1b.jsonl",
+      "sha256": "68537BD1E33EC684670EF176B7ACDFE33C732B63A6195DC16B755C948C4D0DE5",
+      "bytes": 739
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmdl.flatbuffer.json",
+      "sha256": "0D6D7DB0B95ACFDB4E3E95211C854AABEDD1D72B91636A70D98B6E91813A0CB8",
+      "bytes": 837
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmdl.object.json",
+      "sha256": "BDFA37397EE6BFE3726638BA2F0B0240D98E8FDBDA206A981EBEF8E14427A751",
+      "bytes": 3204
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmsh,field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trskl,field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_office01",
+      "cursor": "field_graphic/common_model/a_sch_office01/a_sch_office01_24hours_time_trannsition.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
