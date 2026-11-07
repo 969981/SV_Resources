@@ -96,10 +96,17 @@ def build(source:Path,verified:Path,out:Path)->dict:
     if len(rows)!=666 or summary["native_range_present_after"]!=666:
         raise ValueError("Incomplete source trace rows")
     export=out/"SV400_666_Premerge_Level_Differences_Compact.csv"
-    with export.open("w",newline="",encoding="utf-8-sig") as fp:
-        writer=csv.DictWriter(fp,fieldnames=list(rows[0]),lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
+    unresolved=[r for r in rows if not r["reference_range_present_before"]]
+    if len(unresolved)!=115:
+        raise ValueError(f"Expected 115 source-verified unresolved premerge intervals, got {len(unresolved)}")
+    for path,items in ((export,rows),
+                       (out/"SV400_115_Reference_Level_Not_Present_Premerge.csv",unresolved)):
+        with path.open("w",newline="",encoding="utf-8-sig") as fp:
+            writer=csv.DictWriter(fp,fieldnames=list(rows[0]),lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(items)
+    unresolved_files=Counter(name for r in unresolved for name in r["original_point_files"].split(";"))
+    unresolved_species=Counter(r["species_national"] for r in unresolved)
     result={
         "status":"ACTUAL_ORIGINAL_666_GEN9_PREMERGE_LEVEL_RESEARCH_NOT_RNG_PROOF",
         "source_sha256":sha(source),
@@ -108,6 +115,12 @@ def build(source:Path,verified:Path,out:Path)->dict:
         "wild_cases":len(rows),
         "distinct_template_keys":evidence["wild_distinct_serialized_keys"],
         "pkhex_reference_interval_present_premerge":summary["reference_range_present_before"],
+        "reference_interval_not_present_premerge":len(unresolved),
+        "unresolved_by_original_point_file":dict(sorted(
+            (Path(k).name,v) for k,v in unresolved_files.items())),
+        "most_common_unresolved_species":[
+            {"national_species":species,"count":count}
+            for species,count in unresolved_species.most_common(20)],
         "multiple_intervals_premerge":summary["had_multiple_before_ranges"],
         "fewer_intervals_after_merge":summary["consolidation_reduced_range_count"],
         "native_interval_present_postmerge":summary["native_range_present_after"],
@@ -117,6 +130,7 @@ def build(source:Path,verified:Path,out:Path)->dict:
             for (low,high),count in histogram.most_common(30)],
         "interpretation":[
             "551 matching premerge reference level intervals would be compatible with overly broad merging, not proof of a specific bug.",
+            "115 unmatched premerge reference intervals are a separately prioritized discrepancy queue; they need native PointData level, area and flags verification.",
             "Some differences may arise from flags, area weather, story state, version and PointData inclusion criteria.",
             "Do not disable all range merging or edit official PKHeX legality tables without original-game evidence.",
         ],
