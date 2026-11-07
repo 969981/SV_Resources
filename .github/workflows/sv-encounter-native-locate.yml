@@ -1,0 +1,92 @@
+name: SV 4.0.0 native encounter TRPFD pack locator
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Locate-SV-PKHeX-Native-Packs.py'
+      - 'tests/test_sv_native_encounter_locator.py'
+      - '.github/workflows/sv-encounter-native-locate.yml'
+  pull_request:
+    paths:
+      - 'scripts/Locate-SV-PKHeX-Native-Packs.py'
+      - 'tests/test_sv_native_encounter_locator.py'
+      - '.github/workflows/sv-encounter-native-locate.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  trpfd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 1
+          persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Locate-SV-PKHeX-Native-Packs.py
+            tests/test_sv_native_encounter_locator.py
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Strict no-ROM regression tests
+        run: |
+          python -m py_compile scripts/Locate-SV-PKHeX-Native-Packs.py
+          python -m unittest discover -s tests -p test_sv_native_encounter_locator.py -v
+      - name: Locate every pkNX native encounter dependency in 408641-entry TRPFD
+        run: |
+          python scripts/Locate-SV-PKHeX-Native-Packs.py \
+            --index Unpack/4.0.0/romfs/arc/data.trpfd/_index \
+            --output Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json
+      - name: Document actual native coverage in run summary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json')
+          data=json.loads(p.read_text('utf-8'))
+          s=data['summary']
+          assert s['targets']==61
+          assert data['input']['descriptor_file_count']==408641
+          assert data['input']['pack_count']==23589
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open('a') as f:
+              f.write("## Verified native TRPFD encounter lookup\n\n")
+              f.write(f"Named canonical paths: {s['located']} / {s['targets']}; "
+                      f"missing={s['missing']}; ambiguous={s['ambiguous']}\n\n")
+              f.write(f"Distinct native packs: {s['selected_packs']}; "
+                      f"packed bytes referenced: {s['selected_packed_bytes']}\n\n")
+              for key,v in data['groups'].items():
+                  f.write(f"- {key}: {v['located']}/{v['expected']}\n")
+              f.write("\n**Evidence only**: index hit != native extraction; Havok .trcol references remain unclosed.\n")
+          print('Native pack IDs:',*[x['pack_index'] for x in data['selected_packs']])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv-native-encounter-pack-locator
+          path: Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish index-only evidence without touching native or reference files
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin master
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/master)" || {
+            echo "Master advanced; leave verified report in Actions artifact"
+            exit 0
+          }
+          file='Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json'
+          git add --sparse -- "$file"
+          git diff --cached --quiet && exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'data(SV): record PKHeX encounter native pack locations from TRPFD'
+          git push origin HEAD:master
