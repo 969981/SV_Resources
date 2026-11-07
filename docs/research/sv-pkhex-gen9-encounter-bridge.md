@@ -26,14 +26,14 @@ PKHeX 对应：
 
 | PKHeX 参考文件（Gen9） | 实际字节数 | 实际记录 | 用途 |
 |---|---:|---:|---|
-| `encounter_wild_paldea.pkl` | 218,096 | 400 个区域块、26,861 条 slot | 常规野生，80 个不同 Location ID |
+| `encounter_wild_paldea.pkl` | 218,096 | 400 个区域块、26,861 条 slot | 常规野生，80 种区域 Location ID、79 种有实际 slot 的 Location ID |
 | `encounter_fixed_paldea.pkl` | 19,540 | 977 | 固定可捕捉符号 |
 | `encounter_gem_paldea.pkl` | 10,896 | 454 | 帕底亚普通太晶团体战 |
 | `encounter_gem_kitakami.pkl` | 3,192 | 133 | 北上乡普通团体战 |
 | `encounter_gem_blueberry.pkl` | 2,712 | 113 | 蓝莓学园普通团体战 |
 | `encounter_outbreak_paldea.pkl` | 353,808 | 12,636（28 字节每条） | 特殊大量出现模板 |
 
-计数以读取时 PKHeX master 的 `PKHeX.Core/Resources/legality/wild/Gen9/` 实际资源为准，**不表示拥有 26,861 个不同宝可梦**，也不等于游戏原始出生点总数。`encounter_dist_paldea.pkl` 与 `encounter_might_paldea.pkl` 使用单独的活动团体战布局；尚未在本审计工具中展开。
+其中 400 个区域块中有 21 个仅含 4 字节区域头、无 slot 的空区域块；空块也属于合法原始结构。计数以读取时 PKHeX master 的 `PKHeX.Core/Resources/legality/wild/Gen9/` 实际资源为准，**不表示拥有 26,861 个不同宝可梦**，也不等于游戏原始出生点总数。`encounter_dist_paldea.pkl` 与 `encounter_might_paldea.pkl` 使用单独的活动团体战布局；尚未在本审计工具中展开。
 
 ## 三、原生字段对应关系
 
