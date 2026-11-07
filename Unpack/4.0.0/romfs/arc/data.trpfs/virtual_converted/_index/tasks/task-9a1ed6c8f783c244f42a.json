@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_com_building_obj#00000.part0.part1.part1.part1.part1.part1.part1",
+  "input_fingerprint": "A68A0B5A276379A9105973B1BDE4E0F00CCD1A33EE027339118DF593739D0C19",
+  "input_files": 2,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 2
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmbf",
+      "source_sha256": "01075B78FFF0A8802645EDD5EEC780DC4F0297E4A9AB84879EAC5A5056C44D05",
+      "bytes": 64860,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "0C00000008000800000004000800000004000000010000001000000000000A00",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          12,
+          524296,
+          262144,
+          8
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmbf.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    },
+    {
+      "source": "field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmdl",
+      "source_sha256": "D10C7841706A1FC720C19C73325E3ED2CB59DC66F3536832FFCE84BC58220E97",
+      "bytes": 212,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "FLATBUFFER_CANDIDATE",
+      "confidence": "CANDIDATE",
+      "detector_status": "PENDING_SCHEMA",
+      "inspection": {
+        "header_hex": "1800000000001200240000000400000008000C00100014001200000078000000",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          24,
+          1179648,
+          36,
+          4
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "TRINITY_SCHEMA_JSON",
+          "path": "parsed/field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmdl.flatbuffer.json"
+        }
+      ],
+      "schema_decoder_status": "SCHEMA_JSON_EXPORTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_building_obj/_inspection/96e4827cb211489d.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_building_obj/_inspection/96e4827cb211489d.jsonl",
+      "sha256": "14C3BC7A4D34E9BAEE740EC73601846FD367932747537A3E9161F86773CB8A6A",
+      "bytes": 1437
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmbf.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmbf.flatbuffer.json",
+      "sha256": "3B78656319A471319D00B570CDAD1C3FA62B555944F527E048CE6E2D80C3A7B0",
+      "bytes": 210751
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmdl.flatbuffer.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmdl.flatbuffer.json",
+      "sha256": "A31567874147B1EE5308706D7E44E7BE0BCBE587918A011541DA5DFA308E0D3F",
+      "bytes": 726
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmdl.object.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmdl.object.json",
+      "sha256": "CD575C36C40DF2039ECFA9B0500CAEA4B9CF74BD2227A9069C5A0B2BB9191655",
+      "bytes": 2550
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmdl",
+      "stage": "models",
+      "status": "BLOCKED",
+      "error": "Missing declared dependencies: field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmsh,field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmtr"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_com_building_obj",
+      "cursor": "field_graphic/common_model/a_com_building_obj/a_com_building_b01_plant01.trmdl",
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
