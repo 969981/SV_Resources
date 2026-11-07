@@ -1,0 +1,194 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/objects_un_c01maintenancehole01",
+  "kind": "all",
+  "completed_utc": "2026-11-07T13:56:48.661268+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 14,
+  "selection_sha256": "5797a3a80c273954fad87e89088476e9a59d72c001f4883a59d9e846916a996e",
+  "index": {
+    "available": 14,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 14,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 8,
+      "BNTX": 5,
+      "BY_EXTENSION:trcol": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 5,
+      "ok": 5,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/objects_un_c01maintenancehole01",
+      "cursor": "field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/_inspection/51df2b0accfbaadf.jsonl",
+    "source_files": 14,
+    "inspection_records": 14,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 13
+    },
+    "manifest_sha256": "97BA88503018900A9D2E001697373E43B712B827F472725E18DAD8467844C2EB"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/_inspection/51df2b0accfbaadf.jsonl",
+      "bytes": 10386,
+      "sha256": "97BA88503018900A9D2E001697373E43B712B827F472725E18DAD8467844C2EB"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01.trmbf.flatbuffer.json",
+      "bytes": 8250,
+      "sha256": "D40A08A06F1BDAE149EFC81A37A53743F265E6EE2BAC4DEF32F0C529BC257000"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01.trmdl.flatbuffer.json",
+      "bytes": 905,
+      "sha256": "D9F9BE0E283F839D82821AEFC4A54464409BA9B5E95C049268AE17F9896FA167"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01.trmdl.object.json",
+      "bytes": 7925,
+      "sha256": "0FE6724FF27CD2BE4675A20FA5D5B909C6399AD20BF3B75B2C02C4D2405BC2F6"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01.trmsh.flatbuffer.json",
+      "bytes": 1234,
+      "sha256": "A301ADEEAAAD8D6F5E9483B5CD34723B1C8F8DD2D7E063027E75C941D08D6689"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01.trmtr.flatbuffer.json",
+      "bytes": 2838,
+      "sha256": "EE80FE92E9B5D90ECEE09D025D4515EE0D86B72BD7BC873D790A77110608163D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_alb.bntx.json",
+      "bytes": 333,
+      "sha256": "F0E0C51CB29F93123983C9F6245226066917829526B9419D47A33D0875189585"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_ao.bntx.json",
+      "bytes": 331,
+      "sha256": "10A7363106FBF09ACCB2CD1976A763DDF6F47F2F0672B236E593994066E39F24"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_mtl.bntx.json",
+      "bytes": 332,
+      "sha256": "6D23A8E0FF25EA74F351D4094F78C3DB0E438B4C4F167F91491BED9990B0B14B"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_nrm.bntx.json",
+      "bytes": 333,
+      "sha256": "D93C96656FAA831757BE6BB313A9093B5C1C0B7B9AB408C206250C10B789FD57"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_rgn.bntx.json",
+      "bytes": 332,
+      "sha256": "F2E95D7C6B524CF1ECD9CE65DF6B5FC286FA2CE3435C4B1C15C617D9B0FFD030"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_lod1.trmbf.flatbuffer.json",
+      "bytes": 4847,
+      "sha256": "D452083ADBD565BBA0DA50707D9B31FC162E05B35B5143CF5768D7A703297273"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_lod1.trmsh.flatbuffer.json",
+      "bytes": 1248,
+      "sha256": "FA05E4A5CAAC659CD78B46510FB1FB1BEFB26F971C7462BD2126A2412239B7E4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_lod2.trmbf.flatbuffer.json",
+      "bytes": 2006,
+      "sha256": "31AF1193D951B47F19A1092649B1264A74822FB74A9640DE99EB9BD324BE4D4A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_lod2.trmsh.flatbuffer.json",
+      "bytes": 1246,
+      "sha256": "F009455AE4740477982F7927FA851B140ACA960AE2A561D47354F0DB43E1F6D8"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_alb.png",
+      "bytes": 7655,
+      "sha256": "EE681A56649D940E6D67360B9F4BF6B610F931ED75A79626C0ED0157B38EEEB8"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_ao.png",
+      "bytes": 859,
+      "sha256": "A5C6A23EB230547B3D56B54950C27C2C27D79B6009104898A856AC2A2FD26E39"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_mtl.png",
+      "bytes": 1067,
+      "sha256": "4AD0F9EA4A41019D81C0F2B23533E20093CEFE41DD669B6CEEE6D67C830AF3D7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_nrm.png",
+      "bytes": 4883,
+      "sha256": "D84A4D9F8423DC3E3A0957BA9D92E9707B5214590C96E635D2F3B083A2141D48"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01maintenancehole01/objects_un_c01maintenancehole01_01_rgn.png",
+      "bytes": 2625,
+      "sha256": "31025F7A9465643A76C7D81B0174500F5C77EE7FDAE526ACF71A1F3CD551DDAC"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
