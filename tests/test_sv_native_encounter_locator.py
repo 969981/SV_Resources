@@ -68,7 +68,7 @@ class NativeEncounterLocatorTests(unittest.TestCase):
             self.assertEqual(entry["hits"][0]["pack_index"],1)
             self.assertEqual(report["status"],"LOCATED_ONLY_NO_EXTRACTION_PERFORMED")
 
-    def test_duplicates_are_flagged_ambiguous_not_counted(self):
+    def test_bin_is_preferred_over_bfbs_if_both_exist(self):
         with tempfile.TemporaryDirectory() as folder:
             path=Path(folder)
             rows=[
@@ -77,9 +77,22 @@ class NativeEncounterLocatorTests(unittest.TestCase):
             ]
             self.create_index(path,rows)
             report=mod.build(path)
-            self.assertEqual(report["summary"]["located"],0)
+            self.assertEqual(report["summary"]["located"],1)
+            self.assertEqual(report["summary"]["ambiguous"],0)
+            self.assertEqual(report["summary"]["selected_packs"],1)
+            item=next(x for x in report["targets"] if x["group"]=="wild.criteria"
+                      and x["expected"].endswith("/pokedata_array.bin"))
+            self.assertEqual(item["hits"][0]["pack_index"],0)
+            self.assertEqual(len(item["alternates"]),1)
+
+    def test_duplicate_exact_path_is_ambiguous(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)
+            same="world/data/encount/pokedata/pokedata/pokedata_array.bin"
+            self.create_index(path,[self.sample(0,same,1),self.sample(1,same,2)])
+            report=mod.build(path)
             self.assertEqual(report["summary"]["ambiguous"],1)
-            self.assertEqual(report["summary"]["selected_packs"],2)
+            self.assertEqual(report["summary"]["selected_packs"],0)
 
     def test_missing_index_and_metadata_mismatch_fail_closed(self):
         with tempfile.TemporaryDirectory() as folder:
