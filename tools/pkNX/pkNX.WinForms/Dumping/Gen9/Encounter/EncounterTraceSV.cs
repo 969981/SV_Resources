@@ -110,11 +110,12 @@ public static class EncounterTraceSV
         }
     }
 
-    public static void Close(string? manifestPath = null)
+    public static void Close(string? manifestPath = null, bool completed = true)
     {
         if (writer is null) return;
         Write(new { stage="trace_finished", eventCounts=Counts,
-                    status="REAL_NATIVE_POINT_PROVENANCE_RECORDED_NOT_GAME_RUNTIME_PROVED" });
+                    status=completed ? "REAL_NATIVE_POINT_PROVENANCE_RECORDED_NOT_GAME_RUNTIME_PROVED" :
+                                       "PARTIAL_NATIVE_TRACE_INCOMPLETE_NOT_EVIDENCE" });
         writer.Dispose();
         writer = null;
         if (manifestPath is not null)
@@ -122,7 +123,7 @@ public static class EncounterTraceSV
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(manifestPath))!);
             File.WriteAllText(manifestPath,
                 JsonSerializer.Serialize(new {
-                    status="ORIGINAL_NATIVE_ENCOUNTER_TRACE_TARGETED_COMPLETE",
+                    status=completed ? "ORIGINAL_NATIVE_ENCOUNTER_TRACE_TARGETED_COMPLETE" : "PARTIAL_OR_BLOCKED_TRACE",
                     source="Source SHA verified by separate native encounter manifest",
                     eventCounts=Counts,
                     caution="No game-captured PK9 or runtime encounter claims; no native .pkl modified"
