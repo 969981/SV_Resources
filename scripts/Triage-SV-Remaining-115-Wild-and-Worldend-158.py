@@ -12,6 +12,7 @@ from collections import Counter
 import csv
 import hashlib
 import json
+import re
 from pathlib import Path
 
 
@@ -151,6 +152,7 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
 
     fixed_types=Counter()
     affected_areas=Counter()
+    source_classes=Counter()
     fixed_split=[]
     gained=[]
     lost=[]
@@ -163,15 +165,18 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
         symbols=json.loads(row["source_symbols_json"])
         if not symbols or any(len(x)!=3 for x in symbols):
             raise ValueError("WorldEnd change lacks actual FixedSymbol.TableKey evidence")
-        prefixes=sorted({str(item[1]).split("_")[1] for item in symbols
-                         if str(item[1]).startswith("su1_")})
-        if not prefixes:
+        parsed=[re.fullmatch(r"(t_)?su1_(area\\d+)_\\d+",str(item[1])) for item in symbols]
+        if any(match is None for match in parsed):
             raise ValueError("Unexpected original North Kitakami fixed TableKey")
+        prefixes=sorted({match.group(2) for match in parsed})
+        classes=sorted({"T_PREFIX" if match.group(1) else "NORMAL" for match in parsed})
         typ="NATIVE_ONLY_TO_MATCHED" if (origin,variant)==(0,1) else (
             "MATCHED_TO_REFERENCE_LOSS" if (origin,variant)==(1,0) else
             "ROW_MATCHED_BOTH_MULTIPLICITY_AMBIGUOUS" if (origin,variant)==(1,1) else
             "UNMATCHED_BOTH")
         fixed_types[typ]+=1
+        for cls in classes:
+            source_classes[(typ,cls)]+=1
         for area in prefixes:
             affected_areas[(typ,area)]+=1
         for sym in symbols:
@@ -180,6 +185,7 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
             "case":i,"source_group":typ,
             "species_national":row["species_national"],"form_raw":row["form_raw"],
             "level":row["level"],"area_keys":";".join(prefixes),
+            "tablekey_prefix_classes":";".join(classes),
             "original_locations":row["old_locations"],
             "hypothetical_locations":row["hypothetical_locations"],
             "source_fixed_symbol_keys_json":row["source_symbols_json"],
@@ -232,6 +238,9 @@ def analyze(wild_115:Path,wild_666:Path,wild_report:Path,fixed_236:Path,
             "true_multiset_reference_lost":fixed_status["reference_matches_lost"],
             "baseline_matches":fixed_status["original_matching_pinned_pkhex"],
             "whatif_matches":fixed_status["counterfactual_matching_pinned_pkhex"],
+            "key_prefix_groups":[
+                {"row_outcome":typ,"prefix":cls,"count":count}
+                for (typ,cls),count in source_classes.most_common()],
             "most_common_loss_area_keys":[
                 {"area_key":area,"count":count}
                 for (typ,area),count in affected_areas.most_common()
