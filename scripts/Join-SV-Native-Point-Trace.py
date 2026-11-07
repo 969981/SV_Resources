@@ -74,12 +74,22 @@ def disjoint_trace_diagnostics(trace: Path, target_wild: list[dict], target_fixe
     wild_keys = set(wild_targets)
     fixed_keys = set(fixed_targets)
     wild_base_keys = {t[:5]+t[7:] for t in wild_keys}
+    # Build from the same audited target list, not from all 1.8M raw-candidate
+    # events: a point may have been activated from either met/cross area.
+    candidate_pairs = {
+        pair for row in target_wild for pair in (
+            (int(row["location_id"]), int(row["species_national"])),
+            (int(row["cross_from_id"]), int(row["species_national"])))
+        if pair[0] > 0
+    }
     # Fixed templates can be emitted by multiple game+TableKey configurations.
     # A matching stage event is evidence of a source candidate, not a unique
     # source proof for every repeated raw .pkl record.
     wild_output=defaultdict(list)
     wild_weather=defaultdict(list)
+    wild_weather_seen=defaultdict(set)
     wild_candidate=defaultdict(list)
+    wild_candidate_seen=defaultdict(set)
     wild_before=defaultdict(list)
     wild_after=defaultdict(list)
     fixed_output=defaultdict(list)
@@ -101,9 +111,26 @@ def disjoint_trace_diagnostics(trace: Path, target_wild: list[dict], target_fixe
             elif stage=="wild_weather_assigned":
                 key=base_wild_key(event)
                 if key in wild_base_keys: # 7 fields, without both level endpoints
-                    wild_weather[key].append(event)
+                    # Native 30f integration often reports the SAME point+slot
+                    # more than once. Keep genuine distinct levels/adjustments
+                    # while not retaining millions of identical JSON objects.
+                    identity=(point_identity(event),event.get("location"),
+                        event.get("crossFrom"),event.get("originLocation"),
+                        event.get("minLevel"),event.get("maxLevel"),
+                        event.get("areaAdjust"),event.get("effectivePointMin"),
+                        event.get("effectivePointMax"),event.get("kind"))
+                    if identity not in wild_weather_seen[key]:
+                        wild_weather_seen[key].add(identity)
+                        wild_weather[key].append(event)
             elif stage=="wild_raw_candidate":
-                wild_candidate[(int(event["location"]),int(event["species"]))].append(event)
+                pair=(int(event["location"]),int(event["species"]))
+                if pair in candidate_pairs:
+                    identity=(event.get("pointSource"),event.get("pointIndex"),
+                        event.get("criteriaIndex"),event.get("band"),
+                        event.get("appliedBoost"),event.get("minLevel"),event.get("maxLevel"))
+                    if identity not in wild_candidate_seen[pair]:
+                        wild_candidate_seen[pair].add(identity)
+                        wild_candidate[pair].append(event)
             elif stage in ("wild_before_consolidate","wild_after_consolidate"):
                 key=base_wild_key(event)
                 if stage=="wild_before_consolidate":
@@ -127,6 +154,8 @@ def disjoint_trace_diagnostics(trace: Path, target_wild: list[dict], target_fixe
         "wild_before":wild_before,"wild_after":wild_after,"fixed_output":fixed_output,
         "fixed_wanders":fixed_wanders,"fixed_primaries":fixed_primaries,
         "event_counts":event_counts,
+        "distinct_retained_wild_weather_sources":sum(len(v) for v in wild_weather.values()),
+        "distinct_retained_wild_criteria_sources":sum(len(v) for v in wild_candidate.values()),
         "wild_targets":wild_targets,"fixed_targets":fixed_targets,
     }
 
@@ -262,6 +291,8 @@ def analyze(trace:Path,target_dir:Path,native_dir:Path,original_bridge_manifest:
         "fixed_158_wander_observations":fixed_158_from_wander,
         "fixed_158_wander_observations_with_no_strict_containment":fixed_strict_false_158,
         "trace_event_counts":dict(data["event_counts"]),
+        "distinct_retained_wild_weather_sources":data["distinct_retained_wild_weather_sources"],
+        "distinct_retained_wild_criteria_sources":data["distinct_retained_wild_criteria_sources"],
         "original_native_sha_five_tables":{k:v["native_sha256"] for k,v in report["tables"].items()},
         "interpretation":[
            "Raw PointData ordinals and fixed TableKey are source candidates, not yet uniquely proven causes of PKHeX-reference differences.",
