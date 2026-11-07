@@ -68,6 +68,7 @@ def point_identity(e):
 def disjoint_trace_diagnostics(trace: Path, target_wild: list[dict], target_fixed: list[dict]):
     wild_keys = {target_wild_key(row) for row in target_wild}
     fixed_keys = {target_fixed_key(row) for row in target_fixed}
+    wild_base_keys = {t[:5]+t[7:] for t in wild_keys}
     if len(wild_keys)!=len(target_wild):
         raise ValueError("Duplicate wild case keys; multiplicity must be explicitly handled")
     # Individual fixed templates may legitimately share species+level+locations, so no
@@ -95,7 +96,7 @@ def disjoint_trace_diagnostics(trace: Path, target_wild: list[dict], target_fixe
                     wild_output[key].append(event)
             elif stage=="wild_weather_assigned":
                 key=base_wild_key(event)
-                if key in {t[:5]+t[7:] for t in wild_keys}: # 7 fields, without both level endpoints
+                if key in wild_base_keys: # 7 fields, without both level endpoints
                     wild_weather[key].append(event)
             elif stage=="wild_raw_candidate":
                 wild_candidate[(int(event["location"]),int(event["species"]))].append(event)
