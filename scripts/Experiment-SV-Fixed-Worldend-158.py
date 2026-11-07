@@ -25,7 +25,11 @@ STATUS="REAL_ORIGINAL_SOURCE_WORL DEND_158_FIXED_COUNTERFACTUAL_NOT_GAME_LEGALIT
 
 
 def sha(path:Path)->str:
-    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+    digest=hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda:stream.read(8*1024*1024),b""):
+            digest.update(chunk)
+    return digest.hexdigest().upper()
 
 
 def csv_rows(path:Path)->list[dict]:
