@@ -37,30 +37,25 @@
       "role": "mesh",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 7704
-    },
-    {
-      "path": "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02.trmbf",
-      "role": "vertex_index_buffers",
-      "evidence": "TRMSH",
-      "required": true,
-      "exists": true,
-      "size_bytes": 3088992
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02.trmtr",
       "role": "material_parameters",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 96444
+      "exists": false,
+      "size_bytes": null
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02.trmsh",
+    "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02.trmtr"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -70,15 +65,10 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "75DEAD29FF468ED16E9DDADEAA3575F1FC8D6DF849F7F9B928C0CA25EED78D8C",
+  "fingerprint": "C35C3973AD8703A9E8E5EC9B6F7837922E547462C7158EFEEF9CFE65D5AFEEE6",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
-    {
-      "path": "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02.trmbf",
-      "required": true,
-      "sha256": "2AF9B17C43B39892F483AA06BFE63C9DEDE544099D572EF56084FE85DC588ECF"
-    },
     {
       "path": "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02.trmdl",
       "required": true,
@@ -87,30 +77,12 @@
     {
       "path": "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02.trmsh",
       "required": true,
-      "sha256": "30D3FDDA077C6C76B49820D13D5B4506C143760A3CA0B50BDF34A7FFEC85CA4C"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02.trmtr",
       "required": true,
-      "sha256": "7414CAE761FEF44129D0D12C065C70C31E6846B701272C100363E73DDA7EB649"
+      "sha256": null
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 55,
-    "primitive_count": 55,
-    "materials_count": 50,
-    "uv_primitive_count": 55,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_2_dorm02.bin",
-        "bytes": 110275584,
-        "sha256": "66E80E1EB96026AF0A6D0D287C5EAD8DFF8FFA7DCB1DCD4B7BE65A780448A730"
-      }
-    ],
-    "gltf_sha256": "23491A4514EE3B7ECB018278F07C5C90FE828312A028FBBAD5B6630380C81577"
-  }
+  ]
 }
