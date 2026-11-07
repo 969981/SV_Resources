@@ -37,30 +37,25 @@
       "role": "mesh",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 628
-    },
-    {
-      "path": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmbf",
-      "role": "vertex_index_buffers",
-      "evidence": "TRMSH",
-      "required": true,
-      "exists": true,
-      "size_bytes": 136608
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmtr",
       "role": "material_parameters",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 3572
+      "exists": false,
+      "size_bytes": null
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmsh",
+    "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmtr"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -70,15 +65,10 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "4B04D0F0E841F04261A59D1BBD8522B1A173C87BCFAECD23F8466D5394AC07B0",
+  "fingerprint": "BA0010792F57ADFCEBB031FE9FCC3BC79741C97E3558B93F4AA9E6F8918ED998",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
-    {
-      "path": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmbf",
-      "required": true,
-      "sha256": "0D8EA2820C6B34B842F2AF5E5CD40035706F07C1AF9B3389D4F129B3E3C4CCCB"
-    },
     {
       "path": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmdl",
       "required": true,
@@ -87,95 +77,12 @@
     {
       "path": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmsh",
       "required": true,
-      "sha256": "B2883E86A254BB0E2DA0F0388A1827486A8BAED9F50D39BCD22DDACFAE738FCF"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_com_house_obj/a_com_house_a01_plant02_orange.trmtr",
       "required": true,
-      "sha256": "72C627538AAF689C97B8B0416BCDB0B4ABFD55753291E6F71EE40D3313E280B7"
+      "sha256": null
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 2,
-    "primitive_count": 2,
-    "materials_count": 2,
-    "uv_primitive_count": 2,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_com_house_a01_plant02_orange.bin",
-        "bytes": 329280,
-        "sha256": "B184ADDB89460BBD787642D3673E51103E29ED8427EF6A4805FAC62DB4B127D8"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_02_alb.png",
-        "bytes": 389,
-        "sha256": "FAA6DED1460A4417B3F932181189F7D1BCC303FDC3A28E7E35B9D7C3DE86AC8C"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_02_nrm.png",
-        "bytes": 204,
-        "sha256": "41015FFB5BABE1832AAA5DD06C8CC5838AB02F2EA23C923ABEF96127C85937A5"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_02_mtl.png",
-        "bytes": 143,
-        "sha256": "5E742CD9E202E88012ADD541CD2109FDCE98E066FC6B0E66379082D4D39AF601"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_02_rgn.png",
-        "bytes": 236,
-        "sha256": "A309497C3943A541FC9DEC7FAB0600A2E83C75ECE31B4AF9CAAA2DF99EAE1DFF"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_02_ao.png",
-        "bytes": 222,
-        "sha256": "139969919A594A7A2BCBD6D5A5ADD814A51F5599D863069FF9F6066ED24E9115"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_transparent01_alb.png",
-        "bytes": 524,
-        "sha256": "2BA87063ADE446D600D8FE38CC12A4DBF953FC1A1638E0DD5FE26D4C6E311580"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_transparent01_nrm.png",
-        "bytes": 586,
-        "sha256": "2667E8713B1B6B9E06BFC4DE48D652EA47C5009D3A67185DD4A78F07010681E6"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_transparent01_mtl.png",
-        "bytes": 143,
-        "sha256": "5E742CD9E202E88012ADD541CD2109FDCE98E066FC6B0E66379082D4D39AF601"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_transparent01_rgn.png",
-        "bytes": 249,
-        "sha256": "8131F5A4E1065010981573AD04D79F273EC6947B72F146410EAEC4F13EFF8DA3"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_transparent01emv.png",
-        "bytes": 122,
-        "sha256": "710E50334B6604CBBB9C00953B4AB2610B506A419E65429FA3C0946CEAC8D9F2"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/a_com_house_a01_plant02_transparent01_ao.png",
-        "bytes": 229,
-        "sha256": "B9F2171DF0E418403622F3F247381AF1F31F7735ED6D42F49A5848E04C583F2C"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/metallicRoughness.png",
-        "bytes": 226,
-        "sha256": "BC3E9F6560CB110E93F790177D48C759A509FAF68F84CB196C163027C9ACE020"
-      },
-      {
-        "path": "a_com_house_a01_plant02_orange_textures/metallicRoughness.png",
-        "bytes": 226,
-        "sha256": "BC3E9F6560CB110E93F790177D48C759A509FAF68F84CB196C163027C9ACE020"
-      }
-    ],
-    "gltf_sha256": "B0621CF2F23B7D786269893538610FC194F0573A7B4C50E69ACAC9EC3BDFA217"
-  }
+  ]
 }
