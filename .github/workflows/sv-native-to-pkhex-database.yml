@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'scripts/Export-SV-Native-To-PKHeX-Database.py'
+      - 'tools/PKHeX.Gen9EmbeddedResourceCheck/**'
       - 'tests/test_sv_native_pkhex_bridge.py'
       - 'docs/4.0.0/Verification/SV-Native-To-PKHeX-Databases.md'
       - '.github/workflows/sv-native-to-pkhex-database.yml'
@@ -12,6 +13,7 @@ on:
     branches: [master]
     paths:
       - 'scripts/Export-SV-Native-To-PKHeX-Database.py'
+      - 'tools/PKHeX.Gen9EmbeddedResourceCheck/**'
       - 'tests/test_sv_native_pkhex_bridge.py'
       - 'docs/4.0.0/Verification/SV-Native-To-PKHeX-Databases.md'
       - '.github/workflows/sv-native-to-pkhex-database.yml'
@@ -53,9 +55,14 @@ jobs:
           sparse-checkout: |
             scripts/Export-SV-Native-To-PKHeX-Database.py
             scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/Stage-SV-Native-PKHeX-Resources.py
+            tools/PKHeX.Gen9EmbeddedResourceCheck/**
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
       - name: Recover only genuinely extracted original SV 4.0.0 pkl and provenance
         shell: bash
         run: |
@@ -86,9 +93,11 @@ jobs:
           git -C "$root" remote add origin https://github.com/kwsch/PKHeX.git
           git -C "$root" sparse-checkout init --no-cone
           git -C "$root" sparse-checkout set --no-cone \
-            'PKHeX.Core/Resources/legality/wild/Gen9/*' \
-            'PKHeX.Core/Resources/text/other/en/text_Species_en.txt' \
-            'PKHeX.Core/Resources/text/other/zh-Hans/text_Species_zh-Hans.txt'
+            'PKHeX.Core/**' \
+            'Directory.Build.props' \
+            'Directory.Build.targets' \
+            'global.json' \
+            'icon.png'
           git -C "$root" -c protocol.version=2 fetch -q --depth=1 --filter=blob:none origin \
             0660d1e1f4924b8478daec73281bb8071a82ad19
           git -C "$root" -c advice.detachedHead=false checkout -q --detach FETCH_HEAD
@@ -132,6 +141,34 @@ jobs:
               for key,item in tables.items():
                   f.write(f"- {key}: native {item['native_records']}; PKHeX {item['pkhex_reference_records']}; native-only {item['native_only']}; reference-only {item['pkhex_only']}; exact bytes {item['byte_exact']}\\n")
               f.write('\\nOutputs are for isolated PKHeX.Core rebuild and source research only. No runtime RNG proof.\\n')
+          PY
+
+      - name: Stage verified original pkl only into isolated pinned PKHeX.Core, rebuild and inspect embedded bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          isolated="$RUNNER_TEMP/PKHeX-Native-Isolated"
+          cp -a "$SV_PINNED_PKHEX" "$isolated"
+          python scripts/Stage-SV-Native-PKHeX-Resources.py \
+            --native-output "$SV_NATIVE_OUTPUT" \
+            --isolated-pkhex-root "$isolated" \
+            --original-pkhex-root "$SV_PINNED_PKHEX" \
+            --evidence "$RUNNER_TEMP/SV-Native-To-PKHeX/isolated-pkhex-stage-proof.json"
+          dotnet build tools/PKHeX.Gen9EmbeddedResourceCheck/PKHeX.Gen9EmbeddedResourceCheck.csproj \
+            -c Release --nologo "-p:PKHeXRoot=$isolated"
+          dotnet tools/PKHeX.Gen9EmbeddedResourceCheck/bin/Release/net10.0/PKHeX.Gen9EmbeddedResourceCheck.dll \
+            --native-output "$SV_NATIVE_OUTPUT" \
+            --output "$RUNNER_TEMP/SV-Native-To-PKHeX/compiled-embedded-gen9-proof.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'SV-Native-To-PKHeX'/'compiled-embedded-gen9-proof.json'
+          j=json.loads(p.read_text('utf-8-sig'))
+          assert j['status']=='ISOLATED_COMPILED_PKHEX_CORE_EMBEDS_FIVE_ACTUAL_NATIVE_GEN9_TABLES'
+          assert j['verified']==5
+          assert all(v['exact_binary_match'] for v in j['files'])
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as f:
+              f.write("\n## Actual isolated PKHeX.Core compiled-resource proof\n\nFive original-native .pkl SHA-256 values matched compiled embedded assembly resources.\n")
           PY
 
       - uses: actions/upload-artifact@v4
