@@ -1,0 +1,142 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff",
+  "kind": "all",
+  "completed_utc": "2026-11-07T09:05:05.769864+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 6,
+  "selection_sha256": "1f6df047a431106c70d62fb423e3ce97461ea5acfa59d7de6c44a7ffdbcc7740",
+  "index": {
+    "available": 6,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 6,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 4,
+      "BNTX": 2
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 2,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff",
+      "cursor": "field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/_inspection/0d4e5c2bc2ac14f0.jsonl",
+    "source_files": 6,
+    "inspection_records": 6,
+    "by_status": {
+      "STRUCTURE_PARSED": 6
+    },
+    "manifest_sha256": "2254EE12724212FAA467D2C36BE6386D6E1F4DA32921BE1B0EA2B062AC105004"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/_inspection/0d4e5c2bc2ac14f0.jsonl",
+      "bytes": 4538,
+      "sha256": "2254EE12724212FAA467D2C36BE6386D6E1F4DA32921BE1B0EA2B062AC105004"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff.trmbf.flatbuffer.json",
+      "bytes": 115209,
+      "sha256": "F401E5963BC93AA25056D1050A5A386E4DC3D307FF0472DE6604460F1CA92659"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff.trmdl.flatbuffer.json",
+      "bytes": 776,
+      "sha256": "7B1A79E5A78E9A7D3B2A9D3F073B4A8B7BF8380D0A52DCF4F7A4E768711C7FB2"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff.trmdl.object.json",
+      "bytes": 4205,
+      "sha256": "9E125A2406BD87DE29CD5B6E88F053C3130EDA878AE589DD1484B6E9EE88320E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff.trmsh.flatbuffer.json",
+      "bytes": 1340,
+      "sha256": "FF60C9DBA7BE5E473B7E44324DE676566FE7A6B275133B002F8CC1A406A35D62"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff.trmtr.flatbuffer.json",
+      "bytes": 2236,
+      "sha256": "073AA3856E1D96F463928B9D04664DBAC06866D9166263CF217B479F8F0695AB"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff_basecolormap_0.bntx.json",
+      "bytes": 348,
+      "sha256": "F9E148E328B134894F6FEF0CC6227A23E3EF23842C7542134D8ABD28FFE8DC44"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff_normalmap_0.bntx.json",
+      "bytes": 342,
+      "sha256": "A27D395ECB914B7CB4A9B96BD6C7116F12C864FD95F9004E576859A24FEF51B8"
+    },
+    {
+      "path": "converted/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff_basecolormap_0.png",
+      "bytes": 1446793,
+      "sha256": "BD82970933A5F6283DB1A52ED128EDBCF2C311D7862746C1D931E6B4862AC67E"
+    },
+    {
+      "path": "converted/field_graphic/terrain_clod/clod_terrain_11_02_clod005_cliff/clod_terrain_11_02_clod005_cliff_normalmap_0.png",
+      "bytes": 458536,
+      "sha256": "F862F5AC8E0EDB1C8EDB870175DCB98209217EA7D3500FD717E92B8080A37AC5"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
