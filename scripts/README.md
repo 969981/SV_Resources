@@ -162,3 +162,7 @@ py -3 -m unittest discover -s tests -p test_za_lua_native_evidence.py -v
 ## SV 4.0.0 Lua：12 个原生新 S Hash 的独立增量
 
 [`Merge-SV-Lua-Native-S-Fields.py`](Merge-SV-Lua-Native-S-Fields.py) 从经原生 Lua 验证的 `followup-c-static-s-closures.tsv` 读取 12 个 **PokeDocs 原 S 文件没有收录的 Hash**，通过 FNV-1a-64 核查 `GetInt8`，输出 6,635 行完整增强列表、12 行原生证据表和 SHA-256 来源报告。**不读取或拆分 .blua**，不修改 PokeDocs。运行 `python scripts/Merge-SV-Lua-Native-S-Fields.py` 和 `--verify-only`。自动检查见 [工作流](../.github/workflows/merge-sv-lua-native-s.yml)；[Obsidian 证据文档](../docs/research/sv-lua-native-4.0.0-phase4.md)。
+
+## PKHeX Gen9 遭遇数据库参考格式研究
+
+`scripts/Audit-SV-PKHeX-Encounters.py`：离线只读读取 PKHeX.Core Gen9 .pkl 参考数据库，导出 wild/fixed/raid/outbreak CSV 与 SHA-256、可选同名 pkNX 真正导出文件对账；不是 Python pickle。用法：`python scripts/Audit-SV-PKHeX-Encounters.py --pkhex-root E:/Tools/PKHeX --output E:/Temp/SV-PKHeX-Audit`，可加 `--pknx-generated E:/Temp/SV-PkNX-Dump`。测试 `python -m unittest discover -s tests -p test_sv_pkhex_encounter_audit.py -v`，Obsidian 文档见 `docs/research/sv-pkhex-gen9-encounter-bridge.md`。
