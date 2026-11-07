@@ -1,0 +1,97 @@
+name: SV 4.0.0 original TRSCN Havok collision evidence
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/Resolve-SV-PKHeX-Havok-References.py'
+      - 'tests/test_sv_pkhex_havok_references.py'
+      - '.github/workflows/sv-pkhex-havok-native.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/scene/**'
+      - 'Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json'
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Resolve-SV-PKHeX-Havok-References.py
+            tests/test_sv_pkhex_havok_references.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m py_compile scripts/Resolve-SV-PKHeX-Havok-References.py
+          python -m unittest discover -s tests -p test_sv_pkhex_havok_references.py -v
+
+  original-scenes:
+    if: github.event_name != 'pull_request'
+    needs: synthetic
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Resolve-SV-PKHeX-Havok-References.py
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index/file_index.tsv.gz
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/world/scene/**
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Skip safely if original source is not yet SHA-verified
+        id: preflight
+        shell: bash
+        run: |
+          manifest=Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json
+          if test -f "$manifest"; then
+            echo 'available=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'available=false' >> "$GITHUB_OUTPUT"
+            echo 'Native 61-file extraction not yet merged; original-scene analysis deliberately skipped' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Resolve real TRCOL from original 4.0.0 TRSCN union schema
+        id: native
+        if: steps.preflight.outputs.available == 'true'
+        continue-on-error: true
+        run: |
+          python scripts/Resolve-SV-PKHeX-Havok-References.py
+      - name: Upload original collision dependency status
+        if: always() && steps.preflight.outputs.available == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-400-native-havok-trcol-manifest
+          path: Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-dependencies.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Report actual evidence gate
+        if: always() && steps.preflight.outputs.available == 'true'
+        shell: bash
+        run: |
+          test -f Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-dependencies.json || {
+            echo 'Unable to decode original TRSCN; inspect logs. No TRCOL links claimed.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          path=Path("Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-dependencies.json")
+          d=json.loads(path.read_text('utf-8'))
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open('a') as f:
+              f.write("## Original 4.0.0 TRCOL dependency audit\n\n")
+              f.write(f"Status: {d['status']}\n\n")
+              f.write(f"Native Havok refs: {len(d['havok_references'])}; unresolved: {d['unresolved_count']}\n\n")
+              f.write(f"Extra required native packs: {d['selected_pack_indices']}\n")
+          PY
