@@ -1,0 +1,689 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/objects_un_c01cannedshop01",
+  "kind": "all",
+  "completed_utc": "2026-11-07T13:50:16.021584+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 61,
+  "selection_sha256": "0b54083d74c527272767b83f8b18c0b9ee11568af662f93bca27ecdee35bc531",
+  "index": {
+    "available": 61,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 61,
+    "formats": {
+      "BNTX": 30,
+      "FLATBUFFER_CANDIDATE": 30,
+      "BY_EXTENSION:trcol": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 30,
+      "ok": 30,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 2,
+        "parsed": 0,
+        "converted": 1,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/objects_un_c01cannedshop01",
+      "cursor": "field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/_inspection/16d22aa67f03bedf.jsonl",
+    "source_files": 61,
+    "inspection_records": 61,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 60
+    },
+    "manifest_sha256": "5D7014F62D43C0D05FDBC0A22A6E6E02016A4F67516094DBD0DAA4B3F8C6252D"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/_inspection/16d22aa67f03bedf.jsonl",
+      "bytes": 44695,
+      "sha256": "5D7014F62D43C0D05FDBC0A22A6E6E02016A4F67516094DBD0DAA4B3F8C6252D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/black_tex_msk.bntx.json",
+      "bytes": 300,
+      "sha256": "B02350E2B5F4D0C7BA4C3920C7708F7349946B463F739680F86F2A60639245DA"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.tracl.flatbuffer.json",
+      "bytes": 588,
+      "sha256": "F8413404C945C774585C62C699CFB29E93FA9957714D081960BA08C44D53CEE8"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.tracm.flatbuffer.json",
+      "bytes": 3114,
+      "sha256": "3F29E64B7B3765B2BCB171E61AD640A9A17E1999C302AA093138FFB6BB569088"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.tracn.flatbuffer.json",
+      "bytes": 758,
+      "sha256": "4CC1DB08E216393C15B69CAA71D6299E8F71C7C4E6AE0910DCE92797023CDE83"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.tracp.flatbuffer.json",
+      "bytes": 535,
+      "sha256": "5D54419C931974A1B81ECE66210059FC53979F1C1C2B8FB334B6393F03F8D411"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.tracr.flatbuffer.json",
+      "bytes": 596,
+      "sha256": "D9637948C91CA0BAE7ABE44C20E23A266C374BAF92F956045B89C3DA9E1E072D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.tracs.flatbuffer.json",
+      "bytes": 1574,
+      "sha256": "D86F05A084DEE5DB29098F4780DD39E20AF2B2CBF2B186D9D98197A0C966D392"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.trmbf.flatbuffer.json",
+      "bytes": 878491,
+      "sha256": "2445360F6BA0FF8FF112C465C9E863A3DD7F3705A4FCF94504CFB63F80BD0AD6"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.trmdl.flatbuffer.json",
+      "bytes": 892,
+      "sha256": "9F566534095E92B522957F371ACF59BCFAE006BA622758734988854A18E394AF"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.trmdl.object.json",
+      "bytes": 28024,
+      "sha256": "3AD4CA212F2452F5A734248408C27328E69DD9ADFE9F62D3E4A805C551A06EEA"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.trmsh.flatbuffer.json",
+      "bytes": 2691,
+      "sha256": "FF1C41E8A61054C0F1B7D6BF1C3E907A9CD6F81CC88290203179B7ECD6890548"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01.trmtr.flatbuffer.json",
+      "bytes": 22986,
+      "sha256": "7DBDBDD5CDFD85F40588D9103CF2F02D9846A907F9980BFF6995E7B6E478155F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door.tracl.flatbuffer.json",
+      "bytes": 719,
+      "sha256": "0A5D50F8C6C8871933354BDD294D17B09218FF9B28BB8665349CA501296BEAFB"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door.tracn.flatbuffer.json",
+      "bytes": 783,
+      "sha256": "0917391900C4DFD64837E6475229DF2DD13CA257C67CB05020F9217C19F2FB32"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door.tracp.flatbuffer.json",
+      "bytes": 508,
+      "sha256": "1A49DB37105EF303A780579AB8D154645F1BF2EC0DDA66582F449C6F37B9A4FE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door.tracr.flatbuffer.json",
+      "bytes": 765,
+      "sha256": "67A4411438D8AD890B49914E5EBCE637D427D69BACC7269BC0C9E1C11E484940"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door.tracs.flatbuffer.json",
+      "bytes": 1638,
+      "sha256": "BD18BF8CC0515A04925DBA67F85C9926A4E684672194D89CD1DFCAB3859A1E32"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01.trmbf.flatbuffer.json",
+      "bytes": 31085,
+      "sha256": "58D7BC17C937055896F785180930215BA955FCEFFDD8B02C7FB39A96D6BB2520"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01.trmdl.flatbuffer.json",
+      "bytes": 990,
+      "sha256": "F67DCCAAC88C3DD9BAEE36009C0110F0CF8A61D69F03113862F296ECBDD80B5E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01.trmdl.object.json",
+      "bytes": 8322,
+      "sha256": "0682E3FEFBFF91A940B834C0D203F75C8403AD2A38F461FFEA528B61DE178051"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01.trmsh.flatbuffer.json",
+      "bytes": 1405,
+      "sha256": "F7478EBC41071DDE7DD40ED052E0026855AB3B2C7FF3EEEFA2382427ACB969E9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01.trmtr.flatbuffer.json",
+      "bytes": 4433,
+      "sha256": "F28CAAD669134962D5967157D94578B6ADEAD1E83C48EB33049DC4FDAAF60F3E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01.trskl.flatbuffer.json",
+      "bytes": 3447,
+      "sha256": "0474A6684D2F58525147818FEBC8ECF6EF3633FAE37798F0C47D5E2DA836B6A4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_alb.bntx.json",
+      "bytes": 330,
+      "sha256": "84BF9E4DF7221835B9354CEF6A20B5CF6FAFEF47C33CE2611F61BD27D001BBCE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_ao.bntx.json",
+      "bytes": 328,
+      "sha256": "5CB77774FA8FF56F528485AA041D380074762B534DBED9AEFF167BE10859FA1D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_lod1.trmbf.flatbuffer.json",
+      "bytes": 26315,
+      "sha256": "A413FCA3B41F3B0C63596EBACFF7C9FB8E3D13970A96CC9E6290DFC0E60D4BAE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_lod1.trmsh.flatbuffer.json",
+      "bytes": 1424,
+      "sha256": "09A5E54B6DCE025F21D00884462C05C8AB6207FDCCE488E778336B75336E5BA5"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_lod2.trmbf.flatbuffer.json",
+      "bytes": 19181,
+      "sha256": "FEDAB69395C92B8281A673C0A1043E038B9928D17268C9F5FEF35E42E0FAA92C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_lod2.trmsh.flatbuffer.json",
+      "bytes": 1424,
+      "sha256": "67B7890F789934EFC7834232C152B23B350555FB82FC9830F6CB196670405DE5"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_mtl.bntx.json",
+      "bytes": 327,
+      "sha256": "B71DF3B1D7A56E8E3374022EAF691FC497CCFB5389B44DDBBE75A98DDFED61FA"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_nrm.bntx.json",
+      "bytes": 329,
+      "sha256": "92E076DFFDDB74B7710DBB6FC5A5E0606B91D0F3AF1E3F594C4D3752EC764E63"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_rgn.bntx.json",
+      "bytes": 327,
+      "sha256": "FA046EB1D8A647C4F3B981E90D31FF427A4DBC71B185A69721EEC498709CBAE3"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door_open.tranm.flatbuffer.json",
+      "bytes": 1615,
+      "sha256": "A5BD2F0F2D7006B0ABA77253771F6637337BDBCDC7E5B4AA6EE762F76B691456"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door_wait.tranm.flatbuffer.json",
+      "bytes": 523,
+      "sha256": "FB7C6E4E35ECDB81338B0316E29588575369C9D40FCE97C7E4CDF5CA0047E444"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_alb.bntx.json",
+      "bytes": 327,
+      "sha256": "1B7A9375FC7339000662A037ECF39A33BF3E6AE7F36DBA8C3EDC33A068F0A49A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_ao.bntx.json",
+      "bytes": 326,
+      "sha256": "ABB7F279F01D3FA8DE5B0BB308443122BCE93C6F1871CC4F17F17B4D758A7415"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_mtl.bntx.json",
+      "bytes": 327,
+      "sha256": "CE57F89D9A7D09C252059DAA57DC8ED743D561621B3195EEA59A560367B48FC1"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_nrm.bntx.json",
+      "bytes": 327,
+      "sha256": "D1BFA4004D5A353DC436307774DC97F2188911B076FBD7901AE19D49E3C86190"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_rgn.bntx.json",
+      "bytes": 327,
+      "sha256": "D8A3F9DC833320B65A4408793FB8888BACE72C641E7F71FDCBA341DF0B180795"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_inside01_alb.bntx.json",
+      "bytes": 332,
+      "sha256": "6C9958382B50699661051C127895A6391006E16520262C340897EB877C15EAE2"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_inside01_emv.bntx.json",
+      "bytes": 332,
+      "sha256": "50DF1A683E3AE0CA6F46F83F54821E58690B56978C3A919EAAD746D2DEB5BAC7"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_alb.bntx.json",
+      "bytes": 329,
+      "sha256": "60E191D605DFCC7939A0222209202EB63DA29A3DA8A1B8CE34427DF3008ECBDE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_ao.bntx.json",
+      "bytes": 326,
+      "sha256": "2370982C87013C7214E92A9846E7C92391D3CAE79B8BA8A7D7035BE47A68BF2F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_emv.bntx.json",
+      "bytes": 329,
+      "sha256": "B87DC9639F4708370A0C07F6626143CEFE1E47A5ECF1D13484A86ED69B0A0A8F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_mtl.bntx.json",
+      "bytes": 327,
+      "sha256": "B3FD2526500FB6B5E413427956B83A7D996B60602BC008EAFA1E6723103D207D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_nrm.bntx.json",
+      "bytes": 329,
+      "sha256": "96F7BB1B4D3CB8CB245F5D5EC7D8CB0A997CA5B85DB71CFCA22664E084718AE5"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_rgn.bntx.json",
+      "bytes": 327,
+      "sha256": "10FB6E5DC94657C692C5A02A56AFA926BCC63CD53A42AD20B0216886A7DE3B29"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_lod1.trmbf.flatbuffer.json",
+      "bytes": 622646,
+      "sha256": "B824E157ADAC12673DD3D779E51102927B65E9D41CAB16CED7B312DDEB3C7284"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_lod1.trmsh.flatbuffer.json",
+      "bytes": 2613,
+      "sha256": "1AC9622BA35D9E2C6972FF5C17E16105386F69C3026ADCD61AD65FAAD204177C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_lod2.trmbf.flatbuffer.json",
+      "bytes": 362647,
+      "sha256": "46696F2AAB7A4D04CA6A6DDF732791673C1F33267D8758456603D98932C28574"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_lod2.trmsh.flatbuffer.json",
+      "bytes": 2612,
+      "sha256": "16D2DD2BB3A2C699C26468799209AD1409C2C7628B1FC32839741DDF3BFA351E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_alb.bntx.json",
+      "bytes": 330,
+      "sha256": "DD0EEEA7AE065C09F517D49ABC477DAF7A1F669C6D91F6641E6AEBDF4E20D86D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_ao.bntx.json",
+      "bytes": 326,
+      "sha256": "13E957DF8B72C7E08AE7C3B221FA3611372F95D6DA537B92335297B64135B73E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_mtl.bntx.json",
+      "bytes": 329,
+      "sha256": "21D16F6A547618E8ED4770EA67C5DCDEE95944FB7772DB896BBA965A545FAEA8"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_nrm.bntx.json",
+      "bytes": 329,
+      "sha256": "002BFF79B3753B95DDA38738A94DD636C6991AFDA7BB1DA975EE914DDCA18A10"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_rgn.bntx.json",
+      "bytes": 329,
+      "sha256": "42DA7144301322B42DD6F168E3BFDB746F3FA8C39CCB399ABA9727B8EB9A5D22"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_alb.bntx.json",
+      "bytes": 329,
+      "sha256": "5C3A470A43DDB8A687B2F23F7B870BB0DCEF007BF4809EDEA33E371EF311A03D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_ao.bntx.json",
+      "bytes": 328,
+      "sha256": "026C966FC776BAC50FCDA1FB59034B2F7360FB79543AC0DA73D976866D2C0CC9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_emv.bntx.json",
+      "bytes": 329,
+      "sha256": "AB5CA8FFA429DCF7B805036185DE07AAC268C7C9C81D6CFF01B3EE900E5D1F5F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_mtl.bntx.json",
+      "bytes": 327,
+      "sha256": "6C6BF9D7024838F6E58E4D185826DE44FF86028EB2E3E635D838336F0C324E35"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_nrm.bntx.json",
+      "bytes": 329,
+      "sha256": "1F55081FCCB4B9CC88089A0DF60AB3635AFD8066A4D45006963EE77426C84BF6"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_rgn.bntx.json",
+      "bytes": 329,
+      "sha256": "C3B119A57674C02B8776E9CC4BD45B1FE88DF20CFE555DEE01E081DA771FE4DA"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/black_tex_msk.png",
+      "bytes": 128,
+      "sha256": "938ED74CCFCD3BAB581E185BE9C1536DD183CD46C56BDDDD73BFEF3C2D01F12B"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01.bin",
+      "bytes": 5469804,
+      "sha256": "9D2CF95EA8FCC3EBA42A61067DEBFA1B77AC4F3BDEAA8C6C7668896D97D56F49"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01.gltf",
+      "bytes": 59893,
+      "sha256": "E46A009AAB851D92339B6610DA4EE3966A98C53A11921231707B27EBBDCECAA1"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/black_tex_msk.png",
+      "bytes": 124,
+      "sha256": "01B2B8BEB414D54E03F500E61886A434584A40AC320EE08360026B9BF1C5E44D"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/metallicRoughness.png",
+      "bytes": 14343,
+      "sha256": "B18385E9B4708DFDBA9BBD32590EE7ECCF961BA95252529A91D56BBDBFA82A14"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_grass01_alb.png",
+      "bytes": 136,
+      "sha256": "4EFA0281A6DEBFD02DEF9FB050C31844F0EF7BEF4983AB9C511B267514FA20CD"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_grass01_ao.png",
+      "bytes": 345,
+      "sha256": "1BD81D28831900D4C3C682E594D019F6FBC7C7EDF7B4CE285D14936D524494E2"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_grass01_mtl.png",
+      "bytes": 135,
+      "sha256": "987C7D198CB8F101EC3669D1C6A405F81BE148A794B3460AC9699F739FA0F282"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_grass01_nrm.png",
+      "bytes": 136,
+      "sha256": "E8FA9878D6828F10B5A735C71DA6B1ED9496444D07DF094B26FE77391B69F144"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_grass01_rgn.png",
+      "bytes": 136,
+      "sha256": "C8519F92F1C8F1214C1A6841F89F09620D8FA5B716DDFBEE45A01938B5BE5CC6"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_item01_alb.png",
+      "bytes": 90083,
+      "sha256": "CF2D061DC3A267A5728503E70A1E157900A58823AE8C5E1BC8D15A112CD9DF43"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_item01_ao.png",
+      "bytes": 3740,
+      "sha256": "07A5723C27619F2FC42B4A755BE8C610EB261FAB714F02ED33F12312CF541C5C"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_item01_emv.png",
+      "bytes": 66309,
+      "sha256": "7DA2C11BF3B50D64C29520704E2BE6EA646287EFA902E840CB87DE5C20F27D42"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_item01_mtl.png",
+      "bytes": 1224,
+      "sha256": "36A20CF5D3B4E9BA74873E2370A52675AD965CECF3A977004C7D27F5057DEC3A"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_item01_nrm.png",
+      "bytes": 23868,
+      "sha256": "89CB6AFC0C2306F8E5797850B73777EAD45C4B237D05F78A66774435706D8BF7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_item01_rgn.png",
+      "bytes": 1559,
+      "sha256": "B8DC448C1A02FC413BCADC49297D06B6EFAE3B87182A3C393D9AEE0D9572A373"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_roof01_alb.png",
+      "bytes": 138043,
+      "sha256": "81DD7AD86C0C3EBC3BAFA28CA7D10ECC505EBC5EF00A644DA106DAA4304B7B13"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_roof01_ao.png",
+      "bytes": 2919,
+      "sha256": "264E294D509580751AE24DE7F7F576593E20FAFC7815DB78FAE3743D98B3B982"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_roof01_mtl.png",
+      "bytes": 7019,
+      "sha256": "D36A16980D74209CB0EC970B7FF5F886AD7D0B1AF198259C3D317BB1D2D49B98"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_roof01_nrm.png",
+      "bytes": 8643,
+      "sha256": "2F9DBC5B0E54960CD4E647FB03EA002859F9CE6D23057E495F1DA56926084E1A"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_roof01_rgn.png",
+      "bytes": 8755,
+      "sha256": "D6428B05CBB42675722052710CB2544B419364947041A575417E0310840D87B4"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_wall01_alb.png",
+      "bytes": 45479,
+      "sha256": "EF829F16184B4265D606BA50BCB58BE60916D5EF393733F2724FC1E80C72620B"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_wall01_ao.png",
+      "bytes": 10059,
+      "sha256": "D9E4E117ECDDB1103D8CF9583627F6F0FC0CE0B560BE98C14340D8C78E0225A7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_wall01_emv.png",
+      "bytes": 3330,
+      "sha256": "8761B920676EE41F66BEC996E41E3DDD2DB4832E999BF90D39EB143E018EB6DF"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_wall01_mtl.png",
+      "bytes": 648,
+      "sha256": "9E17E551793AF9BA6C3E9CD6C002E492B51FBADD6B9B6437B8B725D97B285388"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_wall01_nrm.png",
+      "bytes": 52620,
+      "sha256": "D5A39BD586E290FCB3B62F8B4A951B7B604914F95352C88D988B38F9F618CD56"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01/objects_un_c01cannedshop01_textures/objects_un_c01cannedshop01_wall01_rgn.png",
+      "bytes": 10973,
+      "sha256": "A9EFE3D79D278F975C6449FDD42FBC51B3EF04D696E1DBC0BBB4D692B63A08CA"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_alb.png",
+      "bytes": 67910,
+      "sha256": "627516D65D7E0E679774DE27901146FFA726E720681D90E598E15372C27C98AA"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_ao.png",
+      "bytes": 6454,
+      "sha256": "4E64DBCC5AC20C7F494432130A9E61BEF2273D2E157767ADA458AE8FFA273FFE"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_mtl.png",
+      "bytes": 1295,
+      "sha256": "4FE4E996A115863702613FC14DB390E0E4A9BA390BC62E6F456C8CB665D1BCDC"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_nrm.png",
+      "bytes": 7174,
+      "sha256": "CBBBD4F21877B722D181BE2658774B895226EFB00A9C2486A14CF035816EF56E"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_door01_rgn.png",
+      "bytes": 3171,
+      "sha256": "EF9F36128EB60452BF18E0DC7BC35BB296CA0438B3FFD468DAC06DC20462985A"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_alb.png",
+      "bytes": 171,
+      "sha256": "81786BDFF6D47D4860ADE6097551D91E7490F7380BD2202E61D687FDCE43631F"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_ao.png",
+      "bytes": 336,
+      "sha256": "F921384EC428CB09E06FEAD7C2E4DDA0940FF4FCEE8DE2189AACDDF0C2BB6030"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_mtl.png",
+      "bytes": 166,
+      "sha256": "377B640AA32328E74A841C819DDFA4842B0761424058D3B65BFA959F0D6F4368"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_nrm.png",
+      "bytes": 168,
+      "sha256": "029A356C1B5F0CBCED845CF82DF3C24943C7FB33CDFDF6CB3338B45631EB7755"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_grass01_rgn.png",
+      "bytes": 170,
+      "sha256": "B63C63B5C37466EA9E7045D8E9FB28B6B6D26F133D4B26A9C716AFED96230B45"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_inside01_alb.png",
+      "bytes": 178917,
+      "sha256": "655DA294060937EEB1934CE8A49B45451F2158176B56D1B9F135E7E582852475"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_inside01_emv.png",
+      "bytes": 186722,
+      "sha256": "36AD2C211AC371E8240B3C0FBE421178A0306A490ACAB253CDD56633E8CBCDEF"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_alb.png",
+      "bytes": 125018,
+      "sha256": "E297298ED2C4CD54EED5F5046BAB75C86B0EEB68E43798643212643F2B335508"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_ao.png",
+      "bytes": 5992,
+      "sha256": "868D56C60C5EBE94D127CE0D2DBA6D969566F3A0104A89993182E7EEDB41BF9A"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_emv.png",
+      "bytes": 90132,
+      "sha256": "768D66D4F56ECF5CDF940B2E7C9E5C31428CDC034DE1600F8479FEACDEB93351"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_mtl.png",
+      "bytes": 1898,
+      "sha256": "8175D974BB4F3B3B9A534E6F8C950C0F3186E6996A3A3256338266ADCCA52878"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_nrm.png",
+      "bytes": 19505,
+      "sha256": "8220C890F47EA2E15DE9C565E166FEF38F7CF486D76ED35398AF771C8138F5D3"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_item01_rgn.png",
+      "bytes": 2335,
+      "sha256": "C3CAED6599D83FA72E39C48152A50BB3ECC8B28FD815152F9971C6442A4E7721"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_alb.png",
+      "bytes": 225323,
+      "sha256": "759EEA563588B92A66354371BA873A00DC31365EF8320645C98BF2658A9A7B1E"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_ao.png",
+      "bytes": 4487,
+      "sha256": "1ECB860A50A420D15A736320FD61D6EDC87188D4CEF0852736C7EDBE88B825BF"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_mtl.png",
+      "bytes": 12802,
+      "sha256": "9901FBD62BC079E3005551A91CE9BFDDD502C50C058D2628EA6A505070E5C6C7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_nrm.png",
+      "bytes": 8888,
+      "sha256": "1A4A7FE2AF7BB46ED58556BE87DF6E2309C2521C7EFBC5B9BB8E8CAC21A5D0F7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_roof01_rgn.png",
+      "bytes": 16213,
+      "sha256": "322B3FE2DD80D3A0C2F0CFC7C3FF6583B25BE7FACB4BEF5A2B71CCE1583A7B92"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_alb.png",
+      "bytes": 66749,
+      "sha256": "44A69E547D2EB4474574AEC1E969DAB848B5CE2511F815CC5C81AF51214AAE88"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_ao.png",
+      "bytes": 14986,
+      "sha256": "F0ED9A1B530CBC241B20307ACDF5BF525D1CBD31573199ABF833568540915B6D"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_emv.png",
+      "bytes": 4167,
+      "sha256": "B2D68EEB264B6714BB248C4D996FE6863ADD778F843C8C6B3DC21E71C3DA79D9"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_mtl.png",
+      "bytes": 727,
+      "sha256": "103ACB975667CC61B8B46C2695192A603F074545E1AD6358F6E3A04F9770C910"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_nrm.png",
+      "bytes": 50647,
+      "sha256": "DC24E62FC37B753D3C4FF8DE6D4DE3F07DCAA87D5789C3B5A961FCE13258403F"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c01cannedshop01/objects_un_c01cannedshop01_wall01_rgn.png",
+      "bytes": 18085,
+      "sha256": "89D99EC3D0DE9B84A785E2FFC4CE14509E1E6A86358E16BF4711907028081DDF"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
