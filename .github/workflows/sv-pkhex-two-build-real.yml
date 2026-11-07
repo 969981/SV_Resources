@@ -14,6 +14,10 @@ permissions:
   actions: read
 jobs:
   two-builds:
+    # PR one-shot checks have no original game artifact: do not report a false failure.
+    # A red master source run may still contain valid native binaries + real diffs,
+    # so intentionally do NOT require its overall conclusion to be success.
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'master')
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
