@@ -1,0 +1,134 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01",
+  "kind": "all",
+  "completed_utc": "2026-11-07T17:16:26.046337+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 6,
+  "selection_sha256": "aff0763d3947e409f8d9984f09b50ef975850f2942293dd63a7291f8ee9c59bb",
+  "index": {
+    "available": 6,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 6,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 4,
+      "BY_EXTENSION:trcol": 1,
+      "BNTX": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01",
+      "cursor": "field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile01.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/_inspection/e75d1585957c4363.jsonl",
+    "source_files": 6,
+    "inspection_records": 6,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 5
+    },
+    "manifest_sha256": "1B8B6BC45BD32E12CCBF2DD2064C8C3EA67F7FF55755D4CE6412ED9508F66CF9"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/_inspection/e75d1585957c4363.jsonl",
+      "bytes": 4353,
+      "sha256": "1B8B6BC45BD32E12CCBF2DD2064C8C3EA67F7FF55755D4CE6412ED9508F66CF9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile01.trmbf.flatbuffer.json",
+      "bytes": 111194,
+      "sha256": "AA34A5C49AAB8A72A895C37D0F7849814057DB88C05BCD6E54E3C71DC2212AB2"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile01.trmdl.flatbuffer.json",
+      "bytes": 745,
+      "sha256": "BC4E602DAAC7E3F9AA97155FE645F402E0328B27910B6911F329960853956DFD"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile01.trmdl.object.json",
+      "bytes": 3127,
+      "sha256": "A7F796A950D5B33FEE8EB5EDA4023D4BF521C4F5DB556315C22179BA022EDC83"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile01.trmsh.flatbuffer.json",
+      "bytes": 1437,
+      "sha256": "C6BCACA5418E162C37B665F112F372B856E62851CEB042B3AA3EAD007EB64E5A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile01.trmtr.flatbuffer.json",
+      "bytes": 4684,
+      "sha256": "AE47593DE7D93282B38FF41BD3A8276283FB4932F86EE4E6FD921BEEB2F6C1A4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile_l01_msk.bntx.json",
+      "bytes": 330,
+      "sha256": "3BC637B4CB371225DA4669B25FC2DDE50E27CE008E8FD52BF33E7307B819EBDB"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_plan_ruin03_tile_l01/objects_un_plan_ruin03_tile_l01_msk.png",
+      "bytes": 10220,
+      "sha256": "D3A99CDDE476E949938A28BA05E5A17A43DCF6AF379309D8A8DE738267D1B2EB"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
