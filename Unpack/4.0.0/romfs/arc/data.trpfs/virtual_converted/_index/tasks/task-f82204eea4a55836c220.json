@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_office01#00000.part0.part1.part0.part1.part1.part0.part1.part0",
+  "input_fingerprint": "8D6FB40715E514F6A5FD8154FE4813620AF285BDE258D49E8FE131C22D53867F",
+  "input_files": 2,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 2
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_office01/a_sch_office01_lmg02_lgt.bntx",
+      "source_sha256": "D9A3A3A81CBE147DB0934B48E7AC8EB1CC7385D7DA2C88C97692C10A8BAC671D",
+      "bytes": 528488,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010080068100800",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    },
+    {
+      "source": "field_graphic/common_model/a_sch_office01/a_sch_office01_lmg03_lgt.bntx",
+      "source_sha256": "3DE40525EAE9CCA12B8330F536C5EC5C65F593CD0BC259DD9002F94F7B32828B",
+      "bytes": 528488,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010080068100800",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office01/_inspection/51659f2f4c3c390f.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office01/_inspection/51659f2f4c3c390f.jsonl",
+      "sha256": "3DCDF17C51364B10C43351602497770F683B9C274A9B23E7804AF1C2A253DD48",
+      "bytes": 1112
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_lmg02_lgt.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_lmg02_lgt.bntx.json",
+      "sha256": "D6380DBF8C3FCE46BA19512DFBDB90BE42D765DE5974680E826A4E4E3817B6C6",
+      "bytes": 304
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_lmg03_lgt.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_office01/a_sch_office01_lmg03_lgt.bntx.json",
+      "sha256": "601C7570A2E4E79E50C34578A6C49E51A1E98DBE16F241018A2D9551D0D6C52D",
+      "bytes": 304
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_office01/a_sch_office01_lmg02_lgt.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    },
+    {
+      "source": "field_graphic/common_model/a_sch_office01/a_sch_office01_lmg03_lgt.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 2
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_office01",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
