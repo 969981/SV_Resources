@@ -42,7 +42,7 @@ class PointTraceTests(unittest.TestCase):
     def test_rejects_incomplete_trace_marker(self):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/"trace.jsonl"
-            path.write_text('{"stage":"wild_serialized","location":156,"crossFrom":158,"species":23,"form":0,"gender":1,"minLevel":23,"maxLevel":29,"timeMask":0,"weatherMask":15}\\n',encoding="utf-8")
+            path.write_text('{"stage":"wild_serialized","location":156,"crossFrom":158,"species":23,"form":0,"gender":1,"minLevel":23,"maxLevel":29,"timeMask":0,"weatherMask":15}\n',encoding="utf-8")
             with self.assertRaises(ValueError):
                 M.disjoint_trace_diagnostics(path,[self.wild_target()],[self.fixed_target()])
 
@@ -61,7 +61,7 @@ class PointTraceTests(unittest.TestCase):
                      location158AddedByWander=True),
                 dict(stage="trace_finished",status="REAL_NATIVE_POINT_PROVENANCE_RECORDED_NOT_GAME_RUNTIME_PROVED")
             ]
-            path.write_text("\\n".join(json.dumps(e) for e in events)+"\\n",encoding="utf-8")
+            path.write_text("\n".join(json.dumps(e) for e in events)+"\n",encoding="utf-8")
             data=M.disjoint_trace_diagnostics(path,[self.wild_target()],[self.fixed_target()])
             self.assertEqual(len(data["wild_output"][M.target_wild_key(self.wild_target())]),1)
             self.assertEqual(len(data["fixed_output"][M.target_fixed_key(self.fixed_target())]),1)
