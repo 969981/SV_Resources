@@ -1,0 +1,154 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/ground_un_region12_com_cliffrock02",
+  "kind": "all",
+  "completed_utc": "2026-11-07T12:10:04.952802+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 10,
+  "selection_sha256": "4450aa239f8dec1772cdc01f9f9951cd935bb42af0f71f29da6ced4676d23747",
+  "index": {
+    "available": 10,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 10,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 8,
+      "BNTX": 1,
+      "BY_EXTENSION:trcol": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/ground_un_region12_com_cliffrock02",
+      "cursor": "field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/_inspection/25a137b2c3a383eb.jsonl",
+    "source_files": 10,
+    "inspection_records": 10,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 9
+    },
+    "manifest_sha256": "9E84AE9FC1205F11A9894D43D2F069622B67CBDBCC4351589E2486F8BC105B38"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/_inspection/25a137b2c3a383eb.jsonl",
+      "bytes": 7617,
+      "sha256": "9E84AE9FC1205F11A9894D43D2F069622B67CBDBCC4351589E2486F8BC105B38"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01.trmbf.flatbuffer.json",
+      "bytes": 84124,
+      "sha256": "99947A6D6ECA4587DCD9B21D61CFC5611333AE4A1A9B617BA9BDD9E3A8C8719D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01.trmdl.flatbuffer.json",
+      "bytes": 968,
+      "sha256": "C77C4029E886BF3A677AE0762A0322D5D8BB5645F8FC15770A8F3D4F7B0F2A9C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01.trmdl.object.json",
+      "bytes": 6071,
+      "sha256": "3FE9543F7C1858098F613326A29B13FE727AEEADBA97D3917CF21FA074336E44"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01.trmsh.flatbuffer.json",
+      "bytes": 1640,
+      "sha256": "1131D9990BB83854FADBCDC31ED9BE54589E35AD96D6C046C2CBB0799A116578"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01.trmtr.flatbuffer.json",
+      "bytes": 6094,
+      "sha256": "DACCC4DF50188F0BAB5A83E88BDC8442923F6DFE3A7316C293076BD99CC55C30"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01_01_ao.bntx.json",
+      "bytes": 340,
+      "sha256": "B3FCC65DA61F9A58981F29B8E1953A01C94303584939FE303865EF17565D9E9B"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01_lod1.trmbf.flatbuffer.json",
+      "bytes": 50109,
+      "sha256": "19DD27B64C31E8F5CEA6833DC6F85AA4331EB4CEA27D213451D5737A7EBBE0B7"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01_lod1.trmsh.flatbuffer.json",
+      "bytes": 1652,
+      "sha256": "3B89685D09C0C1D0FCD01138E5F2D5ECD7ADB0195A593C4DA5A13D0C0BB385F7"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01_lod2.trmbf.flatbuffer.json",
+      "bytes": 28037,
+      "sha256": "0121A971864954F2FE67081C5C2BAAF304BD2E11B36DD4AB9256755AA8D9C623"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01_lod2.trmsh.flatbuffer.json",
+      "bytes": 1652,
+      "sha256": "AF5084CE679E3F939B09D52B0EE50F3FDFC66CCD37438AE1718A8128B94E9EAB"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_region12_com_cliffrock02/ground_un_region12_com_cliffrock02_01_01_ao.png",
+      "bytes": 811,
+      "sha256": "4B0E2C107FC1F4C36B4AF826FA343B465B80A9891A6D41A247B3AA76193A236D"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
