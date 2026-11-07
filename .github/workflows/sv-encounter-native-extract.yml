@@ -1,0 +1,175 @@
+name: SV 4.0.0 targeted native encounter extraction
+on:
+  pull_request:
+    paths:
+      - 'scripts/Extract-SV-PKHeX-Native-Packs.py'
+      - 'scripts/Locate-SV-PKHeX-Native-Packs.py'
+      - 'tests/test_sv_encounter_native_extract.py'
+      - '.github/workflows/sv-encounter-native-extract.yml'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/sv-encounter-native-extract.yml'
+      - 'scripts/Extract-SV-PKHeX-Native-Packs.py'
+      - 'scripts/Locate-SV-PKHeX-Native-Packs.py'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sv-400-encounter-targeted-extract
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Locate-SV-PKHeX-Native-Packs.py
+            scripts/Extract-SV-PKHeX-Native-Packs.py
+            tests/test_sv_native_encounter_locator.py
+            tests/test_sv_encounter_native_extract.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate read-only native locator and SHA check
+        run: |
+          python -m py_compile scripts/Locate-SV-PKHeX-Native-Packs.py scripts/Extract-SV-PKHeX-Native-Packs.py
+          python -m unittest discover -s tests -p test_sv_native_encounter_locator.py -v
+          python -m unittest discover -s tests -p test_sv_encounter_native_extract.py -v
+
+  targeted-native:
+    needs: tests
+    if: github.event_name == 'push' && github.repository == '969981/SV_Resources'
+    runs-on: windows-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Verify enough disk to restore original game source
+        shell: pwsh
+        run: |
+          $drive = Get-PSDrive D -ErrorAction Stop
+          Write-Host "D-drive available $([math]::Round($drive.Free / 1GB, 1)) GiB"
+          if ($drive.Free -lt 36GB) { throw 'Requires >=36 GiB free' }
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/workflows/sv-encounter-native-extract.yml
+            violet_4.0.0_romfs_transfer_manifest.json
+            4.0.0/1/arc/data.trpfd
+            4.0.0/1/arc/data.trpfs.7z.*
+            scripts/SV-RomFS.Transfer.psm1
+            scripts/Restore-SV-Violet-RomFS.ps1
+            scripts/Prepare-SV-Trinity.ps1
+            scripts/Run-SV-FullExtract.py
+            scripts/sv_m2_parallel.py
+            scripts/Locate-SV-PKHeX-Native-Packs.py
+            scripts/Extract-SV-PKHeX-Native-Packs.py
+            scripts/deps/oo2core_8_win64.dll
+            tests/test_sv_native_encounter_locator.py
+            tests/test_sv_encounter_native_extract.py
+            tools/SV.TrinityDump/**
+            tools/gftool/**
+            tools/HashCaches/SV/**
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index/**
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check source index and selected pack budgets
+        shell: pwsh
+        run: |
+          git config core.longpaths true
+          python scripts/Locate-SV-PKHeX-Native-Packs.py
+          if ($LASTEXITCODE -ne 0) { throw 'TRPFD lookup failed' }
+          $p = Get-Content 'Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json' -Raw | ConvertFrom-Json
+          if ($p.summary.located -ne 61 -or $p.summary.missing -ne 0 -or $p.summary.ambiguous -ne 0) { throw 'Native source lookup incomplete' }
+          if ($p.summary.selected_packs -gt 32 -or $p.summary.selected_packed_bytes -gt 67108864) { throw 'Too many or too large packs' }
+          Write-Host "All 61 original sources indexed in $($p.summary.selected_packs) packs"
+      - name: Verify 83 original 7z volumes and hash cache
+        shell: pwsh
+        run: |
+          $count = @(Get-ChildItem '4.0.0/1/arc/data.trpfs.7z.*' -File).Count
+          if ($count -ne 83) { throw "Expected 83 native volumes; got $count" }
+          if (-not (Test-Path 'scripts/deps/oo2core_8_win64.dll' -PathType Leaf)) { throw 'Native Oodle dependency missing' }
+          $meta = Get-Content 'tools/HashCaches/SV/hashcache-report.json' -Raw | ConvertFrom-Json
+          $actual = (Get-FileHash 'tools/HashCaches/SV/GFPAKHashCache.bin' -Algorithm SHA256).Hash
+          if ($actual -ne [string]$meta.sha256) { throw 'Native hashcache SHA256 mismatch' }
+      - name: Create dedicated review branch before original data restore
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          $branch = "sv-400-encounter-native-$env:GITHUB_RUN_ID"
+          git switch -c $branch
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot create review branch' }
+          "SV_ENCOUNTER_BRANCH=$branch" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Restore source outside working tree and verify complete native SHA
+        shell: pwsh
+        run: |
+          $workspace = Join-Path $env:RUNNER_TEMP 'SV-Native-Encounter-RomFS'
+          New-Item -ItemType Directory -Force $workspace | Out-Null
+          New-Item -ItemType Directory -Force 'tools/_local' | Out-Null
+          Copy-Item 'tools/HashCaches/SV/GFPAKHashCache.bin' 'tools/_local/GFPAKHashCache.bin' -Force
+          & ./scripts/Prepare-SV-Trinity.ps1 -Workspace $workspace -SkipHashBuild
+          if (-not $?) { throw 'Native data.trpfs/trpfd SHA verification failed' }
+          "SV_ENCOUNTER_ROMFS=$workspace" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Extract only indexed packs using original GFTool.Core
+        shell: pwsh
+        run: |
+          python scripts/Extract-SV-PKHeX-Native-Packs.py --repo . --workspace $env:SV_ENCOUNTER_ROMFS --selection Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json --max-packs 32 --max-packed-mib 64
+          if ($LASTEXITCODE -ne 0) { throw 'Targeted native extraction/SHA audit failed' }
+      - name: Upload native locator and extraction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-400-encounter-native-evidence-${{ github.run_id }}
+          path: |
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/batches/manual-pack-*.jsonl
+            Unpack/4.0.0/romfs/arc/data.trpfs/_index/batches/manual-pack-*-summary.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Stage ONLY verified native targets and provenance
+        shell: pwsh
+        run: |
+          $base = 'Unpack/4.0.0/romfs/arc/data.trpfs/_index'
+          $proof = Get-Content "$base/encounter-native-extraction.json" -Raw | ConvertFrom-Json
+          if ($proof.target_count -ne 61 -or $proof.status -ne '61_NATIVE_TARGETS_EXTRACTED_SHA256_VERIFIED') { throw 'Native SHA256 evidence gate failed' }
+          $paths = @(Get-Content "$base/encounter-native-stage.txt" | Where-Object { $_ -ne '' })
+          $paths += "$base/encounter-native-packs.json"
+          if ($paths.Count -lt 63) { throw 'Missing native target output files' }
+          for ($i=0; $i -lt $paths.Count; $i+=40) {
+            $end = [math]::Min($i+39,$paths.Count-1)
+            git -c core.longpaths=true add --sparse -f -- $paths[$i..$end]
+            if ($LASTEXITCODE -ne 0) { throw 'Native targeted git add failed' }
+          }
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Host 'Native target files already tracked'; exit 0 }
+          git commit -m 'data(SV): extract verified Gen9 encounter source packs'
+          if ($LASTEXITCODE -ne 0) { throw 'Native evidence git commit failed' }
+          git push origin "HEAD:refs/heads/$env:SV_ENCOUNTER_BRANCH"
+          if ($LASTEXITCODE -ne 0) { throw 'Native evidence branch publication failed' }
+          Write-Host "Published verified native files in $env:SV_ENCOUNTER_BRANCH"
+      - name: Propose actual native source files for review
+        shell: pwsh
+        run: |
+          gh pr create --base master --head $env:SV_ENCOUNTER_BRANCH --title 'data(SV 4.0.0): verified native encounter and field scene assets' --body 'Native TRPFD/Trinity TRPFS extraction, source SHA-256 and per-target SHA-256 verified; all 61 native core dependencies from 11 packs. Havok collision external .trcol paths and full pkNX legality generation remain independently unverified.'
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'Native review branch published but PR creation was denied'
+            Write-Host "https://github.com/$env:GITHUB_REPOSITORY/compare/master...$env:SV_ENCOUNTER_BRANCH"
+          }
