@@ -189,6 +189,16 @@ def audit(pkhex_root: Path, out: Path, generated: Path | None = None) -> dict:
                   "records": len(rows) if rows is not None else None}
         if key == "wild" and rows is not None:
             result["area_count"] = struct.unpack_from("<H", raw, 2)[0]
+            count = result["area_count"]
+            offsets = struct.unpack_from(f"<{count + 1}I", raw, 4)
+            locations_all = {
+                struct.unpack_from("<H", raw, offset)[0]
+                for offset in offsets[:-1]
+            }
+            result["distinct_area_locations"] = len(locations_all)
+            result["empty_area_count"] = sum(
+                end - start == 4 for start, end in zip(offsets, offsets[1:])
+            )
             result["distinct_met_locations"] = len({r["location_id"] for r in rows})
             result["crossover_slots"] = sum(r["cross_from_id"] != 0 for r in rows)
         summary["sources"][key] = result
