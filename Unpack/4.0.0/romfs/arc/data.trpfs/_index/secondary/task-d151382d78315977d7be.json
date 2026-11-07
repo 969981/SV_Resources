@@ -1,0 +1,154 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01",
+  "kind": "all",
+  "completed_utc": "2026-11-07T17:05:43.498209+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 10,
+  "selection_sha256": "d4c996e1474b5d9d7a93c7d8bcb46dab636188a5767b1b429519b00119734a70",
+  "index": {
+    "available": 10,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 10,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 8,
+      "BY_EXTENSION:trcol": 1,
+      "BNTX": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01",
+      "cursor": "field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/_inspection/6a91e126e63a7713.jsonl",
+    "source_files": 10,
+    "inspection_records": 10,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 9
+    },
+    "manifest_sha256": "194B6C9080C22828FCD0F39FEB7A3F1AAB967B545B717184012A87660B86A046"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/_inspection/6a91e126e63a7713.jsonl",
+      "bytes": 7454,
+      "sha256": "194B6C9080C22828FCD0F39FEB7A3F1AAB967B545B717184012A87660B86A046"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01.trmbf.flatbuffer.json",
+      "bytes": 269604,
+      "sha256": "701126216035C5BCC6A5E3CA35219E7706C68ECDB77DEB9A45A236AD6392FC41"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01.trmdl.flatbuffer.json",
+      "bytes": 923,
+      "sha256": "87B7FD584C9BCD22BBC6BC8A7234BF5B0F399767A761C3C99A2FA468E0D1C1D4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01.trmdl.object.json",
+      "bytes": 5877,
+      "sha256": "55E880BD3740501D99C90FC27F0457A0892DE6C089FD7CF47185289E95F56656"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01.trmsh.flatbuffer.json",
+      "bytes": 1730,
+      "sha256": "8713F9F861D1553FA08A5E2EEFC1C014C023E045A0B1F9D8255FC6F3A924BBB9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01.trmtr.flatbuffer.json",
+      "bytes": 17410,
+      "sha256": "7311954E7F7F88EC08F68EEB41A051734422588316AEC561021DC5FEFEBF0FD4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01_lod1.trmbf.flatbuffer.json",
+      "bytes": 407249,
+      "sha256": "566704E1CB1C4FF2A369F55C20D288FBDAD63B72E729A0A6083EFF8275AFB7D5"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01_lod1.trmsh.flatbuffer.json",
+      "bytes": 1740,
+      "sha256": "814F332E2F3387EF700B1FC2CAF3D55ED0324C1977264148EF41BD323076D533"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01_lod2.trmbf.flatbuffer.json",
+      "bytes": 289156,
+      "sha256": "601B4EA1A4190E16FA3361E3B6FA80489CED7A046DAEF14B594FAC7587061629"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01_lod2.trmsh.flatbuffer.json",
+      "bytes": 1747,
+      "sha256": "E4496316A401CEF7179D665449A83CA18B68DFE157741E6EC465F0A9DFC830D6"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01_msk.bntx.json",
+      "bytes": 329,
+      "sha256": "06FFF29B908A38B21343EB7CD5BB36BD11D8F6FB875998E6D45455BAD9314991"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_plan_ruin03_arch_l01/objects_un_plan_ruin03_arch_l01_msk.png",
+      "bytes": 2487,
+      "sha256": "758A29DEE899091431783C251A5063BA5BB18DCBE37B7D47BC2CEFDCC5ED312A"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
