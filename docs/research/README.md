@@ -60,3 +60,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## 朱紫 4.0.0 地图碰撞间接依赖
 
 - [原生 TRSCN → Havok TRCOL 动态引用与 PKHeX 遭遇几何闭合](sv-pkhex-trcol-collision-closure.md) — 从 TrinitySceneObjectTemplate 的第一子对象读取 CollisionComponent union，识别真实 TrcolFilePath，定位额外包与验证 SHA，明确与 PKHeX 参考遭遇数据库的证据分界。
+
+## 真实原生 4.0.0 → PKHeX 合法性模板生成
+
+- [朱紫 4.0.0 原生 → PKHeX 遭遇库：野生／固定／Raid 原始算法、独立 .NET 10 CLI、SHA 证明和逐字段对账](sv-pkhex-encounter-native-regeneration.md) — 详细说明 `EncounterSlotDumper9`、`FixedSymbolDumper9`、18 张团体战原始表的生成路径；TRCOL 不齐时仍保留可独立验证的原生 Raid 输出。
