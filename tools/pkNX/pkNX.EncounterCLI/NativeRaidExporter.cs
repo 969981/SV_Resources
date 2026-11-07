@@ -83,8 +83,8 @@ internal static class NativeRaidExporter
         internal int Delivery => Enemy.Info.DeliveryGroupID;
         internal sbyte Rate => Enemy.Info.Rate;
         internal int RandRateStartScarlet { get; set; } =
-            Enemy.Info.RomVer == RaidRomType.TYPE_B ? -1 : 0;
+            enemy.Info.RomVer == RaidRomType.TYPE_B ? -1 : 0;
         internal int RandRateStartViolet { get; set; } =
-            Enemy.Info.RomVer == RaidRomType.TYPE_A ? -1 : 0;
+            enemy.Info.RomVer == RaidRomType.TYPE_A ? -1 : 0;
     }
 }
