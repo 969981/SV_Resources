@@ -1,0 +1,106 @@
+name: SV native Gen9 real PK9 legality - two PKHeX.Core builds
+on:
+  workflow_run:
+    workflows: ['SV 4.0.0 ORIGINAL native -> PKHeX one-shot reconstruction']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: One-shot original SV 4.0.0 native reconstruction run ID
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  two-builds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            tools/PKHeX.Gen9LegalityProbe/**
+            scripts/Stage-SV-Native-PKHeX-Resources.py
+            scripts/Compare-SV-PK9-Embedded-Legality.py
+            tests/test_sv_pkhex_embedded_legality.py
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: No-ROM source and PK9 identity test
+        run: python -m unittest discover -s tests -p test_sv_pkhex_embedded_legality.py -v
+      - name: Download original source-generated wild fixed raid evidence
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id || github.event.inputs.source_run_id }}
+        run: |
+          set -euo pipefail
+          test -n "$SOURCE_RUN_ID"
+          gh run download "$SOURCE_RUN_ID" -R "$GITHUB_REPOSITORY" -n SV-400-actual-native-pkhex-comparison -D "$RUNNER_TEMP/native-artifact"
+          count=$(find "$RUNNER_TEMP/native-artifact" -name native-encounter-build.json | wc -l)
+          test "$count" -eq 1
+          manifest=$(find "$RUNNER_TEMP/native-artifact" -name native-encounter-build.json)
+          native=$(dirname "$manifest")
+          export SV_NATIVE_OUTPUT="$native"
+          echo "SV_NATIVE_OUTPUT=$native" >> "$GITHUB_ENV"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          v=json.loads((Path(os.environ["SV_NATIVE_OUTPUT"])/"native-encounter-build.json").read_text("utf-8-sig"))
+          assert v["status"]=="GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES"
+          assert len(v["generated"])==5
+          print([x["name"] for x in v["generated"]])
+          PY
+      - name: Fetch pinned independent PKHeX.Core and genuine public PK9 samples
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref="$RUNNER_TEMP/pkhex-original"
+          mkdir -p "$ref"
+          git -C "$ref" init -q
+          git -C "$ref" remote add origin https://github.com/kwsch/PKHeX.git
+          git -C "$ref" sparse-checkout init --no-cone
+          git -C "$ref" sparse-checkout set --no-cone 'PKHeX.Core/**' 'Tests/PKHeX.Core.Tests/Legality/Legal/Generation 9/**' 'Tests/PKHeX.Core.Tests/Legality/Legal/General/*.pk9' 'Directory.Build.props' 'Directory.Build.targets' 'global.json' 'icon.png'
+          git -C "$ref" -c protocol.version=2 fetch -q --depth=1 --filter=blob:none origin 0660d1e1f4924b8478daec73281bb8071a82ad19
+          git -C "$ref" -c advice.detachedHead=false checkout -q --detach FETCH_HEAD
+          echo "SV_PKHEX_ORIGINAL=$ref" >> "$GITHUB_ENV"
+      - name: Compile original PKHeX.Core and LegalityAnalysis reference baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet build tools/PKHeX.Gen9LegalityProbe/PKHeX.Gen9LegalityProbe.csproj -c Release --nologo "-p:PKHeXRoot=$SV_PKHEX_ORIGINAL"
+          dotnet tools/PKHeX.Gen9LegalityProbe/bin/Release/net10.0/PKHeX.Gen9LegalityProbe.dll --pkhex-tests "$SV_PKHEX_ORIGINAL/Tests/PKHeX.Core.Tests" --native-output "$SV_NATIVE_OUTPUT" --output "$RUNNER_TEMP/PK9-base"
+      - name: Copy source then embed FIVE native source SHA-verified Gen9 encounter resources
+        shell: bash
+        run: |
+          set -euo pipefail
+          clone="$RUNNER_TEMP/pkhex-native"
+          mkdir -p "$clone"
+          tar -C "$SV_PKHEX_ORIGINAL" --exclude=.git -cf - . | tar -C "$clone" -xf -
+          python scripts/Stage-SV-Native-PKHeX-Resources.py --native-output "$SV_NATIVE_OUTPUT" --isolated-pkhex-root "$clone" --original-pkhex-root "$SV_PKHEX_ORIGINAL" --evidence "$RUNNER_TEMP/PK9-comparison/embedded-proof.json"
+          echo "SV_PKHEX_NATIVE=$clone" >> "$GITHUB_ENV"
+      - name: Rebuild PKHeX.Core with native embedded database; run identical PK9 fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet build tools/PKHeX.Gen9LegalityProbe/PKHeX.Gen9LegalityProbe.csproj -t:Rebuild -c Release --nologo "-p:PKHeXRoot=$SV_PKHEX_NATIVE"
+          dotnet tools/PKHeX.Gen9LegalityProbe/bin/Release/net10.0/PKHeX.Gen9LegalityProbe.dll --pkhex-tests "$SV_PKHEX_ORIGINAL/Tests/PKHeX.Core.Tests" --native-output "$SV_NATIVE_OUTPUT" --output "$RUNNER_TEMP/PK9-native"
+      - name: Compare same original PK9 SHA and real LegalityAnalysis verdicts
+        shell: bash
+        run: |
+          python scripts/Compare-SV-PK9-Embedded-Legality.py --reference "$RUNNER_TEMP/PK9-base/pk9-legality-analysis.json" --native "$RUNNER_TEMP/PK9-native/pk9-legality-analysis.json" --embedded-proof "$RUNNER_TEMP/PK9-comparison/embedded-proof.json" --output "$RUNNER_TEMP/PK9-comparison/verdict-differences.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV-400-genuine-PKHeX-two-build-PK9-legality
+          path: |
+            ${{ runner.temp }}/PK9-base/*.json
+            ${{ runner.temp }}/PK9-native/*.json
+            ${{ runner.temp }}/PK9-comparison/*.json
+          if-no-files-found: warn
+          retention-days: 30
