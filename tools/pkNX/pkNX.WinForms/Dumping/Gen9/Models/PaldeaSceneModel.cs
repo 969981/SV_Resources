@@ -136,7 +136,7 @@ public class PaldeaSceneModel
             if (EncounterTraceSV.Enabled)
                 AreaCollisionOrigins[(int)index][name] = new(
                     trscnSource, "HAVOK_TRCOL", havok.TrcolFilePath,
-                    Convert.ToHexString(SHA256.HashData(havokData.Span)), null, null);
+                    Convert.ToHexString(SHA256.HashData(havokData)), null, null);
             AreaCollisionTrees[(int)index][name] = HavokCollision.ParseAABBTree(havokData);
         }
     }
