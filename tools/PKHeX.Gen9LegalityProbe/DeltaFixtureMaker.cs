@@ -143,7 +143,7 @@ internal static class DeltaFixtureMaker
             warning="Generated PK9 are controlled fixtures; they do not prove real in-game encounter odds or PID/RNG.",
         };
         File.WriteAllText(Path.Combine(dest,"delta-source-proof.json"),
-                          JsonSerializer.Serialize(result,new JsonSerializerOptions{WriteIndented=true})+"\n",Encoding.UTF8);
+                          JsonSerializer.Serialize(result,new JsonSerializerOptions{WriteIndented=true})+"\n",new UTF8Encoding(false));
         Console.WriteLine(JsonSerializer.Serialize(new {result.status,result.fixedAdded158,result.kitakamiCrossovers,result.levelDeltaCandidates}));
         return result;
     }
