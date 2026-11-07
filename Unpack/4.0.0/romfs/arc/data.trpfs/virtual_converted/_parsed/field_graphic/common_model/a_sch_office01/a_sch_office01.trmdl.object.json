@@ -45,8 +45,8 @@
       "role": "vertex_index_buffers",
       "evidence": "TRMSH",
       "required": true,
-      "exists": true,
-      "size_bytes": 14063372
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_office01/a_sch_office01.trmtr",
@@ -57,10 +57,12 @@
       "size_bytes": 180676
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_office01/a_sch_office01.trmbf"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -70,14 +72,14 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "77AB831465591A8AD0C121C3BA5595A3FE98263E81E497F296642E94E17483E9",
+  "fingerprint": "F20D630EE71590078CD620B870F25762F36F5E92D5906A430E1C8D59A56E48A3",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
     {
       "path": "field_graphic/common_model/a_sch_office01/a_sch_office01.trmbf",
       "required": true,
-      "sha256": "086C82769FDB90B8C686ECF90B0509BEC28222C0D4A8659A140030674C038F83"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_office01/a_sch_office01.trmdl",
@@ -94,38 +96,5 @@
       "required": true,
       "sha256": "2E993808C55D8AE756607ACC21175EF51D306FA3FC5F277CCF33F4AA766AD030"
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 175,
-    "primitive_count": 175,
-    "materials_count": 97,
-    "uv_primitive_count": 175,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_office01.bin",
-        "bytes": 903320600,
-        "sha256": "EB68AFD9AC1951B8B4E695FC896EE7E5F2B6041C52DBEB03F805D871EC850441"
-      },
-      {
-        "path": "a_sch_office01_textures/a_sch_dorm01_trashbox01_body01_nrm.png",
-        "bytes": 65938,
-        "sha256": "215EC2CECB5EA72CC34597FADAFBE7F7F973D85930315928F242AB0759F02AD1"
-      },
-      {
-        "path": "a_sch_office01_textures/a_sch_dorm01_trashbox01_body01_rgn.png",
-        "bytes": 22388,
-        "sha256": "6C92F0BAA5E909C148EAB6991499DA6607C01E1414B95B4A9EE3A04478F7698E"
-      },
-      {
-        "path": "a_sch_office01_textures/metallicRoughness.png",
-        "bytes": 22210,
-        "sha256": "19BD96861B5F0DEB868301EEC5965CAAD99BF96AAB290C63F122D23B5B65801B"
-      }
-    ],
-    "gltf_sha256": "3DB2476821E062C9BD51E4797911C7224B70EA96E75C48BD8CE6F59D302F085D"
-  }
+  ]
 }
