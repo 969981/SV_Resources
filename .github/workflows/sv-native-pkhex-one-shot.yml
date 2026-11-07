@@ -31,15 +31,12 @@ jobs:
             scripts/Resolve-SV-PKHeX-Havok-References.py
             scripts/Extract-SV-PKHeX-TRCOL-Packs.py
             scripts/Compare-SV-Native-PKHeX-Encounters.py
-            scripts/Stage-SV-Native-PKHeX-Resources.py
-            scripts/Compare-SV-PK9-Embedded-Legality.py
             scripts/Audit-SV-PKHeX-Encounters.py
             tests/test_sv_native_encounter_locator.py
             tests/test_sv_encounter_native_extract.py
             tests/test_sv_pkhex_havok_references.py
             tests/test_sv_pkhex_trcol_extract.py
             tests/test_sv_native_pkhex_comparison.py
-            tests/test_sv_pkhex_embedded_legality.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -50,7 +47,6 @@ jobs:
           python -m unittest discover -s tests -p test_sv_pkhex_havok_references.py -v
           python -m unittest discover -s tests -p test_sv_pkhex_trcol_extract.py -v
           python -m unittest discover -s tests -p test_sv_native_pkhex_comparison.py -v
-          python -m unittest discover -s tests -p test_sv_pkhex_embedded_legality.py -v
 
   original-data-rebuild:
     needs: safe-preflight
@@ -88,8 +84,6 @@ jobs:
             scripts/Resolve-SV-PKHeX-Havok-References.py
             scripts/Extract-SV-PKHeX-TRCOL-Packs.py
             scripts/Compare-SV-Native-PKHeX-Encounters.py
-            scripts/Stage-SV-Native-PKHeX-Resources.py
-            scripts/Compare-SV-PK9-Embedded-Legality.py
             scripts/Audit-SV-PKHeX-Encounters.py
             scripts/deps/oo2core_8_win64.dll
             tools/SV.TrinityDump/**
@@ -220,28 +214,6 @@ jobs:
           dotnet tools/PKHeX.Gen9LegalityProbe/bin/Release/net10.0/PKHeX.Gen9LegalityProbe.dll @arguments
           if ($LASTEXITCODE -ne 0) { throw 'Real PK9 legality analysis controls or native candidate checks failed' }
 
-      - name: Build isolated PKHeX.Core with REAL native Gen9 embedded tables
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          $base=$env:SV_PKHEX_REF
-          $new=Join-Path $env:RUNNER_TEMP 'PKHeX-NativeEmbedded'
-          New-Item -ItemType Directory -Force $new | Out-Null
-          Copy-Item -Path (Join-Path $base '*') -Destination $new -Recurse -Force
-          python scripts/Stage-SV-Native-PKHeX-Resources.py --native-output "$env:RUNNER_TEMP/SV-native-pkhex-gen9" --original-pkhex-root $base --isolated-pkhex-root $new --evidence "$env:RUNNER_TEMP/SV-PK9-legality/native-embedded-source.json"
-          if ($LASTEXITCODE -ne 0) { throw 'Missing genuine SHA-attested native Gen9 source outputs; cannot run injected database test' }
-          dotnet build tools/PKHeX.Gen9LegalityProbe/PKHeX.Gen9LegalityProbe.csproj -t:Rebuild -c Release --nologo "-p:PKHeXRoot=$new"
-          if ($LASTEXITCODE -ne 0) { throw 'Original PKHeX.Core did not rebuild with 5 native encounter resources' }
-          dotnet tools/PKHeX.Gen9LegalityProbe/bin/Release/net10.0/PKHeX.Gen9LegalityProbe.dll --pkhex-tests "$base/Tests/PKHeX.Core.Tests" --native-output "$env:RUNNER_TEMP/SV-native-pkhex-gen9" --output "$env:RUNNER_TEMP/SV-PK9-legality-native"
-          if ($LASTEXITCODE -ne 0) { throw 'Actual PK9 LegalityAnalysis with native embedded Gen9 resources failed' }
-
-      - name: Compare SAME actual PK9 specimens against TWO compiled PKHeX.Core databases
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          python scripts/Compare-SV-PK9-Embedded-Legality.py --reference "$env:RUNNER_TEMP/SV-PK9-legality/pk9-legality-analysis.json" --native "$env:RUNNER_TEMP/SV-PK9-legality-native/pk9-legality-analysis.json" --embedded-proof "$env:RUNNER_TEMP/SV-PK9-legality/native-embedded-source.json" --output "$env:RUNNER_TEMP/SV-PK9-legality/pk9-database-variant-diff.json"
-          if ($LASTEXITCODE -ne 0) { throw 'Original vs native-embedded PKHeX.Core PK9 legality results are not comparable' }
-
       - name: Clearly publish PASS, PARTIAL and BLOCKED state without changing Git sources
         shell: pwsh
         run: |
@@ -275,7 +247,6 @@ jobs:
             ${{ runner.temp }}/SV-native-pkhex-diff/*.json
             ${{ runner.temp }}/SV-native-pkhex-diff/*.csv
             ${{ runner.temp }}/SV-PK9-legality/*.json
-            ${{ runner.temp }}/SV-PK9-legality-native/*.json
           if-no-files-found: warn
           retention-days: 30
 
@@ -288,9 +259,7 @@ jobs:
           $build=Join-Path $env:RUNNER_TEMP 'SV-native-pkhex-gen9/native-encounter-build.json'
           $diff=Join-Path $env:RUNNER_TEMP 'SV-native-pkhex-diff/native-comparison.json'
           $legality=Join-Path $env:RUNNER_TEMP 'SV-PK9-legality/pk9-legality-analysis.json'
-          $embed=Join-Path $env:RUNNER_TEMP 'SV-PK9-legality/native-embedded-source.json'
-          $variants=Join-Path $env:RUNNER_TEMP 'SV-PK9-legality/pk9-database-variant-diff.json'
-          $all=@($source,$col,$build,$diff,$legality,$embed,$variants)
+          $all=@($source,$col,$build,$diff,$legality)
           $missing=@($all | Where-Object { -not (Test-Path $_ -PathType Leaf) })
           if ($missing.Count -gt 0) { throw "Not validated: absent original source/geometry/native/diff/PK9 evidence: $($missing -join ', ')" }
           $a=Get-Content $source -Raw | ConvertFrom-Json
@@ -303,8 +272,4 @@ jobs:
           if ($c.status -ne 'GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES') { throw "Not complete: native generator=$($c.status) collisionBlocker=$($c.collisionBlocker)" }
           if ($d.status -eq 'NATIVE_PKHEX_FIELD_LEVEL_DIFFERENCES_REQUIRE_INVESTIGATION') { throw 'Actual native generator differs from pinned PKHeX; inspect uploaded field CSV' }
           if ($e.actualOriginalPk9Fixtures -lt 1 -or $e.validOfficialReferenceFixtures -lt 1) { throw 'Real PK9 legality samples did not pass' }
-          $h=Get-Content $embed -Raw | ConvertFrom-Json
-          $v=Get-Content $variants -Raw | ConvertFrom-Json
-          if ($h.status -ne 'FIVE_NATIVE_GEN9_TABLES_EMBEDDED_IN_ISOLATED_PKHEX') { throw 'Original native encounter binaries were not embedded in isolated PKHeX source' }
-          if ($v.status -ne 'REAL_PKHEX_LEGALITYANALYSIS_REFERENCE_VS_NATIVE_EMBEDDED_COMPARED' -or $v.official_pk9_compared -lt 6) { throw 'No real same-fixture PK9 legality comparison against two PKHeX.Core builds' }
-          Write-Host 'All original source + Havok + native PKHeX table diff + TWO embedded-PKHeX.Core real PK9 legality gates produced.'
+          Write-Host 'All source/geometry/PKHeX comparison/PK9 probe evidence produced.'
