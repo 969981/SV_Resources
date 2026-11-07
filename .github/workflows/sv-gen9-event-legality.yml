@@ -79,7 +79,7 @@ jobs:
           import json,os
           from pathlib import Path
           p=Path(os.environ['RUNNER_TEMP'])/'PKHeX-Event-Legality'/'sv400-pkhex-event-legality-smoke.json'
-          j=json.loads(p.read_text('utf-8'))
+          j=json.loads(p.read_text('utf-8-sig'))
           assert j['status']=='REAL_PKHEX_LEGALITYANALYSIS_EXECUTED_ON_PINNED_EVENT_TEMPLATE_PK9_NOT_GAME_CAPTURED'
           assert j['officialPK9ValidCount']>=6 and j['officialPK9NegativeControlsRejected']>=1
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as fp:
