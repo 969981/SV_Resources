@@ -58,10 +58,12 @@ def interval_relation(nlo:int,nhi:int,plo:int,phi:int)->str:
 
 def parse_original_fixed_area(tablekey:str)->tuple[str,str]:
     """Recognize both real fixed symbol families: su1_ and t_su1_."""
-    match=re.fullmatch(r"(t_)?su1_(area\d+)_\d+",tablekey)
+    match=re.fullmatch(r"(t_)?su1_(area\d+)_\d+(_dun)?",tablekey)
     if match is None:
         raise ValueError(f"Unexpected original North Kitakami fixed TableKey: {tablekey}")
-    return match.group(2), "T_PREFIX" if match.group(1) else "NORMAL"
+    kind=("T_PREFIX" if match.group(1) else
+          "DUN_SUFFIX" if match.group(3) else "NORMAL")
+    return match.group(2),kind
 
 
 def write_csv(path:Path,table:list[dict]):
