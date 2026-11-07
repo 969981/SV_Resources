@@ -38,7 +38,8 @@ def read_csv(folder: Path, name: str) -> list[dict] | None:
 def value(row: dict, field: str, minimum: int = 0, maximum: int = 255) -> int:
     if field not in row:
         raise ValueError(f"Missing field {field}")
-    n = int(row[field], 10)
+    raw = row[field]
+    n = int(raw) if isinstance(raw, int) else int(raw, 10)
     if n < minimum or n > maximum:
         raise ValueError(f"{field}={n} outside [{minimum}, {maximum}]")
     return n
