@@ -57,13 +57,31 @@ internal static class Program
                 WritePickle = true,
             };
             Console.WriteLine($"Native place names (English AHTB order): {config.PlaceNameMap.Count}");
-            var field = new PaldeaFieldModel(rom);
-            var scene = new PaldeaSceneModel(rom, field);
-            Console.WriteLine("Native field and collision scene loaded.");
-            EncounterSlotDumper9.DumpSlots(rom, config, scene);
-            Console.WriteLine($"Generated from raw spawners + geometry: {WildName}");
-            FixedSymbolDumper9.Dump(rom, config, scene);
-            Console.WriteLine($"Generated from raw symbol tables + geometry: {FixedName}");
+            // Raid templates require the eighteen original RaidEnemyTable arrays
+            // and no field collider. Generate and attest them independently.
+            var products = new List<string>();
+            products.AddRange(NativeRaidExporter.Generate(rom, output));
+            Console.WriteLine("Generated 3 independent original Tera raid tables.");
+            string? collisionBlocker = null;
+            try
+            {
+                var field = new PaldeaFieldModel(rom);
+                var scene = new PaldeaSceneModel(rom, field);
+                Console.WriteLine("Native field and collision scene loaded.");
+                EncounterSlotDumper9.DumpSlots(rom, config, scene);
+                products.Add(WildName);
+                Console.WriteLine($"Generated from raw spawners + geometry: {WildName}");
+                FixedSymbolDumper9.Dump(rom, config, scene);
+                products.Add(FixedName);
+                Console.WriteLine($"Generated from raw symbol tables + geometry: {FixedName}");
+            }
+            catch (FileNotFoundException missing)
+            {
+                // Collision dependencies are original Havok TRCOL references.
+                // Never use the PKHeX reference file as a substitute.
+                collisionBlocker = $"MISSING_ORIGINAL_NATIVE_ASSET: {missing.Message}";
+                Console.Error.WriteLine(collisionBlocker);
+            }
 
             var input = rom.Consumed.OrderBy(kv => kv.Key, StringComparer.Ordinal)
                 .Select(kv => new
@@ -74,12 +92,14 @@ internal static class Program
                     verifiedByOriginalM2Manifest = kv.Value.ManifestVerified,
                 }).ToArray();
             var extra = input.Where(x => !x.verifiedByOriginalM2Manifest).ToArray();
-            var products = new[] { WildName, FixedName };
             var result = new
             {
-                status = extra.Length == 0
-                    ? "GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES"
-                    : "GENERATED_FROM_NATIVE_WITH_UNVERIFIED_EXTERNAL_DEPENDENCIES",
+                status = extra.Length > 0
+                    ? "GENERATED_FROM_NATIVE_WITH_UNVERIFIED_EXTERNAL_DEPENDENCIES"
+                    : collisionBlocker is not null
+                        ? "GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES_PARTIAL"
+                        : "GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES",
+                collisionBlocker,
                 version = "Pokemon SV 4.0.0",
                 algorithm = "Vendored pkNX EncounterSlotDumper9 and FixedSymbolDumper9, UNMODIFIED",
                 importantLimits = new[]
@@ -108,6 +128,8 @@ internal static class Program
                 Console.Error.WriteLine($"{extra.Length} native source(s) lack M2 SHA manifest verification; cannot mark exact legality verified.");
                 return 2;
             }
+            if (collisionBlocker is not null)
+                return 2; // Partial native raid result; collisions still need original TRCOL.
             return 0;
         }
         catch (Exception ex)
