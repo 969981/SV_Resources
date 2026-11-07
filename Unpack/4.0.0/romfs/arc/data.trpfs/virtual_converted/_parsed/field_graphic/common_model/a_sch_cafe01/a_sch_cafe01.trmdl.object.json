@@ -37,30 +37,25 @@
       "role": "mesh",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 8672
-    },
-    {
-      "path": "field_graphic/common_model/a_sch_cafe01/a_sch_cafe01.trmbf",
-      "role": "vertex_index_buffers",
-      "evidence": "TRMSH",
-      "required": true,
-      "exists": true,
-      "size_bytes": 5635588
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_cafe01/a_sch_cafe01.trmtr",
       "role": "material_parameters",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 139936
+      "exists": false,
+      "size_bytes": null
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_cafe01/a_sch_cafe01.trmsh",
+    "field_graphic/common_model/a_sch_cafe01/a_sch_cafe01.trmtr"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -70,15 +65,10 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "1A59A6C5BC509A2EC0BCC373E25B7E1C4BC77AB1EB79F3FA4DC0A8BDBD17F61A",
+  "fingerprint": "E4C387C56B80FADC9DBBFB2013B291ED84138B5C897A79A0BC1FFEE926AAEBA4",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
-    {
-      "path": "field_graphic/common_model/a_sch_cafe01/a_sch_cafe01.trmbf",
-      "required": true,
-      "sha256": "E6439A98C224BB756693DD27182C2FBB13FA17D397CD9B23BB82FAF1FE7B2793"
-    },
     {
       "path": "field_graphic/common_model/a_sch_cafe01/a_sch_cafe01.trmdl",
       "required": true,
@@ -87,30 +77,12 @@
     {
       "path": "field_graphic/common_model/a_sch_cafe01/a_sch_cafe01.trmsh",
       "required": true,
-      "sha256": "84E9DA0F07019DA44DDEA70C668586255797A1C17DCEA382EC1E5DBFD5334A1A"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_cafe01/a_sch_cafe01.trmtr",
       "required": true,
-      "sha256": "4F9EB64DEA4FDDC941E292A0A8049F89929A0F3C767CBB79360A28B0073FD595"
+      "sha256": null
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 80,
-    "primitive_count": 80,
-    "materials_count": 75,
-    "uv_primitive_count": 80,
-    "skin_count": 0,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_cafe01.bin",
-        "bytes": 289288428,
-        "sha256": "3357FFC15013818DC5D4AB7F09E4F5AEE87EBDB466F0737373437BED29EADAB0"
-      }
-    ],
-    "gltf_sha256": "72C2E2E964D0F35AC68E5459B2A685221A57B3C6D9D19E45A94F0E52F1AA608F"
-  }
+  ]
 }
