@@ -1,0 +1,164 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02",
+  "kind": "all",
+  "completed_utc": "2026-11-07T20:25:13.965283+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 11,
+  "selection_sha256": "379782144916ffe9600bcf700470b897d00fec6a6ff93ba2407f43049cff6baf",
+  "index": {
+    "available": 11,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 11,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 8,
+      "BY_EXTENSION:trcol": 1,
+      "BNTX": 2
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 2,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02",
+      "cursor": "field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/_inspection/6695a3d3c66d0455.jsonl",
+    "source_files": 11,
+    "inspection_records": 11,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 10
+    },
+    "manifest_sha256": "E35AC0ADCF415AC0FD7F2E1F88310021199FB60C7C44241CB1667597A107D43C"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/_inspection/6695a3d3c66d0455.jsonl",
+      "bytes": 8194,
+      "sha256": "E35AC0ADCF415AC0FD7F2E1F88310021199FB60C7C44241CB1667597A107D43C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02.trmbf.flatbuffer.json",
+      "bytes": 104569,
+      "sha256": "C1F657DD6F990A9E884DB3CB3B52C431CEFE9A4A48982B67F82EDBF086789C03"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02.trmdl.flatbuffer.json",
+      "bytes": 944,
+      "sha256": "28092F4451116560BEC0065D0C44FC1041116CE8C1C9A0D359262184E0F6E5DE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02.trmdl.object.json",
+      "bytes": 6393,
+      "sha256": "18FD6AAD9449BA015B06F72F9E75D06D14BCD3E62C062BEA1D87C323AC48B3BD"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02.trmsh.flatbuffer.json",
+      "bytes": 1469,
+      "sha256": "829245140213FE61D9A2011660C4FFABF4B368309D02A4845D58D11782426E5F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02.trmtr.flatbuffer.json",
+      "bytes": 9733,
+      "sha256": "EBCF2973B095BB1EBB00B896A62E52206EE2044503DC99967A421403F1E3CEAA"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02_lod1.trmbf.flatbuffer.json",
+      "bytes": 102082,
+      "sha256": "F45DD5333ECCEA922AE9B345AA9375A0AFDBE6A0D37088FAC54CF6BE26FA278C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02_lod1.trmsh.flatbuffer.json",
+      "bytes": 1482,
+      "sha256": "B51336AC591E7212E9AFED2BA1392610C1B01870AFC46961C5FB163D783CB070"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02_lod2.trmbf.flatbuffer.json",
+      "bytes": 912,
+      "sha256": "75A9E9831882F41FB830DE23597886CCC2D6D70F8F3DE0201F2A655619A5D9C7"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02_lod2.trmsh.flatbuffer.json",
+      "bytes": 1220,
+      "sha256": "9A72E7B0F1445C7B39DEB9EF431541F4FF641C7A7CF136D61FFC73050B1029B9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02_lod_alb.bntx.json",
+      "bytes": 337,
+      "sha256": "1E6D34B08270B1A6C08CA449953742A26C5519A666632A8D6ECBBB38B7770269"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02_lod_nrm.bntx.json",
+      "bytes": 337,
+      "sha256": "F4772DDB85C56B60E806E34BF829F0B85BAA2BAB614B01E4A2C81F3893A6ECFE"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02_lod_alb.png",
+      "bytes": 774829,
+      "sha256": "B776F43FDC6AAE89DE9AD64A9C092DBA6C08D48B90395610DB60C96847982DFA"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/plants_me_tree_dlc2_jberry01_02/plants_me_tree_dlc2_jberry01_02_lod_nrm.png",
+      "bytes": 996695,
+      "sha256": "90D8353EEAE09C3C06A2A854A9001027B0A631EAEE3153DE8B24FA5A905FA15E"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
