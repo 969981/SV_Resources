@@ -43,7 +43,7 @@ internal static class Program
                 throw new InvalidDataException($"Expected >=6 actual PKHeX Core tests .pk9, found {fixtures.Length}");
 
             var fixtureRows=new List<object>();
-            int fixtureValid=0, mutInvalid=0, fixtureParsed=0;
+            int fixtureValid=0, mutInvalid=0, fixtureParsed=0, nativeWildLocationInvalid=0, nativeWildLocationControls=0;
             foreach (var file in fixtures)
             {
                 var raw=File.ReadAllBytes(file);
@@ -60,12 +60,26 @@ internal static class Program
                 negative.RefreshChecksum();
                 var invalid=Analyze(negative);
                 if (result.Valid && !invalid.Valid) mutInvalid++;
+                AnalysisResult? locationNegative=null;
+                if (result.MatchedEncounterType == "EncounterSlot9")
+                {
+                    // Real direct SV wild encounters: change only MetLocation
+                    // to a non-existent field location; fix checksum. It
+                    // should not be mistaken for a lawful crossover.
+                    var wrongLocation=pk.Clone();
+                    wrongLocation.MetLocation=65535;
+                    wrongLocation.RefreshChecksum();
+                    locationNegative=Analyze(wrongLocation);
+                    nativeWildLocationControls++;
+                    if (!locationNegative.Valid) nativeWildLocationInvalid++;
+                }
                 fixtureRows.Add(new {
                     sourcePath=Path.GetRelativePath(suite,file).Replace('\\','/'),
                     originalSourceSHA256=Sha(raw),
                     original=result,
                     negativeControl="COPY_WITH_METLEVEL_ZERO_REFRESHED_CHECKSUM",
-                    modified=invalid
+                    modified=invalid,
+                    invalidLocationNegativeControl=locationNegative
                 });
             }
 
@@ -132,7 +146,7 @@ internal static class Program
                 }
             }
             var final=new {
-                status=fixtureParsed==fixtures.Length && fixtureValid==fixtures.Length && mutInvalid>=1
+                status=fixtureParsed==fixtures.Length && fixtureValid==fixtures.Length && mutInvalid>=1 && nativeWildLocationControls>=1 && nativeWildLocationInvalid==nativeWildLocationControls
                     ? (nativeRows.Count>0 ? "REFERENCE_PK9_BASELINE_AND_NATIVE_CANDIDATE_ANALYSIS_RUN"
                         : "REAL_REFERENCE_PK9_BASELINE_ONLY_NATIVE_DATA_NOT_LOADED")
                     : "REFERENCE_PK9_BASELINE_FAILURE",
@@ -141,6 +155,8 @@ internal static class Program
                 validOfficialReferenceFixtures=fixtureValid,
                 parsedOfficialFixtures=fixtureParsed,
                 invalidMutationControls=mutInvalid,
+                nativeScarletVioletWildLocationControls=nativeWildLocationControls,
+                invalidWildLocationMutationControls=nativeWildLocationInvalid,
                 sourceSamplesFromOfficialPKHeXTests=fixtureRows,
                 nativeTemplateSampleChecks=nativeRows,
                 limitations=new []{
