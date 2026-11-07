@@ -1,0 +1,231 @@
+name: SV original 4.0.0 PointData and fixed symbol causal trace
+
+on:
+  pull_request:
+    paths:
+      - 'tools/pkNX/pkNX.WinForms/Dumping/Gen9/**'
+      - 'tools/pkNX/pkNX.EncounterCLI/Program.cs'
+      - 'scripts/Join-SV-Native-Point-Trace.py'
+      - 'tests/test_sv_native_point_trace_join.py'
+      - '.github/workflows/sv-native-point-trace.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'tools/pkNX/pkNX.WinForms/Dumping/Gen9/**'
+      - 'tools/pkNX/pkNX.EncounterCLI/Program.cs'
+      - 'scripts/Join-SV-Native-Point-Trace.py'
+      - 'tests/test_sv_native_point_trace_join.py'
+      - '.github/workflows/sv-native-point-trace.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sv-original-400-targeted-point-geometry-trace
+  cancel-in-progress: false
+
+jobs:
+  compile-no-rom:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            tools/pkNX/**
+            scripts/Join-SV-Native-Point-Trace.py
+            tests/test_sv_native_point_trace_join.py
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile exact vendor pkNX and execute fail-closed source-identity tests
+        shell: pwsh
+        run: |
+          dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release --nologo
+          if ($LASTEXITCODE -ne 0) { throw 'pkNX native trace instrumented headless parser could not compile' }
+          python -m unittest discover -s tests -p test_sv_native_point_trace_join.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Native original point trace tests failed' }
+
+  original-native-replay:
+    needs: compile-no-rom
+    if: github.event_name != 'pull_request'
+    runs-on: windows-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Reject insufficient disk; restore original private game data read-only
+        shell: pwsh
+        run: |
+          $disk = Get-PSDrive D -ErrorAction Stop
+          if ($disk.Free -lt 36GB) { throw 'Need >=36 GiB for 8GiB original archive restore and full SHA verification' }
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/workflows/sv-native-pkhex-one-shot.yml
+            violet_4.0.0_romfs_transfer_manifest.json
+            4.0.0/1/arc/data.trpfd
+            4.0.0/1/arc/data.trpfs.7z.*
+            scripts/SV-RomFS.Transfer.psm1
+            scripts/Restore-SV-Violet-RomFS.ps1
+            scripts/Prepare-SV-Trinity.ps1
+            scripts/Run-SV-FullExtract.py
+            scripts/sv_m2_parallel.py
+            scripts/Locate-SV-PKHeX-Native-Packs.py
+            scripts/Extract-SV-PKHeX-Native-Packs.py
+            scripts/Resolve-SV-PKHeX-Havok-References.py
+            scripts/Extract-SV-PKHeX-TRCOL-Packs.py
+            scripts/Compare-SV-Native-PKHeX-Encounters.py
+            scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/Join-SV-Native-Point-Trace.py
+            scripts/Sweep-SV-Collision-Tolerance.py
+            scripts/deps/oo2core_8_win64.dll
+            tools/SV.TrinityDump/**
+            tools/gftool/**
+            tools/HashCaches/SV/**
+            tools/pkNX/**
+            tools/PKHeX.Gen9LegalityProbe/**
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index/**
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Reproduce 61/61 locations from real original TRPFD
+        shell: pwsh
+        run: |
+          git config core.longpaths true
+          python scripts/Locate-SV-PKHeX-Native-Packs.py
+          if ($LASTEXITCODE -ne 0) { throw 'Native file index lookup failed' }
+          $m = Get-Content 'Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json' -Raw | ConvertFrom-Json
+          if ($m.summary.located -ne 61 -or $m.summary.selected_packs -ne 11 -or $m.summary.missing -ne 0 -or $m.summary.ambiguous -ne 0) {
+            throw 'Original game file index does not match proven 4.0.0 61-file/11-pack evidence'
+          }
+          Write-Host '61 original pkNX encounter sources found in 11 native packs.'
+
+      - name: Verify source 7z divisions, cache SHA and native decoder inputs
+        shell: pwsh
+        run: |
+          if (@(Get-ChildItem '4.0.0/1/arc/data.trpfs.7z.*' -File).Count -ne 83) { throw '83 original native TRPFS segments are required' }
+          if (-not (Test-Path 'scripts/deps/oo2core_8_win64.dll' -PathType Leaf)) { throw 'Oodle source dependency missing' }
+          $report=Get-Content 'tools/HashCaches/SV/hashcache-report.json' -Raw | ConvertFrom-Json
+          $sha=(Get-FileHash 'tools/HashCaches/SV/GFPAKHashCache.bin' -Algorithm SHA256).Hash
+          if ($sha -ne [string]$report.sha256) { throw 'Original game hash name cache SHA256 mismatch' }
+
+      - name: Restore and SHA verify 8GB original SV native archive in isolated workspace
+        shell: pwsh
+        run: |
+          $path=Join-Path $env:RUNNER_TEMP 'SV-4.0.0-PKHeX-Original'
+          New-Item -ItemType Directory -Force $path | Out-Null
+          New-Item -ItemType Directory -Force 'tools/_local' | Out-Null
+          Copy-Item 'tools/HashCaches/SV/GFPAKHashCache.bin' 'tools/_local/GFPAKHashCache.bin' -Force
+          & ./scripts/Prepare-SV-Trinity.ps1 -Workspace $path -SkipHashBuild
+          if (-not $?) { throw 'Restored original SV 4.0.0 TRPFD/TRPFS checksum failed' }
+          "SV_NATIVE_ROMFS=$path" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Extract 11 exact native packages and verify ALL 61 pkNX source files
+        shell: pwsh
+        run: |
+          python scripts/Extract-SV-PKHeX-Native-Packs.py --repo . --workspace $env:SV_NATIVE_ROMFS --selection Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json --max-packs 32 --max-packed-mib 64
+          if ($LASTEXITCODE -ne 0) { throw 'Original SV native files or their SHA256 were not verified' }
+
+      - name: Discover Havok collision file names from actual native TRSCN, not filenames guessed
+        shell: pwsh
+        run: |
+          python scripts/Resolve-SV-PKHeX-Havok-References.py --repo .
+          if ($LASTEXITCODE -ne 0) { throw 'Havok native TRCOL dependency resolver did not close all paths' }
+
+      - name: Extract every original Havok TRCOL dependency with SHA verification
+        shell: pwsh
+        run: |
+          $dependencies='Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-dependencies.json'
+          if (-not (Test-Path $dependencies -PathType Leaf)) { throw 'Native 4.0.0 TRSCN references were not parsed' }
+          $report=Get-Content $dependencies -Raw | ConvertFrom-Json
+          if ($report.unresolved_count -gt 0) { throw "Original Havok paths unresolved: $($report.unresolved_count)" }
+          python scripts/Extract-SV-PKHeX-TRCOL-Packs.py --repo . --workspace $env:SV_NATIVE_ROMFS --manifest $dependencies --max-packs 256 --max-packed-mib 1024
+          if ($LASTEXITCODE -ne 0) { throw 'One or more native TRCOL source SHA validation failed' }
+
+      - name: Compile exact pkNX Gen9 parser including real Kitakami fog source
+        shell: pwsh
+        run: |
+          dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release --nologo
+          if ($LASTEXITCODE -ne 0) { throw 'Native Gen9 pkNX headless engine build failed' }
+
+
+      - name: Download genuine 666/189 targets and original untraced 30f SHA manifest
+        shell: pwsh
+        run: |
+          $target = Join-Path $env:RUNNER_TEMP 'SV-400-real-triage-targets'
+          $baseline = Join-Path $env:RUNNER_TEMP 'SV-400-untraced-baseline'
+          New-Item -ItemType Directory -Force $target,$baseline | Out-Null
+          gh run download 42365891420 -R $env:GITHUB_REPOSITORY -n SV400-source-verified-wild-level-fixed-158-root-cause-triage -D $target
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot retrieve genuinely verified 666/189 target CSVs' }
+          gh run download 42362541291 -R $env:GITHUB_REPOSITORY -n SV-400-source-attested-native-PKHeX-encounter-bridge -D $baseline
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot retrieve original 61+223 SHA native baseline' }
+          foreach ($name in @('wild_level_range_pairs.csv','fixed_158_counterfactual_pairs.csv')) {
+            if (-not (Test-Path (Join-Path $target $name))) { throw "Missing original target: $name" }
+          }
+          if (-not (Test-Path (Join-Path $baseline 'SV400_Native_To_PKHeX_Manifest.json'))) { throw 'Original source signature manifest not found' }
+          "SV_TARGET_PROVENANCE=$target" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "SV_NATIVE_BASELINE=$baseline" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Re-run original unmodified 30f pkNX output with read-only PointData and fixed placement event trace
+        shell: pwsh
+        run: |
+          $generated=Join-Path $env:RUNNER_TEMP 'SV-400-traced-native'
+          $trace=Join-Path $env:RUNNER_TEMP 'SV-400-point-trace/point-events.jsonl'
+          $argsList=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual','--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json','--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json','--trace-targets',$env:SV_TARGET_PROVENANCE,'--trace-output',$trace,'--output',$generated)
+          dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @argsList
+          if ($LASTEXITCODE -ne 0) { throw 'Source-verified original 4.0.0 pkNX trace generation incomplete' }
+          if (-not (Test-Path $trace)) { throw 'The original native generator did not record point-level trace' }
+          "SV_POINT_TRACE=$trace" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "SV_POINT_GENERATED=$generated" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Prove untouched five native PKHeX pkl SHA and correlate actual original points to 666/189 cases
+        shell: pwsh
+        run: |
+          python scripts/Join-SV-Native-Point-Trace.py --trace "$env:SV_POINT_TRACE" --targets "$env:SV_TARGET_PROVENANCE" --native-output "$env:SV_POINT_GENERATED" --bridge-manifest "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" --output "$env:RUNNER_TEMP/SV-400-point-provenance-linked"
+          if ($LASTEXITCODE -ne 0) { throw 'Real original generator changed pkl bytes or source contributor correlation failed' }
+          $report=Get-Content "$env:RUNNER_TEMP/SV-400-point-provenance-linked/SV400_Point_Trace_Validation.json" -Raw | ConvertFrom-Json
+          if ($report.status -ne 'ORIGINAL_NATIVE_30F_POINT_PROVENANCE_CORRELATED_NOT_GAME_RNG_VALIDATED') { throw 'Expected full native point provenance report' }
+          if ($report.wild_exact_final_serializations -eq 0 -or $report.fixed_with_original_tablekey_link -eq 0) { throw 'Trace cannot link any true source records' }
+          "## Original SV 4.0.0 causal provenance trace" | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "Wild 666: $($report.wild_exact_final_serializations) native final matches and $($report.wild_cases_with_candidate_original_points) point candidates." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "Fixed 189: $($report.fixed_with_original_tablekey_link) matched source TableKeys; 158 wander observations $($report.fixed_158_wander_observations)." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "The original five native pkl SHA-256 values matched the untraced 30f baseline; this is not gameplay RNG proof." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-original-point-level-and-fixed-158-attributed-evidence
+          path: |
+            ${{ runner.temp }}/SV-400-point-provenance-linked/*.csv
+            ${{ runner.temp }}/SV-400-point-provenance-linked/*.json
+            ${{ runner.temp }}/SV-400-traced-native/native-encounter-point-trace-manifest.json
+            ${{ runner.temp }}/SV-400-traced-native/native-encounter-build.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-original-point-events-raw-targeted-trace
+          path: |
+            ${{ runner.temp }}/SV-400-point-trace/*.jsonl
+          if-no-files-found: warn
+          retention-days: 14

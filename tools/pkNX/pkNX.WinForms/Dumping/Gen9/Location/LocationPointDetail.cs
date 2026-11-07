@@ -18,6 +18,15 @@ public record LocationPointDetail(PointData Point)
     /// </summary>
     public readonly List<int> ActiveViaAdjacentLocations = new(0);
 
+    // Original PointDataArray ordinal is stable inside a pinned source file,
+    // unlike the order of consolidated PKHeX slots. Diagnostics only.
+    public int SourcePointIndex { get; init; } = -1;
+    public string SourcePointAsset { get; init; } = "";
+    public float RawPointMinLevel { get; init; } = -1;
+    public float RawPointMaxLevel { get; init; } = -1;
+    public int ClippingAreaMin { get; init; } = -1;
+    public int ClippingAreaMax { get; init; } = -1;
+
     /// <summary>
     /// Base location ID of the point spawner.
     /// </summary>

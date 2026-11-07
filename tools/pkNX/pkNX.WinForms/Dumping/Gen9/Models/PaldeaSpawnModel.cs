@@ -23,10 +23,10 @@ public record PaldeaSpawnModel
         var pokeDataSu2 = FlatBufferConverter.DeserializeFrom<EncountPokeDataArray>(rom.GetPackedFile("world/data/encount/pokedata/pokedata_su2/pokedata_su2_array.bin"));
         //var pokeDataLc = FlatBufferConverter.DeserializeFrom<EncountPokeDataArray>(ROM.GetPackedFile("world/data/encount/pokedata/pokedata_lc/pokedata_lc_array.bfbs"));
 
-        Main = new PaldeaSpawnSet(pokeDataMain, mlEncPoints);
-        Atlantis = new PaldeaSpawnSet(pokeDataMain, alEncPoints);
-        Kitakami = new PaldeaSpawnSet(pokeDataSu1, su1EncPoints);
-        Terarium = new PaldeaSpawnSet(pokeDataSu2, su2EncPoints);
+        Main = new PaldeaSpawnSet(pokeDataMain, mlEncPoints, "world/data/encount/point_data/point_data/encount_data_100000.bin");
+        Atlantis = new PaldeaSpawnSet(pokeDataMain, alEncPoints, "world/data/encount/point_data/point_data/encount_data_atlantis.bin");
+        Kitakami = new PaldeaSpawnSet(pokeDataSu1, su1EncPoints, "world/data/encount/point_data/point_data/encount_data_su1.bin");
+        Terarium = new PaldeaSpawnSet(pokeDataSu2, su2EncPoints, "world/data/encount/point_data/point_data/encount_data_su2.bin");
         //var lc = ReformatPoints(lcEncPoints);
     }
 
@@ -48,17 +48,17 @@ public record PaldeaSpawnModel
 
     public record PaldeaSpawnSet(EncountPokeDataArray Criteria, LocationPointDetail[] Points)
     {
-        public PaldeaSpawnSet(EncountPokeDataArray criteria, PointDataArray points) : this(criteria, ReformatPoints(points))
+        public PaldeaSpawnSet(EncountPokeDataArray criteria, PointDataArray points, string sourceAsset) : this(criteria, ReformatPoints(points, sourceAsset))
         {
         }
 
         // Points can be used by multiple areas as crossover sources. Need to be able to "belong" to multiple areas, and indicate their parent area.
-        private static LocationPointDetail[] ReformatPoints(PointDataArray all)
+        private static LocationPointDetail[] ReformatPoints(PointDataArray all, string sourceAsset)
         {
             var arr = all.Table;
             var result = new LocationPointDetail[arr.Count];
             for (int i = 0; i < arr.Count; i++)
-                result[i] = new LocationPointDetail(arr[i]);
+                result[i] = new LocationPointDetail(arr[i]) { SourcePointIndex = i, SourcePointAsset = sourceAsset, RawPointMinLevel = arr[i].LevelRange.X, RawPointMaxLevel = arr[i].LevelRange.Y };
             return result;
         }
     }

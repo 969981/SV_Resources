@@ -39,6 +39,8 @@ public static class FixedSymbolDumper9
                 {
                     var entry = fsymData.Table[i];
                     var tableKey = entry.TableKey;
+                    var tracedSpecies = EncounterTraceSV.Enabled ? SpeciesConverterSV.GetNational9((ushort)entry.Symbol.DevId) : (ushort)0;
+                    var traceFixed = EncounterTraceSV.Fixed(tracedSpecies);
                     if (tableKey.StartsWith("su2_w23d10_"))
                         continue; // handle later, manually
                     var points = allPoints.FindAll(p => p.TableKey == tableKey);
@@ -88,6 +90,20 @@ public static class FixedSymbolDumper9
 
                     WriteFixedSpawn(config, gw, tableKey, i, entry, appearAreas);
 
+                    if (traceFixed)
+                    {
+                        foreach (var primary in appearAreas)
+                            EncounterTraceSV.Write(new {
+                                stage="fixed_primary", game, fieldIndex=fieldIndex.ToString(),
+                                tableKey, tableIndex=i, species=tracedSpecies,
+                                areaName=primary.AreaName,
+                                location=config.PlaceNameMap[primary.PlaceName].Index,
+                                pointX=primary.Point.X, pointY=primary.Point.Y,
+                                pointZ=primary.Point.Z, areaAdjust=primary.Adjust,
+                                actionId=entry.PokeAI.ActionId.ToString()
+                            });
+                    }
+
                     // Serialize
                     if (entry.PokeAI.ActionId.IsAvoidantAction())
                         continue; // not actually encounter-able, they're just for spectacle
@@ -119,6 +135,21 @@ public static class FixedSymbolDumper9
                             if (!EncounterDumperSV.TryGetPlaceName(ref areaName, areaInfo, collider, config.PlaceNameMap, allInfos, scene, fieldIndex, out var placeName))
                                 continue;
                             wanderAreas.Add(bledFrom with { PlaceName = placeName, AreaName = allNames[a] });
+                            if (traceFixed)
+                                EncounterTraceSV.Write(new {
+                                    stage="fixed_wander", game,
+                                    fieldIndex=fieldIndex.ToString(), tableKey, tableIndex=i,
+                                    species=tracedSpecies, sourceArea=bledFrom.AreaName,
+                                    targetArea=allNames[a], sourceLocation=config.PlaceNameMap[bledFrom.PlaceName].Index,
+                                    targetLocation=config.PlaceNameMap[placeName].Index,
+                                    pointX=bledFrom.Point.X, pointY=bledFrom.Point.Y, pointZ=bledFrom.Point.Z,
+                                    primaryAreaAdjust=bledFrom.Adjust, candidateAreaAdjust=areaInfo.AdjustEncLv,
+                                    targetStrictContains=collider.ContainsPoint(
+                                        bledFrom.Point.X, bledFrom.Point.Y, bledFrom.Point.Z),
+                                    targetTolerance30Contains=EncounterDumperSV.IsContainedBy(collider, bledFrom.Point),
+                                    actionId=entry.PokeAI.ActionId.ToString(),
+                                    note="Diagnostic only; an inferred wander candidate is not proof of actual in-game location legality"
+                                });
                         }
                     }
 
@@ -133,8 +164,34 @@ public static class FixedSymbolDumper9
                         locationIDs.Sort();
 
                         WriteFixedSymbol(serialized, entry, locationIDs);
+                        if (traceFixed)
+                            EncounterTraceSV.Write(new {
+                                stage="fixed_serialized", game, fieldIndex=fieldIndex.ToString(),
+                                tableKey, tableIndex=i, species=tracedSpecies, form=entry.Symbol.FormId,
+                                originalLevel=entry.Symbol.Level, level=entry.Symbol.Level,
+                                adjust, actionId=entry.PokeAI.ActionId.ToString(),
+                                primaryLocations=area.Select(z => config.PlaceNameMap[z.PlaceName].Index).Distinct().Order().ToArray(),
+                                inferredWanderLocations=wander.Select(z => config.PlaceNameMap[z.PlaceName].Index).Distinct().Order().ToArray(),
+                                finalLocations=locationIDs.ToArray(),
+                                location158AddedByWander=wander.Any(z => config.PlaceNameMap[z.PlaceName].Index == 158) &&
+                                                       !area.Any(z => config.PlaceNameMap[z.PlaceName].Index == 158)
+                            });
                         if (adjust != 0)
+                        {
                             WriteFixedSymbol(serialized, entry, locationIDs, adjust);
+                            if (traceFixed)
+                                EncounterTraceSV.Write(new {
+                                    stage="fixed_serialized_adjusted", game, fieldIndex=fieldIndex.ToString(),
+                                    tableKey, tableIndex=i, species=tracedSpecies, form=entry.Symbol.FormId,
+                                    originalLevel=entry.Symbol.Level, level=entry.Symbol.Level+adjust, adjust,
+                                    actionId=entry.PokeAI.ActionId.ToString(),
+                                    primaryLocations=area.Select(z => config.PlaceNameMap[z.PlaceName].Index).Distinct().Order().ToArray(),
+                                    inferredWanderLocations=wander.Select(z => config.PlaceNameMap[z.PlaceName].Index).Distinct().Order().ToArray(),
+                                    finalLocations=locationIDs.ToArray(),
+                                    location158AddedByWander=wander.Any(z => config.PlaceNameMap[z.PlaceName].Index == 158) &&
+                                                           !area.Any(z => config.PlaceNameMap[z.PlaceName].Index == 158)
+                                });
+                        }
                     }
                 }
             }
