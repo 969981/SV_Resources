@@ -1,0 +1,829 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/objects_un_c03centralbridge01",
+  "kind": "all",
+  "completed_utc": "2026-11-07T14:41:56.115061+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 82,
+  "selection_sha256": "570bd4140159491d592a56a72729a478633d36876ddacdcf154407b1e396ddd0",
+  "index": {
+    "available": 82,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 82,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 18,
+      "BY_EXTENSION:trcol": 2,
+      "BNTX": 62
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 62,
+      "ok": 62,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 2,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 2,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/objects_un_c03centralbridge01",
+      "cursor": "field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_hicol.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        },
+        {
+          "source": "field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_hicol.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.IO.InvalidDataException: Model contains no supported renderable triangle geometry.\n   at GFTool.Renderer.Scene.GraphicsObjects.Model.LoadModel(String model, Boolean loadAllLods) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\GFTool.Renderer\\Scene\\GraphicsObjects\\Model.cs:line 215\n   at GFTool.Renderer.Scene.GraphicsObjects.Model..ctor(String model, Boolean loadAllLods, String assetRoot) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\GFTool.Rende"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    },
+    {
+      "source": "field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_hicol.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.IO.InvalidDataException: Model contains no supported renderable triangle geometry.\n   at GFTool.Renderer.Scene.GraphicsObjects.Model.LoadModel(String model, Boolean loadAllLods) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\GFTool.Renderer\\Scene\\GraphicsObjects\\Model.cs:line 215\n   at GFTool.Renderer.Scene.GraphicsObjects.Model..ctor(String model, Boolean loadAllLods, String assetRoot) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\GFTool.Renderer\\Scene\\GraphicsObjects\\Model.cs:line 171\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 44\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/_inspection/f64062b6ed0449d9.jsonl",
+    "source_files": 82,
+    "inspection_records": 82,
+    "by_status": {
+      "INSPECTED_UNPARSED": 2,
+      "STRUCTURE_PARSED": 80
+    },
+    "manifest_sha256": "A154D00284689A2FD83A4FE5905546A7086978F7182EFECDD83609FB36A7374F"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/_inspection/f64062b6ed0449d9.jsonl",
+      "bytes": 59095,
+      "sha256": "A154D00284689A2FD83A4FE5905546A7086978F7182EFECDD83609FB36A7374F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.tracl.flatbuffer.json",
+      "bytes": 594,
+      "sha256": "1DD40C96BB24EE8EC241AEAB4B8D6B78F73256EE0EECD19A1DC84D84FE514FF0"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.tracn.flatbuffer.json",
+      "bytes": 776,
+      "sha256": "85464F012072717C00832C13D9FB4EF67318496B66C292C643EEA7C6246EEAA4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.tracp.flatbuffer.json",
+      "bytes": 541,
+      "sha256": "C3E8A32408A5B1D3731FCF463F1C837BD316D57AE1AD79666A316F8D87B8BDF4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.tracr.flatbuffer.json",
+      "bytes": 616,
+      "sha256": "E9E619FF96EE2CE7091D03DC09D620BE824B0A40B8272F7920BC58549486C193"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.tracs.flatbuffer.json",
+      "bytes": 1587,
+      "sha256": "AD3A1D2DC0E846581644918E1684E65DF2ACC854D1E1158DD44C64746201B3D6"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.trmbf.flatbuffer.json",
+      "bytes": 9352265,
+      "sha256": "A18ED676A69A24C4514BBBC39C984F5C67654E4031A19891A7C9927633B9C35A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.trmdl.flatbuffer.json",
+      "bytes": 927,
+      "sha256": "974E7D5BBD60FCE796DA2ED6A048170BD7A8189B4F2234D7AA7974DE050D8BF3"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.trmdl.object.json",
+      "bytes": 5810,
+      "sha256": "EE396A2141E2A2813E7350E2F6B1E1621D28F20D4251C2BFD47FB6BF9053BE5A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.trmsh.flatbuffer.json",
+      "bytes": 4478,
+      "sha256": "4E752CC71181817E27EC133D37EF8A1F5DFACB1A2E6220FF2F69108CE48DA7E4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01.trmtr.flatbuffer.json",
+      "bytes": 32350,
+      "sha256": "641B6AE078B24A4008AE2A25315D7759192E99483E05C498FD0EC693F3C1A2C6"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_24h.tracm.flatbuffer.json",
+      "bytes": 4437,
+      "sha256": "876DC30CFD4A4629C30749A4E0EA231CA40C233C89927A84CD45D1EF046A39DA"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_hicol.trmbf.flatbuffer.json",
+      "bytes": 471,
+      "sha256": "73C35B3B8A17CD71B9F2351D537AA96B3831D0C23C58245BCC58AABC9B434926"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_hicol.trmdl.flatbuffer.json",
+      "bytes": 717,
+      "sha256": "18FE051CEE80B4352DA351D3FFD8CC0B0EF74B0AE0DB07DDA09AD9C6A2CCAE76"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_hicol.trmdl.object.json",
+      "bytes": 3099,
+      "sha256": "17AA962F73F665B453B41341A6C9FDA4E0106CC28DCCA84F30C1C78A6A6811CC"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_hicol.trmsh.flatbuffer.json",
+      "bytes": 528,
+      "sha256": "824135043EFC4323BECB9F990D1953198420F5EEAE3F90A21F71FD84C8212DA9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_hicol.trmtr.flatbuffer.json",
+      "bytes": 473,
+      "sha256": "1D6D337CB705A4EB99CF1BDF37B4C9EE726808AB4F594241C81748BF86935E0F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_lod1.trmbf.flatbuffer.json",
+      "bytes": 4319308,
+      "sha256": "6F2DEC8E608828FB910C2EA610F4D351EBDDCF04BC4711C4237B2A632E43FD3B"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_lod1.trmsh.flatbuffer.json",
+      "bytes": 4394,
+      "sha256": "D829158925757D085C5866CFA61EE4F2331992228EC3B9CB44F9C6BAACE72C81"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_lod2.trmbf.flatbuffer.json",
+      "bytes": 3671175,
+      "sha256": "9F585341891A8A1C0E217CFE07BC2A9A09F15E6A69CA8BD4B3622EA4D70F051F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03centralbridge01_lod2.trmsh.flatbuffer.json",
+      "bytes": 4296,
+      "sha256": "76CC729B0B362027EA93992C055D7CC22F7F103910C68A781F54C8BB1FAD11DC"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_alb.bntx.json",
+      "bytes": 329,
+      "sha256": "077877680C7E2FD40AB54698BD21F145402D03BA4EB16E6E11A83131E036AD17"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_ao.bntx.json",
+      "bytes": 328,
+      "sha256": "F63D4796AB1E206E1905EF3B393299E0FB0B6A063C69E74238CF3619CA4C90D9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_emv.bntx.json",
+      "bytes": 329,
+      "sha256": "539A8C5961BB0C4DBE37A212E9EC2EED2E41A6E766F72384B065AFAD8A9FFEBA"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_nrm.bntx.json",
+      "bytes": 329,
+      "sha256": "A5834E547F08E80998823439C9D7881CB33682DA7D2CDF848DCE0F9D198EC988"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_rgn.bntx.json",
+      "bytes": 329,
+      "sha256": "C1581E472C23D808159CD4D5E06ACBC19E1EA7A0C86285CACD8FF273AE427F87"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_alb.bntx.json",
+      "bytes": 324,
+      "sha256": "A3E8C4C92F5426E7BAFAFC05C69DB2FDA81E99B9EE764DC2A6039060424B1988"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_ao.bntx.json",
+      "bytes": 321,
+      "sha256": "69611B1A4491D8D0212AC9356665715D7DE7BCBC94CD50CAB20AAEE799249458"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_mtl.bntx.json",
+      "bytes": 321,
+      "sha256": "5F5DB18F57079415C0211012C576B7A1C63B2F2AADF3B4C55170CAD35E3EDE93"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_nrm.bntx.json",
+      "bytes": 324,
+      "sha256": "1CB811C0E80379380333B901E99B9F2BDA56B836DB089039EF26A23FA6F5A85E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_rgn.bntx.json",
+      "bytes": 322,
+      "sha256": "3EBA0C462514D06A7D191880471A0E5A162F5EE67DCD379124630764ED60FE47"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_alb.bntx.json",
+      "bytes": 324,
+      "sha256": "43DD280A92C8581CC851AC55EC0A62A6BFE1993E0E39FF164366B382269EA5D4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_ao.bntx.json",
+      "bytes": 321,
+      "sha256": "9238DD01CD622BC015082FCDFD727FBCC3AD8FB20A2CA681E08BEE1AE2809A85"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_mtl.bntx.json",
+      "bytes": 321,
+      "sha256": "6EB12C6FC71CA36D5E41C550BB8DEA3B4CCA953374BCE3263E33D01B5824F079"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_nrm.bntx.json",
+      "bytes": 322,
+      "sha256": "FC1B0B25CE3E46BF9928C2F6C0D0308073A0516D8542D55ECB2EDA270B6F6342"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_rgn.bntx.json",
+      "bytes": 322,
+      "sha256": "33ED86FE78FE311BE0FD7296C5D9604D09ABB81B743DBFB79FE429EF3BBA1028"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_alb.bntx.json",
+      "bytes": 319,
+      "sha256": "BDB41F041113B0BB59F4EB124DEBD2B1393BE61B2A5BF29FB0FEE7E14F89DCA1"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_ao.bntx.json",
+      "bytes": 315,
+      "sha256": "6745D9D40093F07A9A32DC93C5277F1FB02D8F00B0C5DC15BCCF724A1C29A828"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_mtl.bntx.json",
+      "bytes": 317,
+      "sha256": "26EFB7EAE56991AF0EE957F8F26A57B170398931AEE1A33C142650C11CDF8F45"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_nrm.bntx.json",
+      "bytes": 319,
+      "sha256": "7248F850EC462399E19DEE72B92F2000E9A8C60E7C46D8F681B52AF336303D22"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_rgn.bntx.json",
+      "bytes": 317,
+      "sha256": "DF0F8ED06091C57F8A33291278CD8ABF7272A096FC964123D1B625F819A5C763"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_alb.bntx.json",
+      "bytes": 324,
+      "sha256": "803A3B756D811A1EBC91FFBA9FEF98C47E3C5287A801676D416FEDCE58509604"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_ao.bntx.json",
+      "bytes": 320,
+      "sha256": "D7D12B629EFF03E5E407D09596A5D0202FFD82C2CC56C98C6412C3466A183F25"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_mtl.bntx.json",
+      "bytes": 322,
+      "sha256": "AB002CFF99BE2D622E03621A31E96EC85FB313E08C3A526E529E6519A830EA10"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_nrm.bntx.json",
+      "bytes": 324,
+      "sha256": "86A33059830AC72410F417240F05CF53A7D9081DF0441CA330FB560506D3C23E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_rgn.bntx.json",
+      "bytes": 322,
+      "sha256": "2A3DC0B54E1AB70AAED7871D7C53C24FCFDA7D6397E329A4C926BF97D2E57F7F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_alb.bntx.json",
+      "bytes": 321,
+      "sha256": "9AC26EFA9431E1947AF1618E374FE3B4C6680D346FDCD0F1F0ACA0D99497125C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_ao.bntx.json",
+      "bytes": 317,
+      "sha256": "1B78D919C362137A92AD4C67FC4D1AA9233380DB3E95D4ED7ECBFFAC369492A4"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_mtl.bntx.json",
+      "bytes": 318,
+      "sha256": "178BF0379F780A8BB2873D11B385DDA2B901E97169C9C7C0751F94812B722426"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_nrm.bntx.json",
+      "bytes": 320,
+      "sha256": "1A594B1463565929E6C393D3819389652C13485135C55D7A9BA24B80ADF82447"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_rgn.bntx.json",
+      "bytes": 320,
+      "sha256": "33A917C08F8A8260E1979459B3BDA5B6FCFF902DE93E6A910C5ED5C6A6030459"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_alb.bntx.json",
+      "bytes": 323,
+      "sha256": "46B3B2C111B8489F2C4D4A6EAE95B1B376D3CD938AA9C4B3868D6C5AA2E7EF7D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_ao.bntx.json",
+      "bytes": 322,
+      "sha256": "12522FEC8B1DCA57A39A73AFCA69E6436B9F7D059B4379076B3FC27DE6330657"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_mtl.bntx.json",
+      "bytes": 321,
+      "sha256": "ABE2C65795BB051DD175D8809263AA837A5193DC179AE6E232F893BB6B8058AA"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_nrm.bntx.json",
+      "bytes": 323,
+      "sha256": "6EB0F7D861C3CDFBA744047009B7FCFC5816B3A08643B3DAFD89ABAD46ED24F3"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_rgn.bntx.json",
+      "bytes": 323,
+      "sha256": "568C1115D06BC8FF9192FB30ADA7A3E748ABADBEB358475AC6DE5C77C33B5D18"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_alb.bntx.json",
+      "bytes": 327,
+      "sha256": "1F4B812F42D0CD9F4CD749E861C3E18B930F043B0C6E6986B16546E3035F6A55"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_ao.bntx.json",
+      "bytes": 322,
+      "sha256": "E4BD0EBD301AF3985D4492D89722C65B0DF6B47CFD4700AEFF1F950D477E00EE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_mtl.bntx.json",
+      "bytes": 324,
+      "sha256": "1C3023985FA693BBF5B3297E22615F81D166A7261DBC0D4689753827EA50A76A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_nrm.bntx.json",
+      "bytes": 326,
+      "sha256": "C21F82A7389BA4AADCDB62C99202843D67FE476134AC9CBED7C84C752EF48047"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_rgn.bntx.json",
+      "bytes": 326,
+      "sha256": "38C6FC1A0809C3E71FE77E74DECE506DFFCF8446CC868AA57DD04942038FBFA1"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_alb.bntx.json",
+      "bytes": 326,
+      "sha256": "24E2E91FAF00D830746B0DF0DED18C477157A8F7801E7849972305002AB737CE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_ao.bntx.json",
+      "bytes": 322,
+      "sha256": "D5BFEE8E116AD6571D91A7F36327012F0AD76AC8DBF938FB69FCC550011593C8"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_mtl.bntx.json",
+      "bytes": 324,
+      "sha256": "B0E362E151B21ECB1C5F2F42B49791B5DE54D1E4BCCA784A1D38EFBB43181A67"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_nrm.bntx.json",
+      "bytes": 326,
+      "sha256": "BC6BEFE2F4BD6322430419711847A0C0E842F7363EF10FAC05FE734F81DB7B17"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_rgn.bntx.json",
+      "bytes": 326,
+      "sha256": "672289E08C2AC326FE45CCF6340ACEA7947B2D5927ADFDD4B59108CDB4BB00D6"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_alb.bntx.json",
+      "bytes": 331,
+      "sha256": "E7828A80F5B77EFA6A15AB274FEE66D5FB4D47B9B3216F68D1E1868D7121E317"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_ao.bntx.json",
+      "bytes": 327,
+      "sha256": "9B5A7AE94593E305EBA270B2F0D62B0E9F2F2ACBDBBDE9428B3770C6124C1374"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_emv.bntx.json",
+      "bytes": 331,
+      "sha256": "FFE807D3B3945A7EBF655E4BE3236781F11DEF181C777C33B82F5CE5937F4071"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_mtl.bntx.json",
+      "bytes": 328,
+      "sha256": "497318CC52682BE809A79CCE0B6451781F2E743722BB85BDBE77E4ED348B4738"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_nrm.bntx.json",
+      "bytes": 331,
+      "sha256": "7ACD6CEFCF0D0F34C0DA4281C1E7620F15F6767AE2B16CE650F8180CEEC38325"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_rgn.bntx.json",
+      "bytes": 329,
+      "sha256": "F232EE3DBD49961DB241C541215E14EE7DD6DA19DF2912F3D3E79A89985726F9"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_alb.bntx.json",
+      "bytes": 325,
+      "sha256": "AF27DF2E5E70D3F3D597832514A753B0A3D2814720957BC679CA9282BE7BD68C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_ao.bntx.json",
+      "bytes": 324,
+      "sha256": "9ADAE2E59126B124FDD917EDBDBFC22D29FCCDF18F4996C7C882065938F1F88A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_mtl.bntx.json",
+      "bytes": 323,
+      "sha256": "2C205F6C340EC33D1F0014A187E10780CEB113107E68802061FB146C91FD8698"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_nrm.bntx.json",
+      "bytes": 325,
+      "sha256": "A8CA5F9E885423BD27E09F447D5FB51A85C42018D30760ED795C256239AE3A5C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_rgn.bntx.json",
+      "bytes": 325,
+      "sha256": "DBD7E59A93472C8502F3C836F7A94888AB70B71FBC40BCFD09A1A1EAC4E6BEC0"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_alb.bntx.json",
+      "bytes": 332,
+      "sha256": "EC1052E7890FB17A571A028974D8076283219F7A0777A012D7027B9EDEEE893E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_ao.bntx.json",
+      "bytes": 329,
+      "sha256": "7122F89C17AE2FAEF4BC49B150D6F60F740ED7F2F03205E2D023F1179F24DB9E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_emv.bntx.json",
+      "bytes": 332,
+      "sha256": "52E2BD63E9A97A417141D426C5A5D5DE88508F8CF7FE3140FFECE95F35AC48B2"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_mtl.bntx.json",
+      "bytes": 330,
+      "sha256": "86AB7BCF0383621A098E5680649210BD1EFEE82DEC246DD53466B7709B0B36E6"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_nrm.bntx.json",
+      "bytes": 332,
+      "sha256": "D23F90DF5905A3319F864A2FA147D7A7C31251AB4D2C80E0C11B56DCBB26D9B0"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_rgn.bntx.json",
+      "bytes": 330,
+      "sha256": "F2E10380051E139868C72438EBD1DEF2691074AB7B5EEB865846F86759C6E4BD"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_alb.png",
+      "bytes": 32952,
+      "sha256": "DB61F7AB4B9BA471DC52AB46E568B7C946C865F29441DA2209F56F8F403AC41E"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_ao.png",
+      "bytes": 8224,
+      "sha256": "6C0D8447BBDE83A610A990EB38751B0C2CCF36A33DA0F449D3883EA4F3611B94"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_emv.png",
+      "bytes": 9213,
+      "sha256": "B1E6616C46EE3BAA56C9F5AFBF3444417EA0E3E7080B5E21B42576DE212F1C75"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_nrm.png",
+      "bytes": 12896,
+      "sha256": "B7597FC9F324BEB8E3043AAE29837273D2AB89CF46F49DEE69341AD27254EF35"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03lightstand01_mat_rgn.png",
+      "bytes": 17922,
+      "sha256": "D9EAB7D45E886D3FFC2DDBD1169E1D93D81715E2E05D402475C29286418F7F87"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_alb.png",
+      "bytes": 22719,
+      "sha256": "D27DC25667BF7E83EFD68DD28A24D4381258CF592E43777704C503BA27791C79"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_ao.png",
+      "bytes": 3378,
+      "sha256": "E663FBD93F1460CEDF136AD4980FE9147832A68042EC5E11C546DC05C19FD3FF"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_mtl.png",
+      "bytes": 304,
+      "sha256": "204CDFC5EC384DA9F4940BD4A912DA9FC1EFEB68649086869CEC408DAA9E38C0"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_nrm.png",
+      "bytes": 6079,
+      "sha256": "A54A4DFE1AD6284162ADA1FA60EE3573D73D9EC1DB36E9BBA29AF00651C53C1F"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_01_rgn.png",
+      "bytes": 1600,
+      "sha256": "EB63C89E93DCC4AC82A5ACE52BC1468E569ACC6EAACB9728ED8023C317A7E462"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_alb.png",
+      "bytes": 24417,
+      "sha256": "0F0E17620BB2E7DA014D8E910299EC602F534A1A2CA96FC26EA2C9FF2F975270"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_ao.png",
+      "bytes": 5534,
+      "sha256": "B2C9FBCDDFB88BAB10F78F96278B891ADAA22BFB6385E309D8021D1F78316A86"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_mtl.png",
+      "bytes": 218,
+      "sha256": "CDE9D45C03C92AD3429A03037182ACC45F4C1AD492E513C57B905A3C836E97DE"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_nrm.png",
+      "bytes": 1645,
+      "sha256": "7EF1B12263808D137A7653B899104744721EEE3E88506B77BA41B553551D25D5"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_c03stairs01_02_rgn.png",
+      "bytes": 3285,
+      "sha256": "308F85389CB82B58CCF136D2C269DE93B2B43A0C12C6716586AFA0EA643A7F16"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_alb.png",
+      "bytes": 110769,
+      "sha256": "EB8B7E6D38C6A13F7A3A22EC0B6EF6B1B9D9647A64FF3B28F590F8E940AF8358"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_ao.png",
+      "bytes": 218,
+      "sha256": "DA721B75691D6C62690CDC3DD09A7C63E12B88448465BC392D5CE1B568CBDE34"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_mtl.png",
+      "bytes": 326,
+      "sha256": "02790A13362C4AB24FF7629F5ED49312C81F665AC6FF522A0B17DA7B73031973"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_nrm.png",
+      "bytes": 10495,
+      "sha256": "793BDDA5C24B286E185EEF46DAB583EE24985AF292DF376A137134391240EB8D"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_cloth_mat_rgn.png",
+      "bytes": 5622,
+      "sha256": "0F75083246488C7F3E78094201D3D01DE51065144B5D6ED935B194F519397544"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_alb.png",
+      "bytes": 16968,
+      "sha256": "A846E3E5357CF7C6A0C5B5E1696EE4ED2090033221A62C062AE44B8B21390D10"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_ao.png",
+      "bytes": 218,
+      "sha256": "DA721B75691D6C62690CDC3DD09A7C63E12B88448465BC392D5CE1B568CBDE34"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_mtl.png",
+      "bytes": 669,
+      "sha256": "B27EA3A1AE2232C8EB31A0617FEEE4043373338C09C20B685AB15FFE9B604AA7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_nrm.png",
+      "bytes": 14124,
+      "sha256": "30FA1964C492D2C0BE1112478E9A54C59CC42CACB28826855B7D600F88D66FE8"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_concrete01_mat_rgn.png",
+      "bytes": 4208,
+      "sha256": "F0CB1445EF68AA91A351FF856568CE78A3BD65A55233AF225803E5493CD4F216"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_alb.png",
+      "bytes": 608872,
+      "sha256": "D8D77C7372DA39D5ABB0BA37EE5990D0202EC57CE01CC052E944A0DFE3AD3C71"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_ao.png",
+      "bytes": 506,
+      "sha256": "EFC49527CA11BCA520EF9844F23CD2C80185B6D2FF1FDFA60A23A0418A45BEA8"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_mtl.png",
+      "bytes": 326,
+      "sha256": "02790A13362C4AB24FF7629F5ED49312C81F665AC6FF522A0B17DA7B73031973"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_nrm.png",
+      "bytes": 104665,
+      "sha256": "70BBA490857A570E7DCF26B5ACA0881CE6846F1E73E9E24510B702B0A7333DA7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_road01_mat_rgn.png",
+      "bytes": 44073,
+      "sha256": "32EA2C36A41BE8990693E6D60E2C7749030ED3C42A34314CBADB5124C2FDA01D"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_alb.png",
+      "bytes": 1492,
+      "sha256": "83CF68D24840ED72AC118DF44B01CBD97BA6A31D4AE377427C839E0827F0D2AD"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_ao.png",
+      "bytes": 7157,
+      "sha256": "53ADC6206EB50386D523560BA6583699C1B47CA044FBF4249FDB5CFDC6368242"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_mtl.png",
+      "bytes": 326,
+      "sha256": "2B3F0666835B8FF9ADD30CDA294DC5D6BF241355E91A08C558C0ABE05D8CECA7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_nrm.png",
+      "bytes": 6482,
+      "sha256": "EE4A1216E1E758F1780B0F7A42CF4A49FE5BE3E915B35EF320B41CEB2E7EBE61"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_sidwall01_mat_rgn.png",
+      "bytes": 22597,
+      "sha256": "504530CF8173159DC1400439A5379CDFDF1EBFE7C8DED17CFC645C61E71348F3"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_alb.png",
+      "bytes": 73857,
+      "sha256": "E1A187F720D5A025E16D6292F3644835811EC71C26E79F74A12F22FE59F6AF83"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_ao.png",
+      "bytes": 218,
+      "sha256": "DA721B75691D6C62690CDC3DD09A7C63E12B88448465BC392D5CE1B568CBDE34"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_mtl.png",
+      "bytes": 326,
+      "sha256": "02790A13362C4AB24FF7629F5ED49312C81F665AC6FF522A0B17DA7B73031973"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_nrm.png",
+      "bytes": 66161,
+      "sha256": "8E7DF259EB486DA1B21A1C9B91C37EE0DFCC8FBAF6D95879BA168D145D4FAB1D"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor01_mat_rgn.png",
+      "bytes": 7784,
+      "sha256": "83F98B816ED400E8FC9307B3D99DE94A82C4B0A99E620EDF0950A5114C24CA05"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_alb.png",
+      "bytes": 87659,
+      "sha256": "ADFF99203FE57F85A008D49ACB48506BE08FA4BC339FE8842FDC4924DADF4AD3"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_ao.png",
+      "bytes": 218,
+      "sha256": "DA721B75691D6C62690CDC3DD09A7C63E12B88448465BC392D5CE1B568CBDE34"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_mtl.png",
+      "bytes": 326,
+      "sha256": "02790A13362C4AB24FF7629F5ED49312C81F665AC6FF522A0B17DA7B73031973"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_nrm.png",
+      "bytes": 106415,
+      "sha256": "A5D40683CFEAC1B61B36E6E4F1E1C266CA41CEA5BF344868A834DB929D30754A"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagefloor02_mat_rgn.png",
+      "bytes": 42824,
+      "sha256": "1ADFBCB7B7E3AEF41C6A2744471266970D2D968A05579CCD0E8EE8A675315B98"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_alb.png",
+      "bytes": 12567,
+      "sha256": "8B7B42107ACE103C93A5B93061ED7E5C523279468262B05286E4C48711C65616"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_ao.png",
+      "bytes": 218,
+      "sha256": "DA721B75691D6C62690CDC3DD09A7C63E12B88448465BC392D5CE1B568CBDE34"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_emv.png",
+      "bytes": 2138,
+      "sha256": "FD5FD2B86B46D67C9244960EF904E084D5FE232337BDE6AEAC42A297D78A2E27"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_mtl.png",
+      "bytes": 600,
+      "sha256": "5279D520CFE425D43B1B7344A17279D3EC369AD55831C9784805BB22C24584B7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_nrm.png",
+      "bytes": 1757,
+      "sha256": "FDC75C56CE6FBD4157518205C038DA94026E249A74000CD2F27614156BD0FABE"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagelightfloor01_mat_rgn.png",
+      "bytes": 1223,
+      "sha256": "8868F67C91EB48A059CA44C7409259022E43CDE715654213125C45A479BEE2F3"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_alb.png",
+      "bytes": 23490,
+      "sha256": "B2D273CBB007891BAA834A254E84479EB924541AE26202CC3BBB267280F35F8F"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_ao.png",
+      "bytes": 1339,
+      "sha256": "E4A03B647C393CD3238147921D96235B2BE4FFAE1D3B08322EBD22062CEF6928"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_mtl.png",
+      "bytes": 506,
+      "sha256": "6A8B3A7FAB5F8304A3B097FDA061F529722D2B24605D34D05A2E3D35C6E490A7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_nrm.png",
+      "bytes": 2515,
+      "sha256": "D0B2C8C16A3AA8DD67DC89D853A0F223E7E20A5E0A856CBAACD51630122AD574"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_stagewall01_mat_rgn.png",
+      "bytes": 13358,
+      "sha256": "E5147DB8EC4158678AC015CEDB950FE0B5E392AA50AF1EC1F45F6129545849A5"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_alb.png",
+      "bytes": 13558,
+      "sha256": "CB725D286F29241C81CFCC2D1C0D86F20C9E93ABFBE2D6135D7336550FDB78C0"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_ao.png",
+      "bytes": 1613,
+      "sha256": "3F0F4232AB7EE6453799423656B114EA91CF0B8717E6C9A74D287E7EF29BF089"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_emv.png",
+      "bytes": 2474,
+      "sha256": "449D385373F89C14458B16BBECF2D1D1850038920BF018AD6A382DB6CEAE2F84"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_mtl.png",
+      "bytes": 3437,
+      "sha256": "204650C2B68A19D9910A786DD20F87133DF42E633389D15854304B775FB52389"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_nrm.png",
+      "bytes": 4301,
+      "sha256": "E140E4B76969A95DFE9A4C77593698F8AA736657DCA5A644FE3556BE7869069A"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/objects_un_c03centralbridge01/objects_un_withlight_object01_mat_rgn.png",
+      "bytes": 3184,
+      "sha256": "22400F2AC8E08D5551AE070FF476BBD95DCACC3976F1A41AA7E9261D20D242CC"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
