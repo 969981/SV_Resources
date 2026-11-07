@@ -142,7 +142,7 @@ def groups(rows:list[dict],table:str):
     return bucket
 
 
-def interpret(ref:list[dict],gen:list[dict],table:str,limit:int=10000)->dict:
+def interpret(ref:list[dict],gen:list[dict],table:str)->dict:
     pk=Counter(content_key(x,table) for x in ref)
     gn=Counter(content_key(x,table) for x in gen)
     missing=pk-gn
@@ -170,10 +170,8 @@ def interpret(ref:list[dict],gen:list[dict],table:str,limit:int=10000)->dict:
     def unpack(counter):
         out=[]
         for tuple_row,quantity in counter.items():
-            for _ in range(min(quantity,limit-len(out))):
+            for _ in range(quantity):
                 out.append(dict(tuple_row))
-            if len(out)>=limit:
-                break
         return out
     return {
         "reference_records":len(ref), "native_records":len(gen),
@@ -272,6 +270,12 @@ def compare(native_manifest:Path,build_evidence:Path,generated:Path,reference:Pa
             result["native_empty_areas"]=ne
             result["reference_empty_areas"]=pe
             result["area_headers_exact_multiset"]=nh==ph
+            # Empty location/crossover header mismatches are still semantic
+            # differences even if the nonempty 8-byte encounter slots match.
+            if nh!=ph:
+                result["semantic_exact"]=False
+                if result["status"]=="SEMANTIC_MATCH_BINARY_ORDER_DIFFERENT":
+                    result["status"]="FIELD_LEVEL_DIFFERENCES"
         summary["tables"][table]=result
         write_diff_csv(out/f"{table}_pkhex_only.csv",delta_ref,table)
         write_diff_csv(out/f"{table}_native_only.csv",delta_gen,table)
