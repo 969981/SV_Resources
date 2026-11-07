@@ -1,0 +1,164 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/ground_un_region03_cliff_nushi01",
+  "kind": "all",
+  "completed_utc": "2026-11-07T11:35:01.289594+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 11,
+  "selection_sha256": "59cba5f728a8f2967b424de0bdf39d901bc0d53de06a7b8214bdb09842daac47",
+  "index": {
+    "available": 11,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 11,
+    "formats": {
+      "BNTX": 2,
+      "FLATBUFFER_CANDIDATE": 8,
+      "BY_EXTENSION:trcol": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 2,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 1,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/ground_un_region03_cliff_nushi01",
+      "cursor": "field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/_inspection/7515700b1cdad523.jsonl",
+    "source_files": 11,
+    "inspection_records": 11,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 10
+    },
+    "manifest_sha256": "DCAB0A5555B857FC53060A267CC453E161740054A71B243F7131B7C1A83D900C"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/_inspection/7515700b1cdad523.jsonl",
+      "bytes": 8198,
+      "sha256": "DCAB0A5555B857FC53060A267CC453E161740054A71B243F7131B7C1A83D900C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff12_01_ao.bntx.json",
+      "bytes": 325,
+      "sha256": "A2A1005CCD7400FACCB37BC2C1BECEC28EAEB92B6E370F9F4F3BAABDFD64FAE8"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff12_dtl_msk.bntx.json",
+      "bytes": 327,
+      "sha256": "1C0F8774FE2BEE46CF85C79F7B251D19403976A83940D894DD74983C3DE589FC"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01.trmbf.flatbuffer.json",
+      "bytes": 39465,
+      "sha256": "0FE1D940506E9FA72C86D12125B283C8A78C54BC16D86274F0EB2897342B4744"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01.trmdl.flatbuffer.json",
+      "bytes": 940,
+      "sha256": "9C3CF41E268CCDEED9F6980F839F8C7FDAF41A85902B2E87CED6C9CC1FAF33DE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01.trmdl.object.json",
+      "bytes": 5400,
+      "sha256": "35E901725C6C7BC19B041BA7300657A52C608756189C6958730F86E1B8848889"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01.trmsh.flatbuffer.json",
+      "bytes": 1618,
+      "sha256": "D68780EFCB879A0A8395CB44E901E92142D1169D8BF572698010DAF418490262"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01.trmtr.flatbuffer.json",
+      "bytes": 6321,
+      "sha256": "A5D72A72B4A73749E8132341A18BEF332B7FC57F067874074873939E0394441C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01_lod1.trmbf.flatbuffer.json",
+      "bytes": 22156,
+      "sha256": "23C45B810C47ECDEA842884750CB8FF773F1DAC25C638C5EBC7F69793C16C0DE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01_lod1.trmsh.flatbuffer.json",
+      "bytes": 1629,
+      "sha256": "069302C1A4C12ACEE0D4F9C03E166DD4F8FE91C4983AAF61113E12F641307D3A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01_lod2.trmbf.flatbuffer.json",
+      "bytes": 12530,
+      "sha256": "0F87004B60FF6B5A81EECC16F8E5D60055EF10EA6E3F7F206E41BAB492B180FF"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff_nushi01_lod2.trmsh.flatbuffer.json",
+      "bytes": 1628,
+      "sha256": "9323E5F11CA6135C82FA1B04A206E2C3599C9ABF9CF5C641F77A51E4CCE441F4"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff12_01_ao.png",
+      "bytes": 73,
+      "sha256": "2C548F5732811E85BE9B872AC7A4EA2C0A6C5D419EF00A1ECFCD6D9F22AD501C"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_region03_cliff_nushi01/ground_un_region03_cliff12_dtl_msk.png",
+      "bytes": 86,
+      "sha256": "9440F04D489B687317646498FDA4E5A6C96787BBDE4E9AF0AAE443FC49BD8AE2"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
