@@ -1,0 +1,102 @@
+name: SV genuine native-vs-PKHeX Gen9 forensic mismatch classification
+on:
+  pull_request:
+    paths:
+      - 'scripts/Diagnose-SV-Native-PKHeX-Deltas.py'
+      - 'tests/test_sv_native_pkhex_delta_diagnosis.py'
+      - '.github/workflows/sv-pkhex-native-delta-forensics.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Diagnose-SV-Native-PKHeX-Deltas.py'
+      - 'tests/test_sv_native_pkhex_delta_diagnosis.py'
+      - '.github/workflows/sv-pkhex-native-delta-forensics.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Diagnose-SV-Native-PKHeX-Deltas.py
+            tests/test_sv_native_pkhex_delta_diagnosis.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Synthetic provenance and duplicate location pairing tests
+        run: |
+          python -m py_compile scripts/Diagnose-SV-Native-PKHeX-Deltas.py
+          python -m unittest discover -s tests -p test_sv_native_pkhex_delta_diagnosis.py -v
+
+  forensic-native-source:
+    if: github.event_name != 'pull_request'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Diagnose-SV-Native-PKHeX-Deltas.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download real original game source/PKHeX comparison artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/actual-source"
+          gh run download 42336889324 \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "SV-400-actual-native-pkhex-comparison" \
+            --dir "$RUNNER_TEMP/actual-source"
+          test -s "$RUNNER_TEMP/actual-source/_temp/SV-native-pkhex-diff/native-comparison.json"
+          test -s "$RUNNER_TEMP/actual-source/_temp/SV-native-pkhex-gen9/native-encounter-build.json"
+          test -s "$RUNNER_TEMP/actual-source/_temp/SV-native-pkhex-gen9/encounter_fixed_paldea.pkl"
+          test -s "$RUNNER_TEMP/actual-source/_temp/SV-native-pkhex-gen9/encounter_wild_paldea.pkl"
+      - name: Classify actual source-verified fixed/wild differences
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Diagnose-SV-Native-PKHeX-Deltas.py \
+            --diff "$RUNNER_TEMP/actual-source/_temp/SV-native-pkhex-diff" \
+            --native "$RUNNER_TEMP/actual-source/_temp/SV-native-pkhex-gen9" \
+            --evidence "$RUNNER_TEMP/actual-source/_temp/SV-native-pkhex-gen9/native-encounter-build.json" \
+            --output "$RUNNER_TEMP/sv-delta-forensics"
+      - name: Check actual source differences and write result summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads((Path(os.environ['RUNNER_TEMP'])/'sv-delta-forensics/sv-400-native-delta-diagnosis.json').read_text('utf-8'))
+          assert r['status']=='ACTUAL_NATIVE_SHA_VERIFIED_DIFF_CLASSIFIED_NOT_YET_FIXED'
+          assert r['fixed']['pkhex_only']==203 and r['fixed']['native_only']==203
+          assert r['wild']['pkhex_only']['rows']==676 and r['wild']['native_only']['rows']==3655
+          assert r['native_build_status']=='GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES'
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as s:
+              s.write('## SV 4.0.0 original native vs PKHeX differences\n\n')
+              s.write(f"- Fixed non-location template matched: {r['fixed']['non_location_template_matched_pairs']}/203\n")
+              s.write(f"- Native-added fixed location 158: {r['fixed']['matched_with_new_location_158']}\n")
+              s.write(f"- Wild new native signatures: {r['wild']['entirely_new_native_signature']['rows']}\n")
+              s.write('\nThese are real differences, not automatically valid game encounters.\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV-400-original-PKHeX-native-delta-forensics
+          path: |
+            ${{ runner.temp }}/sv-delta-forensics/*.json
+            ${{ runner.temp }}/sv-delta-forensics/*.csv
+          if-no-files-found: warn
+          retention-days: 30
