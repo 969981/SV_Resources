@@ -1,0 +1,324 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01",
+  "kind": "all",
+  "completed_utc": "2026-11-07T10:48:15.808476+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 28,
+  "selection_sha256": "14975954b11c9f19b269633094bd3a3fc2614eb26206f64fac958f9033dacee2",
+  "index": {
+    "available": 28,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 28,
+    "formats": {
+      "FLATBUFFER_CANDIDATE": 12,
+      "BNTX": 15,
+      "BY_EXTENSION:trcol": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 15,
+      "ok": 15,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 2,
+        "parsed": 0,
+        "converted": 1,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01",
+      "cursor": "field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_fade_outside_mesh.trmdl",
+      "issues": [
+        {
+          "source": "field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01.trmdl",
+          "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 ma"
+        }
+      ]
+    }
+  },
+  "problems": [
+    {
+      "source": "field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01.trmdl",
+      "stage": "models",
+      "status": "FAILED",
+      "error": "Exporter failed: SV R3 model export failed: System.Runtime.InteropServices.ExternalException (0x80004005): A generic error occurred in GDI+.\n   at Windows.Win32.Graphics.GdiPlus.StatusExtensions.ThrowIfFailed(Status status)\n   at System.Drawing.Image.Save(String filename, Guid encoder, EncoderParameters encoderParams)\n   at System.Drawing.Image.Save(String filename, ImageFormat format)\n   at TrinityModelViewer.Export.GltfExporter.ExportAllTextures(GltfRoot gltf, String texDir, IReadOnlyList`1 materials) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 435\n   at TrinityModelViewer.Export.GltfExporter.ExportModel(Model model, String gltfPath, IReadOnlyList`1 animations) in D:\\a\\SV_Resources\\SV_Resources\\tools\\gftool\\TrinityModelViewer\\Export\\GltfExporter.cs:line 73\n   at SV.R3.ModelExport.Program.Main(String[] args) in D:\\a\\SV_Resources\\SV_Resources\\tools\\SV.R3.ModelExport\\Program.cs:line 53\n"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/_inspection/c2f56a566cecaa42.jsonl",
+    "source_files": 28,
+    "inspection_records": 28,
+    "by_status": {
+      "INSPECTED_UNPARSED": 2,
+      "STRUCTURE_PARSED": 26
+    },
+    "manifest_sha256": "07759E00A8EE952B63CEC2EC7BD37F403E8D949CAF6658A5C283048A5BF2CB8D"
+  },
+  "outputs": [
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/_inspection/c2f56a566cecaa42.jsonl",
+      "bytes": 20721,
+      "sha256": "07759E00A8EE952B63CEC2EC7BD37F403E8D949CAF6658A5C283048A5BF2CB8D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01.trmdl.flatbuffer.json",
+      "bytes": 940,
+      "sha256": "A40AF6E3C9E41B32E22145368FAD078DA008A67DE360F8247D151078C4E7DB06"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01.trmdl.object.json",
+      "bytes": 13030,
+      "sha256": "1182EEFCDA7C633866D6B37E712245553BC354BB8DA704C525EAC070FF69EAE8"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01.trmsh.flatbuffer.json",
+      "bytes": 24630,
+      "sha256": "967DA4D4F8B8019F64BCB12E595A51AE444E6DB8EDFB902294A197C5328B046C"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01.trmtr.flatbuffer.json",
+      "bytes": 57392,
+      "sha256": "82DD8C939A1C7C2281F6D00A763F97FD756B0F2609D0D7F9517E90FAFFDA6BE6"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_big_rock01_ao.bntx.json",
+      "bytes": 339,
+      "sha256": "BA16417BFBB40709CF36402F5E2607A85BFAB71663A8350C30A7D49A9A66EAA8"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_big_rock01_nrm.bntx.json",
+      "bytes": 340,
+      "sha256": "CB79C2CFFFEA636D6F5E06D80084EBE1ED1161B0F983400B9CEB7CB38A5DE7B2"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_bridge01_nrm.bntx.json",
+      "bytes": 338,
+      "sha256": "66EC2243396102721B3DBD7EF271DD945875859974B6C41FCAB41DC0483E145E"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_fade_outside_mesh.trmbf.flatbuffer.json",
+      "bytes": 3931,
+      "sha256": "EE817DC41EC09B4BD6D55E8D1C177AC5148BC54AB2429F5DB6153B483AB36844"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_fade_outside_mesh.trmdl.flatbuffer.json",
+      "bytes": 817,
+      "sha256": "69BB6D60F9D2F27EA1AE2A1BC95302EFB9C99EEDB0688B242FF9561C21D4E58D"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_fade_outside_mesh.trmdl.object.json",
+      "bytes": 3838,
+      "sha256": "42A7F10EA882D3A02FEFAD68C3DF2CF331281889DEDDF848115F2C6A12405BA5"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_fade_outside_mesh.trmsh.flatbuffer.json",
+      "bytes": 1270,
+      "sha256": "FAD087343AAA1F87D20EA73D494AAB1B680A484E896F31FAD1C89B949B5D0005"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_fade_outside_mesh.trmtr.flatbuffer.json",
+      "bytes": 1661,
+      "sha256": "445BA11070BE98118D1ADF12D8B746A1BB6F1DC15D8F4C9E816085A22B8E4271"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_lod1.trmbf.flatbuffer.json",
+      "bytes": 809691,
+      "sha256": "8B867D0EBF8D83087E85FDA24A78E2CD844E3E87E1DAEBBC009377090945CAC1"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_lod1.trmsh.flatbuffer.json",
+      "bytes": 3818,
+      "sha256": "85181BA374C64D98E1773C51E742C832933211CE8F3E9B2EC5EE4F21E8CD246F"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_lod2.trmbf.flatbuffer.json",
+      "bytes": 840184,
+      "sha256": "A0E07549AE6EB94169A213E075F61D12688C05449AF716DFBCCE727ADC6CD7AB"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_lod2.trmsh.flatbuffer.json",
+      "bytes": 3820,
+      "sha256": "CD72F93A9FCB70B49E72AE98EDD7C1E8BB5277CA1E1CCD4B8F7614801FF72483"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_pillar01_ao.bntx.json",
+      "bytes": 337,
+      "sha256": "4638547AE82B6799899E0CEA6D0D9F4E52E433DA772C3109E018F59F6115F81A"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_pillar01_nrm.bntx.json",
+      "bytes": 338,
+      "sha256": "5189B21066D7566309843701CDEF93706CF3CB1D3F9231EF6B2271BB17129016"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_rock01_ao.bntx.json",
+      "bytes": 335,
+      "sha256": "64DBA93B7993E2F49E40360254F15EC7C21DD10EB0CCBECEC09A54BB9EECC7AD"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_rock01_nrm.bntx.json",
+      "bytes": 336,
+      "sha256": "C7D2AB5A2C35099613874EC8E4950A14F1F3EE057C92F1EE6015A28D26C74612"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_rock02_ao.bntx.json",
+      "bytes": 335,
+      "sha256": "F54362FB48746377205BD33175254336D6C633B8FDDCE551CDC98F3B78A95DF2"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_rock02_nrm.bntx.json",
+      "bytes": 336,
+      "sha256": "78642BADA76AD94063B990F81045A96DB8F376B298B97F79CEAB635B26A6DDAE"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_thorn01_ao.bntx.json",
+      "bytes": 336,
+      "sha256": "20538355026677A30C00054AA64698A44DB229619FA67BB4A95B512EC62E43D1"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_thorn01_nrm.bntx.json",
+      "bytes": 337,
+      "sha256": "52666A94A80CF7DD0D66342D86BCF824BD6A128FF1FC44D9B028690DFD3C8ED0"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_thorn02_ao.bntx.json",
+      "bytes": 336,
+      "sha256": "AAE2F821EED4CF1619B4F71C1CFBCBE3EF1D23092024090EAB24B79F7B6D9234"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_thorn02_nrm.bntx.json",
+      "bytes": 337,
+      "sha256": "08834AEF2DF43B45864672866C7FAB42FAAD915356874A4DB923CD3F3F1FF1D0"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_wall_part01_ao.bntx.json",
+      "bytes": 340,
+      "sha256": "54304EAB368C0BF02094B0D8E7802F00EA35FF871A3AE81899A0649AFD4A1737"
+    },
+    {
+      "path": "parsed/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_wall_part01_nrm.bntx.json",
+      "bytes": 341,
+      "sha256": "E46E2A942A39B0B1BE0769E38C3974530EA53FD6F668ADBAB144042F7C743F02"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_big_rock01_ao.png",
+      "bytes": 257111,
+      "sha256": "C8D864283C226311F73C4C71A0C7A8EA8A0CD9367AF408D4435E6683D30C22E8"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_big_rock01_nrm.png",
+      "bytes": 475431,
+      "sha256": "CBD52574B5142B2C9F38ED19DD92BCD722C2B8B5C7CDC52FDC304C4EDE28B8D2"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_bridge01_nrm.png",
+      "bytes": 489605,
+      "sha256": "78B3BB1E9C5B594C00CDC2DECDF6C2159C1824CADEDF55469169059185FC4145"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_fade_outside_mesh/ground_un_dlc2_a_su203_cave01_fade_outside_mesh.bin",
+      "bytes": 1368,
+      "sha256": "3F3EDAEA1D2B25E59AC049C6E25C0D538FED1838FC03A689AF72DF6E716981DC"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_fade_outside_mesh/ground_un_dlc2_a_su203_cave01_fade_outside_mesh.gltf",
+      "bytes": 2873,
+      "sha256": "E6FF6379824C83B5B45FFA56E15AEDDD8CB5719D77923649994D66673915ECB2"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_pillar01_ao.png",
+      "bytes": 410292,
+      "sha256": "86E48BC02BFECC09B254A4810C80098AB7F0498B26B03BBA6228E85AB6D9F188"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_pillar01_nrm.png",
+      "bytes": 462513,
+      "sha256": "FBE0C81C278EA71518D648018566FC12DF0509C5AFAD3A011DB96D35089A5F5A"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_rock01_ao.png",
+      "bytes": 250821,
+      "sha256": "F2091C19891DF762D7EA0179204AA3B6AB0089E7D7A16A1228A30D0A7AF8A295"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_rock01_nrm.png",
+      "bytes": 401562,
+      "sha256": "520DB77CE37D283DD1145563C7270FD86B41BFA937187EEC363046BEE82000CD"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_rock02_ao.png",
+      "bytes": 330104,
+      "sha256": "09792B00A0E2BCE248FBF1B864A9ADC20887FF1D059D4BC05BEF259E388BE1D8"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_rock02_nrm.png",
+      "bytes": 300327,
+      "sha256": "D877DE9C5D959DED612EBAF3401F7F14BB21A0607AF7FC1D8BE4E090BCE63BDA"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_thorn01_ao.png",
+      "bytes": 212129,
+      "sha256": "75023185849B254039BB3AFE6A7F4C6F5F0E04FC4000CC486E4CAC8C7171C8C5"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_thorn01_nrm.png",
+      "bytes": 196684,
+      "sha256": "7B0C271D370A2F123A4C3524E1C008808C372D41B58FEB96527B8C7E39B0246E"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_thorn02_ao.png",
+      "bytes": 245258,
+      "sha256": "F962780E4B52A4206A0305C2CE5FADCFF6C1131A03DA221A64BFB2BB663DD5B7"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_thorn02_nrm.png",
+      "bytes": 212006,
+      "sha256": "1297B0FB14BDB28708673FE51E4B2E563BE05D731511B05B45919CD1A52327F1"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_wall_part01_ao.png",
+      "bytes": 258515,
+      "sha256": "72591DBB6DB80CF69CC61E4E226B240C3BFD1D2664A18D1BC1AD77327132CC6A"
+    },
+    {
+      "path": "converted/field_graphic/terrain_model/ground_un_dlc2_a_su203_cave01/ground_un_dlc2_a_su203_cave01_wall_part01_nrm.png",
+      "bytes": 347497,
+      "sha256": "B9D0CEB15022158A00BB27BFE6356755336DE2591A0141B5769B00939601950A"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
