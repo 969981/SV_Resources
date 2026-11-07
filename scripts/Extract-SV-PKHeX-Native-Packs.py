@@ -90,7 +90,7 @@ def verify_targets(root: Path, selection: dict, pack_reports: list[dict]):
         name = row["Name"]
         if name.casefold() != record["source_virtual_path"].casefold():
             raise RuntimeError(f"Native hash/path mismatch: {h}, {name}")
-        source = target_safe(root / "virtual", name)
+        source = target_safe(root / TRPFS / "virtual", name)
         if not source.is_file():
             raise RuntimeError(f"Native output absent (or archived): {name}")
         if source.stat().st_size != row["Size"] or digest(source) != row["Sha256"]:
