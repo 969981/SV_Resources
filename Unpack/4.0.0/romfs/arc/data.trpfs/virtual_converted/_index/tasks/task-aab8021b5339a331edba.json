@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_2_dorm02#00000.part1.part0.part1.part1.part1.part1.part0",
+  "input_fingerprint": "9A22B6FAB52BB7C4783E7C2DC40FE7901E99E36346ABD9910A2F75B992311FEC",
+  "input_files": 1,
+  "inspection_statuses": {
+    "INSPECTED_UNPARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02_lmg01_lgt.bntx",
+      "source_sha256": "4B03CAAC126457A0B91CD178AB6BFF0830A32A5F9C666C30C043B95F2918D6EA",
+      "bytes": 528488,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010010080068100800",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "INSPECTED_UNPARSED",
+      "parsed_assets": [],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_dorm02/_inspection/a469ab4c8bf18f4e.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_dorm02/_inspection/a469ab4c8bf18f4e.jsonl",
+      "sha256": "A1C3C1FACD22A01BE1C5DD4EE3AC1AF72925F69BC235074F77C50AD387160265",
+      "bytes": 556
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02_lmg01_lgt.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02_lmg01_lgt.bntx.json",
+      "sha256": "7210D6C2860C5D603D5C5ADB09DF4495FEA274BD4A058F1D5F851CAD9EB88AB0",
+      "bytes": 304
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [
+    {
+      "source": "field_graphic/common_model/a_sch_2_dorm02/a_sch_2_dorm02_lmg01_lgt.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 1
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_2_dorm02",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 2,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
