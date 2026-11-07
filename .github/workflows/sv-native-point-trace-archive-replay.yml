@@ -107,6 +107,8 @@ jobs:
           assert lvl['pkhex_reference_interval_present_premerge']==551, lvl
           assert lvl['multiple_intervals_premerge']==664, lvl
           assert lvl['fewer_intervals_after_merge']==576, lvl
+          assert lvl['reference_interval_not_present_premerge']==115, lvl
+          assert lvl['unresolved_by_original_point_file']=={'encount_data_su1.bin':22,'encount_data_su2.bin':93}, lvl
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as f:
               f.write('## Gen9 real original-data trace reanalysis\n\n')
               f.write(f"Wild serialized original records: **{j['wild_exact_final_serializations']}/666**; candidate PointData: **{j['wild_cases_with_candidate_original_points']}/666**\\n\\n")
