@@ -101,3 +101,15 @@ dotnet build ./local-work/PKHeX-native-copy/PKHeX.Core/PKHeX.Core.csproj -c Rele
 - 8GB 原版恢复与 pkNX 5 表重建：[SV native PKHeX](https://github.com/969981/SV_Resources/actions/workflows/sv-native-pkhex-one-shot.yml)
 - 原生五表后处理、SQLite、独立 PKHeX 资源覆盖包：[Native to PKHeX bridge](https://github.com/969981/SV_Resources/actions/workflows/sv-native-to-pkhex-database.yml)
 - 原生几何容差诊断：[[SV-Collision-Tolerance-Experiment]]
+
+## 8. 编译后的嵌入资源已做实际校验（2026-11-07）
+
+原生完整桥接及独立 DLL 真实编译通过：[Actions #42362373074](https://github.com/969981/SV_Resources/actions/runs/42362373074)，Artifact `SV-400-source-attested-native-PKHeX-encounter-bridge`。
+
+输出的 `compiled-embedded-gen9-proof.json` 来自**编译后 PKHeX.Core DLL 运行时**的 `Assembly.GetManifestResourceStream()`；五份二进制分别与原生 `native-encounter-build.json` 的 SHA-256 和字节数完全一致，`verified=5/5`。证据仅证明 **PKHeX.Core 确实嵌入了新的 Gen9 遭遇资源**，不意味着野生和固定表已经与 PKHeX 完全一致或已获得实机 RNG 证明。
+
+隔离写入的记录在 `isolated-pkhex-stage-proof.json`。原始 PKHeX pinned checkout 未被更改；生成 overlay 不需要提交原版游戏资源到 Git。
+
+可直接使用 `SV400_Native_Encounters_For_PKHeX.sqlite` 查询 32,295 行；其中野生原生 29,840 条（和 PKHeX 相同 26,185、仅原生 3,655），固定模板原生 977 条（相同 774、仅原生 203），三地区普通 Raid 700 条全部字节级一致。
+
+对上述 3,655/203 个仅原生模板继续做原始点位、TRCOL、等级和 flag 检查，不允许通过默认将这些条目全部认作新的合法来源。
