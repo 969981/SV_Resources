@@ -26,6 +26,8 @@ class RemainingSVTests(unittest.TestCase):
         self.assertEqual(M.parse_original_fixed_area("su1_area03_07"),("area03","NORMAL"))
         self.assertEqual(M.parse_original_fixed_area("t_su1_area03_18"),("area03","T_PREFIX"))
         self.assertEqual(M.parse_original_fixed_area("t_su1_area11_14"),("area11","T_PREFIX"))
+        self.assertEqual(M.parse_original_fixed_area("su1_area05_16_dun"),("area05","DUN_SUFFIX"))
+        self.assertEqual(M.parse_original_fixed_area("su1_area06_02_dun"),("area06","DUN_SUFFIX"))
         with self.assertRaises(ValueError):
             M.parse_original_fixed_area("other_area03_07")
 
