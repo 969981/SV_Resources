@@ -45,7 +45,7 @@ internal static class DeltaFixtureMaker
         for(int i=0;i<fixedSlots.Length && fixedCount<32;i++)
         {
             var slot=fixedSlots[i];
-            var bytes=fixedRaw.AsSpan(i*20,20);
+            var bytes=fixedRaw.AsSpan(i*20,20).ToArray(); // byte[] may safely be captured by the CSV matching lambda
             if (!new[]{bytes[0x10],bytes[0x11],bytes[0x12],bytes[0x13]}.Contains((byte)158))
                 continue;
             if (!fixedNative.Any(r=>FixedMatch(bytes,r)))
