@@ -73,7 +73,9 @@ jobs:
                     "raid_kitakami":133,"raid_blueberry":113,"outbreak":12636}
           assert {k:r["sources"][k]["records"] for k in expected} == expected
           assert r["sources"]["wild"]["area_count"] == 400
-          assert r["sources"]["wild"]["distinct_met_locations"] == 80
+          assert r["sources"]["wild"]["distinct_met_locations"] == 79
+          assert r["sources"]["wild"]["distinct_area_locations"] == 80
+          assert r["sources"]["wild"]["empty_area_count"] == 21
           print("Pinned PKHeX reference data decoded and row counts match.")
           PY
       - uses: actions/upload-artifact@v4
