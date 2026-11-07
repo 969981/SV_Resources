@@ -63,7 +63,7 @@ class NativeEncounterLocatorTests(unittest.TestCase):
             self.assertEqual(report["summary"]["scene_trcol_candidate_packs"], 1)
             entries={e["expected"]:e for e in report["targets"]}
             entry=entries["world/data/encount/pokedata/pokedata/pokedata_array.bin"]
-            self.assertEqual(entry["status"],"LOCATED_NATIVE_INDEX")
+            self.assertEqual(entry["status"],"LOCATED_ALIAS_ONLY")
             self.assertTrue(entry["hits"][0]["source_virtual_path"].endswith(".bfbs"))
             self.assertEqual(entry["hits"][0]["pack_index"],1)
             self.assertEqual(report["status"],"LOCATED_ONLY_NO_EXTRACTION_PERFORMED")
