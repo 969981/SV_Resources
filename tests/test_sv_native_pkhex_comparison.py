@@ -140,6 +140,17 @@ class NativeSVComparisonTests(unittest.TestCase):
             self.assertEqual(outcome["tables"]["fixed"]["status"],"NOT_GENERATED_FROM_NATIVE")
             self.assertEqual(outcome["status"],"NATIVE_TABLES_MATCH_BYTE_FOR_BYTE_BUT_PARTIAL_LEGALITY_COVERAGE")
 
+    def test_all_reference_deltas_are_exported_without_ten_thousand_row_cutoff(self):
+        base={"location_id":6,"cross_from_id":0,"species_national":25,
+              "form_raw":0,"gender_raw":0,"level_min":5,"level_max":9,
+              "time_forbidden_mask":0,"weather_allowed_mask":1,
+              "area_index":0,"slot_index":0}
+        ref=[dict(base) for _ in range(10020)]
+        delta=mod.interpret(ref,[],"wild")
+        self.assertEqual(delta["reference_only"],10020)
+        self.assertEqual(len(delta["_ref_rows"]),10020)
+        self.assertEqual(delta["native_only"],0)
+
     def test_preserves_multiplicity_and_ignores_order(self):
         orig=[{"location_id":6,"cross_from_id":0,"species_national":25,
                "form_raw":0,"gender_raw":0,"level_min":5,"level_max":9,
