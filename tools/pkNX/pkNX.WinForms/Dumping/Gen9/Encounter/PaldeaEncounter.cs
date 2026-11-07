@@ -57,7 +57,7 @@ public record PaldeaEncounter(ushort Species, byte Form, byte Sex, byte MinLevel
         return $"{species}{form}{sex} Lv. {MinLevel}-{MaxLevel} {Weather}";
     }
 
-    public bool Absorb(PaldeaEncounter other)
+    public bool Absorb(PaldeaEncounter other, bool strictOverlap = false)
     {
         if (Time != other.Time)
             return false;
@@ -68,7 +68,7 @@ public record PaldeaEncounter(ushort Species, byte Form, byte Sex, byte MinLevel
         if (other.MinLevel == MinLevel && other.MaxLevel == MaxLevel)
             return true;
 
-        if (!IsLevelRangeOverlap(other) && !other.IsLevelRangeOverlap(this))
+        if (!IsLevelRangeOverlap(other, strictOverlap) && !other.IsLevelRangeOverlap(this, strictOverlap))
             return false;
 
         MinLevel = Math.Min(MinLevel, other.MinLevel);
@@ -85,10 +85,13 @@ public record PaldeaEncounter(ushort Species, byte Form, byte Sex, byte MinLevel
         return true;
     }
 
-    private bool IsLevelRangeOverlap(PaldeaEncounter other)
+    private bool IsLevelRangeOverlap(PaldeaEncounter other, bool strictOverlap)
     {
-        // If our level range overlaps with the other (with +/- 1 tolerance), return true.
-        return MaxLevel + 1 >= other.MinLevel && MinLevel + 1 <= other.MaxLevel;
+        // Baseline is EXACTLY the original +/-1 adjacency behavior. Isolated
+        // strict experiment only permits actual interval overlap.
+        int adjacency = strictOverlap ? 0 : 1;
+        return MaxLevel + adjacency >= other.MinLevel &&
+               MinLevel + adjacency <= other.MaxLevel;
     }
 
     public int CompareTo(PaldeaEncounter? other)

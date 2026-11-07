@@ -99,21 +99,22 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
     /// <summary>
     /// Merges all encounters that overlap level ranges, and de-duplicates for all within the same location ID.
     /// </summary>
-    public void Consolidate()
+    public void Consolidate(bool inheritedStrict = false)
     {
+        bool strict = inheritedStrict || EncounterLevelABSV.UseStrictOverlap(fieldIndex, Location);
         TraceConsolidation("wild_before_consolidate");
         var len = -1;
         while (len != Slots.Count)
         {
             len = Slots.Count;
-            ConsolidateEncounters(Slots);
+            ConsolidateEncounters(Slots, strict);
         }
         foreach (var loc in SlotsCrossover.Values)
-            loc.Consolidate();
+            loc.Consolidate(strict);
         TraceConsolidation("wild_after_consolidate");
     }
 
-    private static void ConsolidateEncounters(List<PaldeaEncounter> encounters)
+    private static void ConsolidateEncounters(List<PaldeaEncounter> encounters, bool strict)
     {
         // Merge and remove future indexes if they can be combined with current
         // Pre-sort so we can just iterate.
@@ -126,7 +127,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             int count = GetPotentialConsolidationCount(encounters, i, enc);
 
             // Remove all indexes that have Absorb return true with a later element
-            while (TryAbsorbFromRange(encounters, i, count))
+            while (TryAbsorbFromRange(encounters, i, count, strict))
                 count--;
             i += count;
         }
@@ -144,7 +145,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         return count;
     }
 
-    private static bool TryAbsorbFromRange(List<PaldeaEncounter> encounters, int start, int count)
+    private static bool TryAbsorbFromRange(List<PaldeaEncounter> encounters, int start, int count, bool strict)
     {
         // Need to compare all elements with each-other; return true if any absorb.
         var end = start + count - 1;
@@ -152,7 +153,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         {
             for (int j = i + 1; j <= end; j++)
             {
-                if (!encounters[i].Absorb(encounters[j]))
+                if (!encounters[i].Absorb(encounters[j], strict))
                     continue;
                 encounters.RemoveAt(j);
                 return true;
@@ -172,18 +173,19 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
                 continue;
             if (collider.ContainsPoint(w.X, w.Y, w.Z))
             {
-                var composite = GetCompositePoint(w, areaMin, areaMax, areaAdjust, Location);
+                var composite = GetCompositePoint(w, areaMin, areaMax, areaAdjust, Location,
+                    EncounterLevelABSV.UseRawPointRange(fieldIndex, Location));
                 Local.Add(composite); // native
             }
             // Don't check here for cross-area, as our areaMin/areaMax is not valid for that crossover case.
         }
     }
 
-    private static LocationPointDetail GetCompositePoint(LocationPointDetail original, int areaMin, int areaMax, int adjust, int location)
+    private static LocationPointDetail GetCompositePoint(LocationPointDetail original, int areaMin, int areaMax, int adjust, int location, bool useRawPointRange)
     {
         var ep = original.Point;
-        var newX = Math.Max(ep.LevelRange.X, areaMin);
-        var newY = Math.Min(ep.LevelRange.Y, areaMax);
+        var newX = useRawPointRange ? ep.LevelRange.X : Math.Max(ep.LevelRange.X, areaMin);
+        var newY = useRawPointRange ? ep.LevelRange.Y : Math.Min(ep.LevelRange.Y, areaMax);
         var newPoint = ep with { LevelRange = new PackedVec2f { X = newX, Y = newY } };
         return new LocationPointDetail(newPoint)
         {
@@ -212,17 +214,20 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
 
                 // These are the SAME pkNX candidates and order as without tracing.
                 var point = spawner.Point;
-                var normal=PaldeaEncounter.GetNew(pd, point);
-                spawner.Add(normal);
-                TraceGenerated(spawner, pd, normal, criteriaIndex, 0, false);
-                if (pd.BandPoke != 0)
+                if (EncounterLevelABSV.AllowUnadjusted(fieldIndex, Location, boost))
                 {
-                    var band=PaldeaEncounter.GetBand(pd, point);
-                    spawner.Add(band);
-                    TraceGenerated(spawner, pd, band, criteriaIndex, 0, true);
+                    var normal=PaldeaEncounter.GetNew(pd, point);
+                    spawner.Add(normal);
+                    TraceGenerated(spawner, pd, normal, criteriaIndex, 0, false);
+                    if (pd.BandPoke != 0)
+                    {
+                        var band=PaldeaEncounter.GetBand(pd, point);
+                        spawner.Add(band);
+                        TraceGenerated(spawner, pd, band, criteriaIndex, 0, true);
+                    }
                 }
 
-                if (boost == 0)
+                if (boost == 0 || !EncounterLevelABSV.AllowAdjusted(fieldIndex, Location))
                     continue;
 
                 var adjusted=PaldeaEncounter.GetNew(pd, point, boost);

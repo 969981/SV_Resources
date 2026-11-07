@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using pkNX.Containers;
 using pkNX.Structures.FlatBuffers.SV;
 
@@ -18,6 +19,8 @@ public static class FixedSymbolDumper9
         var fsym = new PaldeaFixedSymbolModel(rom);
         var array = rom.GetPackedFile("world/data/field/fixed_symbol/fixed_symbol_table/fixed_symbol_table_array.bin");
         var fsymData = FlatBufferConverter.DeserializeFrom<FixedSymbolTableArray>(array);
+        string fixedTableSha256 = EncounterTraceSV.Enabled
+            ? Convert.ToHexString(SHA256.HashData(array)) : "";
         foreach (var (game, gamePoints) in new[] { ("sl", points: fsym.PointsScarlet), ("vl", points: fsym.PointsViolet) })
         {
             using var gw = File.CreateText(Path.Combine(config.Path, $"titan_fixed_{game}.txt"));
@@ -27,6 +30,17 @@ public static class FixedSymbolDumper9
                 var areas = scene.AreaInfos[(int)fieldIndex];
                 var atlantis = scene.PaldeaType[(int)fieldIndex];
                 var allPoints = gamePoints[(int)fieldIndex];
+                string mapName = fieldIndex switch
+                {
+                    PaldeaFieldIndex.Paldea => "world",
+                    PaldeaFieldIndex.Kitakami => "su1_world",
+                    PaldeaFieldIndex.Terarium => "su2_world",
+                    _ => throw new ArgumentOutOfRangeException(nameof(fieldIndex))
+                };
+                int gameIndex = game == "sl" ? 0 : 1;
+                string placementTrscn = $"world/scene/parts/field/streaming_event/{mapName}_fixed_placement_symbol_/{mapName}_fixed_placement_symbol_{gameIndex}.trscn";
+                var placementTrscnSha = EncounterTraceSV.Enabled
+                    ? fsym.PlacementTrscnSha256.GetValueOrDefault(placementTrscn, "") : "";
 
                 if (fieldIndex is PaldeaFieldIndex.Kitakami)
                 {
@@ -98,6 +112,12 @@ public static class FixedSymbolDumper9
                                 tableKey, tableIndex=i, species=tracedSpecies,
                                 areaName=primary.AreaName,
                                 location=config.PlaceNameMap[primary.PlaceName].Index,
+                                fixedSymbolTableSha256=fixedTableSha256,
+                                placementTrscn, placementTrscnSha,
+                                primaryAreaTag=scene.AreaInfos[(int)fieldIndex][primary.AreaName].Tag.ToString(),
+                                primaryAreaType=scene.AreaInfos[(int)fieldIndex][primary.AreaName].Type.ToString(),
+                                primaryAreaLocationName=scene.AreaInfos[(int)fieldIndex][primary.AreaName].LocationNameMain,
+                                primaryCollisionOrigin=scene.AreaCollisionOrigins[(int)fieldIndex].GetValueOrDefault(primary.AreaName),
                                 pointX=primary.Point.X, pointY=primary.Point.Y,
                                 pointZ=primary.Point.Z, areaAdjust=primary.Adjust,
                                 actionId=entry.PokeAI.ActionId.ToString()
@@ -141,6 +161,15 @@ public static class FixedSymbolDumper9
                                     fieldIndex=fieldIndex.ToString(), tableKey, tableIndex=i,
                                     species=tracedSpecies, sourceArea=bledFrom.AreaName,
                                     targetArea=allNames[a], sourceLocation=config.PlaceNameMap[bledFrom.PlaceName].Index,
+                                    targetAreaTag=areaInfo.Tag.ToString(),
+                                    targetAreaType=areaInfo.Type.ToString(),
+                                    targetAreaLocationName=areaInfo.LocationNameMain,
+                                    targetAreaActualMinLevel=areaInfo.ActualMinLevel,
+                                    targetAreaActualMaxLevel=areaInfo.ActualMaxLevel,
+                                    targetCollisionOrigin=scene.AreaCollisionOrigins[(int)fieldIndex].GetValueOrDefault(allNames[a]),
+                                    sourceCollisionOrigin=scene.AreaCollisionOrigins[(int)fieldIndex].GetValueOrDefault(bledFrom.AreaName),
+                                    fixedSymbolTableSha256=fixedTableSha256,
+                                    placementTrscn, placementTrscnSha,
                                     targetLocation=config.PlaceNameMap[placeName].Index,
                                     pointX=bledFrom.Point.X, pointY=bledFrom.Point.Y, pointZ=bledFrom.Point.Z,
                                     primaryAreaAdjust=bledFrom.Adjust, candidateAreaAdjust=areaInfo.AdjustEncLv,
@@ -170,6 +199,7 @@ public static class FixedSymbolDumper9
                                 tableKey, tableIndex=i, species=tracedSpecies, form=entry.Symbol.FormId,
                                 originalLevel=entry.Symbol.Level, level=entry.Symbol.Level,
                                 adjust, actionId=entry.PokeAI.ActionId.ToString(),
+                                fixedSymbolTableSha256=fixedTableSha256, placementTrscn, placementTrscnSha,
                                 primaryLocations=area.Select(z => config.PlaceNameMap[z.PlaceName].Index).Distinct().Order().ToArray(),
                                 inferredWanderLocations=wander.Select(z => config.PlaceNameMap[z.PlaceName].Index).Distinct().Order().ToArray(),
                                 finalLocations=locationIDs.ToArray(),
@@ -185,6 +215,7 @@ public static class FixedSymbolDumper9
                                     tableKey, tableIndex=i, species=tracedSpecies, form=entry.Symbol.FormId,
                                     originalLevel=entry.Symbol.Level, level=entry.Symbol.Level+adjust, adjust,
                                     actionId=entry.PokeAI.ActionId.ToString(),
+                                    fixedSymbolTableSha256=fixedTableSha256, placementTrscn, placementTrscnSha,
                                     primaryLocations=area.Select(z => config.PlaceNameMap[z.PlaceName].Index).Distinct().Order().ToArray(),
                                     inferredWanderLocations=wander.Select(z => config.PlaceNameMap[z.PlaceName].Index).Distinct().Order().ToArray(),
                                     finalLocations=locationIDs.ToArray(),

@@ -1,0 +1,89 @@
+name: SV 4.0.0 Terarium 176/194 original-source level formula AB
+on:
+  pull_request:
+    paths:
+      - 'scripts/AB-SV-Terarium-176-194-Source-Levels.py'
+      - 'tests/test_sv_176194_source_level_ab.py'
+      - '.github/workflows/sv-terarium-176194-source-level-ab.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/AB-SV-Terarium-176-194-Source-Levels.py'
+      - 'tests/test_sv_176194_source_level_ab.py'
+      - '.github/workflows/sv-terarium-176194-source-level-ab.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  actual-400-source-sample-level-ab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/AB-SV-Terarium-176-194-Source-Levels.py
+            tests/test_sv_176194_source_level_ab.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Assert original pkNX GetNew/GetBand level arithmetic
+        run: |
+          python -m py_compile scripts/AB-SV-Terarium-176-194-Source-Levels.py
+          python -m unittest discover -s tests -p test_sv_176194_source_level_ab.py -v
+      - name: Retrieve independent original 4.0.0 Gen9 generated point evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/linked" "$RUNNER_TEMP/review"
+          gh run download 42373962443 -R "$GITHUB_REPOSITORY" \
+            -n SV400-true-Gen9-gender-normalized-666-wild-189-fixed-source-joins \
+            -D "$RUNNER_TEMP/linked"
+          gh run download 42376052498 -R "$GITHUB_REPOSITORY" \
+            -n SV400-original-source-remaining-115-wild-worldend-46-fixed-review \
+            -D "$RUNNER_TEMP/review"
+          for f in \
+            "$RUNNER_TEMP/linked/linked/SV400_666_wild_point_provenance.csv" \
+            "$RUNNER_TEMP/linked/linked/SV400_Point_Trace_Validation.json" \
+            "$RUNNER_TEMP/review/SV400_115_DLC_Level_Relation_Source_Review.csv" \
+            "$RUNNER_TEMP/review/SV400_115_and_Worldend_46_Area_Diagnostic_Manifest.json"
+          do test -s "$f"; done
+      - name: Recalculate 6,003 original candidate levels with and without AreaInfo clipping
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/AB-SV-Terarium-176-194-Source-Levels.py \
+            --linked "$RUNNER_TEMP/linked/linked/SV400_666_wild_point_provenance.csv" \
+            --validation "$RUNNER_TEMP/linked/linked/SV400_Point_Trace_Validation.json" \
+            --remaining "$RUNNER_TEMP/review/SV400_115_DLC_Level_Relation_Source_Review.csv" \
+            --review "$RUNNER_TEMP/review/SV400_115_and_Worldend_46_Area_Diagnostic_Manifest.json" \
+            --output "$RUNNER_TEMP/terarium-ab"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"terarium-ab/SV400_176_194_Original_Source_Level_Formula_AB.json"
+          d=json.loads(p.read_text("utf-8-sig"))
+          a=d["focus"];b=d["non_focus_control"]
+          assert (a["cases"],a["candidate_criteria_samples"],a["raw_point_range_changes"],
+                  a["cases_with_raw_point_range_changes"],a["nonzero_applied_boost_samples"])==(78,6003,3227,74,0)
+          assert (b["cases"],b["candidate_criteria_samples"],b["nonzero_applied_boost_samples"],
+                  b["cases_with_nonzero_boost_samples"])==(37,2402,279,9)
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as f:
+              f.write("## Original SV 4.0.0 Terarium 176/194 PointData source formula A/B\n\n")
+              f.write("Baseline exact reproduction: **6003/6003** sampled criteria. Raw instead of clipped PointData changes **3227/6003** samples across **74/78** source cases.\\n\\n")
+              f.write("AdjustEncLv !=0 in 176/194 sample: **0/6003**; other DLC control: **279/2402** across 9/37 cases.\\n\\n")
+              f.write("Only a sample-based level formula experiment: this is NOT a full regenerated encounter pkl parity claim.\\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-real-176-194-6003-source-criteria-level-AB
+          path: |
+            ${{ runner.temp }}/terarium-ab/*.csv
+            ${{ runner.temp }}/terarium-ab/*.json
+          retention-days: 30
+          if-no-files-found: warn
