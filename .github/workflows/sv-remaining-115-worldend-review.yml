@@ -82,6 +82,12 @@ jobs:
           assert (f["cases"],f["row_boolean_gained"],f["row_boolean_lost"],
                   f["row_boolean_matched_on_both_sides"])==(236,189,46,1)
           assert (f["true_multiset_reference_gained"],f["true_multiset_reference_lost"])==(190,47)
+          ex={(v["row_outcome"],v["prefix"]):v["count"] for v in f["exclusive_key_prefix_groups"]}
+          assert ex[("NATIVE_ONLY_TO_MATCHED","NORMAL")]==147
+          assert ex[("NATIVE_ONLY_TO_MATCHED","T_PREFIX")]==28
+          assert ex[("NATIVE_ONLY_TO_MATCHED","DUN_SUFFIX")]==14
+          assert ex[("MATCHED_TO_REFERENCE_LOSS","NORMAL")]==38
+          assert ex[("MATCHED_TO_REFERENCE_LOSS","T_PREFIX")]==8
           with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as out:
               out.write("## Real original 4.0.0 unresolved encounter reference differences\n\n")
               out.write("- **115** remaining wild premerge reference discrepancies: **93** Blueberry, **22** Kitakami; **78** at locations 176/194; **35** Minior (774).\n")
