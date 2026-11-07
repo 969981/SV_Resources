@@ -4,12 +4,16 @@ on:
     paths:
       - 'scripts/Join-SV-Native-Point-Trace.py'
       - 'tests/test_sv_native_point_trace_join.py'
+      - 'scripts/Summarize-SV-Native-Level-Merge-Differences.py'
+      - 'tests/test_sv_gen9_level_merge_audit.py'
       - '.github/workflows/sv-native-point-trace-archive-replay.yml'
   push:
     branches: [master]
     paths:
       - 'scripts/Join-SV-Native-Point-Trace.py'
       - 'tests/test_sv_native_point_trace_join.py'
+      - 'scripts/Summarize-SV-Native-Level-Merge-Differences.py'
+      - 'tests/test_sv_gen9_level_merge_audit.py'
       - '.github/workflows/sv-native-point-trace-archive-replay.yml'
   workflow_dispatch:
 permissions:
@@ -28,6 +32,8 @@ jobs:
           sparse-checkout: |
             scripts/Join-SV-Native-Point-Trace.py
             tests/test_sv_native_point_trace_join.py
+            scripts/Summarize-SV-Native-Level-Merge-Differences.py
+            tests/test_sv_gen9_level_merge_audit.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -35,6 +41,7 @@ jobs:
         run: |
           python -m py_compile scripts/Join-SV-Native-Point-Trace.py
           python -m unittest discover -s tests -p test_sv_native_point_trace_join.py -v
+          python -m unittest discover -s tests -p test_sv_gen9_level_merge_audit.py -v
       - name: Recover real source-verified 4.0.0 archive and SHA evidence
         shell: bash
         run: |
@@ -82,6 +89,10 @@ jobs:
             --native-output "$RUNNER_TEMP/original/PKHeX_Source_Overlay/PKHeX.Core/Resources/legality/wild/Gen9" \
             --bridge-manifest "$RUNNER_TEMP/original/SV400_Native_To_PKHeX_Manifest.json" \
             --output "$RUNNER_TEMP/linked"
+          python scripts/Summarize-SV-Native-Level-Merge-Differences.py \
+            --source "$RUNNER_TEMP/linked/SV400_666_wild_point_provenance.csv" \
+            --validation-json "$RUNNER_TEMP/linked/SV400_Point_Trace_Validation.json" \
+            --output "$RUNNER_TEMP/level-audit"
           python - <<'PY'
           import json,os
           from pathlib import Path
@@ -90,12 +101,18 @@ jobs:
           assert j['wild_cases']==666 and j['wild_distinct_serialized_keys']==606
           assert j['wild_exact_final_serializations']==666 and j['wild_target_occurrences_not_yet_verified']==0
           assert j['fixed_cases']==189 and j['fixed_with_original_tablekey_link']==189
-          assert j['wild_cases_with_candidate_original_points']>0
+          assert j['wild_cases_with_candidate_original_points']==666
+          lvl=json.loads((Path(os.environ['RUNNER_TEMP'])/'level-audit/SV400_666_Gen9_Level_Merge_Audit.json').read_text('utf-8-sig'))
+          assert lvl['status']=='ACTUAL_ORIGINAL_666_GEN9_PREMERGE_LEVEL_RESEARCH_NOT_RNG_PROOF'
+          assert lvl['pkhex_reference_interval_present_premerge']==551, lvl
+          assert lvl['multiple_intervals_premerge']==664, lvl
+          assert lvl['fewer_intervals_after_merge']==576, lvl
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as f:
               f.write('## Gen9 real original-data trace reanalysis\n\n')
               f.write(f"Wild serialized original records: **{j['wild_exact_final_serializations']}/666**; candidate PointData: **{j['wild_cases_with_candidate_original_points']}/666**\\n\\n")
               f.write(f"Fixed TableKey original records: **{j['fixed_with_original_tablekey_link']}/189**\\n\\n")
-              f.write('Five original .pkl SHA match independently sourced 30f baseline. Original PointData candidates are not proof of in-game RNG legality.\\n')
+              f.write(f"Original PKHeX level interval present before consolidation: **{lvl['pkhex_reference_interval_present_premerge']}/666**; multiple premerge ranges {lvl['multiple_intervals_premerge']}/666; fewer after consolidation {lvl['fewer_intervals_after_merge']}/666.\\n")
+              f.write('Five original .pkl SHA match independently sourced 30f baseline. PointData source candidates are not game RNG proof.\\n')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
@@ -104,5 +121,7 @@ jobs:
           path: |
             ${{ runner.temp }}/linked/*.csv
             ${{ runner.temp }}/linked/*.json
+            ${{ runner.temp }}/level-audit/*.csv
+            ${{ runner.temp }}/level-audit/*.json
           retention-days: 30
           if-no-files-found: warn
