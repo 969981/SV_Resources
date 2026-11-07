@@ -1,0 +1,105 @@
+name: SV 4.0.0 original encounter mismatch root-cause triage
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/sv-native-encounter-mismatch-triage.yml'
+      - 'scripts/Triage-SV-400-Native-Encounter-Differences.py'
+      - 'tests/test_sv_native_difference_triage.py'
+      - 'docs/4.0.0/Verification/SV-400-Native-Encounter-Root-Cause-Triage.md'
+  pull_request:
+    paths:
+      - '.github/workflows/sv-native-encounter-mismatch-triage.yml'
+      - 'scripts/Triage-SV-400-Native-Encounter-Differences.py'
+      - 'tests/test_sv_native_difference_triage.py'
+      - 'docs/4.0.0/Verification/SV-400-Native-Encounter-Root-Cause-Triage.md'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  no-rom-matching-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Triage-SV-400-Native-Encounter-Differences.py
+            tests/test_sv_native_difference_triage.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m py_compile scripts/Triage-SV-400-Native-Encounter-Differences.py
+          python -m unittest discover -s tests -p test_sv_native_difference_triage.py -v
+
+  source-signed-forensic-report:
+    needs: no-rom-matching-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Triage-SV-400-Native-Encounter-Differences.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recover genuine 30/10/0 native collision comparison and baseline pkl
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sv-tolerance" "$RUNNER_TEMP/sv-native"
+          gh run download 42356030937 -R "$GITHUB_REPOSITORY" \
+            -n SV-400-original-collision-tolerance-30-10-0 \
+            -D "$RUNNER_TEMP/sv-tolerance"
+          gh run download 42362541291 -R "$GITHUB_REPOSITORY" \
+            -n SV-400-source-attested-native-PKHeX-encounter-bridge \
+            -D "$RUNNER_TEMP/sv-native"
+          test -s "$RUNNER_TEMP/sv-tolerance/T30/comparison/wild_native_only.csv"
+          test -s "$RUNNER_TEMP/sv-tolerance/T30/comparison/fixed_pkhex_only.csv"
+          test -s "$RUNNER_TEMP/sv-native/SV400_Native_To_PKHeX_Manifest.json"
+          test -s "$RUNNER_TEMP/sv-native/PKHeX_Source_Overlay/PKHeX.Core/Resources/legality/wild/Gen9/encounter_fixed_paldea.pkl"
+      - name: Compare actual Gen9 native-vs-reference discrepancies by identity and level/location deltas
+        run: |
+          python scripts/Triage-SV-400-Native-Encounter-Differences.py \
+            --tolerance-dir "$RUNNER_TEMP/sv-tolerance" \
+            --native-bridge-dir "$RUNNER_TEMP/sv-native" \
+            --output "$RUNNER_TEMP/sv-root-cause"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'sv-root-cause'
+          report=json.loads((p/'SV400_Native_Encounter_Difference_Root_Cause_Triage.json').read_text('utf-8'))
+          w=report['wild'];f=report['fixed']
+          assert (w['native_only'],w['pkhex_only'])==(3655,676)
+          assert (w['pkhex_only_with_exact_metadata_except_level'],w['pkhex_only_other_after_level_pairing'])==(666,10)
+          assert (f['native_only_with_location_158'],f['native_only_158_removal_would_match_pkhex_only'])==(191,189)
+          assert f['original_exactly_matched_templates_with_158']==114
+          assert f['unsafe_global_remove_158_projected_pkhex_matches']==850
+          assert f['baseline_pkhex_matches']==774
+          assert f['unsafe_global_remove_158_empty_location_templates']==22
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as fp:
+              fp.write('## Actual 4.0.0 original-source encounter mismatch forensics\n\n')
+              fp.write('Wild: **666/676** reference-only cases pair with same metadata, differing only in level range.\\n\\n')
+              fp.write('Fixed: **189/203** native-only candidates map to reference-only entries if extra 158 is removed.\\n\\n')
+              fp.write('**DO NOT remove location 158 globally**: 114 original correctly-matched fixed templates contain 158; removing globally creates 22 zero-location templates.\\n\\n')
+              fp.write('This is a forensic comparison, not a generation fix or proof of game spawn/RNG legality.\\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-source-verified-wild-level-fixed-158-root-cause-triage
+          path: |
+            ${{ runner.temp }}/sv-root-cause/*.csv
+            ${{ runner.temp }}/sv-root-cause/*.json
+          retention-days: 30
+          if-no-files-found: warn
