@@ -45,7 +45,7 @@ public class PaldeaFixedSymbolModel
         var path = $"world/scene/parts/field/streaming_event/{mapName}_fixed_placement_symbol_/{mapName}_fixed_placement_symbol_{game}.trscn";
         var data = rom.GetPackedFile(path);
         if (EncounterTraceSV.Enabled)
-            PlacementTrscnSha256[path] = Convert.ToHexString(SHA256.HashData(data.Span));
+            PlacementTrscnSha256[path] = Convert.ToHexString(SHA256.HashData(data));
         var template = Get<TrinitySceneObjectTemplate>(data);
         return GetObjectTemplateSymbolPoints(template);
     }
