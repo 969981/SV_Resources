@@ -56,3 +56,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## 原生 4.0.0 遭遇包精准恢复
 
 - [SV 4.0.0 原生 61 项遭遇文件与 11 个 Trinity 包的定位、提取和 PKHeX 对账](sv-4.0.0-pkhex-native-recovery.md) — Obsidian 中区分原始索引证据、真正的 61 项文件提取证据，以及尚未闭合的 Havok TRCOL / pkNX 合法性重建。
+
+## 朱紫 4.0.0 地图碰撞间接依赖
+
+- [原生 TRSCN → Havok TRCOL 动态引用与 PKHeX 遭遇几何闭合](sv-pkhex-trcol-collision-closure.md) — 从 TrinitySceneObjectTemplate 的第一子对象读取 CollisionComponent union，识别真实 TrcolFilePath，定位额外包与验证 SHA，明确与 PKHeX 参考遭遇数据库的证据分界。
