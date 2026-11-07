@@ -39,6 +39,13 @@ internal static class Program
                 throw new ArgumentException("Native outputs must be separate from the original game virtual/ tree.");
             Directory.CreateDirectory(output);
             var verified = LoadVerifiedSources(manifest);
+            string? trcolEvidence = parameters.TryGetValue("--verified-trcol-manifest", out var trcolManifest)
+                ? Path.GetFullPath(trcolManifest) : null;
+            var externalVerified = trcolEvidence is null ? new Dictionary<string, NativeFileRecord>(StringComparer.OrdinalIgnoreCase)
+                : LoadVerifiedTrcol(trcolEvidence);
+            foreach (var entry in externalVerified)
+                if (!verified.TryAdd(entry.Key, entry.Value))
+                    throw new InvalidDataException($"Duplicate base/TRCOL original source: {entry.Key}");
             var rom = new NativeVirtualFileSystem(source, verified);
             Console.WriteLine($"Native SV verified source manifest: {verified.Count} entries");
             // Use exact GameDumperSV location-map construction. Area location is
@@ -110,6 +117,8 @@ internal static class Program
                     "Ordinary Tera raids, distributions, outbreak and HOME transfer rules are separate pipelines.",
                 },
                 originalM2Manifest = manifest,
+                originalTrcolManifest = trcolEvidence,
+                originalTrcolEntries = externalVerified.Count,
                 originalSourceRoot = source,
                 originalM2Entries = verified.Count,
                 sourceFilesActuallyRead = input,
@@ -162,7 +171,7 @@ internal static class Program
         foreach (var key in new[] { "--virtual-root", "--verified-manifest", "--output" })
             if (!result.ContainsKey(key))
                 throw new ArgumentException($"Missing mandatory {key}");
-        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output")))
+        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest")))
             throw new ArgumentException("Unsupported option");
         return result;
     }
@@ -189,6 +198,33 @@ internal static class Program
             if (!result.TryAdd(name, new NativeFileRecord(sha.ToUpperInvariant(), bytes, true)))
                 throw new InvalidDataException($"Duplicate native M2 file: {name}");
         }
+        return result;
+    }
+
+    private static Dictionary<string, NativeFileRecord> LoadVerifiedTrcol(string path)
+    {
+        using var doc = JsonDocument.Parse(File.ReadAllBytes(path));
+        var root = doc.RootElement;
+        if (root.GetProperty("status").GetString() != "TRCOL_ORIGINAL_SHA256_VERIFIED" ||
+            root.GetProperty("source").GetString() != "SV-4.0.0-original-TRPFD-TRPFS")
+            throw new InvalidDataException("Not actual original TRCOL SHA evidence");
+        var result = new Dictionary<string,NativeFileRecord>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in root.GetProperty("targets").EnumerateArray())
+        {
+            if (item.GetProperty("status").GetString()!="TRCOL_ORIGINAL_SHA256_VERIFIED")
+                throw new InvalidDataException("A native collision dependency has not been verified");
+            var name = item.GetProperty("source_virtual_path").GetString()
+                ?? throw new InvalidDataException("Missing native collision path");
+            if (!name.EndsWith(".trcol",StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Non-collision dependency listed in TRCOL proof: {name}");
+            var sha = item.GetProperty("native_sha256").GetString() ?? "";
+            var len = item.GetProperty("native_bytes").GetInt64();
+            if (sha.Length != 64 || !sha.All(Uri.IsHexDigit) || len < 0 ||
+                !result.TryAdd(name,new NativeFileRecord(sha.ToUpperInvariant(),len,true)))
+                throw new InvalidDataException($"Invalid source TRCOL SHA or duplicate: {name}");
+        }
+        if (result.Count != root.GetProperty("unique_trcol_paths").GetInt32())
+            throw new InvalidDataException("TRCOL count differs from original scene dependency manifest");
         return result;
     }
 
