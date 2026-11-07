@@ -1,0 +1,87 @@
+name: SV 4.0.0 fixed WorldEnd-158 source-only counterfactual
+on:
+  pull_request:
+    paths:
+      - 'scripts/Experiment-SV-Fixed-Worldend-158.py'
+      - 'tests/test_sv_fixed_worldend_158_ab.py'
+      - '.github/workflows/sv-fixed-worldend-158-counterfactual.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Experiment-SV-Fixed-Worldend-158.py'
+      - 'tests/test_sv_fixed_worldend_158_ab.py'
+      - '.github/workflows/sv-fixed-worldend-158-counterfactual.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  real-source-collision-counterfactual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Experiment-SV-Fixed-Worldend-158.py
+            tests/test_sv_fixed_worldend_158_ab.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: No-ROM source identity and location safeguards
+        run: |
+          python -m py_compile scripts/Experiment-SV-Fixed-Worldend-158.py
+          python -m unittest discover -s tests -p test_sv_fixed_worldend_158_ab.py -v
+      - name: Download only actual original 4.0.0 source-verified trace and independent reference comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/raw" "$RUNNER_TEMP/bridge" "$RUNNER_TEMP/collision"
+          gh run download 42369111259 -R "$GITHUB_REPOSITORY" -n SV400-original-point-events-raw-targeted-trace -D "$RUNNER_TEMP/raw"
+          gh run download 42362541291 -R "$GITHUB_REPOSITORY" -n SV-400-source-attested-native-PKHeX-encounter-bridge -D "$RUNNER_TEMP/bridge"
+          gh run download 42356030937 -R "$GITHUB_REPOSITORY" -n SV-400-original-collision-tolerance-30-10-0 -D "$RUNNER_TEMP/collision"
+          test -s "$RUNNER_TEMP/raw/point-events.jsonl"
+          test -s "$RUNNER_TEMP/bridge/SV400_Native_To_PKHeX_Manifest.json"
+          test -s "$RUNNER_TEMP/collision/T30/comparison/fixed_native_only.csv"
+          test -s "$RUNNER_TEMP/collision/T30/comparison/fixed_pkhex_only.csv"
+          test -s "$RUNNER_TEMP/collision/sv-400-collision-tolerance-report.json"
+      - name: Test independent original-source WorldEnd -> 158 interpretation against pinned PKHeX multiset
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Experiment-SV-Fixed-Worldend-158.py \
+            --fixed-pkl "$RUNNER_TEMP/bridge/PKHeX_Source_Overlay/PKHeX.Core/Resources/legality/wild/Gen9/encounter_fixed_paldea.pkl" \
+            --bridge-manifest "$RUNNER_TEMP/bridge/SV400_Native_To_PKHeX_Manifest.json" \
+            --tolerance-manifest "$RUNNER_TEMP/collision/sv-400-collision-tolerance-report.json" \
+            --native-only "$RUNNER_TEMP/collision/T30/comparison/fixed_native_only.csv" \
+            --pkhex-only "$RUNNER_TEMP/collision/T30/comparison/fixed_pkhex_only.csv" \
+            --trace "$RUNNER_TEMP/raw/point-events.jsonl" \
+            --output "$RUNNER_TEMP/worldend-study"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          j=json.loads((Path(os.environ['RUNNER_TEMP'])/'worldend-study/SV400_Fixed_Worldend_158_Source_Counterfactual.json').read_text('utf-8-sig'))
+          assert j['status']=='REAL_ORIGINAL_SOURCE_WORLDEND_158_FIXED_COUNTERFACTUAL_NOT_GAME_LEGALITY'
+          assert j['original_matching_pinned_pkhex']==774
+          assert j['counterfactual_matching_pinned_pkhex']==917
+          assert j['changed_original_template_occurrences']==236
+          assert (j['reference_matches_lost'],j['reference_matches_gained'])==(47,190)
+          assert j['counterfactual_native_only']==j['counterfactual_pkhex_only']==60
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as f:
+              f.write('## Original 4.0.0 fixed WorldEnd 158 source-event diagnostic (NOT an automatic patch)\n\n')
+              f.write('Original fixed vs pinned PKHeX: **774/977**. Hypothetical source-worldend-only 158 exclusion: **917/977**.\\n\\n')
+              f.write('**236** native fixed occurrences altered, **190** new matches, **47 originally correct matches broken**, **60** unmatched each side.\\n\\n')
+              f.write('Because excluding worldend 158 breaks 47 valid reference matches, **this must not be merged as a Gen9 encounter rule**.\\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-true-native-fixed-WorldEnd-158-source-event-counterfactual
+          path: |
+            ${{ runner.temp }}/worldend-study/*.csv
+            ${{ runner.temp }}/worldend-study/*.json
+          retention-days: 30
+          if-no-files-found: warn
