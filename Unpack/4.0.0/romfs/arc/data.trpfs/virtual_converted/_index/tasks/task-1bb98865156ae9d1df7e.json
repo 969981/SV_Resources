@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task": "field_graphic/common_model/a_sch_2_dorm03#00000.part1.part0.part1.part0.part1.part0.part0",
+  "input_fingerprint": "D316634D442B309028591754F491D0699FAA9FA5C042EBCD223BE9393DDF575A",
+  "input_files": 1,
+  "inspection_statuses": {
+    "STRUCTURE_PARSED": 1
+  },
+  "sources": [
+    {
+      "source": "field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03_hoodie01_main_nrm.bntx",
+      "source_sha256": "3936787165F56A3625D92CD2D9F8BD1C81DAF1E9CA7654C8BB4742E17A0302FB",
+      "bytes": 94320,
+      "sha256_evidence": "LOCAL_DIGEST_ONLY",
+      "format_candidate": "BNTX",
+      "confidence": "CONFIRMED",
+      "detector_status": "READY",
+      "inspection": {
+        "header_hex": "424E54580000000000010400FFFE0C40BA0100000000A0010070010070700100",
+        "header_bytes": 64,
+        "u32le_0_4_8_12": [
+          1481920066,
+          0,
+          262400,
+          1074593535
+        ]
+      },
+      "parse_status": "STRUCTURE_PARSED",
+      "parsed_assets": [
+        {
+          "kind": "BNTX_METADATA",
+          "path": "parsed/field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03_hoodie01_main_nrm.bntx.json"
+        }
+      ],
+      "schema_decoder_status": "NOT_ATTEMPTED"
+    }
+  ],
+  "outputs": [
+    {
+      "pipeline_path": "converted/field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03_hoodie01_main_nrm.png",
+      "path": "virtual_converted/field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03_hoodie01_main_nrm.png",
+      "sha256": "7BFD9A66A668E2B2013A0C87ECCC9268A9C84BE205BC17C091BEE5AF4672B857",
+      "bytes": 98456
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_dorm03/_inspection/563ac18491b1c3e0.jsonl",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_dorm03/_inspection/563ac18491b1c3e0.jsonl",
+      "sha256": "F7D846AA18E3BF787D4E275F90D2A0B9B312C0019B01628DD4CF73AAC689EE40",
+      "bytes": 686
+    },
+    {
+      "pipeline_path": "parsed/field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03_hoodie01_main_nrm.bntx.json",
+      "path": "virtual_converted/_parsed/field_graphic/common_model/a_sch_2_dorm03/a_sch_2_dorm03_hoodie01_main_nrm.bntx.json",
+      "sha256": "4C2FA067F90AF697145B75739E60109A0CD9A0DF6089A0C03A7BE3A8096AEAD3",
+      "bytes": 311
+    }
+  ],
+  "deferred_outputs": [],
+  "problems": [],
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 1,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "field_graphic/common_model/a_sch_2_dorm03",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "converter_exit_code": 0,
+  "policy": "INSPECTED_UNPARSED_IS_NOT_CONVERTED"
+}
