@@ -27,6 +27,7 @@ NAMES = {
     "dist": "encounter_dist_paldea.pkl",
     "might": "encounter_might_paldea.pkl",
 }
+WILD_AREAS_COLUMNS = ("area_index", "location_id", "cross_from_id", "slot_count")
 WILD_COLUMNS = ("area_index", "location_id", "cross_from_id", "slot_index",
                 "species_national", "form_raw", "gender_raw",
                 "level_min", "level_max", "time_forbidden_mask", "weather_allowed_mask")
@@ -188,6 +189,15 @@ def audit(pkhex_root: Path, out: Path, generated: Path | None = None) -> dict:
                   "status": "DECODED_TEMPLATE" if rows is not None else "SCHEMA_NOT_IMPLEMENTED",
                   "records": len(rows) if rows is not None else None}
         if key == "wild" and rows is not None:
+            count = struct.unpack_from("<H", raw, 2)[0]
+            offsets_area = struct.unpack_from(f"<{count + 1}I", raw, 4)
+            areas = []
+            for index, (start, end) in enumerate(zip(offsets_area, offsets_area[1:])):
+                loc, cross = struct.unpack_from("<HH", raw, start)
+                areas.append({"area_index": index, "location_id": loc,
+                              "cross_from_id": cross,
+                              "slot_count": (end-start-4)//8})
+            write_csv(out / "pkhex_wild_areas.csv", areas, WILD_AREAS_COLUMNS)
             result["area_count"] = struct.unpack_from("<H", raw, 2)[0]
             count = result["area_count"]
             offsets = struct.unpack_from(f"<{count + 1}I", raw, 4)
