@@ -53,16 +53,16 @@
       "role": "skeleton",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 1160
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_class1a/a_sch_class1a_24hours_time_trannsition.trmtr",
       "role": "material_parameters",
       "evidence": "TRMDL",
       "required": true,
-      "exists": true,
-      "size_bytes": 4548
+      "exists": false,
+      "size_bytes": null
     },
     {
       "path": "field_graphic/common_model/a_sch_class1a/a_sch_class1a_24hours_time_trannsition.tranm",
@@ -81,10 +81,13 @@
       "size_bytes": 3048
     }
   ],
-  "missing_required": [],
-  "structural_status": "COMPLETE_REFERENCES",
+  "missing_required": [
+    "field_graphic/common_model/a_sch_class1a/a_sch_class1a_24hours_time_trannsition.trskl",
+    "field_graphic/common_model/a_sch_class1a/a_sch_class1a_24hours_time_trannsition.trmtr"
+  ],
+  "structural_status": "MISSING_REFERENCES",
   "quality": {
-    "geometry": "STRUCTURE_PASS",
+    "geometry": "NOT_EXPORTED",
     "materials": "UNVERIFIED",
     "uv": "UNVERIFIED",
     "lod": "UNVERIFIED",
@@ -94,7 +97,7 @@
   "semantic_id": null,
   "identity_status": "UNKNOWN",
   "selected_animations": [],
-  "fingerprint": "88D6C910F40E31692A28A6A3361428015992682281A40478AF4E37D8138EC1DA",
+  "fingerprint": "11A2E83A2758456A36B3DCC2D14D7288FB2F7DF0A883D252FAB5BE724CE0A3F8",
   "pipeline_version": "r4.1",
   "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
   "source_hashes": [
@@ -126,30 +129,12 @@
     {
       "path": "field_graphic/common_model/a_sch_class1a/a_sch_class1a_24hours_time_trannsition.trmtr",
       "required": true,
-      "sha256": "DC7791D2E2DFA0AE3A32FEFBC350755C29BFAE1199D2B67FFC70DDB954070674"
+      "sha256": null
     },
     {
       "path": "field_graphic/common_model/a_sch_class1a/a_sch_class1a_24hours_time_trannsition.trskl",
       "required": true,
-      "sha256": "DC8E7C9E9CE6F88138153CCCE709CA6C882D89656B51C27F0B4C6491C693FAB0"
+      "sha256": null
     }
-  ],
-  "gltf_validation": {
-    "structure": "PASS",
-    "visual": "NOT_REVIEWED",
-    "mesh_count": 6,
-    "primitive_count": 6,
-    "materials_count": 2,
-    "uv_primitive_count": 6,
-    "skin_count": 1,
-    "animation_count": 0,
-    "external_files": [
-      {
-        "path": "a_sch_class1a_24hours_time_trannsition.bin",
-        "bytes": 25280,
-        "sha256": "4DDB888E3E03DED37FC6D474C1502AA1FB178AC598AB3DA0296F9F2706F06CBD"
-      }
-    ],
-    "gltf_sha256": "247A913524F8C235B539D772982E7452DA9953426C7F79DFBBBCD078B33A8B7B"
-  }
+  ]
 }
