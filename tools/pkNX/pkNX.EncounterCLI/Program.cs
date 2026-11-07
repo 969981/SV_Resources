@@ -39,6 +39,11 @@ internal static class Program
                                   StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("Native outputs must be separate from the original game virtual/ tree.");
             Directory.CreateDirectory(output);
+            string levelABMode = parameters.GetValueOrDefault("--level-ab-mode", EncounterLevelABSV.Baseline);
+            if (levelABMode != EncounterLevelABSV.Baseline &&
+                !parameters.ContainsKey("--verified-trcol-manifest"))
+                throw new ArgumentException("Isolated A/B mode requires both 61-file native M2 and original 223 TRCOL verification manifests");
+            EncounterLevelABSV.Configure(levelABMode);
             bool hasTraceTargets = parameters.TryGetValue("--trace-targets", out var targets);
             bool hasTraceOutput = parameters.TryGetValue("--trace-output", out var traceOutput);
             if (hasTraceTargets != hasTraceOutput)
@@ -118,7 +123,10 @@ internal static class Program
                         : "GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES",
                 collisionBlocker,
                 version = "Pokemon SV 4.0.0",
-                algorithm = "Vendored pkNX EncounterSlotDumper9 and FixedSymbolDumper9, UNMODIFIED",
+                algorithm = EncounterLevelABSV.Enabled
+                    ? "EXPERIMENTAL_ISOLATED_TERARIUM_176_194_LEVEL_AB_BASED_ON_VENDORED_PKNX"
+                    : "Vendored pkNX EncounterSlotDumper9 and FixedSymbolDumper9, UNMODIFIED",
+                levelABMode = EncounterLevelABSV.Mode,
                 importantLimits = new[]
                 {
                     "PKHeX reference files were not used as generator inputs.",
@@ -188,7 +196,7 @@ internal static class Program
         foreach (var key in new[] { "--virtual-root", "--verified-manifest", "--output" })
             if (!result.ContainsKey(key))
                 throw new ArgumentException($"Missing mandatory {key}");
-        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output")))
+        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode")))
             throw new ArgumentException("Unsupported option");
         return result;
     }
