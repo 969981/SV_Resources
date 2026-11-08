@@ -87,8 +87,8 @@ def validate_probe_report(probe_path:Path)->dict:
         raise ValueError("PointData 5046 probe status mismatch")
     if probe.get("sourcePointAsset")!="world/data/encount/point_data/point_data/encount_data_su1.bin":
         raise ValueError("PointData 5046 probe source file mismatch")
-    if probe.get("sourcePointIndex")!=5046 or probe.get("sourceLocation")!=158:
-        raise ValueError("PointData 5046 probe identity mismatch")
+    if probe.get("sourcePointIndex")!=5046 or probe.get("sourceLocation")!=158 or probe.get("activeMode")!="baseline":
+        raise ValueError("PointData 5046 probe identity/mode mismatch")
     if probe.get("probeCount")!=7 or {x.get("criteriaIndex") for x in probes}!=expected:
         raise ValueError("PointData 5046 probe criteria set incomplete")
     expected_species={40:129,41:129,74:194,110:313,111:313,112:314,113:314}
