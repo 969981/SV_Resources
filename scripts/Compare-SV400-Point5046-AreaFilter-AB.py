@@ -79,6 +79,21 @@ def load_diff(path:Path):
         if tuple(r.fieldnames or ())!=SLOTS: raise ValueError("Pinned PKHeX diff schema mismatch")
         return Counter(key(x) for x in r)
 
+def validate_probe_report(probe_path:Path)->dict:
+    probe=json.loads(Path(probe_path).read_text("utf-8-sig"))
+    expected={40,41,74,110,111,112,113}
+    probes=probe.get("probes",[])
+    if probe.get("status")!="ORIGINAL_SV400_POINT5046_SOURCE_AREA_FILTER_PROBES_NOT_GAME_LEGALITY":
+        raise ValueError("PointData 5046 probe status mismatch")
+    if probe.get("sourcePointAsset")!="world/data/encount/point_data/point_data/encount_data_su1.bin":
+        raise ValueError("PointData 5046 probe source file mismatch")
+    if probe.get("sourcePointIndex")!=5046 or probe.get("sourceLocation")!=158:
+        raise ValueError("PointData 5046 probe identity mismatch")
+    if probe.get("probeCount")!=7 or {x.get("criteriaIndex") for x in probes}!=expected:
+        raise ValueError("PointData 5046 probe criteria set incomplete")
+    return probe
+
+
 def compare(baseline:Path,manifest:Path,diff_root:Path,variant:Path,auditor:Path,
             probe_path:Path,output:Path)->dict:
     for p in (baseline,manifest.parent,diff_root,variant,probe_path):
@@ -93,13 +108,7 @@ def compare(baseline:Path,manifest:Path,diff_root:Path,variant:Path,auditor:Path
         raise ValueError("Pinned original SV 4.0.0 source manifest drift")
     base_build=read_build(baseline,original,"baseline")
     variant_build=read_build(variant,original,MODE)
-    probe=json.loads(probe_path.read_text("utf-8-sig"))
-    expected={40,41,74,110,111,112,113}
-    probes=probe.get("probes",[])
-    if (probe.get("status")!="ORIGINAL_SV400_POINT5046_SOURCE_AREA_FILTER_PROBES_NOT_GAME_LEGALITY"
-        or probe.get("sourcePointIndex")!=5046 or probe.get("sourceLocation")!=158
-        or probe.get("probeCount")!=7 or {x.get("criteriaIndex") for x in probes}!=expected):
-        raise ValueError("Original PointData #5046 area-filter probe evidence incomplete")
+    probe=validate_probe_report(probe_path)
 
     reader=import_reader(auditor)
     native=Counter(key(x) for x in reader.read_wild((baseline/NAMES[0]).read_bytes()))
