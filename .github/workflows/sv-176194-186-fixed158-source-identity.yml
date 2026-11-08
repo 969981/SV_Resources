@@ -1,0 +1,88 @@
+name: SV 4.0.0 original 176 194 186 and WorldEnd 158 source identity audit
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/Audit-SV-176194-186-Fixed158-Identity.py'
+      - 'tests/test_sv_176194_186_fixed158_identity.py'
+      - '.github/workflows/sv-176194-186-fixed158-source-identity.yml'
+      - 'docs/4.0.0/Verification/SV-176194-186-Fixed158-Identity-Gate.md'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Audit-SV-176194-186-Fixed158-Identity.py'
+      - 'tests/test_sv_176194_186_fixed158_identity.py'
+      - '.github/workflows/sv-176194-186-fixed158-source-identity.yml'
+      - 'docs/4.0.0/Verification/SV-176194-186-Fixed158-Identity-Gate.md'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  evidence-identity-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Audit-SV-176194-186-Fixed158-Identity.py
+            tests/test_sv_176194_186_fixed158_identity.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Independent no-ROM source identity controls
+        run: |
+          python -m py_compile scripts/Audit-SV-176194-186-Fixed158-Identity.py
+          python -m unittest discover -s tests -p test_sv_176194_186_fixed158_identity.py -v
+      - name: Retrieve original 4.0.0 61+223 SHA-attested native A/B and source collision evidence
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/source-evidence"
+          gh run download 42381948798 -R "$GITHUB_REPOSITORY" \
+            -n SV400-real-original-level-AB-WorldEnd-158-AreaInfo-TRCOL \
+            -D "$RUNNER_TEMP/source-evidence"
+          for f in \
+            SV400-native-AB-comparison/SV400_Terarium_176_194_AB_True_Native_Changes.csv \
+            SV400-native-AB-comparison/SV400_Terarium_176_194_Native_AB_vs_PKHeX_Reference.json \
+            SV400-native-AB-fixed-source/SV400_236_Worldend_158_AreaInfo_TRCOL_Source_Proof.csv \
+            SV400-native-AB-fixed-source/SV400_236_Worldend_158_Original_AreaInfo_Collision_Manifest.json \
+            SV400-native-AB-fixed-events/fixed-only.jsonl
+          do test -s "$RUNNER_TEMP/source-evidence/$f"; done
+      - name: Fail closed on original source SHA, contradictory fixed identity and native cross-zone losses
+        run: |
+          set -euo pipefail
+          p="$RUNNER_TEMP/source-evidence"
+          python scripts/Audit-SV-176194-186-Fixed158-Identity.py \
+            --ab-csv "$p/SV400-native-AB-comparison/SV400_Terarium_176_194_AB_True_Native_Changes.csv" \
+            --ab-report "$p/SV400-native-AB-comparison/SV400_Terarium_176_194_Native_AB_vs_PKHeX_Reference.json" \
+            --fixed-csv "$p/SV400-native-AB-fixed-source/SV400_236_Worldend_158_AreaInfo_TRCOL_Source_Proof.csv" \
+            --fixed-events "$p/SV400-native-AB-fixed-events/fixed-only.jsonl" \
+            --fixed-manifest "$p/SV400-native-AB-fixed-source/SV400_236_Worldend_158_Original_AreaInfo_Collision_Manifest.json" \
+            --output "$RUNNER_TEMP/sv400-identity-report"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report=json.loads((Path(os.environ["RUNNER_TEMP"])/"sv400-identity-report/SV400_176194_186_Fixed158_Identity_Audit.json").read_text())
+          assert report["status"]=="ORIGINAL_SV400_SOURCE_IDENTITY_DIAGNOSTICS_NOT_GAME_LEGALITY"
+          assert report["level_ab"]["actual_raw_point_reference_matches"]==431
+          assert report["level_ab"]["counterfactual_hybrid_reference_matches"]==439
+          assert report["fixed_158"]["opposed_label_groups"]==4
+          assert report["fixed_158"]["opposed_label_rows"]==8
+          assert report["fixed_158"]["original_worldend_events"]==512
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as out:
+              out.write("## Original SV 4.0.0 source identity gates\n\n")
+              out.write("- Native raw-level experiment **431/553** reference matches: 176 +25, 194 +25, crossover 186 -8.\n")
+              out.write("- Postselected hybrid **439** is only a hypothetical binary-record diagnostic, not a regenerated native .pkl.\n")
+              out.write("- **4 contradictory source-identical fixed fingerprints**, 8 labelled rows, among 236 candidates. All 512 WorldEnd original strict hits verified.\n")
+              out.write("- No official PKHeX changes, no game-runtime legality claim.\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-original-source-176194186-fixed158-identity-gate
+          path: ${{ runner.temp }}/sv400-identity-report/*
+          retention-days: 30
+          if-no-files-found: warn
