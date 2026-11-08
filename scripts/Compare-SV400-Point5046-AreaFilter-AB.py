@@ -91,6 +91,13 @@ def validate_probe_report(probe_path:Path)->dict:
         raise ValueError("PointData 5046 probe identity mismatch")
     if probe.get("probeCount")!=7 or {x.get("criteriaIndex") for x in probes}!=expected:
         raise ValueError("PointData 5046 probe criteria set incomplete")
+    for x in probes:
+        if (x.get("pointSource")!=probe["sourcePointAsset"] or x.get("pointIndex")!=5046
+            or x.get("location")!=158 or x.get("pointSourceCollisionArea")!="subarea_su01worldend"
+            or not isinstance(x.get("storageCandidateAccepted"),bool)
+            or not isinstance(x.get("pointSourceCandidateAccepted"),bool)
+            or not x.get("filterTokens")):
+            raise ValueError("PointData 5046 probe lacks exact WorldEnd source-area membership evidence")
     return probe
 
 
