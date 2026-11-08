@@ -112,6 +112,14 @@ internal static class Program
                 var scene = new PaldeaSceneModel(rom, field);
                 Console.WriteLine("Native field and collision scene loaded.");
                 EncounterSlotDumper9.DumpSlots(rom, config, scene);
+                if (parameters.TryGetValue("--point5046-probe-output", out var probeOutput))
+                {
+                    var fullProbeOutput = Path.GetFullPath(probeOutput);
+                    if (fullProbeOutput.StartsWith(source.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar,
+                                                   StringComparison.OrdinalIgnoreCase))
+                        throw new ArgumentException("PointData probe report cannot be written inside original game assets");
+                    EncounterAreaFilterABSV.WriteProbeReport(fullProbeOutput);
+                }
                 products.Add(WildName);
                 Console.WriteLine($"Generated from raw spawners + geometry: {WildName}");
                 FixedSymbolDumper9.Dump(rom, config, scene);
@@ -222,7 +230,7 @@ internal static class Program
         foreach (var key in new[] { "--virtual-root", "--verified-manifest", "--output" })
             if (!result.ContainsKey(key))
                 throw new ArgumentException($"Missing mandatory {key}");
-        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode" or "--area-filter-ab-mode" or "--crossover-ab-mode" or "--trace-fixed-only")))
+        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode" or "--area-filter-ab-mode" or "--crossover-ab-mode" or "--trace-fixed-only" or "--point5046-probe-output")))
             throw new ArgumentException("Unsupported option");
         return result;
     }
