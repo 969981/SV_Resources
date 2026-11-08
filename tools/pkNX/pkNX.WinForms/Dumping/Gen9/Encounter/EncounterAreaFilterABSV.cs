@@ -33,14 +33,17 @@ public static class EncounterAreaFilterABSV
         ProbeResults.Clear();
     }
 
-    public static bool UsePointSourceArea(
+    public static bool IsPoint5046Source(
         PaldeaFieldIndex fieldIndex, int location, LocationPointDetail point) =>
-        Mode == Point5046SourceArea &&
         fieldIndex == PaldeaFieldIndex.Kitakami &&
         location == 158 &&
         point.SourcePointAsset == EncounterCrossoverABSV.KitakamiPointAsset &&
         point.SourcePointIndex == 5046 &&
         point.SourceCollisionArea == EncounterCrossoverABSV.WorldEnd;
+
+    public static bool UsePointSourceArea(
+        PaldeaFieldIndex fieldIndex, int location, LocationPointDetail point) =>
+        Mode == Point5046SourceArea && IsPoint5046Source(fieldIndex, location, point);
 
     public static void RecordProbe(object result) => ProbeResults.Add(result);
 
@@ -68,11 +71,7 @@ public static class EncounterAreaFilterABSV
         PaldeaFieldIndex fieldIndex, int location, LocationPointDetail point,
         int criteriaIndex, int nationalSpecies)
     {
-        if (!EncounterTraceSV.Enabled ||
-            fieldIndex != PaldeaFieldIndex.Kitakami || location != 158 ||
-            point.SourcePointAsset != EncounterCrossoverABSV.KitakamiPointAsset ||
-            point.SourcePointIndex != 5046 ||
-            point.SourceCollisionArea != EncounterCrossoverABSV.WorldEnd)
+        if (!EncounterTraceSV.Enabled || !IsPoint5046Source(fieldIndex, location, point))
             return false;
 
         bool target = (nationalSpecies, criteriaIndex) switch
