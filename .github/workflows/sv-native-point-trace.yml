@@ -7,6 +7,8 @@ on:
       - 'tools/pkNX/pkNX.EncounterCLI/Program.cs'
       - 'scripts/Join-SV-Native-Point-Trace.py'
       - 'scripts/Audit-SV400-Cross158-Geometry-Merges.py'
+      - 'scripts/Compare-SV400-Source158-Original-AB.py'
+      - 'tests/test_sv_kitakami_cross158_source_ab.py'
       - 'tests/test_sv_native_point_trace_join.py'
       - 'tests/test_sv_158_crossover_geometry_merge.py'
       - 'scripts/Compare-SV-Terarium-176-194-Native-AB.py'
@@ -20,6 +22,8 @@ on:
       - 'tools/pkNX/pkNX.EncounterCLI/Program.cs'
       - 'scripts/Join-SV-Native-Point-Trace.py'
       - 'scripts/Audit-SV400-Cross158-Geometry-Merges.py'
+      - 'scripts/Compare-SV400-Source158-Original-AB.py'
+      - 'tests/test_sv_kitakami_cross158_source_ab.py'
       - 'tests/test_sv_native_point_trace_join.py'
       - 'tests/test_sv_158_crossover_geometry_merge.py'
       - 'scripts/Compare-SV-Terarium-176-194-Native-AB.py'
@@ -48,6 +52,8 @@ jobs:
             tools/pkNX/**
             scripts/Join-SV-Native-Point-Trace.py
             scripts/Audit-SV400-Cross158-Geometry-Merges.py
+            scripts/Compare-SV400-Source158-Original-AB.py
+            tests/test_sv_kitakami_cross158_source_ab.py
             tests/test_sv_native_point_trace_join.py
             tests/test_sv_158_crossover_geometry_merge.py
             tests/test_sv_fixed_collision_source_proof.py
@@ -67,6 +73,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Native original point trace tests failed' }
           python -m unittest discover -s tests -p test_sv_158_crossover_geometry_merge.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Original CrossFrom 158 collider trace regression tests failed' }
+          python -m unittest discover -s tests -p test_sv_kitakami_cross158_source_ab.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Original CrossFrom 158 isolated A/B safety tests failed' }
           python -m unittest discover -s tests -p test_sv_fixed_collision_source_proof.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Original collision source SHA tests failed' }
 
@@ -111,6 +119,7 @@ jobs:
             scripts/Verify-SV-Fixed-158-Collision-Sources.py
             scripts/Join-SV-Native-Point-Trace.py
             scripts/Audit-SV400-Cross158-Geometry-Merges.py
+            scripts/Compare-SV400-Source158-Original-AB.py
             scripts/Sweep-SV-Collision-Tolerance.py
             scripts/deps/oo2core_8_win64.dll
             tools/SV.TrinityDump/**
@@ -287,6 +296,40 @@ jobs:
           $fixed=Get-Content "$env:RUNNER_TEMP/SV400-native-AB-fixed-source/SV400_236_Worldend_158_Original_AreaInfo_Collision_Manifest.json" -Raw | ConvertFrom-Json
           if ($fixed.cases_linked -ne 236) { throw 'Original fixed 236 cases not all linked' }
           "Real WorldEnd collision source: $($fixed.cases_linked) source cases; $($fixed.fixed_wander_worldend_events_verified) verified collision events." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - name: Generate three isolated original Kitakami 158 WorldEnd crossover A/B .pkl files
+        shell: pwsh
+        run: |
+          $baseArgs=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual','--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json','--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json')
+          foreach ($mode in @('kitakami-158-worldend-strict','kitakami-158-worldend-exclude','kitakami-158-exact-source-area')) {
+            $dest=Join-Path $env:RUNNER_TEMP "SV400-cross158-AB-$mode"
+            dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @baseArgs --output $dest --crossover-ab-mode $mode
+            if ($LASTEXITCODE -ne 0) { throw "Actual original 61+223 Kitakami crossover A/B failed for $mode" }
+          }
+
+      - name: Compare exact native 30f A/B to pinned PKHeX; assert non-158 wild and all fixed/raid SHA unchanged
+        shell: pwsh
+        run: |
+          $p=$env:RUNNER_TEMP
+          python scripts/Compare-SV400-Source158-Original-AB.py --baseline "$env:SV_POINT_GENERATED" --manifest "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" --tolerance "$p/SV-400-AB-30f" --auditor scripts/Audit-SV-PKHeX-Encounters.py --variant "kitakami-158-worldend-strict=$p/SV400-cross158-AB-kitakami-158-worldend-strict" --variant "kitakami-158-worldend-exclude=$p/SV400-cross158-AB-kitakami-158-worldend-exclude" --variant "kitakami-158-exact-source-area=$p/SV400-cross158-AB-kitakami-158-exact-source-area" --output "$p/SV400-cross158-AB-comparison"
+          if ($LASTEXITCODE -ne 0) { throw 'The isolated 158 A/B modified unrelated encounter tables or cannot reproduce original PKHeX reference differences' }
+          $result=Get-Content "$p/SV400-cross158-AB-comparison/SV400_Kitakami158_Original_AB_vs_PKHeX.json" -Raw | ConvertFrom-Json
+          if ($result.baseline_focal_cross158.native -ne 3145 -or $result.baseline_focal_cross158.matched -ne 808 -or $result.baseline_focal_cross158.native_only -ne 2337) {
+            throw 'Source-verified 3145/808/2337 original CrossFrom=158 baseline drift'
+          }
+          $result.comparisons | Format-Table mode,match_delta,native_only_delta,pkhex_only_delta -AutoSize | Out-String | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "All non-158 wild templates and fixed + 3 raid .pkl are source-SHA-identical across each A/B; parity is not game legality." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-original-Kitakami-158-source-crossover-AB
+          path: |
+            ${{ runner.temp }}/SV400-cross158-AB-comparison/*.csv
+            ${{ runner.temp }}/SV400-cross158-AB-comparison/*.json
+            ${{ runner.temp }}/SV400-cross158-AB-*/native-encounter-build.json
+          retention-days: 30
+          if-no-files-found: warn
 
       - uses: actions/upload-artifact@v4
         if: always()
