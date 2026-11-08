@@ -15,6 +15,8 @@ on:
       - 'scripts/Compare-SV400-Point5046-AreaFilter-AB.py'
       - 'tests/test_sv_point5046_area_filter_ab.py'
       - 'tests/test_sv_176194_source_level_ab.py'
+      - 'tests/test_sv_176194_native_ab_compare.py'
+      - 'scripts/AB-SV-Terarium-176-194-Source-Levels.py'
       - 'scripts/Verify-SV-Fixed-158-Collision-Sources.py'
       - 'tests/test_sv_fixed_collision_source_proof.py'
       - '.github/workflows/sv-native-point-trace.yml'
@@ -34,6 +36,8 @@ on:
       - 'scripts/Compare-SV400-Point5046-AreaFilter-AB.py'
       - 'tests/test_sv_point5046_area_filter_ab.py'
       - 'tests/test_sv_176194_source_level_ab.py'
+      - 'tests/test_sv_176194_native_ab_compare.py'
+      - 'scripts/AB-SV-Terarium-176-194-Source-Levels.py'
       - 'scripts/Verify-SV-Fixed-158-Collision-Sources.py'
       - 'tests/test_sv_fixed_collision_source_proof.py'
       - '.github/workflows/sv-native-point-trace.yml'
@@ -64,6 +68,7 @@ jobs:
             scripts/AB-SV-Terarium-176-194-Source-Levels.py
             tests/test_sv_point5046_area_filter_ab.py
             tests/test_sv_176194_source_level_ab.py
+            tests/test_sv_176194_native_ab_compare.py
             tests/test_sv_kitakami_cross158_source_ab.py
             tests/test_sv_native_point_trace_join.py
             tests/test_sv_158_crossover_geometry_merge.py
@@ -88,6 +93,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Original CrossFrom 158 isolated A/B safety tests failed' }
           python -m unittest discover -s tests -p test_sv_176194_source_level_ab.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Terarium original PointData min/max level formula tests failed' }
+          python -m unittest discover -s tests -p test_sv_176194_native_ab_compare.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Terarium native match-retention regression tests failed' }
           python -m unittest discover -s tests -p test_sv_point5046_area_filter_ab.py -v
           if ($LASTEXITCODE -ne 0) { throw 'PointData 5046 source-area probe tests failed' }
           python -m unittest discover -s tests -p test_sv_fixed_collision_source_proof.py -v
@@ -301,7 +308,8 @@ jobs:
           python scripts/Compare-SV-Terarium-176-194-Native-AB.py --baseline "$env:SV_POINT_GENERATED" --manifest "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" --tolerance "$p/SV-400-AB-30f" --auditor scripts/Audit-SV-PKHeX-Encounters.py --variant "terarium-176-194-unadjusted-only=$p/SV400-native-AB-terarium-176-194-unadjusted-only" --variant "terarium-176-194-adjusted-only=$p/SV400-native-AB-terarium-176-194-adjusted-only" --variant "terarium-176-194-strict-overlap=$p/SV400-native-AB-terarium-176-194-strict-overlap" --variant "terarium-176-194-raw-point-levels=$p/SV400-native-AB-terarium-176-194-raw-point-levels" --variant "terarium-176-194-raw-point-min-only=$p/SV400-native-AB-terarium-176-194-raw-point-min-only" --variant "terarium-176-194-raw-point-max-only=$p/SV400-native-AB-terarium-176-194-raw-point-max-only" --output "$p/SV400-native-AB-comparison"
           if ($LASTEXITCODE -ne 0) { throw 'Real original Terarium level AB changed unauthorized source or output fields' }
           $result=Get-Content "$p/SV400-native-AB-comparison/SV400_Terarium_176_194_Native_AB_vs_PKHeX_Reference.json" -Raw | ConvertFrom-Json
-          $result.reference_parity_comparison | Format-Table -AutoSize | Out-String | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          $result.reference_parity_comparison | Format-Table mode,matched_occurrences,baseline_reference_matches_retained,baseline_reference_matches_lost,new_reference_matches_recovered,match_delta,native_only,reference_only -AutoSize | Out-String | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          $result.reference_match_retention_by_location | Format-Table mode,location_id,cross_from_id,baseline_reference_matches_retained,baseline_reference_matches_lost,new_reference_matches_recovered,match_delta -AutoSize | Out-String | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
 
       - name: Generate and compare one-point PointData 5046 source-area filter A/B
         shell: pwsh
