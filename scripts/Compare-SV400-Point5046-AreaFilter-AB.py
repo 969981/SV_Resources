@@ -59,7 +59,7 @@ def read_build(root:Path, original:dict, expected_area_mode:str)->dict:
 def key(row): return tuple(int(row[k]) for k in SLOTS)
 def scopes(k):
     return {
-        "location158_or_cross_from158": k[0]==158 or k[1]==158,
+        "location158_or_cross_from158": k[1]==158 or (k[0]==158 and k[1]==0),
         "cross_from158": k[1]==158,
         "local_location158": k[0]==158 and k[1]==0,
     }
