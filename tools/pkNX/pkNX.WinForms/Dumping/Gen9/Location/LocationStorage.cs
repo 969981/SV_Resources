@@ -321,7 +321,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             });
         }
 
-        EncounterTraceSV.Write(new
+        var probe = new
         {
             stage = "wild_point5046_area_filter_probe",
             location,
@@ -343,7 +343,9 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             pointSourceCandidateAccepted = sourceCandidateAccepted,
             activeMode = EncounterAreaFilterABSV.Mode,
             filterTokens = checks
-        });
+        };
+        EncounterAreaFilterABSV.RecordProbe(probe);
+        EncounterTraceSV.Write(probe);
     }
 
     private static bool IsAbleToSpawnAt(EncountPokeData pd, LocationPointDetail ep, string areaName, PaldeaSceneModel scene, PaldeaFieldIndex fieldIndex)
