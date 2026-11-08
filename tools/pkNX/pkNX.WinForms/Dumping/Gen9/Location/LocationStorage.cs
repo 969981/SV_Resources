@@ -230,11 +230,12 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             for (int criteriaIndex=0;criteriaIndex<pokeData.Table.Count;criteriaIndex++)
             {
                 var pd = pokeData.Table[criteriaIndex];
-                int nationalSpecies = SpeciesConverterSV.GetNational9((ushort)pd.DevId);
+                bool isPoint5046 = EncounterAreaFilterABSV.IsPoint5046Source(fieldIndex, Location, spawner);
+                int nationalSpecies = isPoint5046 ? SpeciesConverterSV.GetNational9((ushort)pd.DevId) : -1;
                 bool usePointSourceArea = EncounterAreaFilterABSV.UsePointSourceArea(fieldIndex, Location, spawner);
                 string filterAreaName = usePointSourceArea ? spawner.SourceCollisionArea : AreaName;
 
-                if (EncounterAreaFilterABSV.IsPoint5046ProbeTarget(
+                if (isPoint5046 && EncounterAreaFilterABSV.IsPoint5046ProbeTarget(
                     fieldIndex, Location, spawner, criteriaIndex, nationalSpecies))
                 {
                     bool storageFilterMatch = IsMatchAreaFilter(pd.LocationName, AreaName, scene, fieldIndex, spawner.Point);
