@@ -192,11 +192,15 @@ public static class FixedSymbolDumper9
                             locationIDs.Add(46); // North Province (Area One)
                         locationIDs.Sort();
 
-                        WriteFixedSymbol(serialized, entry, locationIDs);
+                        var originalNativeCount = serialized.Count;
+                        var nativeFixed20 = WriteFixedSymbol(serialized, entry, locationIDs);
                         if (traceFixed)
                             EncounterTraceSV.Write(new {
                                 stage="fixed_serialized", game, fieldIndex=fieldIndex.ToString(),
                                 tableKey, tableIndex=i, species=tracedSpecies, form=entry.Symbol.FormId,
+                                originalFixed20Hex=Convert.ToHexString(nativeFixed20),
+                                originalFixed20WasNew=serialized.Count > originalNativeCount,
+                                originalFixed20SourceInsertIndex=serialized.FindIndex(z => z.SequenceEqual(nativeFixed20)),
                                 originalLevel=entry.Symbol.Level, level=entry.Symbol.Level,
                                 adjust, actionId=entry.PokeAI.ActionId.ToString(),
                                 fixedSymbolTableSha256=fixedTableSha256, placementTrscn, placementTrscnSha,
@@ -208,11 +212,15 @@ public static class FixedSymbolDumper9
                             });
                         if (adjust != 0)
                         {
-                            WriteFixedSymbol(serialized, entry, locationIDs, adjust);
+                            var adjustedNativeCount = serialized.Count;
+                            var nativeAdjustedFixed20 = WriteFixedSymbol(serialized, entry, locationIDs, adjust);
                             if (traceFixed)
                                 EncounterTraceSV.Write(new {
                                     stage="fixed_serialized_adjusted", game, fieldIndex=fieldIndex.ToString(),
                                     tableKey, tableIndex=i, species=tracedSpecies, form=entry.Symbol.FormId,
+                                    originalFixed20Hex=Convert.ToHexString(nativeAdjustedFixed20),
+                                    originalFixed20WasNew=serialized.Count > adjustedNativeCount,
+                                    originalFixed20SourceInsertIndex=serialized.FindIndex(z => z.SequenceEqual(nativeAdjustedFixed20)),
                                     originalLevel=entry.Symbol.Level, level=entry.Symbol.Level+adjust, adjust,
                                     actionId=entry.PokeAI.ActionId.ToString(),
                                     fixedSymbolTableSha256=fixedTableSha256, placementTrscn, placementTrscnSha,
@@ -321,7 +329,7 @@ public static class FixedSymbolDumper9
         return false;
     }
 
-    private static void WriteFixedSymbol(ICollection<byte[]> exist, FixedSymbolTable entry, IReadOnlyList<int> locs, int adjustLevel = 0)
+    private static byte[] WriteFixedSymbol(ICollection<byte[]> exist, FixedSymbolTable entry, IReadOnlyList<int> locs, int adjustLevel = 0)
     {
         var enc = entry.Symbol;
         using var ms = new MemoryStream();
@@ -370,5 +378,8 @@ public static class FixedSymbolDumper9
         var result = ms.ToArray();
         if (!exist.Any(x => x.SequenceEqual(result)))
             exist.Add(result);
+        // Return exact serialized bytes to optional read-only source tracing.
+        // This does not change duplicate suppression or emitted fixed .pkl bytes.
+        return result;
     }
 }
