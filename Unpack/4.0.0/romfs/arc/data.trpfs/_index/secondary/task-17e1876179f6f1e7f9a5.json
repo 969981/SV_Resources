@@ -1,0 +1,103 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/env/fel/fel_su1_su01center",
+  "kind": "all",
+  "completed_utc": "2026-11-08T05:28:12.603395+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 2,
+  "selection_sha256": "6ea768348a3d528b519906311dee1b016bbbe1d446c9d87df1aede0c3cee0d79",
+  "index": {
+    "available": 2,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 2,
+    "formats": {
+      "BY_EXTENSION:trlgt": 1,
+      "BNTX": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 1,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 1
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "env/fel/fel_su1_su01center",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "problems": [
+    {
+      "source": "env/fel/fel_su1_su01center/irradiancevolume.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/env/fel/fel_su1_su01center/_inspection/9349df3e7013f7d5.jsonl",
+    "source_files": 2,
+    "inspection_records": 2,
+    "by_status": {
+      "INSPECTED_UNPARSED": 1,
+      "STRUCTURE_PARSED": 1
+    },
+    "manifest_sha256": "7A4A29090B61E72EC0C0ED5627DD1163D6016760006B480DE0D64ECCE272D12F"
+  },
+  "outputs": [
+    {
+      "path": "parsed/env/fel/fel_su1_su01center/_inspection/9349df3e7013f7d5.jsonl",
+      "bytes": 1190,
+      "sha256": "7A4A29090B61E72EC0C0ED5627DD1163D6016760006B480DE0D64ECCE272D12F"
+    },
+    {
+      "path": "parsed/env/fel/fel_su1_su01center/fel_su1_su01center.trlgt.flatbuffer.json",
+      "bytes": 5265,
+      "sha256": "AE161A140CE15DDCECB71F27A98EE402931AF7889F4669D1554F9191A2B63D60"
+    },
+    {
+      "path": "parsed/env/fel/fel_su1_su01center/irradiancevolume.bntx.json",
+      "bytes": 275,
+      "sha256": "2BBA755C165A64C7422067B77A4582A3D88F22CB8DD293582B5B4C3E216C1033"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
