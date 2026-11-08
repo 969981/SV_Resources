@@ -57,6 +57,7 @@ class Point5046AreaFilterABTests(unittest.TestCase):
         self.assertTrue(M.scopes((158,0,129,0,0,5,30,0,15))["location158_or_cross_from158"])
         self.assertTrue(M.scopes((144,158,129,0,0,5,30,0,15))["location158_or_cross_from158"])
         self.assertFalse(M.scopes((144,0,129,0,0,5,30,0,15))["location158_or_cross_from158"])
+        self.assertFalse(M.scopes((158,140,129,0,0,5,30,0,15))["location158_or_cross_from158"])
 
 if __name__=="__main__":
     unittest.main()
