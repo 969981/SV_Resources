@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using pkNX.Structures.FlatBuffers.SV;
 
 namespace pkNX.Structures.FlatBuffers;
@@ -14,7 +15,10 @@ public static class EncounterCrossoverABSV
     public const string WorldEndStrict = "kitakami-158-worldend-strict";
     public const string WorldEndExclude = "kitakami-158-worldend-exclude";
     public const string ExactSourceArea = "kitakami-158-exact-source-area";
+    public const string PreferSpecificOwner = "kitakami-158-prefer-specific-owner";
+    public const string StrictPreferSpecificOwner = "kitakami-158-strict-prefer-specific-owner";
     private const string WorldEnd = "subarea_su01worldend";
+    private static HashSet<(string Asset, int Index)>? SpecificOwnedPoints;
 
     public static string Mode { get; private set; } = Baseline;
     public static bool Enabled => Mode != Baseline;
@@ -23,10 +27,28 @@ public static class EncounterCrossoverABSV
     {
         if (Mode != Baseline)
             throw new InvalidOperationException("Original Kitakami crossover A/B has already been configured");
-        if (mode is not (Baseline or WorldEndStrict or WorldEndExclude or ExactSourceArea))
+        if (mode is not (Baseline or WorldEndStrict or WorldEndExclude or ExactSourceArea or PreferSpecificOwner or StrictPreferSpecificOwner))
             throw new ArgumentException("Invalid original source-gated Kitakami crossover A/B mode", nameof(mode));
         Mode = mode;
     }
+
+    public static bool UsesSpecificOwnerEvidence =>
+        Mode is PreferSpecificOwner or StrictPreferSpecificOwner;
+
+    /// <summary>
+    /// Called AFTER all original Kitakami colliders load their real point arrays.
+    /// The key is original PointData source file + ordinal, not rounded XYZ.
+    /// Only the opt-in A/B modes read this set.
+    /// </summary>
+    public static void SetSpecificOwnerIndex(HashSet<(string Asset, int Index)> identities)
+    {
+        if (!UsesSpecificOwnerEvidence || SpecificOwnedPoints is not null || identities.Count == 0)
+            throw new InvalidOperationException("Kitakami specific owner evidence unavailable or configured twice");
+        SpecificOwnedPoints = identities;
+    }
+
+    public static bool HasSpecificOwner(LocationPointDetail point) =>
+        SpecificOwnedPoints?.Contains((point.SourcePointAsset, point.SourcePointIndex)) ?? false;
 
     public static bool Accept(
         PaldeaFieldIndex fieldIndex, int sourceLocation,
@@ -41,6 +63,14 @@ public static class EncounterCrossoverABSV
         bool worldEnd = owner == WorldEnd;
         switch (Mode)
         {
+            case PreferSpecificOwner or StrictPreferSpecificOwner when worldEnd:
+                if (SpecificOwnedPoints is null)
+                    throw new InvalidOperationException("Original PointData owner index missing; cannot run isolated A/B");
+                if (HasSpecificOwner(sourcePoint))
+                    return false;
+                if (Mode == StrictPreferSpecificOwner)
+                    return targetCollider.ContainsPoint(sourcePoint.X, sourcePoint.Y, sourcePoint.Z);
+                return EncounterDumperSV.IsContainedBy(targetCollider, sourcePoint.Point.Position);
             case WorldEndStrict when worldEnd:
                 return targetCollider.ContainsPoint(sourcePoint.X, sourcePoint.Y, sourcePoint.Z);
             case WorldEndExclude when worldEnd:

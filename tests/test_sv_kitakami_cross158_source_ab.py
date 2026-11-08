@@ -32,6 +32,32 @@ class TestOriginal158AB(unittest.TestCase):
         result=ab.tally(Counter({a:2,b:1}),Counter({a:1,c:1}))
         self.assertEqual(result,{"native":3,"reference":2,"matched":1,"native_only":2,"pkhex_only":1})
 
+    def test_matching_template_swap_is_not_hidden_by_net_delta(self):
+        from collections import Counter
+        a=(144,158,25,0,0,15,20,0,15)
+        b=(144,158,25,0,0,21,24,0,15)
+        reference=Counter({a:1,b:1})
+        baseline=Counter({a:1})
+        variant=Counter({b:1})
+        self.assertEqual(ab.tally(baseline,reference)["matched"],
+                         ab.tally(variant,reference)["matched"])
+        retention=ab.match_retention(baseline,variant,reference)
+        self.assertEqual(retention["baseline_reference_matches_lost"],1)
+        self.assertEqual(retention["new_reference_matches_recovered"],1)
+        self.assertEqual(retention["baseline_reference_matches_retained"],0)
+
+    def test_multiset_retention_counts_one_occurrence_not_all(self):
+        from collections import Counter
+        a=(140,158,163,0,0,13,16,0,1)
+        b=(140,158,163,0,0,19,25,0,1)
+        reference=Counter({a:2,b:2})
+        baseline=Counter({a:2,b:1})
+        variant=Counter({a:1,b:2})
+        d=ab.match_retention(baseline,variant,reference)
+        self.assertEqual(d["baseline_reference_matches_retained"],2)
+        self.assertEqual(d["baseline_reference_matches_lost"],1)
+        self.assertEqual(d["new_reference_matches_recovered"],1)
+
     def test_gen9_strict_csv_schema(self):
         p=self.root/"native_only.csv"
         with p.open("w",newline="",encoding="utf-8") as f:

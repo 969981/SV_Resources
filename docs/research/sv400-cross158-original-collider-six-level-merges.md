@@ -109,3 +109,29 @@ A read-only second pass over the exact same 8,453,058,195-byte native \`point-ev
 | 314 Illumise | 112 | 1–99 | 7–60 | 7–60 |
 
 This explains the origin of the over-broad 129 5–99 and 313/314 7–60 intervals **without** alleging \`Absorb\` invented their raw values. The earliest candidate broadness is tied to original ROM PointData source ownership and criteria. A separate A/B removing/reassigning this point needs independent original in-game area activation proof, so no production rule changes are made here.
+
+
+## 2026-11-08 real original 3-way WorldEnd A/B completed (Actions #42459275290)
+
+[Actions #42459275290](https://github.com/969981/SV_Resources/actions/runs/42459275290) **SUCCESS**. Each variant reconstructed all five Gen9 native PKHeX resources from the same SHA-confirmed 61+223 ROM inputs, compared to the independently pinned PKHeX 30f multiset. All non-CrossFrom=158 wild slots and all fixed + three regular raid files stayed unchanged.
+
+| Mode | CrossFrom=158 matched | Native-only | Reference-only | Net matched |
+|---|---:|---:|---:|---:|
+| Baseline native | 808 | 2,337 | 161 | — |
+| WorldEnd strict target geometry | 842 | 1,834 | 127 | +34 |
+| All WorldEnd crossover excluded | 708 | 4 | 261 | −100 |
+| Only original source collider name equals lookup name | 684 | 9 | 285 | −124 |
+
+**Critical distinction:** the prior comparison reported **net** reference matches. It did NOT compute how many of the baseline 808 matching *identical serialized templates* disappeared while different reference templates were recovered. Therefore the fact that strict geometry improved net matches by 34 does **not** itself prove none of the 808 templates were lost.
+
+### New source-provenance-only experiments (A/B evidence pending)
+
+A 2026-11-08 direct read-only provenance audit independently confirmed original \`encount_data_su1.bin\` PointData indexes for \`WorldEnd → CrossFrom=158\`. For target location 144: 1,901 distinct WorldEnd indices, of which 1,740 are also observed in a non-WorldEnd original collision area; target 166: 875 distinct WorldEnd indices, 94 have a non-WorldEnd owner. These are source point indexes, not unique encounter templates or definitive game rules.
+
+Two **additional opt-in** counterfactual modes prefer specific original source ownership, identified by exact source asset + original ordinal (not coordinates/PKHeX values):
+- \`kitakami-158-prefer-specific-owner\`: if a WorldEnd point is also owned by any other original Kitakami collision area, skip that WorldEnd **crossover** instance only. WorldEnd-only points and other sources retain existing 30f.
+- \`kitakami-158-strict-prefer-specific-owner\`: same duplicate owner suppression, and strictly 0f geometry for remaining WorldEnd-only crossover instances.
+
+Both variants are isolated to Kitakami \`CrossFrom=158\`. Base default, all other wild, fixed, raids, original data bytes and source files remain untouched. **Other ownership is evidence of spatial overlap, not proof WorldEnd should be suppressed.** The experiment must fail closed when the specific-owner identity index cannot be constructed.
+
+The new \`Compare-SV400-Source158-Original-AB.py\` also reports \`baseline_reference_matches_retained\`, \`baseline_reference_matches_lost\` and \`new_reference_matches_recovered\` using occurrence-aware multiset intersection. This prevents net-gain metrics from hiding correct templates that were deleted and replaced by unrelated reference matches. The genuine original 5-way A/B output must be collected from the next Actions replay before conclusions are drawn.

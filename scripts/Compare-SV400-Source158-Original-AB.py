@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare three original-source SV400 Kitakami CrossFrom=158 A/B variants.
+"""Compare five original-source SV400 Kitakami CrossFrom=158 A/B variants.
 
 Original 61 M2 + 223 TRCOL must be SHA-verified by the native CLI.
 The PKHeX reference is reconstructed ONLY AFTER native generation using the
@@ -17,7 +17,9 @@ from pathlib import Path
 SLOTS = ("location_id", "cross_from_id", "species_national", "form_raw",
          "gender_raw", "level_min", "level_max", "time_forbidden_mask", "weather_allowed_mask")
 MODES = ("kitakami-158-worldend-strict", "kitakami-158-worldend-exclude",
-         "kitakami-158-exact-source-area")
+         "kitakami-158-exact-source-area",
+         "kitakami-158-prefer-specific-owner",
+         "kitakami-158-strict-prefer-specific-owner")
 NAMES = (
     "encounter_wild_paldea.pkl", "encounter_fixed_paldea.pkl",
     "encounter_gem_paldea.pkl", "encounter_gem_kitakami.pkl",
@@ -90,6 +92,24 @@ def tally(native, reference):
     }
 
 
+def match_retention(baseline, variant, reference):
+    """Multiset-safe original matching slot survival, NOT just net reference gain.
+
+    A variant can lose an already-matching slot and gain a different matching
+    slot; its net match delta would hide that regression. Count both explicitly.
+    """
+    baseline_match = baseline & reference
+    variant_match = variant & reference
+    retained = baseline_match & variant_match
+    lost = baseline_match - retained
+    recovered = variant_match - retained
+    return {
+        "baseline_reference_matches_retained": sum(retained.values()),
+        "baseline_reference_matches_lost": sum(lost.values()),
+        "new_reference_matches_recovered": sum(recovered.values()),
+    }
+
+
 def focus(key):
     return key[1] == 158
 
@@ -138,7 +158,11 @@ def compare(baseline_dir, manifest, diff_root, variants, decoder_path, output_di
             raise ValueError("Isolated Kitakami 158 mode modified non-CrossFrom=158 wild slots: " + mode)
         vfocal = Counter({k:count for k,count in v.items() if focus(k)})
         result = tally(vfocal, focus_ref)
+        retention = match_retention(base_focal, vfocal, focus_ref)
+        if (retention["new_reference_matches_recovered"] - retention["baseline_reference_matches_lost"] != result["matched"]-base_total["matched"]):
+            raise ValueError("A/B matched template gain/loss cannot be reconciled")
         comparisons.append({
+            **retention,
             "mode":mode,
             "baseline_native_cross158":base_total["native"],
             "native_cross158":result["native"],
@@ -160,7 +184,9 @@ def compare(baseline_dir, manifest, diff_root, variants, decoder_path, output_di
             after = Counter({k:c for k,c in vfocal.items() if k[0] == loc})
             ref = Counter({k:c for k,c in focus_ref.items() if k[0] == loc})
             a, b = tally(before, ref), tally(after, ref)
+            loc_retention = match_retention(before, after, ref)
             per_location.append({
+                **loc_retention,
                 "mode":mode,"location_id":loc,
                 "baseline_matched":a["matched"],"variant_matched":b["matched"],
                 "reference_match_gain_or_loss":b["matched"]-a["matched"],
@@ -203,7 +229,7 @@ def main():
     a=p.parse_args()
     modes = dict(v.split("=",1) for v in a.variant)
     if set(modes) != set(MODES) or len(modes) != len(a.variant):
-        raise ValueError("Expected exactly three recognized source-gated A/B experiments")
+        raise ValueError("Expected exactly five recognized source-gated A/B experiments")
     result=compare(a.baseline,a.manifest,a.tolerance,modes,a.auditor,a.output)
     print(json.dumps({"status":result["status"],"comparisons":result["comparisons"]},ensure_ascii=False))
 
