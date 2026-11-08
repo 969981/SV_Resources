@@ -36,9 +36,9 @@ def rows(path:Path):
 def identity(row):
     return tuple(str(row[k]) for k in KEY)
 
-def recompute(ev:dict,raw:bool)->tuple[int,int]:
-    lo=ev["rawPointMin"] if raw else ev["clippedPointMin"]
-    hi=ev["rawPointMax"] if raw else ev["clippedPointMax"]
+def recompute(ev:dict,raw_min:bool=False,raw_max:bool=False)->tuple[int,int]:
+    lo=ev["rawPointMin"] if raw_min else ev["clippedPointMin"]
+    hi=ev["rawPointMax"] if raw_max else ev["clippedPointMax"]
     shift=int(ev["appliedBoost"])
     low=int(max(lo,ev["criteriaMinLevel"])+shift)
     high=int(min(hi,ev["criteriaMaxLevel"])+shift)
@@ -102,16 +102,22 @@ def evaluate(linked:Path,validation:Path,remaining:Path,review:Path,out:Path)->d
         focus=target["location_id"] in ("176","194")
         category="TARGET_176_194" if focus else "OTHER_DLC_CONTROL"
         different=0
+        raw_min_different=0
+        raw_max_different=0
         boost_count=0
         baseline_mismatch=0
         outside=0
         clipping_bounds=Counter()
         criteria_ranges=Counter()
         for ev in candidate:
-            low,high=recompute(ev,raw=False)
-            raw_low,raw_high=recompute(ev,raw=True)
+            low,high=recompute(ev)
+            min_low,min_high=recompute(ev,raw_min=True)
+            max_low,max_high=recompute(ev,raw_max=True)
+            raw_low,raw_high=recompute(ev,raw_min=True,raw_max=True)
             if (low,high)!=(int(ev["minLevel"]),int(ev["maxLevel"])):
                 baseline_mismatch+=1
+            raw_min_different += (low,high)!=(min_low,min_high)
+            raw_max_different += (low,high)!=(max_low,max_high)
             if (low,high)!=(raw_low,raw_high):
                 different+=1
             boost_count+=int(ev["appliedBoost"])!=0
@@ -127,7 +133,11 @@ def evaluate(linked:Path,validation:Path,remaining:Path,review:Path,out:Path)->d
             raise ValueError("Original source proof lacks PointData candidates")
         stats[category]["cases"]+=1
         stats[category]["candidate_criteria_samples"]+=len(candidate)
+        stats[category]["raw_point_min_range_changes"]+=raw_min_different
+        stats[category]["raw_point_max_range_changes"]+=raw_max_different
         stats[category]["raw_point_range_changes"]+=different
+        stats[category]["cases_with_raw_point_min_range_changes"]+=raw_min_different>0
+        stats[category]["cases_with_raw_point_max_range_changes"]+=raw_max_different>0
         stats[category]["cases_with_raw_point_range_changes"]+=different>0
         stats[category]["nonzero_applied_boost_samples"]+=boost_count
         stats[category]["cases_with_nonzero_boost_samples"]+=boost_count>0
@@ -143,7 +153,10 @@ def evaluate(linked:Path,validation:Path,remaining:Path,review:Path,out:Path)->d
             "reference_min":target["pkhex_level_min"],"reference_max":target["pkhex_level_max"],
             "baseline_clipped_recomputed_exact":baseline_mismatch==0,
             "criteria_sample_count":len(candidate),"criteria_sample_limit":80,
-            "nonzero_boost_candidates":boost_count,"raw_point_range_changed_candidates":different,
+            "nonzero_boost_candidates":boost_count,
+            "raw_point_min_changed_candidates":raw_min_different,
+            "raw_point_max_changed_candidates":raw_max_different,
+            "raw_point_range_changed_candidates":different,
             "raw_point_range_changes_this_case":bool(different),
             "source_area_bounds_sample_json":json.dumps(
                 [{"min":a,"max":b,"samples":n} for (a,b),n in clipping_bounds.most_common(15)],
@@ -184,7 +197,9 @@ def evaluate(linked:Path,validation:Path,remaining:Path,review:Path,out:Path)->d
         "by_location":{key:dict(v) for key,v in sorted(locus_stats.items())},
         "a_b_policy":[
             {"variant":"A_CLIPPED","description":"Existing pkNX Math.Max(point.min,area.min), Math.Min(point.max,area.max) then criteria intersection"},
-            {"variant":"B_RAW_POINT","description":"Counterfactual no AreaInfo bound clipping, same candidate criteria and boost"},
+            {"variant":"B_RAW_POINT_MIN_ONLY","description":"Retain raw PointData minimum while keeping the original AreaInfo maximum clip"},
+            {"variant":"B_RAW_POINT_MAX_ONLY","description":"Retain raw PointData maximum while keeping the original AreaInfo minimum clip"},
+            {"variant":"B_RAW_POINT_BOTH","description":"Counterfactual no AreaInfo bound clipping, same candidate criteria and boost"},
             {"variant":"NEGATIVE_ADJUST_CONTROL","description":"No nonzero AdjustEncLv found in retained 176/194 criteria samples"},
         ],
         "limits":[
