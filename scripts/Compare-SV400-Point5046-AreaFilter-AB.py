@@ -91,9 +91,15 @@ def validate_probe_report(probe_path:Path)->dict:
         raise ValueError("PointData 5046 probe identity mismatch")
     if probe.get("probeCount")!=7 or {x.get("criteriaIndex") for x in probes}!=expected:
         raise ValueError("PointData 5046 probe criteria set incomplete")
+    expected_species={40:129,41:129,74:194,110:313,111:313,112:314,113:314}
     for x in probes:
         if (x.get("pointSource")!=probe["sourcePointAsset"] or x.get("pointIndex")!=5046
             or x.get("location")!=158 or x.get("pointSourceCollisionArea")!="subarea_su01worldend"
+            or x.get("storageAreaName")!="a_su0108"
+            or x.get("species")!=expected_species.get(x.get("criteriaIndex"))
+            or abs(float(x.get("pointX",0))-1710.6964)>0.001
+            or abs(float(x.get("pointY",0))-133.5)>0.001
+            or abs(float(x.get("pointZ",0))-(-996.7115))>0.001
             or not isinstance(x.get("storageCandidateAccepted"),bool)
             or not isinstance(x.get("pointSourceCandidateAccepted"),bool)
             or not x.get("filterTokens")):
