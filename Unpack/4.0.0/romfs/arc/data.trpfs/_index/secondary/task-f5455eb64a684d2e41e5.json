@@ -1,0 +1,114 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/env/fel/fel_loc_snowymountain_01",
+  "kind": "all",
+  "completed_utc": "2026-11-08T05:16:23.331918+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 3,
+  "selection_sha256": "04d971995104e9cc63ef47f5b52c89e6288aac513879b42d00c971639faef9c2",
+  "index": {
+    "available": 3,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 3,
+    "formats": {
+      "BY_EXTENSION:trlgt": 1,
+      "BNTX": 2
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 2
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "env/fel/fel_loc_snowymountain_01",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "problems": [
+    {
+      "source": "env/fel/fel_loc_snowymountain_01/probemain_diffuse.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "PNG dimensions 64x384 != BNTX 64x64"
+    },
+    {
+      "source": "env/fel/fel_loc_snowymountain_01/probemain_specular.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "PNG dimensions 64x384 != BNTX 64x64"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/env/fel/fel_loc_snowymountain_01/_inspection/a2366da74b2995c1.jsonl",
+    "source_files": 3,
+    "inspection_records": 3,
+    "by_status": {
+      "INSPECTED_UNPARSED": 2,
+      "STRUCTURE_PARSED": 1
+    },
+    "manifest_sha256": "9FC57E17ABD35BEC54B1DB7EC6F35D32ADFFFBA5AC82A2F3E2091CCD24916602"
+  },
+  "outputs": [
+    {
+      "path": "parsed/env/fel/fel_loc_snowymountain_01/_inspection/a2366da74b2995c1.jsonl",
+      "bytes": 1762,
+      "sha256": "9FC57E17ABD35BEC54B1DB7EC6F35D32ADFFFBA5AC82A2F3E2091CCD24916602"
+    },
+    {
+      "path": "parsed/env/fel/fel_loc_snowymountain_01/fel_loc_snowymountain_01.trlgt.flatbuffer.json",
+      "bytes": 4949,
+      "sha256": "9F507B3136942CF5DD1C785773E55CAD91E99529B43E89147900F2973EDE9CC1"
+    },
+    {
+      "path": "parsed/env/fel/fel_loc_snowymountain_01/probemain_diffuse.bntx.json",
+      "bytes": 285,
+      "sha256": "5314531B9B75ECE9EB82389E8D9D8179FD98C5014DE10CFD0627097A206B1B00"
+    },
+    {
+      "path": "parsed/env/fel/fel_loc_snowymountain_01/probemain_specular.bntx.json",
+      "bytes": 286,
+      "sha256": "5F9C16AFC6A53353CD0112A1C64AA6C810B11E6F2A2BD3A907228048CEA248A4"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
