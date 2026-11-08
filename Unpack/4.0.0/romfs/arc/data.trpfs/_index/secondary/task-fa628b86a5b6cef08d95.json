@@ -1,0 +1,114 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/env/fel/fel_a_w11",
+  "kind": "all",
+  "completed_utc": "2026-11-08T05:12:18.531269+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 3,
+  "selection_sha256": "7f939dbf5f5831a4736861ec45f1e6a99463e70b8b02d91f74fb742d2603dd2f",
+  "index": {
+    "available": 3,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 3,
+    "formats": {
+      "BY_EXTENSION:trlgt": 1,
+      "BNTX": 2
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 2
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "env/fel/fel_a_w11",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "problems": [
+    {
+      "source": "env/fel/fel_a_w11/probemain_diffuse.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "PNG dimensions 1x6 != BNTX 1x1"
+    },
+    {
+      "source": "env/fel/fel_a_w11/probemain_specular.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "PNG dimensions 1x6 != BNTX 1x1"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/env/fel/fel_a_w11/_inspection/fd8f4ac7813d0aca.jsonl",
+    "source_files": 3,
+    "inspection_records": 3,
+    "by_status": {
+      "INSPECTED_UNPARSED": 2,
+      "STRUCTURE_PARSED": 1
+    },
+    "manifest_sha256": "974A53735256B821F44C8924DBC72ACA0B0EC5C4978ECFB060C12C843ADED6AE"
+  },
+  "outputs": [
+    {
+      "path": "parsed/env/fel/fel_a_w11/_inspection/fd8f4ac7813d0aca.jsonl",
+      "bytes": 1670,
+      "sha256": "974A53735256B821F44C8924DBC72ACA0B0EC5C4978ECFB060C12C843ADED6AE"
+    },
+    {
+      "path": "parsed/env/fel/fel_a_w11/fel_a_w11.trlgt.flatbuffer.json",
+      "bytes": 3339,
+      "sha256": "70E16650AC1DB168CA550183DEA5E9CE1159B25EE8549C86604A6D14EC67BD1F"
+    },
+    {
+      "path": "parsed/env/fel/fel_a_w11/probemain_diffuse.bntx.json",
+      "bytes": 267,
+      "sha256": "D06D8079EE35CDE48250E2C126A61E3A8D09A65875BB3CC533B373040F014EF4"
+    },
+    {
+      "path": "parsed/env/fel/fel_a_w11/probemain_specular.bntx.json",
+      "bytes": 268,
+      "sha256": "BB99DC1904B6DACF2FF6090B0E7568ED738632A6F237A25F85B8A29E8939B438"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}

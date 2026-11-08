@@ -1,0 +1,114 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/env/fel/fel_a_w23_i01_1",
+  "kind": "all",
+  "completed_utc": "2026-11-08T05:12:20.112781+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 3,
+  "selection_sha256": "fd622f506f7b79ee033f1654b341cd1c5cdf7d46ed8ffb2579cb7f786a964c24",
+  "index": {
+    "available": 3,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 3,
+    "formats": {
+      "BY_EXTENSION:trlgt": 1,
+      "BNTX": 2
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 2
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "env/fel/fel_a_w23_i01_1",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "problems": [
+    {
+      "source": "env/fel/fel_a_w23_i01_1/probemain_diffuse.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "PNG dimensions 64x384 != BNTX 64x64"
+    },
+    {
+      "source": "env/fel/fel_a_w23_i01_1/probemain_specular.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "PNG dimensions 64x384 != BNTX 64x64"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/env/fel/fel_a_w23_i01_1/_inspection/943d5a6301a2f35f.jsonl",
+    "source_files": 3,
+    "inspection_records": 3,
+    "by_status": {
+      "INSPECTED_UNPARSED": 2,
+      "STRUCTURE_PARSED": 1
+    },
+    "manifest_sha256": "B3211BCD4D116A775167E00DAE46BD1CFA71C7F22A964ADE8B5CF8A9E60B6928"
+  },
+  "outputs": [
+    {
+      "path": "parsed/env/fel/fel_a_w23_i01_1/_inspection/943d5a6301a2f35f.jsonl",
+      "bytes": 1708,
+      "sha256": "B3211BCD4D116A775167E00DAE46BD1CFA71C7F22A964ADE8B5CF8A9E60B6928"
+    },
+    {
+      "path": "parsed/env/fel/fel_a_w23_i01_1/fel_a_w23_i01_1.trlgt.flatbuffer.json",
+      "bytes": 2163,
+      "sha256": "6D80459BF3FD51F97B41374871E28B7E6DFF59658DF6F60A56DD784E4968157F"
+    },
+    {
+      "path": "parsed/env/fel/fel_a_w23_i01_1/probemain_diffuse.bntx.json",
+      "bytes": 276,
+      "sha256": "3938E3D2EA98B3F0A76FD60808DDDE8AE03D741E5E392400E55178CF37BFE260"
+    },
+    {
+      "path": "parsed/env/fel/fel_a_w23_i01_1/probemain_specular.bntx.json",
+      "bytes": 277,
+      "sha256": "CBB74ECD63371CF6F4F678FD39BE28FF358EE83A0D4E2BBE2E788658ACFDDD64"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
