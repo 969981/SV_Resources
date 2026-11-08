@@ -39,7 +39,8 @@ public static class EncounterAreaFilterABSV
         fieldIndex == PaldeaFieldIndex.Kitakami &&
         location == 158 &&
         point.SourcePointAsset == EncounterCrossoverABSV.KitakamiPointAsset &&
-        point.SourcePointIndex == 5046;
+        point.SourcePointIndex == 5046 &&
+        point.SourceCollisionArea == EncounterCrossoverABSV.WorldEnd;
 
     public static void RecordProbe(object result) => ProbeResults.Add(result);
 
@@ -70,7 +71,8 @@ public static class EncounterAreaFilterABSV
         if (!EncounterTraceSV.Enabled ||
             fieldIndex != PaldeaFieldIndex.Kitakami || location != 158 ||
             point.SourcePointAsset != EncounterCrossoverABSV.KitakamiPointAsset ||
-            point.SourcePointIndex != 5046)
+            point.SourcePointIndex != 5046 ||
+            point.SourceCollisionArea != EncounterCrossoverABSV.WorldEnd)
             return false;
 
         bool target = (nationalSpecies, criteriaIndex) switch
