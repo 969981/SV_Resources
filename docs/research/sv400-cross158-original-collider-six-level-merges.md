@@ -135,3 +135,42 @@ Two **additional opt-in** counterfactual modes prefer specific original source o
 Both variants are isolated to Kitakami \`CrossFrom=158\`. Base default, all other wild, fixed, raids, original data bytes and source files remain untouched. **Other ownership is evidence of spatial overlap, not proof WorldEnd should be suppressed.** The experiment must fail closed when the specific-owner identity index cannot be constructed.
 
 The new \`Compare-SV400-Source158-Original-AB.py\` also reports \`baseline_reference_matches_retained\`, \`baseline_reference_matches_lost\` and \`new_reference_matches_recovered\` using occurrence-aware multiset intersection. This prevents net-gain metrics from hiding correct templates that were deleted and replaced by unrelated reference matches. The genuine original 5-way A/B output must be collected from the next Actions replay before conclusions are drawn.
+
+
+## 2026-11-08 five-way original ROM replay #42463405441: decisive retention result
+
+[Actions #42463405441](https://github.com/969981/SV_Resources/actions/runs/42463405441) completed successfully. Five independent native \`.pkl\` builds used the same verified 61 original encounter M2 + 223 original TRCOL sources. All non-\`CrossFrom=158\` wild multiset entries and fixed/three ordinary raid output SHAs remained unchanged.
+
+The corrected occurrence-aware multiset audit reports:
+
+| Experiment | Original 808 matches retained | Original matches lost | New matches recovered | Final matches |
+|---|---:|---:|---:|---:|
+| WorldEnd strict target collider (0f) | **808** | **0** | **34** | **842** |
+| Exclude WorldEnd | 643 | 165 | 65 | 708 |
+| Exact source collision area name | 619 | 189 | 65 | 684 |
+| Prefer specific owner (first implementation) | 643 | 165 | 65 | 708 |
+| Strict + prefer specific owner (first implementation) | 643 | 165 | 65 | 708 |
+
+The strict WorldEnd geometry counterfactual is the first tested mode that improves reference parity **without losing any one of the 808 baseline matching serialized templates**. It also removes 503 native-only templates, net gains 34, and reduces the 161 reference-only records to 127. It remains a counterfactual: a PKHeX reference match is not a runtime proof of an encounter and the 2,337 baseline native-only records are not all necessarily invalid.
+
+Per-location strict mode gains: Location 140 +19; 156 +5; 158 +6; 160 +2; 168 +2. It retains all existing matches at locations 132, 140, 156, 158, 160, 162 and 164. It reduces native-only entries at 144 from 308 to 203 and at 166 from 308 to 297, but neither location has reference-matching templates in this pinned differential.
+
+### Found a defect in the first specific-owner A/B implementation
+
+The five-way replay exposed that both specific-owner modes had exactly the same wild PKL SHA as blanket WorldEnd exclusion. The code constructed its owner identity set from:
+
+\`db.Locations.Values.SelectMany(storage => storage.Local)\`
+
+That is **all Kitakami source locations**, not the single source \`LocationStorage\` for PKHeX location 158. It therefore marked a WorldEnd point as specifically owned merely because the same original PointData file+ordinal appeared in any other location's local list. The first specific-owner A/B was invalid and its results must not be interpreted as location-158 ownership evidence.
+
+### Corrected source-location-scoped owner index (next A/B)
+
+The follow-up implementation now:
+1. Requires \`db.Locations[158]\` to exist.
+2. Reads only \`db.Locations[158].Local\`.
+3. Builds two exact identity sets from the same storage and same original source file: \`WorldEnd\` points and non-WorldEnd specific-area points.
+4. Suppresses only the intersection (same original source asset + PointData ordinal present under both ownerships in location 158). WorldEnd-only point identities remain eligible.
+5. Records local point records, distinct WorldEnd owners, distinct specific owners, their overlap and WorldEnd-only count in \`native-encounter-build.json\`.
+6. Makes the comparison fail closed unless the manifest explicitly proves a non-empty, partitioned Location 158 index. A global index or an all-WorldEnd-overlap/blanket-exclude index is rejected.
+
+This corrects the experiment's scope; it does not assume the overlap should be suppressed in the final encounter database. The next real-ROM Actions run must compare both corrected owner variants against the strict 0f mode and baseline, again reporting original-match retention/loss/recovery separately. Default pkNX output remains unchanged.
