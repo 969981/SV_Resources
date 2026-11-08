@@ -93,6 +93,22 @@ public static class EncounterSlotDumper9
             storage.GetEncounters(pd, scene);
         }
 
+        // Counterfactual experiment ONLY: take an immutable source-owned PointData
+        // ordinal index AFTER the real Kitakami areas have all been loaded.
+        // A WorldEnd point can also be owned by a more specific ORIGINAL collider.
+        // Other maps, default pkNX output and non-158 crossover remain unchanged.
+        if (fieldIndex == PaldeaFieldIndex.Kitakami && EncounterCrossoverABSV.UsesSpecificOwnerEvidence)
+        {
+            const string source = "world/data/encount/point_data/point_data/encount_data_su1.bin";
+            var owners = db.Locations.Values
+                .SelectMany(storage => storage.Local)
+                .Where(point => point.SourcePointAsset == source && point.SourcePointIndex >= 0 &&
+                                point.SourceCollisionArea != "subarea_su01worldend")
+                .Select(point => (point.SourcePointAsset, point.SourcePointIndex))
+                .ToHashSet();
+            EncounterCrossoverABSV.SetSpecificOwnerIndex(owners);
+        }
+
         // Add in the locations that each point can be activated, that are not the current area.
         // Player crossing into the target area; can spawn encounters with weather foreign to the target area.
         foreach (var areaName in areaNames)
