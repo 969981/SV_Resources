@@ -63,6 +63,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             location=Location, crossFrom,
             originLocation=point.Location, areaName=AreaName,
             sourcePointAsset=point.SourcePointAsset, sourcePointIndex=point.SourcePointIndex,
+            sourceCollisionArea=point.SourceCollisionArea,
             pointX=point.X, pointY=point.Y, pointZ=point.Z,
             species=slot.Species, form=slot.Form, gender=slot.Sex,
             minLevel=slot.MinLevel, maxLevel=slot.MaxLevel,
@@ -107,14 +108,14 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         while (len != Slots.Count)
         {
             len = Slots.Count;
-            ConsolidateEncounters(Slots, strict);
+            ConsolidateEncounters(Slots, strict, Location);
         }
         foreach (var loc in SlotsCrossover.Values)
             loc.Consolidate(strict);
         TraceConsolidation("wild_after_consolidate");
     }
 
-    private static void ConsolidateEncounters(List<PaldeaEncounter> encounters, bool strict)
+    private static void ConsolidateEncounters(List<PaldeaEncounter> encounters, bool strict, int storageLocation)
     {
         // Merge and remove future indexes if they can be combined with current
         // Pre-sort so we can just iterate.
@@ -127,7 +128,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             int count = GetPotentialConsolidationCount(encounters, i, enc);
 
             // Remove all indexes that have Absorb return true with a later element
-            while (TryAbsorbFromRange(encounters, i, count, strict))
+            while (TryAbsorbFromRange(encounters, i, count, strict, storageLocation))
                 count--;
             i += count;
         }
@@ -145,7 +146,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         return count;
     }
 
-    private static bool TryAbsorbFromRange(List<PaldeaEncounter> encounters, int start, int count, bool strict)
+    private static bool TryAbsorbFromRange(List<PaldeaEncounter> encounters, int start, int count, bool strict, int storageLocation)
     {
         // Need to compare all elements with each-other; return true if any absorb.
         var end = start + count - 1;
@@ -153,8 +154,26 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         {
             for (int j = i + 1; j <= end; j++)
             {
-                if (!encounters[i].Absorb(encounters[j], strict))
+                var left = encounters[i];
+                var right = encounters[j];
+                byte leftMin = left.MinLevel, leftMax = left.MaxLevel;
+                if (!left.Absorb(right, strict))
                     continue;
+                // The nested crossover storage uses the source location as
+                // Location and the target as PaldeaEncounter.CrossFromLocation.
+                int target = left.CrossFromLocation == 0 ? storageLocation : left.CrossFromLocation;
+                int source = left.CrossFromLocation == 0 ? 0 : storageLocation;
+                if (EncounterTraceSV.FocusWildMerge(target, source, left.Species))
+                    EncounterTraceSV.Write(new {
+                        stage="wild_six_group_absorb", location=target, crossFrom=source,
+                        species=left.Species, form=left.Form, gender=left.Sex,
+                        timeMask=left.Time, weatherMask=(byte)left.Weather,
+                        leftMin, leftMax, rightMin=right.MinLevel, rightMax=right.MaxLevel,
+                        resultMin=left.MinLevel, resultMax=left.MaxLevel, strict,
+                        actualOverlap=leftMax >= right.MinLevel && right.MaxLevel >= leftMin,
+                        identicalBefore=leftMin==right.MinLevel && leftMax==right.MaxLevel,
+                        claim="ORIGINAL_MERGE_STEP_NOT_RUNTIME_LEGALITY"
+                    });
                 encounters.RemoveAt(j);
                 return true;
             }
@@ -165,7 +184,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
     /// <summary>
     /// Loads all points that are within the collider and within the specified level range.
     /// </summary>
-    public void LoadPoints(IEnumerable<LocationPointDetail> points, IContainsV3f collider, int areaMin, int areaMax, int areaAdjust)
+    public void LoadPoints(IEnumerable<LocationPointDetail> points, IContainsV3f collider, int areaMin, int areaMax, int areaAdjust, string sourceCollisionArea = "")
     {
         foreach (var w in points)
         {
@@ -174,14 +193,14 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             if (collider.ContainsPoint(w.X, w.Y, w.Z))
             {
                 var composite = GetCompositePoint(w, areaMin, areaMax, areaAdjust, Location,
-                    EncounterLevelABSV.UseRawPointRange(fieldIndex, Location));
+                    EncounterLevelABSV.UseRawPointRange(fieldIndex, Location), sourceCollisionArea);
                 Local.Add(composite); // native
             }
             // Don't check here for cross-area, as our areaMin/areaMax is not valid for that crossover case.
         }
     }
 
-    private static LocationPointDetail GetCompositePoint(LocationPointDetail original, int areaMin, int areaMax, int adjust, int location, bool useRawPointRange)
+    private static LocationPointDetail GetCompositePoint(LocationPointDetail original, int areaMin, int areaMax, int adjust, int location, bool useRawPointRange, string sourceCollisionArea)
     {
         var ep = original.Point;
         var newX = useRawPointRange ? ep.LevelRange.X : Math.Max(ep.LevelRange.X, areaMin);
@@ -192,6 +211,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             Location = location, LevelAdjust = adjust,
             SourcePointIndex = original.SourcePointIndex,
             SourcePointAsset = original.SourcePointAsset,
+            SourceCollisionArea = sourceCollisionArea,
             RawPointMinLevel = original.RawPointMinLevel,
             RawPointMaxLevel = original.RawPointMaxLevel,
             ClippingAreaMin = areaMin, ClippingAreaMax = areaMax
@@ -252,6 +272,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             stage="wild_raw_candidate", fieldIndex=fieldIndex.ToString(),
             areaName=AreaName, location=Location,
             pointSource=spawner.SourcePointAsset, pointIndex=spawner.SourcePointIndex,
+            sourceCollisionArea=spawner.SourceCollisionArea,
             pointX=spawner.X, pointY=spawner.Y, pointZ=spawner.Z,
             rawPointMin=spawner.RawPointMinLevel, rawPointMax=spawner.RawPointMaxLevel,
             clippedPointMin=spawner.Point.LevelRange.X, clippedPointMax=spawner.Point.LevelRange.Y,
