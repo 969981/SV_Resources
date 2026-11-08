@@ -44,10 +44,11 @@ class TestOriginal158AB(unittest.TestCase):
             ab.parse_diff(p)
 
     def test_guard_reference_must_be_verifiably_source_backed(self):
-        src=self.root/"bad-bridge.json"
+        src=self.root/"inputs"/"bad-bridge.json"
+        src.parent.mkdir()
         src.write_text(json.dumps({"status":"UNVERIFIED_FIXTURE"}),encoding="utf-8")
         with self.assertRaisesRegex(ValueError,"bridge manifest drift"):
-            ab.compare(self.root,src,self.root,{},self.root/"none.py",self.root/"out")
+            ab.compare(self.root/"native",src,self.root/"diff",{},self.root/"none.py",self.root/"out")
 
     def test_no_overwrite_provenance(self):
         src=self.root/"bad-bridge.json"
