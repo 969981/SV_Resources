@@ -243,7 +243,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
                     bool sourceCandidateAccepted = IsAbleToSpawnAt(pd, spawner, spawner.SourceCollisionArea, scene, fieldIndex);
                     TracePoint5046AreaFilter(spawner, pd, criteriaIndex, nationalSpecies,
                         storageFilterMatch, sourceFilterMatch, storageCandidateAccepted, sourceCandidateAccepted,
-                        scene, fieldIndex);
+                        scene, fieldIndex, AreaName);
                 }
 
                 if (!IsAbleToSpawnAt(pd, spawner, filterAreaName, scene, fieldIndex))
@@ -307,7 +307,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         LocationPointDetail point, EncountPokeData pd, int criteriaIndex, int nationalSpecies,
         bool storageFilterMatch, bool sourceFilterMatch,
         bool storageCandidateAccepted, bool sourceCandidateAccepted,
-        PaldeaSceneModel scene, PaldeaFieldIndex fieldIndex)
+        PaldeaSceneModel scene, PaldeaFieldIndex fieldIndex, string storageAreaName)
     {
         var checks = new List<object>();
         foreach (var name in pd.LocationName.Split(','))
@@ -315,7 +315,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             checks.Add(new
             {
                 name,
-                equalsStorageAreaName = name == AreaName,
+                equalsStorageAreaName = name == storageAreaName,
                 equalsPointSourceArea = name == point.SourceCollisionArea,
                 pointInsideFilterCollider = scene.IsPointContained(fieldIndex, name, point.X, point.Y, point.Z)
             });
@@ -330,7 +330,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             pointX = point.X,
             pointY = point.Y,
             pointZ = point.Z,
-            storageAreaName = AreaName,
+            storageAreaName,
             pointSourceCollisionArea = point.SourceCollisionArea,
             species = nationalSpecies,
             criteriaIndex,
