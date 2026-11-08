@@ -42,10 +42,10 @@ public static class EncounterLevelABSV
         IsTarget(fieldIndex, location) && Mode == StrictOverlap;
 
     public static bool UseRawPointMin(PaldeaFieldIndex fieldIndex, int location) =>
-        IsTarget(fieldIndex, location) && Mode is RawPointRange or RawPointMinOnly;
+        IsTarget(fieldIndex, location) && (Mode == RawPointRange || Mode == RawPointMinOnly);
 
     public static bool UseRawPointMax(PaldeaFieldIndex fieldIndex, int location) =>
-        IsTarget(fieldIndex, location) && Mode is RawPointRange or RawPointMaxOnly;
+        IsTarget(fieldIndex, location) && (Mode == RawPointRange || Mode == RawPointMaxOnly);
 
     public static bool UseRawPointRange(PaldeaFieldIndex fieldIndex, int location) =>
         UseRawPointMin(fieldIndex, location) && UseRawPointMax(fieldIndex, location);
