@@ -1,0 +1,114 @@
+{
+  "version": "4.0.0",
+  "source": "virtual/env/spl/spl_01",
+  "kind": "all",
+  "completed_utc": "2026-11-08T05:45:59.637667+00:00",
+  "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
+  "source_files_seen": 3,
+  "selection_sha256": "e8a0e128b330a351614dd790287a596e265df534e208455e4bf13fcca3b1f3d9",
+  "index": {
+    "available": 3,
+    "native_sha_matches": 0,
+    "hash_mismatch": 0,
+    "local_only": 3,
+    "formats": {
+      "BNTX": 2,
+      "BY_EXTENSION:trlgt": 1
+    }
+  },
+  "stages": {
+    "messages": {
+      "kind": "messages",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "labels": {
+      "kind": "labels",
+      "processed": 0,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "bntx": {
+      "kind": "bntx",
+      "processed": 2,
+      "ok": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "failed": 2
+    },
+    "models": {
+      "counts": {
+        "seen": 0,
+        "parsed": 0,
+        "converted": 0,
+        "promoted": 0,
+        "blocked": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "pipeline_version": "r4.1",
+      "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+      "prefix": "env/spl/spl_01",
+      "cursor": null,
+      "issues": []
+    }
+  },
+  "problems": [
+    {
+      "source": "env/spl/spl_01/probemain_diffuse.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "PNG dimensions 64x384 != BNTX 64x64"
+    },
+    {
+      "source": "env/spl/spl_01/probemain_specular.bntx",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "PNG dimensions 64x384 != BNTX 64x64"
+    }
+  ],
+  "inspection": {
+    "schema_version": 1,
+    "manifest": "parsed/env/spl/spl_01/_inspection/2898519811b32c33.jsonl",
+    "source_files": 3,
+    "inspection_records": 3,
+    "by_status": {
+      "INSPECTED_UNPARSED": 2,
+      "STRUCTURE_PARSED": 1
+    },
+    "manifest_sha256": "539EDB10049B57628CA3E2834E1E963CD55E91571B8DCE14C1680978E4C9E18C"
+  },
+  "outputs": [
+    {
+      "path": "parsed/env/spl/spl_01/_inspection/2898519811b32c33.jsonl",
+      "bytes": 1655,
+      "sha256": "539EDB10049B57628CA3E2834E1E963CD55E91571B8DCE14C1680978E4C9E18C"
+    },
+    {
+      "path": "parsed/env/spl/spl_01/probemain_diffuse.bntx.json",
+      "bytes": 267,
+      "sha256": "2CC955538BA5ECD1A285ED46898CFEA3052FD1FEBAE04D77E80A0D02190B5AAF"
+    },
+    {
+      "path": "parsed/env/spl/spl_01/probemain_specular.bntx.json",
+      "bytes": 268,
+      "sha256": "CCFED814F799955181EA255DE753B0E403BE88113E53C9897CA45A9F3C6A7F2F"
+    },
+    {
+      "path": "parsed/env/spl/spl_01/spl_01.trlgt.flatbuffer.json",
+      "bytes": 17519,
+      "sha256": "CE1C3E067706F2C35C8DFF2B7E02448D9617BF2B589B4A366081E4899D85FEF9"
+    }
+  ],
+  "deferred_outputs": [],
+  "not_proven": [
+    "gameplay species/item/etc identifiers",
+    "undecoded proprietary formats",
+    "visual fidelity of unreviewed models"
+  ]
+}
