@@ -17,8 +17,28 @@ public static class EncounterCrossoverABSV
     public const string ExactSourceArea = "kitakami-158-exact-source-area";
     public const string PreferSpecificOwner = "kitakami-158-prefer-specific-owner";
     public const string StrictPreferSpecificOwner = "kitakami-158-strict-prefer-specific-owner";
-    private const string WorldEnd = "subarea_su01worldend";
+    public const string WorldEnd = "subarea_su01worldend";
+    public const string KitakamiPointAsset = "world/data/encount/point_data/point_data/encount_data_su1.bin";
     private static HashSet<(string Asset, int Index)>? SpecificOwnedPoints;
+
+    public static int SpecificOwnerSourceLocation { get; private set; }
+    public static int SpecificOwnerLocalPointRecords { get; private set; }
+    public static int SpecificOwnerWorldEndDistinctPoints { get; private set; }
+    public static int SpecificOwnerSpecificDistinctPoints { get; private set; }
+    public static int SpecificOwnerOverlapDistinctPoints { get; private set; }
+    public static int SpecificOwnerWorldEndOnlyDistinctPoints { get; private set; }
+
+    public static object? SpecificOwnerEvidence => UsesSpecificOwnerEvidence ? new
+    {
+        sourceLocation = SpecificOwnerSourceLocation,
+        sourcePointAsset = KitakamiPointAsset,
+        localPointRecords = SpecificOwnerLocalPointRecords,
+        worldEndDistinctPoints = SpecificOwnerWorldEndDistinctPoints,
+        specificOwnerDistinctPoints = SpecificOwnerSpecificDistinctPoints,
+        overlapDistinctPoints = SpecificOwnerOverlapDistinctPoints,
+        worldEndOnlyDistinctPoints = SpecificOwnerWorldEndOnlyDistinctPoints,
+        identity = "ORIGINAL_POINT_ASSET_PLUS_ARRAY_ORDINAL_SCOPED_TO_LOCATION_158"
+    } : null;
 
     public static string Mode { get; private set; } = Baseline;
     public static bool Enabled => Mode != Baseline;
@@ -40,11 +60,28 @@ public static class EncounterCrossoverABSV
     /// The key is original PointData source file + ordinal, not rounded XYZ.
     /// Only the opt-in A/B modes read this set.
     /// </summary>
-    public static void SetSpecificOwnerIndex(HashSet<(string Asset, int Index)> identities)
+    public static void SetSpecificOwnerIndex(
+        int sourceLocation, int localPointRecords,
+        HashSet<(string Asset, int Index)> worldEndPoints,
+        HashSet<(string Asset, int Index)> specificOwnerPoints)
     {
-        if (!UsesSpecificOwnerEvidence || SpecificOwnedPoints is not null || identities.Count == 0)
+        if (!UsesSpecificOwnerEvidence || SpecificOwnedPoints is not null)
             throw new InvalidOperationException("Kitakami specific owner evidence unavailable or configured twice");
-        SpecificOwnedPoints = identities;
+        if (sourceLocation != 158 || localPointRecords <= 0 ||
+            worldEndPoints.Count == 0 || specificOwnerPoints.Count == 0)
+            throw new InvalidOperationException("Original PointData ownership evidence is empty or outside CrossFrom=158");
+
+        // Only points that are both WorldEnd-owned and specifically owned
+        // inside the SAME PKHeX source location 158 are suppressible.
+        SpecificOwnedPoints = worldEndPoints.Intersect(specificOwnerPoints).ToHashSet();
+        SpecificOwnerSourceLocation = sourceLocation;
+        SpecificOwnerLocalPointRecords = localPointRecords;
+        SpecificOwnerWorldEndDistinctPoints = worldEndPoints.Count;
+        SpecificOwnerSpecificDistinctPoints = specificOwnerPoints.Count;
+        SpecificOwnerOverlapDistinctPoints = SpecificOwnedPoints.Count;
+        SpecificOwnerWorldEndOnlyDistinctPoints = worldEndPoints.Except(specificOwnerPoints).Count();
+        if (SpecificOwnerOverlapDistinctPoints + SpecificOwnerWorldEndOnlyDistinctPoints != SpecificOwnerWorldEndDistinctPoints)
+            throw new InvalidOperationException("Original PointData owner partition does not reconcile");
     }
 
     public static bool HasSpecificOwner(LocationPointDetail point) =>
