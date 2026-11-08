@@ -195,7 +195,7 @@ def compare(baseline:Path,manifest:Path,tolerance:Path,variant_dirs:dict[str,Pat
     with (output/"SV400_Terarium_176_194_AB_By_Location.csv").open(
             "w",newline="",encoding="utf-8-sig") as f:
         fields=list(per_location[0])
-        writer=csv.DictWriter(f,fieldnames=fields,lineterminator="\\n")
+        writer=csv.DictWriter(f,fieldnames=fields,lineterminator="\n")
         writer.writeheader()
         writer.writerows(per_location)
     with (output/"SV400_Terarium_176_194_AB_True_Native_Changes.csv").open(
