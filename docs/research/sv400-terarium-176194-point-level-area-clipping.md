@@ -49,7 +49,14 @@ The research branch adds two additional modes, without changing the baseline:
 - \`terarium-176-194-raw-point-min-only\`: keep original PointData minimum, but retain the existing AreaInfo maximum clip.
 - \`terarium-176-194-raw-point-max-only\`: retain the AreaInfo minimum clip, but keep original PointData maximum.
 
-Together with the already-tested \`terarium-176-194-raw-point-levels\`, these isolate the lower and upper bound contributions. The source-formula sample script and unit tests now report/test min-only, max-only and both-bound results separately. The next full original ROM Actions replay compares all six A/B modes against the same pinned reference and still rejects any change outside the target rows or to fixed/raid tables.
+Together with the already-tested \`terarium-176-194-raw-point-levels\`, these isolate the lower and upper bound contributions. The independent 6,003-candidate source-formula sample was rerun successfully in [Actions #42500056001](https://github.com/969981/SV_Resources/actions/runs/42500056001). It found:
+- raw minimum only changes **2,611 / 6,003** samples across **61 / 78** cases;
+- raw maximum only changes **616 / 6,003** samples across **13 / 78** cases;
+- both bounds together change **3,227 / 6,003** samples across **74 / 78** cases.
+
+The two single-bound counts overlap and must not be added. This sample suggests the lower-bound clip is the larger source of candidate-level differences. The non-focus DLC control also changes under raw bounds (634 minimum-only, 162 maximum-only, 796 both across 2,402 samples), so no global rule should be inferred from the Terarium result. The sample keeps at most 80 source criteria per case and is not a full encounter rebuild.
+
+The source-formula sample script and unit tests now report/test min-only, max-only and both-bound results separately. The next full original ROM Actions replay compares all six A/B modes against the same pinned reference and still rejects any change outside the target rows or to fixed/raid tables.
 
 ## Interpretation guardrails
 
