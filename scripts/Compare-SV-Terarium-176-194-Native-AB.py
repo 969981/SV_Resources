@@ -32,6 +32,8 @@ MODES=(
  "terarium-176-194-adjusted-only",
  "terarium-176-194-strict-overlap",
  "terarium-176-194-raw-point-levels",
+ "terarium-176-194-raw-point-min-only",
+ "terarium-176-194-raw-point-max-only",
 )
 STATUS="ACTUAL_ORIGINAL_SV400_ISOLATED_NATIVE_WILD_LEVEL_AB_REFERENCE_DIAGNOSTICS"
 
@@ -190,7 +192,7 @@ def main():
     for field in ("baseline","manifest","tolerance","auditor","output"):
         p.add_argument("--"+field,type=Path,required=True)
     p.add_argument("--variant",action="append",required=True,
-                   help="mode=path for all four actual source-generated variants")
+                   help="mode=path for all six actual source-generated variants")
     a=p.parse_args()
     variants={}
     for spec in a.variant:
@@ -199,7 +201,7 @@ def main():
             raise ValueError("Duplicate/bad native A/B mode=path")
         variants[mode]=Path(path)
     if set(variants)!=set(MODES):
-        raise ValueError("Exactly the four original-data native level A/B modes required")
+        raise ValueError("Exactly the six original-data native level A/B modes required")
     compare(a.baseline,a.manifest,a.tolerance,variants,a.auditor,a.output)
 
 if __name__=="__main__":
