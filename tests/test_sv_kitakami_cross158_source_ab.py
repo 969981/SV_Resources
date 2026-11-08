@@ -58,6 +58,44 @@ class TestOriginal158AB(unittest.TestCase):
         self.assertEqual(d["baseline_reference_matches_lost"],1)
         self.assertEqual(d["new_reference_matches_recovered"],1)
 
+    def test_specific_owner_evidence_must_be_scoped_to_location_158(self):
+        valid={
+            "specificOwnerEvidence":{
+                "sourceLocation":158,
+                "sourcePointAsset":"world/data/encount/point_data/point_data/encount_data_su1.bin",
+                "identity":"ORIGINAL_POINT_ASSET_PLUS_ARRAY_ORDINAL_SCOPED_TO_LOCATION_158",
+                "localPointRecords":3000,
+                "worldEndDistinctPoints":1901,
+                "specificOwnerDistinctPoints":2800,
+                "overlapDistinctPoints":1740,
+                "worldEndOnlyDistinctPoints":161,
+            }
+        }
+        evidence=ab.validate_specific_owner_evidence(valid,"kitakami-158-prefer-specific-owner")
+        self.assertEqual(evidence["sourceLocation"],158)
+        self.assertIsNone(ab.validate_specific_owner_evidence({}, "kitakami-158-worldend-strict"))
+
+    def test_specific_owner_evidence_rejects_global_or_blanket_index(self):
+        valid={
+            "sourceLocation":158,
+            "sourcePointAsset":"world/data/encount/point_data/point_data/encount_data_su1.bin",
+            "identity":"ORIGINAL_POINT_ASSET_PLUS_ARRAY_ORDINAL_SCOPED_TO_LOCATION_158",
+            "localPointRecords":3000,
+            "worldEndDistinctPoints":1901,
+            "specificOwnerDistinctPoints":2800,
+            "overlapDistinctPoints":1740,
+            "worldEndOnlyDistinctPoints":161,
+        }
+        for mutation in (
+            {"sourceLocation":144},
+            {"overlapDistinctPoints":1901,"worldEndOnlyDistinctPoints":0},
+            {"identity":"GLOBAL_ALL_KITAKAMI_LOCATIONS"},
+            {"worldEndDistinctPoints":0},
+        ):
+            doc={"specificOwnerEvidence":{**valid,**mutation}}
+            with self.assertRaisesRegex(ValueError,"not a non-empty, partitioned"):
+                ab.validate_specific_owner_evidence(doc,"kitakami-158-prefer-specific-owner")
+
     def test_gen9_strict_csv_schema(self):
         p=self.root/"native_only.csv"
         with p.open("w",newline="",encoding="utf-8") as f:

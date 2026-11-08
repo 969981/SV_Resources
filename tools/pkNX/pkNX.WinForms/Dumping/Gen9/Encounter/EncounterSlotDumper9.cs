@@ -93,20 +93,30 @@ public static class EncounterSlotDumper9
             storage.GetEncounters(pd, scene);
         }
 
-        // Counterfactual experiment ONLY: take an immutable source-owned PointData
-        // ordinal index AFTER the real Kitakami areas have all been loaded.
-        // A WorldEnd point can also be owned by a more specific ORIGINAL collider.
-        // Other maps, default pkNX output and non-158 crossover remain unchanged.
+        // Counterfactual experiment ONLY: build a source-owner index from the
+        // SAME PKHeX source LocationStorage (158), not every Kitakami location.
+        // LocationDatabase merges multiple TRSCN areas into one LocationStorage
+        // per PKHeX location ID; other locations are not owners of this source.
+        // Keys are original PointData file + ordinal, never rounded coordinates.
         if (fieldIndex == PaldeaFieldIndex.Kitakami && EncounterCrossoverABSV.UsesSpecificOwnerEvidence)
         {
-            const string source = "world/data/encount/point_data/point_data/encount_data_su1.bin";
-            var owners = db.Locations.Values
-                .SelectMany(storage => storage.Local)
-                .Where(point => point.SourcePointAsset == source && point.SourcePointIndex >= 0 &&
-                                point.SourceCollisionArea != "subarea_su01worldend")
+            if (!db.Locations.TryGetValue(158, out var source158))
+                throw new InvalidOperationException("Kitakami CrossFrom=158 source storage was not populated");
+
+            var sourcePoints = source158.Local
+                .Where(point => point.SourcePointAsset == EncounterCrossoverABSV.KitakamiPointAsset &&
+                                point.SourcePointIndex >= 0)
+                .ToArray();
+            var worldEndOwners = sourcePoints
+                .Where(point => point.SourceCollisionArea == EncounterCrossoverABSV.WorldEnd)
                 .Select(point => (point.SourcePointAsset, point.SourcePointIndex))
                 .ToHashSet();
-            EncounterCrossoverABSV.SetSpecificOwnerIndex(owners);
+            var specificOwners = sourcePoints
+                .Where(point => point.SourceCollisionArea != EncounterCrossoverABSV.WorldEnd)
+                .Select(point => (point.SourcePointAsset, point.SourcePointIndex))
+                .ToHashSet();
+            EncounterCrossoverABSV.SetSpecificOwnerIndex(
+                source158.Location, sourcePoints.Length, worldEndOwners, specificOwners);
         }
 
         // Add in the locations that each point can be activated, that are not the current area.

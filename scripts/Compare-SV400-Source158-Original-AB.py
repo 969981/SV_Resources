@@ -82,6 +82,38 @@ def read_build(directory, expected_mode, original):
     return doc
 
 
+def validate_specific_owner_evidence(doc, expected_mode):
+    """Reject a cross-location/global owner index masquerading as a 158-local one."""
+    if expected_mode not in ("kitakami-158-prefer-specific-owner",
+                             "kitakami-158-strict-prefer-specific-owner"):
+        return None
+    evidence = doc.get("specificOwnerEvidence")
+    if not isinstance(evidence, dict):
+        raise ValueError("Specific-owner A/B has no native source ownership manifest")
+    required = (
+        evidence.get("sourceLocation") == 158
+        and evidence.get("sourcePointAsset") ==
+            "world/data/encount/point_data/point_data/encount_data_su1.bin"
+        and evidence.get("identity") ==
+            "ORIGINAL_POINT_ASSET_PLUS_ARRAY_ORDINAL_SCOPED_TO_LOCATION_158"
+        and isinstance(evidence.get("localPointRecords"), int)
+        and evidence["localPointRecords"] > 0
+        and isinstance(evidence.get("worldEndDistinctPoints"), int)
+        and evidence["worldEndDistinctPoints"] > 0
+        and isinstance(evidence.get("specificOwnerDistinctPoints"), int)
+        and evidence["specificOwnerDistinctPoints"] > 0
+        and isinstance(evidence.get("overlapDistinctPoints"), int)
+        and isinstance(evidence.get("worldEndOnlyDistinctPoints"), int)
+        and evidence["overlapDistinctPoints"] > 0
+        and evidence["worldEndOnlyDistinctPoints"] > 0
+        and evidence["overlapDistinctPoints"] + evidence["worldEndOnlyDistinctPoints"]
+            == evidence["worldEndDistinctPoints"]
+    )
+    if not required:
+        raise ValueError("Specific-owner index is not a non-empty, partitioned LocationStorage=158 source index")
+    return evidence
+
+
 def tally(native, reference):
     return {
         "native":sum(native.values()),
@@ -150,7 +182,8 @@ def compare(baseline_dir, manifest, diff_root, variants, decoder_path, output_di
         root = Path(variants[mode]).resolve()
         if root == baseline_dir or output_dir == root or output_dir.is_relative_to(root):
             raise ValueError("A/B must use a separate output directory")
-        read_build(root, mode, source)
+        variant_build = read_build(root, mode, source)
+        owner_evidence = validate_specific_owner_evidence(variant_build, mode)
         v = Counter(tuple(row[k] for k in SLOTS)
                     for row in reader.read_wild((root/NAMES[0]).read_bytes()))
         nonfocal = Counter({k:count for k,count in v.items() if not focus(k)})
@@ -164,6 +197,7 @@ def compare(baseline_dir, manifest, diff_root, variants, decoder_path, output_di
         comparisons.append({
             **retention,
             "mode":mode,
+            "specific_owner_evidence":owner_evidence,
             "baseline_native_cross158":base_total["native"],
             "native_cross158":result["native"],
             "baseline_matched_cross158":base_total["matched"],

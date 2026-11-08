@@ -141,6 +141,7 @@ internal static class Program
                         : "Vendored pkNX EncounterSlotDumper9 and FixedSymbolDumper9, UNMODIFIED",
                 levelABMode = EncounterLevelABSV.Mode,
                 crossoverABMode = EncounterCrossoverABSV.Mode,
+                specificOwnerEvidence = EncounterCrossoverABSV.SpecificOwnerEvidence,
                 importantLimits = new[]
                 {
                     "PKHeX reference files were not used as generator inputs.",
