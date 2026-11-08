@@ -99,6 +99,15 @@ public static class EncounterTraceSV
     public static bool Fixed(int species) =>
         writer is not null && FixedTargets.Contains(species);
 
+    // Six ORIGINAL 30f source-vs-reference interval identities; these are
+    // stable forensic targets, not exceptions used by encounter generation.
+    public static bool FocusWildMerge(int location, int crossFrom, int species) =>
+        writer is not null && !fixedOnly &&
+        (location, crossFrom, species) is
+            (140, 158, 163) or (140, 158, 532) or
+            (158, 0, 129) or (158, 0, 313) or
+            (158, 0, 314) or (158, 0, 744);
+
     public static void Write(object data)
     {
         if (writer is null) return;
