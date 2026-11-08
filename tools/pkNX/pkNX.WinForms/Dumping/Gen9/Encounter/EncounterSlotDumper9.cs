@@ -101,6 +101,7 @@ public static class EncounterSlotDumper9
         {
             const string source = "world/data/encount/point_data/point_data/encount_data_su1.bin";
             var owners = db.Locations.Values
+                .Where(storage => storage.Location == 158)
                 .SelectMany(storage => storage.Local)
                 .Where(point => point.SourcePointAsset == source && point.SourcePointIndex >= 0 &&
                                 point.SourceCollisionArea != "subarea_su01worldend")
