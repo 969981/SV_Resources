@@ -90,7 +90,9 @@ def verify_build(directory:Path,expected_mode:str,original:dict)->dict:
         or report.get("collisionBlocker") is not None
         or report.get("originalTrcolEntries")!=223
         or report.get("unverifiedExtraFiles")
-        or report.get("levelABMode")!=expected_mode):
+        or report.get("levelABMode")!=expected_mode
+        or report.get("areaFilterABMode")!="baseline"
+        or report.get("crossoverABMode")!="baseline"):
         raise ValueError(f"Not independently SHA-verified original 4.0.0 generation for {expected_mode}")
     mapping={item["name"]:item for item in report["generated"]}
     for kind,name in BASE_SHAS.items():
