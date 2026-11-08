@@ -18,7 +18,7 @@ This note does **not** claim game-runtime encounter legality. No actual caught P
 | Strict overlap | 588 | 553 | 389 | 199 | 164 | 0 |
 | **Raw PointData levels** | **588** | **553** | **431** | **157** | **122** | **116** |
 
-The raw-level mode changed 92 serialized slot rows (46 removals + 46 additions, including multiplicity changes such as Minior's seven forms/slots) and produced **42 more exact reference matches**. Non-target wild rows remained byte/multiset identical; fixed encounters and all three ordinary Raid files retained their original SHA-256.
+The raw-level mode changed 92 serialized slot rows (46 removals + 46 additions, including multiplicity changes such as Minior's seven forms/slots). A second, occurrence-aware pass over the change CSV found that the apparent **+42 net** is actually **50 newly recovered matching occurrences minus 8 previously matching occurrences lost**. All eight losses are at target location 186 (Coastal Plaza), with `CrossFrom=176`, for species 88, 287, 335 (two occurrences), 336 (two occurrences), 546 and 547. The raw-point mode therefore does **not** preserve all baseline matches, even though its total match count rises from 389 to 431. Non-target wild rows remained byte/multiset identical; fixed encounters and all three ordinary Raid files retained their original SHA-256.
 
 The first three counterfactuals made no output difference. Therefore the 42-match gain is not caused by adjusted-vs-unadjusted generation or the strict-vs-adjacent consolidation switch.
 
