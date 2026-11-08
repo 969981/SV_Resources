@@ -22,6 +22,9 @@ public record LocationPointDetail(PointData Point)
     // unlike the order of consolidated PKHeX slots. Diagnostics only.
     public int SourcePointIndex { get; init; } = -1;
     public string SourcePointAsset { get; init; } = "";
+    // Exact original TRSCN collider area that accepted this point. Diagnostics only:
+    // many collision areas can share one PKHeX Location ID and one LocationStorage.
+    public string SourceCollisionArea { get; init; } = "";
     public float RawPointMinLevel { get; init; } = -1;
     public float RawPointMaxLevel { get; init; } = -1;
     public int ClippingAreaMin { get; init; } = -1;

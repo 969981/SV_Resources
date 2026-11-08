@@ -65,6 +65,9 @@ public static class EncounterSlotDumper9
         for (var i = areaNames.Count - 1; i >= 0; i--)
         {
             var areaName = areaNames[i];
+            // Preserve the exact TRSCN collider, even if location-name lookup remaps
+            // unnamed subareas into a parent PKHeX location.
+            var sourceCollisionArea = areaName;
 
             // Determine potential spawners
             if (!scene.TryGetContainsCheck(fieldIndex, areaName, out var collider))
@@ -86,7 +89,7 @@ public static class EncounterSlotDumper9
 
             var type = types[areaName];
             var points = map.GetPoints(fieldIndex, type);
-            storage.LoadPoints(points, collider, areaInfo.ActualMinLevel, areaInfo.ActualMaxLevel, areaInfo.AdjustEncLv);
+            storage.LoadPoints(points, collider, areaInfo.ActualMinLevel, areaInfo.ActualMaxLevel, areaInfo.AdjustEncLv, sourceCollisionArea);
             storage.GetEncounters(pd, scene);
         }
 
@@ -182,12 +185,54 @@ public static class EncounterSlotDumper9
                 var cross = db.Get(placeNameMap[otherNameMain].Index, fieldIndex, otherName, otherAreaInfo);
                 if (!IsCrossoverAllowed(cross))
                     continue;
+                // Trace ONLY the original 158 source region, and only when explicitly
+                // requested. The normal 30f crossover rule and output are unchanged.
+                // Multiple TRSCN areas can share cross.Local for the same location ID.
+                bool trace158 = EncounterTraceSV.Enabled &&
+                                fieldIndex is PaldeaFieldIndex.Kitakami &&
+                                cross.Location == 158;
+                int strictHits = 0, tolerantHits = 0;
+                Dictionary<string, int>? acceptedOrigins = trace158 ? new() : null;
+                List<object>? examples = trace158 ? new() : null;
                 foreach (var point in cross.Local)
                 {
                     // If the crossover point is close enough to the current area's collider, add it to the current area's list of crossover points.
-                    if (EncounterDumperSV.IsContainedBy(collider, point.Point.Position))
-                        storage.Nearby.Add(point);
+                    if (!EncounterDumperSV.IsContainedBy(collider, point.Point.Position))
+                        continue;
+                    if (trace158)
+                    {
+                        tolerantHits++;
+                        if (collider.ContainsPoint(point.X, point.Y, point.Z))
+                            strictHits++;
+                        var origin = point.SourceCollisionArea;
+                        acceptedOrigins![origin] = acceptedOrigins.GetValueOrDefault(origin) + 1;
+                        if (examples!.Count < 8)
+                            examples.Add(new {
+                                sourcePointAsset=point.SourcePointAsset,
+                                sourcePointIndex=point.SourcePointIndex,
+                                sourceCollisionArea=origin,
+                                pointX=point.X, pointY=point.Y, pointZ=point.Z,
+                                actualSourceCollider=scene.AreaCollisionOrigins[(int)fieldIndex].GetValueOrDefault(origin)
+                            });
+                    }
+                    storage.Nearby.Add(point);
                 }
+                if (trace158 && tolerantHits > 0)
+                    EncounterTraceSV.Write(new {
+                        stage="wild_cross158_area_pair", fieldIndex=fieldIndex.ToString(),
+                        targetLocation=storage.Location, sourceLocation=cross.Location,
+                        targetAreaName=areaName, sourceLookupAreaName=otherName,
+                        targetTag=areaInfo.Tag.ToString(), targetType=areaInfo.Type.ToString(),
+                        sourceLookupTag=otherAreaInfo.Tag.ToString(),
+                        sourceLookupType=otherAreaInfo.Type.ToString(),
+                        targetCollider=scene.AreaCollisionOrigins[(int)fieldIndex].GetValueOrDefault(areaName),
+                        sourceLookupCollider=scene.AreaCollisionOrigins[(int)fieldIndex].GetValueOrDefault(otherName),
+                        sourceLocalCount=cross.Local.Count,
+                        strictHits, tolerantHits, toleranceOnlyHits=tolerantHits-strictHits,
+                        acceptedSourceCollisionAreas=acceptedOrigins, sampleAcceptedPoints=examples,
+                        countScope="AREA_PAIR_PROBES_NOT_UNIQUE_POINTS_OR_PKL_SLOTS",
+                        tolerance="30f_XYZ_FOR_ORIGINAL_CROSSOVER_ZERO_FOR_STRICT_COUNTERFACTUAL"
+                    });
             }
         }
     }

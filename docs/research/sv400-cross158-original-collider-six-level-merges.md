@@ -1,0 +1,69 @@
+---
+title: SV 4.0.0｜CrossFrom=158 的原始碰撞区域、30f 容差与六组等级 Absorb 证据
+aliases: [SV400 Cross158 Original TRCOL Geometry, SV400 Six Interval Absorb Provenance]
+tags: [SV, 4.0.0, ROM, PointData, TRSCN, TRCOL, pkNX, PKHeX, Provenance]
+status: PREEXISTING_BRIDGE_SHA_VERIFIED_NEW_COLLIDER_MERGE_TRACE_PENDING_REAL_REPLAY
+updated: 2026-11-08
+---
+
+# 目标和证据等级
+
+**ROM 原生来源：**原始 SV 4.0.0 61 项遭遇资源和 223 个 TRCOL（共 276 个输入文件），SHA 来源由 [原生重建 CI #42447774923](https://github.com/969981/SV_Resources/actions/runs/42447774923) 验证。独立 PKHeX.Core 固定在 `0660d1e1f4924b8478daec73281bb8071a82ad19`。本文使用 `SV400_Native_Encounters_For_PKHeX.csv`（SHA-256 `A59709B5CF49B12AD147F022E29F8E7DC793299F1A568FAB2D779FC36DD80E34`），是 **原生生成结果与参考模板的差异**，不是模拟器运行时已捕获的 PK9 合法性。
+
+## CrossFrom=158 的 3,145 条原生记录
+
+按原始 bridge CSV `source_table=wild, cross_from_id=158` 逐行计数：原生独有 2,337，已匹配参考 808。特别是以下 158 跨区目标：
+
+| Location | Native-only | Matching | 解释边界 |
+|---:|---:|---:|---|
+| 164 | 388 | 50 | 大比例额外候选，尚无运行时拒绝证据 |
+| 144 | 308 | 0 | 在现有固定版本参考中无完全一致模板 |
+| 166 | 308 | 0 | 在现有固定版本参考中无完全一致模板 |
+| 156 | 236 | 31 | 两类并存，不可一键排除 |
+| 162 | 174 | 61 | 两类并存 |
+| 160 | 118 | 142 | 存在大量原生/参考一致交叉 |
+| 140 | 111 | 206 | 存在大量原生/参考一致交叉 |
+| 158 | 50 | 265 | 正常原生/参考一致交叉更多 |
+
+**严禁**将位置 158 的所有 `CrossFrom` 清零或删除。这会破坏至少 808 次已匹配记录。
+
+## 现有 pkNX 代码的关键问题（CANDIDATE，不是已确认 Bug）
+
+`EncounterSlotDumper9.ProcessAreas` 在不同 TRSCN collider 的 `LoadPoints` 阶段调用同一个 `LocationDatabase.Get(locationId)`。多个小区域因此可能累积到同一个 `LocationStorage.Local`。随后跨区传播遍历 *整个* `cross.Local`，以目标 collider 的 30f 容差测试允许加入 `Nearby`。该行为不一定与游戏真实活动区域、父区域或事件条件完全一致，但也不能只靠参考差异断言错误。
+
+旧事件仅有 `SourcePointAsset + SourcePointIndex`，没有每个点的**最初碰撞区域**，无法判断到底是哪个 TRSCN/TRCOL 使候选可达。
+
+**本轮新加只读追踪：**
+
+1. `LocationPointDetail.SourceCollisionArea`：加载原始点时记录真正的 collider 名（在无主地点名的区域被父区域重映射之前）。保留已验证 `SourcePointIndex` 和原始 PointData 文件。
+2. `wild_cross158_area_pair`：只在目标追踪启用、Kitakami 原始 sourceLocation=158 的情况下输出。按真实 `sourceCollisionArea` 分组，记录相同 source point 在 **strict(0f)** 与已有 **30f XYZ** 各自命中的次数、原始 TRSCN/TRCOL SHA、最多 8 个例子坐标、目标地点 ID。采样记录不是唯一合法模板，点可能在多组 area-pair 重复计数。
+3. `wild_six_group_absorb`：只对 6 个固定身份的每次成功 `Absorb` 发出合并前后 min/max、严格重叠/仅邻接标记和合并结果，**绝不影响** `Absorb` 返回值、排序、序列化或原生 `.pkl`。
+
+六组依然是 `(140,158,163)`、`(140,158,532)`、`(158,0,129)`、`(158,0,313)`、`(158,0,314)`、`(158,0,744)`。旧原生追踪里 (5–99)、(7–60) 等跨度在最终 `Consolidate` 之前已存在，因此应分别验证原始 `GetNew/GetBand`、点位集合及逐次 `Absorb`，不能预设只是最后一次合并的错误。
+
+## 可复现操作
+
+**无 ROM 的编译/单元测试：**
+
+```powershell
+dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release --nologo
+python -m unittest discover -s tests -p test_sv_158_crossover_geometry_merge.py -v
+```
+
+**真实 ROM 输入和事件证据：**运行 `.github/workflows/sv-native-point-trace.yml` 的 `original-native-replay`。该工作流在验证原始 83 个 TRPFS 分卷、61 个表源和 223 个 TRCOL 后，重新调用内置带诊断的 pkNX，再用固定参考 CSV 和 build manifest 进行 SHA 门控：
+
+```powershell
+python scripts/Audit-SV400-Cross158-Geometry-Merges.py `
+  --native-csv "$env:SV_NATIVE_BASELINE/SV400_Native_Encounters_For_PKHeX.csv" `
+  --bridge "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" `
+  --events "$env:SV_POINT_TRACE" `
+  --output "$env:RUNNER_TEMP/SV400-cross158-geometry"
+```
+
+输出 `SV400_Cross158_Original_AreaPair_30f_vs_Strict.csv`、`SV400_Cross158_Source_Collider_and_Merge_Manifest.json`、`SV400_Six_Original_Interval_Absorb_Witnesses.jsonl`。所有原始输入保持只读；诊断 I/O 错误 fail-closed；原有 `Join-SV-Native-Point-Trace.py` 仍强制 5 个输出 `.pkl` SHA 与未追踪基线一致。
+
+## 未完成
+
+- 必须读取新一轮 **真实 Actions** 工件后才可把 0f/30f 计数、特定 TRCOL、六组实际合并链标成 `CONFIRMED`。源码插桩与编译成功本身不是运行验证。
+- 若同一 Location ID 的多个原始碰撞区域共享点集导致远距离 `Nearby`，还需要隔离实验比较实际游戏天气、场景激活和出生点条件。
+- 只有运行时 PK9 + 真实 `PKHeX.Core.LegalityAnalysis` 等证据才能判定最终合法性；不要按匹配率做无来源硬编码。

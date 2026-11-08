@@ -6,7 +6,9 @@ on:
       - 'tools/pkNX/pkNX.WinForms/Dumping/Gen9/**'
       - 'tools/pkNX/pkNX.EncounterCLI/Program.cs'
       - 'scripts/Join-SV-Native-Point-Trace.py'
+      - 'scripts/Audit-SV400-Cross158-Geometry-Merges.py'
       - 'tests/test_sv_native_point_trace_join.py'
+      - 'tests/test_sv_158_crossover_geometry_merge.py'
       - 'scripts/Compare-SV-Terarium-176-194-Native-AB.py'
       - 'scripts/Verify-SV-Fixed-158-Collision-Sources.py'
       - 'tests/test_sv_fixed_collision_source_proof.py'
@@ -17,7 +19,9 @@ on:
       - 'tools/pkNX/pkNX.WinForms/Dumping/Gen9/**'
       - 'tools/pkNX/pkNX.EncounterCLI/Program.cs'
       - 'scripts/Join-SV-Native-Point-Trace.py'
+      - 'scripts/Audit-SV400-Cross158-Geometry-Merges.py'
       - 'tests/test_sv_native_point_trace_join.py'
+      - 'tests/test_sv_158_crossover_geometry_merge.py'
       - 'scripts/Compare-SV-Terarium-176-194-Native-AB.py'
       - 'scripts/Verify-SV-Fixed-158-Collision-Sources.py'
       - 'tests/test_sv_fixed_collision_source_proof.py'
@@ -43,7 +47,9 @@ jobs:
           sparse-checkout: |
             tools/pkNX/**
             scripts/Join-SV-Native-Point-Trace.py
+            scripts/Audit-SV400-Cross158-Geometry-Merges.py
             tests/test_sv_native_point_trace_join.py
+            tests/test_sv_158_crossover_geometry_merge.py
             tests/test_sv_fixed_collision_source_proof.py
             scripts/Verify-SV-Fixed-158-Collision-Sources.py
       - uses: actions/setup-dotnet@v4
@@ -59,6 +65,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'pkNX native trace instrumented headless parser could not compile' }
           python -m unittest discover -s tests -p test_sv_native_point_trace_join.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Native original point trace tests failed' }
+          python -m unittest discover -s tests -p test_sv_158_crossover_geometry_merge.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Original CrossFrom 158 collider trace regression tests failed' }
           python -m unittest discover -s tests -p test_sv_fixed_collision_source_proof.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Original collision source SHA tests failed' }
 
@@ -102,6 +110,7 @@ jobs:
             scripts/Compare-SV-Terarium-176-194-Native-AB.py
             scripts/Verify-SV-Fixed-158-Collision-Sources.py
             scripts/Join-SV-Native-Point-Trace.py
+            scripts/Audit-SV400-Cross158-Geometry-Merges.py
             scripts/Sweep-SV-Collision-Tolerance.py
             scripts/deps/oo2core_8_win64.dll
             tools/SV.TrinityDump/**
@@ -221,6 +230,19 @@ jobs:
           "Fixed 189: $($report.fixed_with_original_tablekey_link) matched source TableKeys; 158 wander observations $($report.fixed_158_wander_observations)." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           "The original five native pkl SHA-256 values matched the untraced 30f baseline; this is not gameplay RNG proof." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
 
+      - name: Attribute real original CrossFrom 158 to source collider areas, zero vs 30f, and exact six-level Absorb steps
+        shell: pwsh
+        run: |
+          $target=Join-Path $env:RUNNER_TEMP 'SV400-cross158-geometry'
+          python scripts/Audit-SV400-Cross158-Geometry-Merges.py --native-csv "$env:SV_NATIVE_BASELINE/SV400_Native_Encounters_For_PKHeX.csv" --bridge "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" --events "$env:SV_POINT_TRACE" --output $target
+          if ($LASTEXITCODE -ne 0) { throw 'Original 61+223 CrossFrom=158 source collider and six interval merge evidence did not close' }
+          $proof=Get-Content "$target/SV400_Cross158_Source_Collider_and_Merge_Manifest.json" -Raw | ConvertFrom-Json
+          if ($proof.native_only_cross158 -ne 2337 -or $proof.already_reference_matching_cross158 -ne 808 -or $proof.collider_area_pair_probe_count -le 0 -or $proof.six_interval_group_absorb_observation_count -le 0) {
+            throw 'Original 158 source counts, original collider probes or true level merges missing'
+          }
+          "CrossFrom 158: 2337 source-only / 808 already matching. Original TRSCN/TRCOL collider pair probes: $($proof.collider_area_pair_probe_count); genuine six-group merges: $($proof.six_interval_group_absorb_observation_count)." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "Original PointData source collider ownership and zero/30f observations are diagnostic only; no .pkl changed." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
       - name: Download independent pinned Gen9 30f wild diff and actual 236 fixed source case review
         shell: pwsh
         run: |
@@ -286,6 +308,9 @@ jobs:
           path: |
             ${{ runner.temp }}/SV-400-point-provenance-linked/*.csv
             ${{ runner.temp }}/SV-400-point-provenance-linked/*.json
+            ${{ runner.temp }}/SV400-cross158-geometry/*.csv
+            ${{ runner.temp }}/SV400-cross158-geometry/*.json
+            ${{ runner.temp }}/SV400-cross158-geometry/*.jsonl
             ${{ runner.temp }}/SV-400-traced-native/native-encounter-point-trace-manifest.json
             ${{ runner.temp }}/SV-400-traced-native/native-encounter-build.json
           if-no-files-found: warn
