@@ -1,0 +1,88 @@
+name: SV 4.0.0 original fixed 158 full 20 byte reference disambiguation
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - scripts/Disambiguate-SV-WorldEnd-158-Full20.py
+      - tests/test_sv_fixed158_full20_reference.py
+      - .github/workflows/sv-fixed158-full20-reference.yml
+      - docs/4.0.0/Verification/SV-WorldEnd-158-Full20-Reference.md
+  push:
+    branches: [master]
+    paths:
+      - scripts/Disambiguate-SV-WorldEnd-158-Full20.py
+      - tests/test_sv_fixed158_full20_reference.py
+      - .github/workflows/sv-fixed158-full20-reference.yml
+      - docs/4.0.0/Verification/SV-WorldEnd-158-Full20-Reference.md
+permissions:
+  actions: read
+  contents: read
+jobs:
+  validate-source-verified-full20:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Disambiguate-SV-WorldEnd-158-Full20.py
+            tests/test_sv_fixed158_full20_reference.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run synthetic 20B schema/multiset guards
+        run: |
+          python -m py_compile scripts/Disambiguate-SV-WorldEnd-158-Full20.py
+          python -m unittest discover -s tests -p test_sv_fixed158_full20_reference.py -v
+      - name: Retrieve three independent original SHA-verified 4.0.0 archives
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/native" "$RUNNER_TEMP/diff" "$RUNNER_TEMP/cases"
+          gh run download 42362541291 -R "$GITHUB_REPOSITORY" \
+            -n SV-400-source-attested-native-PKHeX-encounter-bridge \
+            -D "$RUNNER_TEMP/native"
+          gh run download 42356030937 -R "$GITHUB_REPOSITORY" \
+            -n SV-400-original-collision-tolerance-30-10-0 \
+            -D "$RUNNER_TEMP/diff"
+          gh run download 42374514212 -R "$GITHUB_REPOSITORY" \
+            -n SV400-true-native-fixed-WorldEnd-158-source-event-counterfactual \
+            -D "$RUNNER_TEMP/cases"
+          test -s "$RUNNER_TEMP/native/PKHeX_Source_Overlay/PKHeX.Core/Resources/legality/wild/Gen9/encounter_fixed_paldea.pkl"
+          test -s "$RUNNER_TEMP/diff/T30/comparison/fixed_native_only.csv"
+          test -s "$RUNNER_TEMP/diff/T30/comparison/fixed_pkhex_only.csv"
+          test -s "$RUNNER_TEMP/cases/SV400_236_Worldend_158_Source_WhatIf.csv"
+      - name: Disambiguate all 236 original WorldEnd 158 source rows against independent PKHeX full 20B multiset
+        run: |
+          set -euo pipefail
+          python scripts/Disambiguate-SV-WorldEnd-158-Full20.py \
+            --native "$RUNNER_TEMP/native/PKHeX_Source_Overlay/PKHeX.Core/Resources/legality/wild/Gen9/encounter_fixed_paldea.pkl" \
+            --native-only "$RUNNER_TEMP/diff/T30/comparison/fixed_native_only.csv" \
+            --pkhex-only "$RUNNER_TEMP/diff/T30/comparison/fixed_pkhex_only.csv" \
+            --cases "$RUNNER_TEMP/cases/SV400_236_Worldend_158_Source_WhatIf.csv" \
+            --output "$RUNNER_TEMP/SV400-full20-reference"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'SV400-full20-reference/SV400_236_Fixed158_Full20_Source_Reference_Audit.json'
+          d=json.loads(p.read_text(encoding='utf-8-sig'))
+          assert (d['source_cases'],d['native_fixed_rows'],d['reference_fixed_rows'],
+                  d['original_full20_binary_matches'])==(236,977,977,774)
+          assert d['identity_status_counts']=={'UNIQUE_FULL20_REFERENCE_MATCH':232,'AMBIGUOUS_FULL20_SOURCE_IDENTITY':4}
+          assert d['original_source_outcome_groups']=={'REFERENCE_BOTH_VERSIONS':1,'REFERENCE_KEEP_158':46,'REFERENCE_REMOVE_158':189}
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('## SV 4.0.0 original WorldEnd 158 complete fixed 20B identity\n\n')
+              f.write('Verified 977 native and 977 pinned reference fixed records with 774 full20 original binary matches.\n')
+              f.write('**232/236** original WorldEnd row labels uniquely matched full20 reference records.\n')
+              f.write('The remaining **4 source rows** are species 840 levels 15/59 with two compatible full20 templates each.\n')
+              f.write('Reference alignment does not establish runtime game location or PK9 legality.\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-original-236-fixed-158-full20-reference-disambiguation
+          path: ${{ runner.temp }}/SV400-full20-reference/*
+          retention-days: 30
+          if-no-files-found: warn
