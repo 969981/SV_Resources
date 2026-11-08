@@ -16,6 +16,7 @@ class Point5046AreaFilterABTests(unittest.TestCase):
             "sourcePointAsset":"world/data/encount/point_data/point_data/encount_data_su1.bin",
             "sourcePointIndex":5046,
             "sourceLocation":158,
+            "activeMode":"baseline",
             "probeCount":7,
             "probes":[{"pointSource":"world/data/encount/point_data/point_data/encount_data_su1.bin",
                        "pointIndex":5046,"location":158,"pointSourceCollisionArea":"subarea_su01worldend",
