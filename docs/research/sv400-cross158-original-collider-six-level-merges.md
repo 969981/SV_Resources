@@ -95,3 +95,17 @@ Original source collider file: \`field_graphic/terrain_model/sub_area_su1/sub_ar
 All three require the original SHA-verified 223 TRCOL + 61 encounter files. The \`SV400_Kitakami158_Original_AB_vs_PKHeX.json\` comparison reports matched reference gains/losses, native-only changes and per-target location counts; no experiment is allowed to modify non-158 wild records, fixed symbols or ordinary raids. **Do not install any variant as a real PKHeX database without independent gameplay PK9 evidence**, especially because 808 CrossFrom=158 reference-matching templates must be protected.
 
 To reproduce after verification of the original ROM sources, run \`.github/workflows/sv-native-point-trace.yml\` and collect \`SV400-original-Kitakami-158-source-crossover-AB\`. Baseline remains unchanged and the binary outputs are generated separately with \`--crossover-ab-mode\`. The A/B is a research comparison; parity improvement alone is not proof of a correct catch region or event-flag rule.
+
+
+### Direct original PointData #5046 root for the wide wild-level intervals
+
+A read-only second pass over the exact same 8,453,058,195-byte native \`point-events.jsonl\` filtered \`stage=wild_raw_candidate\`, \`location=158\`, and the six candidate species. The result contained 270,108 observed raw candidate events across 106 distinct \`(species,min,max,collider,asset,appliedBoost)\` groups. (Repeated scene/criteria probes are **not** unique wild slots.) Original \`world/data/encount/point_data/point_data/encount_data_su1.bin\` **PointData ordinal 5046** is attributed to \`subarea_su01worldend\`, position \`(1710.6964,133.5,-996.7115)\`, \`RawPointMin=1,RawPointMax=99\`, no level boost. Exact native candidate witnesses:
+
+| Species | Criteria ordinal | Raw point level | Criteria level | Native candidate before \`Consolidate\` |
+|---:|---:|---|---|---|
+| 129 Magikarp | 40 | 1–99 | 5–30 | 5–30 |
+| 129 Magikarp | 41 | 1–99 | 31–99 | 31–99 |
+| 313 Volbeat | 110 | 1–99 | 7–60 | 7–60 |
+| 314 Illumise | 112 | 1–99 | 7–60 | 7–60 |
+
+This explains the origin of the over-broad 129 5–99 and 313/314 7–60 intervals **without** alleging \`Absorb\` invented their raw values. The earliest candidate broadness is tied to original ROM PointData source ownership and criteria. A separate A/B removing/reassigning this point needs independent original in-game area activation proof, so no production rule changes are made here.
