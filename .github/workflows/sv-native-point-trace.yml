@@ -12,6 +12,9 @@ on:
       - 'tests/test_sv_native_point_trace_join.py'
       - 'tests/test_sv_158_crossover_geometry_merge.py'
       - 'scripts/Compare-SV-Terarium-176-194-Native-AB.py'
+      - 'scripts/Compare-SV400-Point5046-AreaFilter-AB.py'
+      - 'tests/test_sv_point5046_area_filter_ab.py'
+      - 'tests/test_sv_176194_source_level_ab.py'
       - 'scripts/Verify-SV-Fixed-158-Collision-Sources.py'
       - 'tests/test_sv_fixed_collision_source_proof.py'
       - '.github/workflows/sv-native-point-trace.yml'
@@ -53,6 +56,10 @@ jobs:
             scripts/Join-SV-Native-Point-Trace.py
             scripts/Audit-SV400-Cross158-Geometry-Merges.py
             scripts/Compare-SV400-Source158-Original-AB.py
+            scripts/Compare-SV400-Point5046-AreaFilter-AB.py
+            scripts/AB-SV-Terarium-176-194-Source-Levels.py
+            tests/test_sv_point5046_area_filter_ab.py
+            tests/test_sv_176194_source_level_ab.py
             tests/test_sv_kitakami_cross158_source_ab.py
             tests/test_sv_native_point_trace_join.py
             tests/test_sv_158_crossover_geometry_merge.py
@@ -75,6 +82,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Original CrossFrom 158 collider trace regression tests failed' }
           python -m unittest discover -s tests -p test_sv_kitakami_cross158_source_ab.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Original CrossFrom 158 isolated A/B safety tests failed' }
+          python -m unittest discover -s tests -p test_sv_176194_source_level_ab.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Terarium original PointData min/max level formula tests failed' }
+          python -m unittest discover -s tests -p test_sv_point5046_area_filter_ab.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'PointData 5046 source-area probe tests failed' }
           python -m unittest discover -s tests -p test_sv_fixed_collision_source_proof.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Original collision source SHA tests failed' }
 
@@ -120,6 +131,8 @@ jobs:
             scripts/Join-SV-Native-Point-Trace.py
             scripts/Audit-SV400-Cross158-Geometry-Merges.py
             scripts/Compare-SV400-Source158-Original-AB.py
+            scripts/Compare-SV400-Point5046-AreaFilter-AB.py
+            scripts/AB-SV-Terarium-176-194-Source-Levels.py
             scripts/Sweep-SV-Collision-Tolerance.py
             scripts/deps/oo2core_8_win64.dll
             tools/SV.TrinityDump/**
@@ -219,10 +232,13 @@ jobs:
         run: |
           $generated=Join-Path $env:RUNNER_TEMP 'SV-400-traced-native'
           $trace=Join-Path $env:RUNNER_TEMP 'SV-400-point-trace/point-events.jsonl'
-          $argsList=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual','--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json','--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json','--trace-targets',$env:SV_TARGET_PROVENANCE,'--trace-output',$trace,'--output',$generated)
+          $probe=Join-Path $env:RUNNER_TEMP 'SV400-Point5046-Area-Filter-Probe.json'
+          $argsList=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual','--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json','--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json','--trace-targets',$env:SV_TARGET_PROVENANCE,'--trace-output',$trace,'--point5046-probe-output',$probe,'--output',$generated)
           dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @argsList
           if ($LASTEXITCODE -ne 0) { throw 'Source-verified original 4.0.0 pkNX trace generation incomplete' }
           if (-not (Test-Path $trace)) { throw 'The original native generator did not record point-level trace' }
+          if (-not (Test-Path $probe)) { throw 'The original native generator did not record PointData 5046 source-area filter probes' }
+          "SV_POINT5046_PROBE=$probe" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "SV_POINT_TRACE=$trace" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "SV_POINT_GENERATED=$generated" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
@@ -268,7 +284,7 @@ jobs:
         shell: pwsh
         run: |
           $argsList=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual','--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json','--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json')
-          foreach ($mode in @('terarium-176-194-unadjusted-only','terarium-176-194-adjusted-only','terarium-176-194-strict-overlap','terarium-176-194-raw-point-levels')) {
+          foreach ($mode in @('terarium-176-194-unadjusted-only','terarium-176-194-adjusted-only','terarium-176-194-strict-overlap','terarium-176-194-raw-point-levels','terarium-176-194-raw-point-min-only','terarium-176-194-raw-point-max-only')) {
             $dest="$env:RUNNER_TEMP/SV400-native-AB-$mode"
             dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @argsList --output $dest --level-ab-mode $mode
             if ($LASTEXITCODE -ne 0) { throw "Original 4.0.0 isolated AB failed for mode $mode" }
@@ -278,10 +294,35 @@ jobs:
         shell: pwsh
         run: |
           $p=$env:RUNNER_TEMP
-          python scripts/Compare-SV-Terarium-176-194-Native-AB.py --baseline "$env:SV_POINT_GENERATED" --manifest "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" --tolerance "$p/SV-400-AB-30f" --auditor scripts/Audit-SV-PKHeX-Encounters.py --variant "terarium-176-194-unadjusted-only=$p/SV400-native-AB-terarium-176-194-unadjusted-only" --variant "terarium-176-194-adjusted-only=$p/SV400-native-AB-terarium-176-194-adjusted-only" --variant "terarium-176-194-strict-overlap=$p/SV400-native-AB-terarium-176-194-strict-overlap" --variant "terarium-176-194-raw-point-levels=$p/SV400-native-AB-terarium-176-194-raw-point-levels" --output "$p/SV400-native-AB-comparison"
+          python scripts/Compare-SV-Terarium-176-194-Native-AB.py --baseline "$env:SV_POINT_GENERATED" --manifest "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" --tolerance "$p/SV-400-AB-30f" --auditor scripts/Audit-SV-PKHeX-Encounters.py --variant "terarium-176-194-unadjusted-only=$p/SV400-native-AB-terarium-176-194-unadjusted-only" --variant "terarium-176-194-adjusted-only=$p/SV400-native-AB-terarium-176-194-adjusted-only" --variant "terarium-176-194-strict-overlap=$p/SV400-native-AB-terarium-176-194-strict-overlap" --variant "terarium-176-194-raw-point-levels=$p/SV400-native-AB-terarium-176-194-raw-point-levels" --variant "terarium-176-194-raw-point-min-only=$p/SV400-native-AB-terarium-176-194-raw-point-min-only" --variant "terarium-176-194-raw-point-max-only=$p/SV400-native-AB-terarium-176-194-raw-point-max-only" --output "$p/SV400-native-AB-comparison"
           if ($LASTEXITCODE -ne 0) { throw 'Real original Terarium level AB changed unauthorized source or output fields' }
           $result=Get-Content "$p/SV400-native-AB-comparison/SV400_Terarium_176_194_Native_AB_vs_PKHeX_Reference.json" -Raw | ConvertFrom-Json
           $result.reference_parity_comparison | Format-Table -AutoSize | Out-String | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - name: Generate and compare one-point PointData 5046 source-area filter A/B
+        shell: pwsh
+        run: |
+          $p=$env:RUNNER_TEMP
+          $argsList=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual','--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json','--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json')
+          $variant=Join-Path $p 'SV400-Point5046-AreaFilter-AB'
+          dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @argsList --output $variant --area-filter-ab-mode kitakami-158-point5046-source-area-filter
+          if ($LASTEXITCODE -ne 0) { throw 'Original PointData 5046 source-area filter counterfactual failed' }
+          python scripts/Compare-SV400-Point5046-AreaFilter-AB.py --baseline "$env:SV_POINT_GENERATED" --manifest "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" --tolerance "$p/SV-400-AB-30f" --variant $variant --auditor scripts/Audit-SV-PKHeX-Encounters.py --probe-report "$env:SV_POINT5046_PROBE" --output "$p/SV400-Point5046-AreaFilter-Comparison"
+          if ($LASTEXITCODE -ne 0) { throw 'PointData 5046 source-area A/B modified unrelated wild/fixed/raid records or lacked source probes' }
+          $result=Get-Content "$p/SV400-Point5046-AreaFilter-Comparison/SV400_Point5046_AreaFilter_AB.json" -Raw | ConvertFrom-Json
+          $result.scopes | ConvertTo-Json -Depth 8 | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-PointData-5046-AreaFilter-AB
+          path: |
+            ${{ runner.temp }}/SV400-Point5046-Area-Filter-Probe.json
+            ${{ runner.temp }}/SV400-Point5046-AreaFilter-Comparison/*.csv
+            ${{ runner.temp }}/SV400-Point5046-AreaFilter-Comparison/*.json
+            ${{ runner.temp }}/SV400-Point5046-AreaFilter-AB/native-encounter-build.json
+          retention-days: 30
+          if-no-files-found: warn
 
       - name: Rebuild original fixed-only source sidecar with real AreaInfo Tag Type and exact TRSCN/TRCOL SHA
         shell: pwsh
