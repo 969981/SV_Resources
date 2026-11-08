@@ -243,7 +243,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
                     bool sourceCandidateAccepted = IsAbleToSpawnAt(pd, spawner, spawner.SourceCollisionArea, scene, fieldIndex);
                     TracePoint5046AreaFilter(spawner, pd, criteriaIndex, nationalSpecies,
                         storageFilterMatch, sourceFilterMatch, storageCandidateAccepted, sourceCandidateAccepted,
-                        scene, fieldIndex, AreaName);
+                        scene, fieldIndex, AreaName, Location);
                 }
 
                 if (!IsAbleToSpawnAt(pd, spawner, filterAreaName, scene, fieldIndex))
@@ -307,7 +307,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         LocationPointDetail point, EncountPokeData pd, int criteriaIndex, int nationalSpecies,
         bool storageFilterMatch, bool sourceFilterMatch,
         bool storageCandidateAccepted, bool sourceCandidateAccepted,
-        PaldeaSceneModel scene, PaldeaFieldIndex fieldIndex, string storageAreaName)
+        PaldeaSceneModel scene, PaldeaFieldIndex fieldIndex, string storageAreaName, int location)
     {
         var checks = new List<object>();
         foreach (var name in pd.LocationName.Split(','))
@@ -324,7 +324,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         EncounterTraceSV.Write(new
         {
             stage = "wild_point5046_area_filter_probe",
-            location = Location,
+            location,
             pointSource = point.SourcePointAsset,
             pointIndex = point.SourcePointIndex,
             pointX = point.X,
