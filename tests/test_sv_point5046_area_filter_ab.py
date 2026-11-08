@@ -17,7 +17,10 @@ class Point5046AreaFilterABTests(unittest.TestCase):
             "sourcePointIndex":5046,
             "sourceLocation":158,
             "probeCount":7,
-            "probes":[{"pointIndex":5046,"location":158,"criteriaIndex":i}
+            "probes":[{"pointSource":"world/data/encount/point_data/point_data/encount_data_su1.bin",
+                       "pointIndex":5046,"location":158,"pointSourceCollisionArea":"subarea_su01worldend",
+                       "storageCandidateAccepted":True,"pointSourceCandidateAccepted":True,
+                       "filterTokens":[{"name":"a_su0108"}],"criteriaIndex":i}
                       for i in (40,41,74,110,111,112,113)],
         }
 
