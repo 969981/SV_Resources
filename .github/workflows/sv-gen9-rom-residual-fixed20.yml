@@ -1,0 +1,119 @@
+name: SV 4.0.0 original ROM Gen9 six wild residual groups and fixed20 source
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/Trace-SV400-Wild-T30-Residual.py'
+      - 'scripts/Resolve-SV400-Fixed158-Original20.py'
+      - 'tests/test_sv400_residual_wild_and_fixed20.py'
+      - '.github/workflows/sv-gen9-rom-residual-fixed20.yml'
+      - 'docs/4.0.0/Verification/SV400-ROM-to-PKHeX-Source-Residual-Review.md'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Trace-SV400-Wild-T30-Residual.py'
+      - 'scripts/Resolve-SV400-Fixed158-Original20.py'
+      - 'tests/test_sv400_residual_wild_and_fixed20.py'
+      - '.github/workflows/sv-gen9-rom-residual-fixed20.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-attested-gen9-residual-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Trace-SV400-Wild-T30-Residual.py
+            scripts/Resolve-SV400-Fixed158-Original20.py
+            scripts/Disambiguate-SV-WorldEnd-158-Full20.py
+            tests/test_sv400_residual_wild_and_fixed20.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and run no-ROM regression tests
+        run: |
+          python -m py_compile scripts/Trace-SV400-Wild-T30-Residual.py scripts/Resolve-SV400-Fixed158-Original20.py
+          python -m unittest discover -s tests -p test_sv400_residual_wild_and_fixed20.py -v
+      - name: Download five independent original 4.0.0 SHA-attested source artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/native" "$RUNNER_TEMP/diffs" "$RUNNER_TEMP/cases" "$RUNNER_TEMP/events" "$RUNNER_TEMP/source-build"
+          gh run download 42362541291 -R "$GITHUB_REPOSITORY" -n SV-400-source-attested-native-PKHeX-encounter-bridge -D "$RUNNER_TEMP/native"
+          gh run download 42356030937 -R "$GITHUB_REPOSITORY" -n SV-400-original-collision-tolerance-30-10-0 -D "$RUNNER_TEMP/diffs"
+          gh run download 42374514212 -R "$GITHUB_REPOSITORY" -n SV400-true-native-fixed-WorldEnd-158-source-event-counterfactual -D "$RUNNER_TEMP/cases"
+          gh run download 42447774923 -R "$GITHUB_REPOSITORY" -n SV400-real-original-level-AB-WorldEnd-158-AreaInfo-TRCOL -D "$RUNNER_TEMP/events"
+          gh run download 42447774923 -R "$GITHUB_REPOSITORY" -n SV400-original-point-level-and-fixed-158-attributed-evidence -D "$RUNNER_TEMP/source-build"
+          test -s "$RUNNER_TEMP/native/SV400_Native_To_PKHeX_Manifest.json"
+          test -s "$RUNNER_TEMP/native/SV400_Native_Encounters_For_PKHeX.csv"
+          test -s "$RUNNER_TEMP/diffs/T30/comparison/wild_native_only.csv"
+          test -s "$RUNNER_TEMP/diffs/T30/comparison/wild_pkhex_only.csv"
+          test -s "$RUNNER_TEMP/events/SV400-native-AB-fixed-events/fixed-only.jsonl"
+          test -s "$RUNNER_TEMP/source-build/SV-400-traced-native/native-encounter-build.json"
+      - name: Independently quantify exactly six residual level groups and preserve 808 matched cross158 records
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Trace-SV400-Wild-T30-Residual.py \
+            --native-diff "$RUNNER_TEMP/diffs/T30/comparison/wild_native_only.csv" \
+            --reference-diff "$RUNNER_TEMP/diffs/T30/comparison/wild_pkhex_only.csv" \
+            --native-csv "$RUNNER_TEMP/native/SV400_Native_Encounters_For_PKHeX.csv" \
+            --bridge "$RUNNER_TEMP/native/SV400_Native_To_PKHeX_Manifest.json" \
+            --output "$RUNNER_TEMP/wild-residual"
+      - name: Recreate the independent original native fixed 20B vs pinned PKHeX full20 reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Disambiguate-SV-WorldEnd-158-Full20.py \
+            --native "$RUNNER_TEMP/native/PKHeX_Source_Overlay/PKHeX.Core/Resources/legality/wild/Gen9/encounter_fixed_paldea.pkl" \
+            --native-only "$RUNNER_TEMP/diffs/T30/comparison/fixed_native_only.csv" \
+            --pkhex-only "$RUNNER_TEMP/diffs/T30/comparison/fixed_pkhex_only.csv" \
+            --cases "$RUNNER_TEMP/cases/SV400_236_Worldend_158_Source_WhatIf.csv" \
+            --output "$RUNNER_TEMP/fixed-reference"
+      - name: Link exact original 4.0.0 fixedSymbol TableKey and original 20 bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Resolve-SV400-Fixed158-Original20.py \
+            --events "$RUNNER_TEMP/events/SV400-native-AB-fixed-events/fixed-only.jsonl" \
+            --manifest "$RUNNER_TEMP/source-build/SV-400-traced-native/native-encounter-build.json" \
+            --source-audit "$RUNNER_TEMP/fixed-reference/SV400_236_Fixed158_Full20_Source_Reference_Audit.json" \
+            --fixed-pkl "$RUNNER_TEMP/native/PKHeX_Source_Overlay/PKHeX.Core/Resources/legality/wild/Gen9/encounter_fixed_paldea.pkl" \
+            --output "$RUNNER_TEMP/fixed-source"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          t=Path(os.environ['RUNNER_TEMP'])
+          wild=json.loads((t/'wild-residual/SV400_Wild_T30_Six_Interval_Groups_and_Cross158.json').read_text('utf-8-sig'))
+          fixed=json.loads((t/'fixed-source/SV400_Original_Fixed20_SourceOwnership.json').read_text('utf-8-sig'))
+          assert (wild['candidate_one_to_one_level_pairs'],wild['reference_surplus_unpaired_occurrences'],wild['distinct_interval_groups_with_reference_surplus'])==(666,10,6)
+          assert (wild['source_only_cross_from_158'],wild['already_reference_matching_cross_from_158'])==(2337,808)
+          assert (fixed['source_case_count'],fixed['old_unique_cases_source_traced'],fixed['old_ambiguous_cases_with_both_distinct_sources'])==(236,232,4)
+          assert (fixed['species_840_original_sources']['su1_area02_07']['15']['flawlessIV'],fixed['species_840_original_sources']['t_su1_area02_08']['15']['flawlessIV'])==(0,3)
+          with (t/'native-residual-summary.md').open('w') as f:
+              f.write('# Original SV 4.0.0 ROM to Gen9 PKHeX residual source review\n\n')
+              f.write('Six 7-field level identity groups account for ten reference surplus occurrences after 666 candidate level pairs.\n\n')
+              f.write('CrossFrom=158 has 2337 native-only but **808 already matched** reference slots; never blanket-remove.\n\n')
+              f.write('Original fixed TableKeys su1_area02_07 vs t_su1_area02_08 uniquely bind 840 0IV/0Tera vs 3IV/8Tera original raw 20B.\n\n')
+              f.write('Old row case numbers for 840 remain interchangeable; runtime legality/RNG is not established.\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as summary:
+              summary.write((t/'native-residual-summary.md').read_text())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-true-ROM-PKHeX-wild-six-residual-and-fixed20-source-ownership
+          path: |
+            ${{ runner.temp }}/wild-residual/*.csv
+            ${{ runner.temp }}/wild-residual/*.json
+            ${{ runner.temp }}/fixed-source/*.csv
+            ${{ runner.temp }}/fixed-source/*.json
+            ${{ runner.temp }}/native-residual-summary.md
+          retention-days: 30
+          if-no-files-found: warn
