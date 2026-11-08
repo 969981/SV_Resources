@@ -50,7 +50,7 @@ class Point5046AreaFilterABTests(unittest.TestCase):
             d["sourcePointIndex"]=5047
             p=Path(td)/"probe.json"
             p.write_text(json.dumps(d),encoding="utf-8")
-            with self.assertRaisesRegex(ValueError,"identity mismatch"):
+            with self.assertRaisesRegex(ValueError,"identity/mode mismatch"):
                 M.validate_probe_report(p)
 
     def test_scope_contains_local_and_cross_from_158_only(self):
