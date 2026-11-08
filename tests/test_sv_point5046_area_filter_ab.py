@@ -19,6 +19,8 @@ class Point5046AreaFilterABTests(unittest.TestCase):
             "probeCount":7,
             "probes":[{"pointSource":"world/data/encount/point_data/point_data/encount_data_su1.bin",
                        "pointIndex":5046,"location":158,"pointSourceCollisionArea":"subarea_su01worldend",
+                       "storageAreaName":"a_su0108","species":{40:129,41:129,74:194,110:313,111:313,112:314,113:314}[i],
+                       "pointX":1710.6964,"pointY":133.5,"pointZ":-996.7115,
                        "storageCandidateAccepted":True,"pointSourceCandidateAccepted":True,
                        "filterTokens":[{"name":"a_su0108"}],"criteriaIndex":i}
                       for i in (40,41,74,110,111,112,113)],
