@@ -67,3 +67,45 @@ python scripts/Audit-SV400-Cross158-Geometry-Merges.py `
 - 必须读取新一轮 **真实 Actions** 工件后才可把 0f/30f 计数、特定 TRCOL、六组实际合并链标成 `CONFIRMED`。源码插桩与编译成功本身不是运行验证。
 - 若同一 Location ID 的多个原始碰撞区域共享点集导致远距离 `Nearby`，还需要隔离实验比较实际游戏天气、场景激活和出生点条件。
 - 只有运行时 PK9 + 真实 `PKHeX.Core.LegalityAnalysis` 等证据才能判定最终合法性；不要按匹配率做无来源硬编码。
+
+
+## 2026-11-08 real native replay #42451144870: 158 source ownership confirmed
+
+[Successful Actions #42451144870](https://github.com/969981/SV_Resources/actions/runs/42451144870) completed the 61+223 original SHA checks, native pkNX compile and 5-asset SHA parity. The already merged trace generated **192** real area-pair geometry events and **75** actual six-group \`Absorb\` events. This is a completed original-source audit, not an in-game spawn simulation.
+
+The original 8,453,058,195-byte event stream was inspected **read-only** and matched by \`stage=wild_weather_assigned\`, \`crossFrom=158\`, \`location=144 or 166\`. The \`sourcePointAsset\` is always \`world/data/encount/point_data/point_data/encount_data_su1.bin\`. All events here identify the original \`sourceCollisionArea=subarea_su01worldend\`:
+
+| Target Location | Native-only reference differences | Distinct original PointData indexes in actual integration trace | Integration event observations (not distinct encounters) | First witnessed original PointData indices |
+|---|---:|---:|---:|---|
+| 144 (Oni Mountain) | 308 | 1,901 | 816,144 | 373, 375, 376, 403, 437 |
+| 166 (Timeless Woods) | 308 | 875 | 677,496 | 6433, 6434, 6442, 6443 |
+
+Original source collider file: \`field_graphic/terrain_model/sub_area_su1/sub_area_su01worldend_col.trcol\`; SHA-256 \`3515DC545D102FE824EB4162637CA04F28446DE27FF25F3070A433504AF5A944\` (same independently seen in fixed-symbol 158 source trace). For Location 144 the target \`a_su0104\` collider uses \`field_graphic/terrain_model/world_area_su1/world_area_su01_04_col.trcol\`, SHA \`C0825912592F94BA3945A74C2E40285AB493745656D2D5C0EE770B973C638423\`. This ties concrete original PointData ordinal + point coordinate + TRSCN/TRCOL SHA to a 158 crossover.
+
+**Root-cause candidate supported by code:** \`LocationDatabase.Get(locationId)\` pools points from distinct TRSCN areas in \`LocationStorage.Local\`; each of the four source lookup names \`a_su0108\`, \`a_su01d0502\`, \`a_su01d0602\`, \`subarea_su01w03\` all uses that same \`CrossFrom=158\` pooled list. The original \`subarea_su01worldend\` points are therefore tested as if they belonged to any of those named source colliders. Area-pair counts repeat; the final PKHeX slot multiset is separately deduplicated. A duplicate check by itself does not prove the *existence* of extra slots, while the pooled original WorldEnd source does justify a source-ownership A/B.
+
+**Six groups:** the source captured 75 \`Absorb\` operations: \`(140,158,163)=8\`, \`(140,158,532)=9\`, \`(158,0,129)=11\`, \`(158,0,313)=17\`, \`(158,0,314)=17\`, \`(158,0,744)=13\`. Only **4** events were adjacency-only; **71** had actual overlapping level ranges. In particular the \`5–99\` species 129 and \`7–60\` species 313/314 were already present as a range on the *left* of \`Absorb\` in observed events, so changing strict overlap alone does not resolve all six interval mismatches.
+
+### Three SHA-gated local counterfactuals (not final gameplay rules)
+
+- \`kitakami-158-worldend-strict\`: require zero-tolerance \`ContainsPoint\` **only** for original WorldEnd points crossing from 158. Other 158 source origins and every non-158 source remain baseline.
+- \`kitakami-158-worldend-exclude\`: exclude WorldEnd-origin points **only** when generating a crossover from 158. No local spawn generation is changed.
+- \`kitakami-158-exact-source-area\`: allow crossing from 158 only when original \`SourceCollisionArea\` equals the named source lookup area. This evaluates the pooled-source hypothesis rather than hardcoding location 144/166.
+
+All three require the original SHA-verified 223 TRCOL + 61 encounter files. The \`SV400_Kitakami158_Original_AB_vs_PKHeX.json\` comparison reports matched reference gains/losses, native-only changes and per-target location counts; no experiment is allowed to modify non-158 wild records, fixed symbols or ordinary raids. **Do not install any variant as a real PKHeX database without independent gameplay PK9 evidence**, especially because 808 CrossFrom=158 reference-matching templates must be protected.
+
+To reproduce after verification of the original ROM sources, run \`.github/workflows/sv-native-point-trace.yml\` and collect \`SV400-original-Kitakami-158-source-crossover-AB\`. Baseline remains unchanged and the binary outputs are generated separately with \`--crossover-ab-mode\`. The A/B is a research comparison; parity improvement alone is not proof of a correct catch region or event-flag rule.
+
+
+### Direct original PointData #5046 root for the wide wild-level intervals
+
+A read-only second pass over the exact same 8,453,058,195-byte native \`point-events.jsonl\` filtered \`stage=wild_raw_candidate\`, \`location=158\`, and the six candidate species. The result contained 270,108 observed raw candidate events across 106 distinct \`(species,min,max,collider,asset,appliedBoost)\` groups. (Repeated scene/criteria probes are **not** unique wild slots.) Original \`world/data/encount/point_data/point_data/encount_data_su1.bin\` **PointData ordinal 5046** is attributed to \`subarea_su01worldend\`, position \`(1710.6964,133.5,-996.7115)\`, \`RawPointMin=1,RawPointMax=99\`, no level boost. Exact native candidate witnesses:
+
+| Species | Criteria ordinal | Raw point level | Criteria level | Native candidate before \`Consolidate\` |
+|---:|---:|---|---|---|
+| 129 Magikarp | 40 | 1–99 | 5–30 | 5–30 |
+| 129 Magikarp | 41 | 1–99 | 31–99 | 31–99 |
+| 313 Volbeat | 110 | 1–99 | 7–60 | 7–60 |
+| 314 Illumise | 112 | 1–99 | 7–60 | 7–60 |
+
+This explains the origin of the over-broad 129 5–99 and 313/314 7–60 intervals **without** alleging \`Absorb\` invented their raw values. The earliest candidate broadness is tied to original ROM PointData source ownership and criteria. A separate A/B removing/reassigning this point needs independent original in-game area activation proof, so no production rule changes are made here.

@@ -197,7 +197,7 @@ public static class EncounterSlotDumper9
                 foreach (var point in cross.Local)
                 {
                     // If the crossover point is close enough to the current area's collider, add it to the current area's list of crossover points.
-                    if (!EncounterDumperSV.IsContainedBy(collider, point.Point.Position))
+                    if (!EncounterCrossoverABSV.Accept(fieldIndex, cross.Location, otherName, collider, point))
                         continue;
                     if (trace158)
                     {
