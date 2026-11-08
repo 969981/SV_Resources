@@ -2,26 +2,27 @@
   "schemaVersion": 1,
   "source_version": "4.0.0",
   "parallel_workers": 4,
-  "elapsed_seconds": 9.625,
+  "elapsed_seconds": 15.5,
   "selected_count": 12,
-  "input_files": 72,
-  "files_per_second": 7.48,
+  "input_files": 118,
+  "files_per_second": 7.61,
   "completed_count": 12,
-  "parsed_records": 72,
-  "structurally_parsed": 62,
-  "inspected_unparsed": 10,
+  "parsed_records": 118,
+  "structurally_parsed": 107,
+  "inspected_unparsed": 11,
   "error_count": 0,
   "partial_count": 0,
   "attempts": [
     {
-      "task": "demo/ee/ee_wait55#00000",
-      "fingerprint": "8605F9EADA92ED59BD86E17225F69B91D0E84C92E8F8EFA1053D199E48053B3A",
-      "input_files": 1,
+      "task": "demo/ej/ej_raid_hokaku01#00000",
+      "fingerprint": "64CC99C75211AEED00BBB5DC7F9766EA66497F2ED79C8B4ECA03567B53380899",
+      "input_files": 2,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "BY_EXTENSION:trtml": 1
+        "BY_EXTENSION:trtml": 1,
+        "FLATBUFFER_CANDIDATE": 1
       },
       "stages": {
         "messages": {
@@ -60,33 +61,32 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ee/ee_wait55",
+          "prefix": "demo/ej/ej_raid_hokaku01",
           "cursor": null,
           "issues": []
         }
       },
-      "outputs": 1,
-      "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ee/ee_wait55/_inspection/d0df497eb68dd392.jsonl",
-      "inspection_sha256": "39DB359D834D890043C3AEEEEE77E28FEEE89E9DA2108526BC801A770F634CC6",
-      "structurally_parsed": 0,
+      "outputs": 2,
+      "parsed_records": 2,
+      "inspection_manifest": "parsed/demo/ej/ej_raid_hokaku01/_inspection/e7945347b340e9e1.jsonl",
+      "inspection_sha256": "8ED0C8FA109BC0BEDF5494CF73C848E2C388D2DFAAF9725B2DC37A275B8BBC0E",
+      "structurally_parsed": 1,
       "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 2,
-      "elapsed_seconds": 0.359,
-      "updated_utc": "2026-11-08T04:48:30.518984+00:00"
+      "published": 3,
+      "elapsed_seconds": 0.89,
+      "updated_utc": "2026-11-08T04:50:30.419501+00:00"
     },
     {
-      "task": "__full_rollup__/demo/ee/hokaku#003306778FD726645E5D",
-      "fingerprint": "003306778FD726645E5D3D9033F062B7849176BC0A09E4CBFBD0D456E56C36E2",
-      "input_files": 52,
+      "task": "demo/ej/ej_raid_hokaku01/ej_raid_hokaku01#00000",
+      "fingerprint": "241F0671D8AFB28307C887FA5858F0432A74E60A7428979CD9E52149A031912B",
+      "input_files": 24,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "BNTX": 1,
-        "FLATBUFFER_CANDIDATE": 51
+        "FLATBUFFER_CANDIDATE": 24
       },
       "stages": {
         "messages": {
@@ -107,8 +107,8 @@
         },
         "bntx": {
           "kind": "bntx",
-          "processed": 1,
-          "ok": 1,
+          "processed": 0,
+          "ok": 0,
           "blocked": 0,
           "skipped": 0,
           "failed": 0
@@ -125,32 +125,33 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ee/hokaku",
-          "cursor": "demo/ee/hokaku/ob0204_00/ball_dummy.trmdl",
+          "prefix": "demo/ej/ej_raid_hokaku01/ej_raid_hokaku01",
+          "cursor": "demo/ej/ej_raid_hokaku01/ej_raid_hokaku01/ej_raid_hokaku01_ball_pos_loc_mdl.trmdl",
           "issues": []
         }
       },
-      "outputs": 61,
-      "parsed_records": 52,
-      "inspection_manifest": "parsed/demo/ee/hokaku/_inspection/d9859b508b45359b.jsonl",
-      "inspection_sha256": "6F43F10C2505CAFBB30932932E66662E3BB2EABC5C59092E935CDD202ABAF9D6",
-      "structurally_parsed": 52,
+      "outputs": 31,
+      "parsed_records": 24,
+      "inspection_manifest": "parsed/demo/ej/ej_raid_hokaku01/ej_raid_hokaku01/_inspection/860b2a8036482ddb.jsonl",
+      "inspection_sha256": "CA5FF0FB6C96C482D64A1322D28823BD548624049DAA785362A379C0D4056CF5",
+      "structurally_parsed": 24,
       "inspected_unparsed": 0,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 62,
-      "elapsed_seconds": 8.734,
-      "updated_utc": "2026-11-08T04:48:30.621644+00:00"
+      "published": 32,
+      "elapsed_seconds": 13.766,
+      "updated_utc": "2026-11-08T04:50:30.495072+00:00"
     },
     {
-      "task": "demo/ee/hokaku#00000",
-      "fingerprint": "3F5B0C9E4FA4DF5FAB73A2739986BBDC9D68F925E616D716D8DA72F73D27D56B",
-      "input_files": 10,
+      "task": "demo/ej/ej_transform01#00000",
+      "fingerprint": "CE14756E7CF1B30E065428695E2A8D9D639C9452B8C6CCF17D5C0AD6A568B67E",
+      "input_files": 9,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "FLATBUFFER_CANDIDATE": 10
+        "BY_EXTENSION:trtml": 1,
+        "FLATBUFFER_CANDIDATE": 8
       },
       "stages": {
         "messages": {
@@ -189,26 +190,26 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ee/hokaku",
+          "prefix": "demo/ej/ej_transform01",
           "cursor": null,
           "issues": []
         }
       },
-      "outputs": 11,
-      "parsed_records": 10,
-      "inspection_manifest": "parsed/demo/ee/hokaku/_inspection/1b1a85270cccf759.jsonl",
-      "inspection_sha256": "C573241B4DE94BD8CD6F0193AF715817FBFA2CE33301E95CA12B1519283F6C22",
-      "structurally_parsed": 10,
-      "inspected_unparsed": 0,
+      "outputs": 9,
+      "parsed_records": 9,
+      "inspection_manifest": "parsed/demo/ej/ej_transform01/_inspection/9629b50f3fe2a22a.jsonl",
+      "inspection_sha256": "3991B7FC13157FDDA9A7D1CA6F5775BCFF16E86F09C5C1275708B58E42C92D20",
+      "structurally_parsed": 8,
+      "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 12,
-      "elapsed_seconds": 0.937,
-      "updated_utc": "2026-11-08T04:48:30.651340+00:00"
+      "published": 10,
+      "elapsed_seconds": 0.766,
+      "updated_utc": "2026-11-08T04:50:30.525442+00:00"
     },
     {
-      "task": "demo/ee/kaiwa_template#00000",
-      "fingerprint": "9DB3C706CACE1068E2B43A2E2F6DB2726E942AEB8D195E3A960234D780EB09D2",
+      "task": "demo/ej/ej_transform01_2p#00000",
+      "fingerprint": "4E76D3D98CE4498329150A05FCCA6E88828C6B0676EF16716362C0B38F31D1DB",
       "input_files": 1,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -253,26 +254,26 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ee/kaiwa_template",
+          "prefix": "demo/ej/ej_transform01_2p",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 1,
       "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ee/kaiwa_template/_inspection/c62faa03fb4b956d.jsonl",
-      "inspection_sha256": "855674B7FB8089A4BBAFBD96C5367D73D4FC6557691168AC6C9D41CDE414C2DC",
+      "inspection_manifest": "parsed/demo/ej/ej_transform01_2p/_inspection/67431de8e274d3be.jsonl",
+      "inspection_sha256": "5CFEA7001D978F393886287E508CD43FEC05D88E8F94C02B987395EB5D694F2C",
       "structurally_parsed": 0,
       "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 2,
-      "elapsed_seconds": 0.187,
-      "updated_utc": "2026-11-08T04:48:30.655373+00:00"
+      "elapsed_seconds": 0.282,
+      "updated_utc": "2026-11-08T04:50:30.533067+00:00"
     },
     {
-      "task": "demo/ej/ej_lasttrtl00_change#00000",
-      "fingerprint": "AE6FB1E913A9B334817C800FCFD25DC0CEFC4100785AD67AC2C3E28A3C9CD9D2",
+      "task": "demo/ej/ej_transform01_2p_mask#00000",
+      "fingerprint": "981D97F81BBC9D9115A44C9E43203DDBFBE7988AA17AA1CE2AA88B2CE4FABE4F",
       "input_files": 1,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -317,26 +318,26 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ej/ej_lasttrtl00_change",
+          "prefix": "demo/ej/ej_transform01_2p_mask",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 1,
       "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ej/ej_lasttrtl00_change/_inspection/6d1a11f815a6a7cc.jsonl",
-      "inspection_sha256": "D9D847DBE40B88AA3711592FEC84D1E028336A5A201144BF6973830EE6C74E2C",
+      "inspection_manifest": "parsed/demo/ej/ej_transform01_2p_mask/_inspection/d09f762d0448ddb5.jsonl",
+      "inspection_sha256": "28BA14E6CC32B2660662B92ED46C677C699AA28CAA9C0E2CF2B883D7D37A63BF",
       "structurally_parsed": 0,
       "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 2,
-      "elapsed_seconds": 0.188,
-      "updated_utc": "2026-11-08T04:48:30.661147+00:00"
+      "elapsed_seconds": 0.593,
+      "updated_utc": "2026-11-08T04:50:30.539128+00:00"
     },
     {
-      "task": "demo/ej/ej_lasttrtl02_bg01#00000",
-      "fingerprint": "7CB03126E81CBDB809DA61EC3AD6152FDFBE78B54E43F4C7E8649C96ED3F54CA",
+      "task": "demo/ej/ej_transform01_2p_trtl#00000",
+      "fingerprint": "8C4A779D17B78A9F76BFC37827C021EBAC94B25461D3B54CD7AF1BA6BAF8877E",
       "input_files": 1,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -381,26 +382,221 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ej/ej_lasttrtl02_bg01",
+          "prefix": "demo/ej/ej_transform01_2p_trtl",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 1,
       "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ej/ej_lasttrtl02_bg01/_inspection/9e2aae35fa941673.jsonl",
-      "inspection_sha256": "4C94481A0C43F7D1666CF296CE5E5CDF1661BF5040C6081EF134A577CCCB26A0",
+      "inspection_manifest": "parsed/demo/ej/ej_transform01_2p_trtl/_inspection/fb6eb43cae00b3d4.jsonl",
+      "inspection_sha256": "0180547404E9D125F3F6B6EA2B124828EB44163394E465852D3C8EEAEE2EB346",
       "structurally_parsed": 0,
       "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 2,
-      "elapsed_seconds": 0.172,
-      "updated_utc": "2026-11-08T04:48:30.665180+00:00"
+      "elapsed_seconds": 0.234,
+      "updated_utc": "2026-11-08T04:50:30.546217+00:00"
     },
     {
-      "task": "demo/ej/ej_lasttrtl02_bg02#00000",
-      "fingerprint": "7BD13DD89A009017BDAD43F4652F402E8B027553AAA4DA7A4EB9591A618FA93F",
+      "task": "demo/ej/ej_transform01_mask#00000",
+      "fingerprint": "B80540D0A4113032A0DA516C24D89C1135EC895D230A50FD1CDA6D8EBE41E9B0",
+      "input_files": 4,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BY_EXTENSION:trtml": 1,
+        "FLATBUFFER_CANDIDATE": 3
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "demo/ej/ej_transform01_mask",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 4,
+      "parsed_records": 4,
+      "inspection_manifest": "parsed/demo/ej/ej_transform01_mask/_inspection/f5393858ee1c26f8.jsonl",
+      "inspection_sha256": "54EB9E7C65C61BB158DB980CAB57A0265F894F669C684F479E06B77C72283085",
+      "structurally_parsed": 3,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 5,
+      "elapsed_seconds": 0.547,
+      "updated_utc": "2026-11-08T04:50:30.559711+00:00"
+    },
+    {
+      "task": "demo/ej/ej_transform01_trtl#00000",
+      "fingerprint": "5E0FB2716807EFCBA0F661823CBDC05896353F48F8805F54688E84F5A2DF085B",
+      "input_files": 5,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "BY_EXTENSION:trtml": 1,
+        "FLATBUFFER_CANDIDATE": 4
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "demo/ej/ej_transform01_trtl",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 5,
+      "parsed_records": 5,
+      "inspection_manifest": "parsed/demo/ej/ej_transform01_trtl/_inspection/b71a21522da24b54.jsonl",
+      "inspection_sha256": "AEFA45517D2E0FC876A8B031969DC3F5E188C5F3F9EBEAEBF1C00E99FF3E60F9",
+      "structurally_parsed": 4,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 6,
+      "elapsed_seconds": 0.61,
+      "updated_utc": "2026-11-08T04:50:30.575404+00:00"
+    },
+    {
+      "task": "demo/ej/ej_transform02#00000",
+      "fingerprint": "8A5B54D75DF5534F11882ABF27AF80BBB9DABCC3FCE91C79426C9B69A65CB449",
+      "input_files": 65,
+      "status": "ATTEMPTED",
+      "unresolved": 0,
+      "returncode": 0,
+      "formats": {
+        "FLATBUFFER_CANDIDATE": 64,
+        "BY_EXTENSION:trtml": 1
+      },
+      "stages": {
+        "messages": {
+          "kind": "messages",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "labels": {
+          "kind": "labels",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "bntx": {
+          "kind": "bntx",
+          "processed": 0,
+          "ok": 0,
+          "blocked": 0,
+          "skipped": 0,
+          "failed": 0
+        },
+        "models": {
+          "counts": {
+            "seen": 0,
+            "parsed": 0,
+            "converted": 0,
+            "promoted": 0,
+            "blocked": 0,
+            "failed": 0,
+            "skipped": 0
+          },
+          "pipeline_version": "r4.1",
+          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
+          "prefix": "demo/ej/ej_transform02",
+          "cursor": null,
+          "issues": []
+        }
+      },
+      "outputs": 65,
+      "parsed_records": 65,
+      "inspection_manifest": "parsed/demo/ej/ej_transform02/_inspection/0aab4b834f29efc6.jsonl",
+      "inspection_sha256": "693994272C5FAB36F412045B50358F2504AC6469EEC843227192773EE65AF119",
+      "structurally_parsed": 64,
+      "inspected_unparsed": 1,
+      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
+      "hash_mismatches": 0,
+      "published": 66,
+      "elapsed_seconds": 1.907,
+      "updated_utc": "2026-11-08T04:50:30.724963+00:00"
+    },
+    {
+      "task": "demo/ej/ej_transform03#00000",
+      "fingerprint": "0A79580169C5CAD432AD8CEC03C9B913D82C0CB3DB3EA8D9C8DA8D8116C72951",
       "input_files": 1,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -445,26 +641,26 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ej/ej_lasttrtl02_bg02",
+          "prefix": "demo/ej/ej_transform03",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 1,
       "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ej/ej_lasttrtl02_bg02/_inspection/06713a47ad79d9c5.jsonl",
-      "inspection_sha256": "B1ED3669912F737086621840F13384E6CD37755C2208519935108FE30635A90E",
+      "inspection_manifest": "parsed/demo/ej/ej_transform03/_inspection/e54bc61efe0d5d47.jsonl",
+      "inspection_sha256": "B6B2ECCD4E08F5E70A04C140D119074ABB2BD0B54EBF38B555C6832C9409D1AF",
       "structurally_parsed": 0,
       "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 2,
-      "elapsed_seconds": 0.172,
-      "updated_utc": "2026-11-08T04:48:30.669199+00:00"
+      "elapsed_seconds": 0.203,
+      "updated_utc": "2026-11-08T04:50:30.746365+00:00"
     },
     {
-      "task": "demo/ej/ej_lasttrtl02_bg03#00000",
-      "fingerprint": "AF5A73E67A2766075699D19AB5FCBBAB07E8DB3063795EEEE38499F9B02CE850",
+      "task": "demo/ej/ej_transform04#00000",
+      "fingerprint": "1D847A97C276A86035ADFF3FC58B45443A059F1D8972429F7CEBC23E01188E13",
       "input_files": 1,
       "status": "ATTEMPTED",
       "unresolved": 0,
@@ -509,32 +705,33 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ej/ej_lasttrtl02_bg03",
+          "prefix": "demo/ej/ej_transform04",
           "cursor": null,
           "issues": []
         }
       },
       "outputs": 1,
       "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ej/ej_lasttrtl02_bg03/_inspection/edae443d2ecf26cb.jsonl",
-      "inspection_sha256": "345633E849E3CFAD6F815ACF5349BB75CFA36D18E151BBC3D4098386C92F4BAC",
+      "inspection_manifest": "parsed/demo/ej/ej_transform04/_inspection/058e717af118889b.jsonl",
+      "inspection_sha256": "7F894C39A24CF14C8FFA84EE145E619E165356E6F3AC5F4EA88A2062A25E6731",
       "structurally_parsed": 0,
       "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
       "published": 2,
-      "elapsed_seconds": 0.219,
-      "updated_utc": "2026-11-08T04:48:30.673911+00:00"
+      "elapsed_seconds": 0.203,
+      "updated_utc": "2026-11-08T04:50:30.752167+00:00"
     },
     {
-      "task": "demo/ej/ej_lasttrtl02_hokaku01#00000",
-      "fingerprint": "1C2F9900B844B338A62F4F7E768DDA8D2E0F54B20BFFCB7D5F73FBB02370F7D0",
-      "input_files": 1,
+      "task": "demo/ej/ej_transform_lastmask#00000",
+      "fingerprint": "C08BD8132AF75623F6685E4EC8E368EC9212C0E8B9534D315E9DC16191760A60",
+      "input_files": 4,
       "status": "ATTEMPTED",
       "unresolved": 0,
       "returncode": 0,
       "formats": {
-        "BY_EXTENSION:trtml": 1
+        "BY_EXTENSION:trtml": 1,
+        "FLATBUFFER_CANDIDATE": 3
       },
       "stages": {
         "messages": {
@@ -573,216 +770,24 @@
           },
           "pipeline_version": "r4.1",
           "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ej/ej_lasttrtl02_hokaku01",
+          "prefix": "demo/ej/ej_transform_lastmask",
           "cursor": null,
           "issues": []
         }
       },
-      "outputs": 1,
-      "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ej/ej_lasttrtl02_hokaku01/_inspection/25e85dd1e8419254.jsonl",
-      "inspection_sha256": "F8DB960F0B403EACC1867A9D5EE097F053AC6B402F3EDBB4DF5260C8791B2DC5",
-      "structurally_parsed": 0,
+      "outputs": 4,
+      "parsed_records": 4,
+      "inspection_manifest": "parsed/demo/ej/ej_transform_lastmask/_inspection/34156faa79358928.jsonl",
+      "inspection_sha256": "F1BC4A3D892C9AC527F210EEE3754406A7ADC7A5D6292B72AC588C03038BD9CD",
+      "structurally_parsed": 3,
       "inspected_unparsed": 1,
       "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
       "hash_mismatches": 0,
-      "published": 2,
-      "elapsed_seconds": 0.156,
-      "updated_utc": "2026-11-08T04:48:30.676924+00:00"
-    },
-    {
-      "task": "demo/ej/ej_raid_cheer01#00000",
-      "fingerprint": "796EC540DB4DDF83B42693A9518BA7EF8C3E680A5E25B31131BBC7FB00010568",
-      "input_files": 1,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BY_EXTENSION:trtml": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 0,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ej/ej_raid_cheer01",
-          "cursor": null,
-          "issues": []
-        }
-      },
-      "outputs": 1,
-      "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ej/ej_raid_cheer01/_inspection/e11a32165f14a594.jsonl",
-      "inspection_sha256": "9ABAE01314A14BB2C719E1BA414D6CF62EED021F580FE15A02B87E09572BAFC1",
-      "structurally_parsed": 0,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 2,
-      "elapsed_seconds": 0.141,
-      "updated_utc": "2026-11-08T04:48:30.682958+00:00"
-    },
-    {
-      "task": "demo/ej/ej_raid_cheer02#00000",
-      "fingerprint": "66A0D9CD806B8D3A7ACEBE7E5C0895155531F72E87CF2BF80549EDA42FD2545B",
-      "input_files": 1,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BY_EXTENSION:trtml": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 0,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ej/ej_raid_cheer02",
-          "cursor": null,
-          "issues": []
-        }
-      },
-      "outputs": 1,
-      "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ej/ej_raid_cheer02/_inspection/e98d08479ddb5848.jsonl",
-      "inspection_sha256": "6CBE357C777641F6949835A7282565F791F3A59D8E2CF456BBBF0EE8FC56C0D6",
-      "structurally_parsed": 0,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 2,
-      "elapsed_seconds": 0.14,
-      "updated_utc": "2026-11-08T04:48:30.686992+00:00"
-    },
-    {
-      "task": "demo/ej/ej_raid_cheer03#00000",
-      "fingerprint": "8B927267E4D28A5C670C76F2C34339FDA9F6419BFEED6DEF9ABEA448310DBAE0",
-      "input_files": 1,
-      "status": "ATTEMPTED",
-      "unresolved": 0,
-      "returncode": 0,
-      "formats": {
-        "BY_EXTENSION:trtml": 1
-      },
-      "stages": {
-        "messages": {
-          "kind": "messages",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "labels": {
-          "kind": "labels",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "bntx": {
-          "kind": "bntx",
-          "processed": 0,
-          "ok": 0,
-          "blocked": 0,
-          "skipped": 0,
-          "failed": 0
-        },
-        "models": {
-          "counts": {
-            "seen": 0,
-            "parsed": 0,
-            "converted": 0,
-            "promoted": 0,
-            "blocked": 0,
-            "failed": 0,
-            "skipped": 0
-          },
-          "pipeline_version": "r4.1",
-          "tool_sha256": "7A290421D926D0A459DD23DB1F9D47E3B3201A64F9BE31887C1907DBEA81B90E",
-          "prefix": "demo/ej/ej_raid_cheer03",
-          "cursor": null,
-          "issues": []
-        }
-      },
-      "outputs": 1,
-      "parsed_records": 1,
-      "inspection_manifest": "parsed/demo/ej/ej_raid_cheer03/_inspection/955df03a6e95fa8d.jsonl",
-      "inspection_sha256": "30073F0E7E8C5A85FFCD482D9407E2E62219FF22B1C028628719AC1EF0C7FA63",
-      "structurally_parsed": 0,
-      "inspected_unparsed": 1,
-      "schema_decoder_epoch": "sv-flatc-pokedocs-v2",
-      "hash_mismatches": 0,
-      "published": 2,
-      "elapsed_seconds": 0.125,
-      "updated_utc": "2026-11-08T04:48:30.691011+00:00"
+      "published": 5,
+      "elapsed_seconds": 0.297,
+      "updated_utc": "2026-11-08T04:50:30.765088+00:00"
     }
   ],
-  "updated_utc": "2026-11-08T04:48:31.226895+00:00",
+  "updated_utc": "2026-11-08T04:50:31.758312+00:00",
   "policy": "UNKNOWN_FORMATS_AND_VISUAL_REVIEW_NOT_AUTOMATICALLY_CONFIRMED"
 }
