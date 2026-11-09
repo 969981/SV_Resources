@@ -83,6 +83,26 @@ git diff --check
 - Upvalue 1：`instack=1, idx=16, kind=0`，引用**闭包创建时父原型寄存器 R16**。
 - 这些描述符只确定词法捕获路径，不提供游戏运行时的对象身份、实际值或宿主注册调用 PC。没有原始 `_ENV` / parent R16 / 真实 C API 时，不能把静态截取的根 Chunk 运行作为完整原函数等价证明。
 
+### 原生 C→F 注册链进一步闭合（R4 后续静态验收）
+
+直接对 root Proto0 的原始八指令 `GETUPVAL→LOADK→GETTABLE→LOADK→GETTABLE→LOADK→CLOSURE→SETTABLE` 注册模式验证：
+
+| 节点 | 真正原始值 |
+| --- | --- |
+| root Proto | 0 |
+| C→F 注册起点 | PC 12236 |
+| CLOSURE 创建位置 | **PC 12242**（绝对字节 offset **49009 / 0xBF71**，目标寄存器 **R56**） |
+| C→F SETTABLE 赋值 | PC 12243（字节 offset 49013） |
+| 子索引 / 函数 | child_index 708 → **Proto 752** |
+| 类 Hash | `CC0F71836C3BD9A89`（**UNKNOWN，不猜测类名**） |
+| 方法 Hash | `FD8D5F3745B4B5174`（PokeDocs 明确命名为 **mainBody**） |
+| Upvalue 0 | instack=0, idx=0：引用 root Upvalue0 |
+| Upvalue 1 | instack=1, idx=16：在 PC12242 创建闭包时捕获 root **R16** |
+
+方法名称依据是原始 PokeDocs Hashlists 的 `F` 命名映射，不是通过函数行为推测的名称。**这一静态绑定不提供 PC12242 的运行时寄存器 R16 对象内容，也不构成 mainBody 实机 A/B。**
+
+证据：[master 静态注册和 Upvalue 检查 Actions #42574165366](https://github.com/969981/SV_Resources/actions/runs/42574165366)。
+
 相关工具：
 - [Proto752 运行环境前置审计](../../scripts/Inspect-SV-Lua54-R4-Proto752-Shell.py)
 - [R4 审计 CI](../../.github/workflows/slr-r4-proto752-runtime-prerequisites.yml)
