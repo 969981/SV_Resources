@@ -46,6 +46,7 @@ class MockOpcode:
     def __init__(self,scope="setup",pc=11,op="CALL"):
         self.scope,self.pc,self.op=scope,pc,op
         self.calls=[]
+    def pseudonym(self,address,salt):return "synthetic-identity"+hex(address)
     def inspect_handler_entry(self,reader,ci,base,nextpc,word,handler,expected):
         self.calls.append(("handler",handler))
         return {"status":"ORIGINAL_PROTO_HANDLER_WORD_AND_SHA_MATCH",
@@ -96,6 +97,27 @@ class GDBOpcodeCommandTests(unittest.TestCase):
         self.assertIn("actual_receiver_tvalue",result)
         self.assertEqual([row["slot"] for row in result["setup_upval_snapshots"]],[0,1,2])
         self.assertFalse(result["behavior_equivalence_verified"])
+
+    def test_root_SETTable_after_closure_invokes_exact_R70_capture(self):
+        import os
+        from unittest.mock import patch
+        gdb=FakeGDB(0x41B9C)
+        gdb.regs["x20"]=16
+        opcode=MockOpcode("root",215523,"SETTABLE")
+        class FakeCapture:
+            def inspect_completed_setup_capture(self,*args):
+                self.called=True
+                return {"status":"NEW_SETUP_CLOSURE_CODE_AND_PARENT_UPVAL_LINK_MATCH",
+                        "new_closure_register":70,"new_setup_closure_id":"synthetic-cell",
+                        "actual_game_runtime_source_attested":False}
+        fake=FakeCapture()
+        with patch.dict(os.environ,{"SV400_CLOSURE_CAPTURE_HELPER":"/mock/capture.py"}):
+            with patch.object(adapter,"_load_source",return_value=fake):
+                out=adapter.inspect_paused_opcode(gdb,MAIN,{"root":1,"setup":2},
+                                                  NativeVerifier(),opcode)
+        self.assertTrue(fake.called)
+        self.assertEqual(out["after_closure_setup_and_upval_cells"]["new_closure_register"],70)
+        self.assertFalse(out["behavior_equivalence_verified"])
 
     def test_SETUP_SETI_reads_return_tvalue_and_not_wrong_receiver(self):
         gdb=FakeGDB(0x41D14)
