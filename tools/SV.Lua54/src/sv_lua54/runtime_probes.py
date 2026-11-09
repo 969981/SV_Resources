@@ -89,23 +89,43 @@ def receiver_origin(proto, code, call_pc):
 
 
 def producer_call_origin(proto, code, pc):
-    """Class-table call site is a constructor/factory candidate, not returned type."""
+    """Prove an ENV class-table callable reaches CALL R[A] in one basic block.
+
+    Argument setup may intervene (e.g. GETI R[A+1], self[1]). Reject any
+    intervening operation that may overwrite the callee register.
+    """
     if pc < 2 or code[pc][0] not in ("CALL", "TAILCALL"):
-        return {"kind": "INDIRECT_OR_UNKNOWN_PRODUCER"}
+        return {"kind": "INDIRECT_OR_UNKNOWN_PRODUCER", "runtime_verified": False}
+    from .capture import writes_register
     a = code[pc][1]
-    field, env = code[pc-1], code[pc-2]
-    if (field[0] == "GETFIELD" and field[1] == a and field[2] == a
-        and env[0] == "GETTABUP" and env[1] == a and env[2] == 0):
-        member = string_at(proto, field[3])
-        return {
-            "kind": "ENV_CLASS_FIELD_CALL",
-            "class_hash": string_at(proto, env[3], "C"),
-            "field_key": member if member in {"new", "_new", "Create", "New"} else None,
-            "gettabup_pc": pc-2, "getfield_pc": pc-1,
-            "returned_object_type": "UNOBSERVED",
-            "runtime_verified": False,
-        }
+    blocks, _, _ = basic_blocks(proto)
+    start = next(z["start_pc"] for z in blocks
+                 if z["start_pc"] <= pc < z["end_pc_exclusive"])
+    for field_pc in range(pc-1, max(start, pc-16)-1, -1):
+        op, ra, rb, rc, rk, *_ = code[field_pc]
+        if (op == "GETFIELD" and ra == a and rb == a
+            and field_pc > start):
+            env = code[field_pc-1]
+            if (env[0] == "GETTABUP" and env[1] == a and env[2] == 0):
+                member = string_at(proto, rc)
+                return {
+                    "kind": "ENV_CLASS_FIELD_CALL",
+                    "class_hash": string_at(proto, env[3], "C"),
+                    "field_key": member if member in {"new", "_new", "Create", "New"} else None,
+                    "gettabup_pc": field_pc-1, "getfield_pc": field_pc,
+                    "arg_setup_pcs": list(range(field_pc+1,pc)),
+                    "returned_object_type": "UNOBSERVED",
+                    "runtime_verified": False,
+                }
+        # Any other writer to callee register invalidates older provenance.
+        if writes_register(op, ra, rb, rc, a):
+            break
+        # Fall back on unknown complex ops; don't assume no register effects.
+        if op in {"VARARGPREP", "TFORCALL", "MMBIN", "MMBINI",
+                  "MMBINK", "FORLOOP", "FORPREP", "TESTSET"}:
+            break
     return {"kind": "INDIRECT_OR_UNKNOWN_PRODUCER", "runtime_verified": False}
+
 
 
 def build_manifest(chunk: Chunk, class_hash: str, function_hash: str,
