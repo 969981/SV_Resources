@@ -3,7 +3,9 @@ name: SLR R8 - Proto34363 open SETLIST and full main recovery
 on:
   push:
     branches: [codex/sv-main-lua-recovery-20261109]
-    paths: [.github/workflows/slr-r7-proto34363-setlist-hir.yml]
+    paths:
+      - ".github/workflows/slr-r7-proto34363-setlist-hir.yml"
+      - "scripts/Patch-SV-Lua54-R8-OpenSetlist.py"
   workflow_dispatch:
 
 permissions:
