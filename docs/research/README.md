@@ -12,7 +12,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 
 ## SV 4.0.0 Lua / Haxe 源码还原工程（SLR 1.0）
 
-- [BLUA → 可重编译 Lua / Haxe 的里程碑与任务路线图](sv-lua54-source-reconstruction-roadmap.md) — M0–M6、11 项可复验任务、六个 BLUA 输入、PokeDocs 符号恢复、Lua 5.4 AST/编译与 Haxe PoC；当前 **PLANNED**，跟踪 [EPIC #73](https://github.com/969981/SV_Resources/issues/73)。
+- [BLUA → 可重编译 Lua / Haxe 的里程碑与任务路线图](sv-lua54-source-reconstruction-roadmap.md) — M0–M6、11 项可复验任务、六个 BLUA 输入、PokeDocs 符号恢复、Lua 5.4 AST/编译与 Haxe PoC；当前 **IN_PROGRESS**（M0/M1 首轮通过），跟踪 [EPIC #73](https://github.com/969981/SV_Resources/issues/73)。
 - [SLR R0：六个原生 BLUA 无损 IR 与 100 函数严格反编译基准](sv-lua54-r0-native-ir-benchmark.md) — 46,084 Prototype、2,715,837 指令、6/6 字节级 roundtrip；97/100 严格反编译样本通过 Lua 5.4 语法检查，3 个 SETLIST 降低失败。**不代表运行时语义等价**。
 
 ## Lua symbols (SV 4.0.0 / PokeDocs)
