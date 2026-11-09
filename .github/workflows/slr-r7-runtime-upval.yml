@@ -11,6 +11,7 @@ on:
       - "tests/test_sv_lua54_r7.py"
       - "scripts/Verify-SV-Lua54-R7-Runtime.py"
       - "scripts/SV400_Lua_R7_Load_ReadOnly.py"
+      - "scripts/Verify-SV-Lua54-R7-ElfAnchor.py"
   pull_request:
     branches:
       - master
@@ -39,6 +40,7 @@ jobs:
             tools/SV.Lua54/src/sv_lua54
             scripts/Verify-SV-Lua54-R7-Runtime.py
             scripts/SV400_Lua_R7_Load_ReadOnly.py
+            scripts/Verify-SV-Lua54-R7-ElfAnchor.py
             tests/test_sv_lua54_r7.py
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
           persist-credentials: false
@@ -48,7 +50,7 @@ jobs:
       - name: Validate read-only debugger observer syntax and synthetic rejection gates
         run: |
           set -euo pipefail
-          python -m py_compile scripts/SV400_Lua_R7_Load_ReadOnly.py scripts/Verify-SV-Lua54-R7-Runtime.py tools/SV.Lua54/src/sv_lua54/r7.py
+          python -m py_compile scripts/SV400_Lua_R7_Load_ReadOnly.py scripts/Verify-SV-Lua54-R7-ElfAnchor.py scripts/Verify-SV-Lua54-R7-Runtime.py tools/SV.Lua54/src/sv_lua54/r7.py
           python -m unittest discover -s tests -p "test_sv_lua54_r7.py" -v
       - name: Pin original source CLOSURE machine words, do not claim live run
         shell: bash
