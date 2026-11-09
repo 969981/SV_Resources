@@ -22,6 +22,8 @@ task: "https://github.com/969981/SV_Resources/issues/76"
 - **方法体 Proto ID：17900**（此 ID 仅对该原始文件及对应解析顺序有效）。
 - 方法体 CFG：**9 个基本块**。
 - 方法体 CALL/TAILCALL：**63 处调用点**，每处记录原始 PC 和 code file offset。
+- 当前追踪结果：**3 处能识别所取字段 Hash**（PC 11: `F7CD5FEDB7A083576`；PC 32: `S668179E3DFA5CD49`；PC 83: `FA46877DC47484C79`），其余 **60 处仍属动态未解析调用**。三个字段 Hash **都不代表运行时确定的目标 Prototype**。
+- 方法定义根函数 PC：**215516**（赋值 PC **215523**）；方法体原始 code offset：**7590112**；方法体 **264 条指令**。
 - 实证定义：根 Chunk 的 \`GETUPVAL → LOADK → GETTABLE → LOADK → GETTABLE → LOADK → CLOSURE → SETTABLE\` 八条指令，并校验寄存器传递、C/F 常量、\`prototype\` 表名和 CLOSURE child index。
 - 八条指令中存在同一个 Hash 常量 **不足以**证明定义关系；必须通过整条数据流赋值模式。
 
@@ -50,7 +52,8 @@ task: "https://github.com/969981/SV_Resources/issues/76"
 
 ## 已验证的 GitHub Actions
 
-- [R1 原生方法与 CFG / 7 个合成测试全部通过](https://github.com/969981/SV_Resources/actions/runs/42551665001)。
+- [R1 原生方法与 CFG / 首轮 7 个合成测试全部通过](https://github.com/969981/SV_Resources/actions/runs/42551665001)。
+- [R1 增量 12 个合成测试、原生追踪和严格反编译全部通过](https://github.com/969981/SV_Resources/actions/runs/42552433392)。
 - [R1 原生方法严格反编译与 Lua5.4 语法检查通过](https://github.com/969981/SV_Resources/actions/runs/42551869428)。
 - CI artifact：\`SLR-R1-GemSettingManager-CF-trace\`，包含 \`slr-gem-setting-cf-trace.json\` 和 \`slr-gem-setting-decompile.json\`；不含原版 BLUA 或反编译源码。
 - 固定测试入口：\`tests/test_sv_lua54_trace.py\`（7 项全部通过）。
