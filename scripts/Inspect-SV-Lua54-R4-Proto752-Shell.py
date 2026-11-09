@@ -15,7 +15,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"tools"/"SV.Lua54"/"src"))
 from sv_lua54.chunk import parse
-from sv_lua54.r1 import decode
+from sv_lua54.r1 import decode, direct_cf_methods, annotate_methods, read_symbols
 
 REL = Path("Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua")
 PIN = "ae4a7d0168751f53af11746ac5ae7771cb1a5bfa580bcc0f79e2b9ee85acb572"
@@ -47,6 +47,17 @@ def build(root):
         if ins.name=="CLOSURE" and ins.bx==index
     ]
     if not parent_callsites:raise RuntimeError("No original parent CLOSURE site found")
+    methods,_=direct_cf_methods(chunk,"main_dynamic")
+    method_edges=[e for e in methods if e["child_proto_id"]==p.id]
+    if (root/"tools/PokeDocs/SV/Hashlists/Lua").is_dir():
+        candidates=read_symbols(
+            root/"tools/PokeDocs/SV/Hashlists/Lua",
+            root/"tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv",
+        )
+        method_edges=annotate_methods(method_edges,candidates)
+    else:
+        method_edges=[dict(x, class_name_candidate=None, function_name_candidate=None)
+                      for x in method_edges]
     upvalues=[{"slot":i,"instack":p.upvalues[3*i],
                "parent_index":p.upvalues[3*i+1],
                "kind":p.upvalues[3*i+2]}
@@ -59,6 +70,7 @@ def build(root):
         "parent_child_index":index,
         "parent_closure_creation_sites":parent_callsites,
         "parent_instruction_count":parent.instruction_count,
+        "direct_native_method_assignments":method_edges,
         "max_stack":p.max_stack_size,
         "upvalue_count":p.upvalue_count,"upvalue_lexical_descriptors":upvalues,
         "direct_children":len(p.children),
@@ -86,5 +98,6 @@ def main():
                    "upvalue_count","upvalue_lexical_descriptors",
                    "parent_proto_id","parent_child_index",
                    "parent_closure_creation_sites",
+                   "direct_native_method_assignments",
                    "direct_children","descendant_prototypes","entry_instructions")}))
 if __name__=="__main__":main()
