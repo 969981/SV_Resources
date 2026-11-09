@@ -112,7 +112,7 @@ def successors(code):
             dst = [following, following+bx+1]
         elif op == "TFORPREP":
             dst = [following+bx]
-        elif op in {"LOADKX", "NEWTABLE", "SETLIST"} and (op == "LOADKX" or k):
+        elif op in {"LOADKX", "NEWTABLE"} or (op == "SETLIST" and k):
             if following >= n or code[following][0] != "EXTRAARG":
                 raise ValueError(f"PC {pc}: expected EXTRAARG after {op}")
             dst = [following+1]
