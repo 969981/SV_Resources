@@ -1,0 +1,62 @@
+{
+  "backend": "unluac-rs v1.4.5",
+  "hir_dump": {
+    "exit_code": 0,
+    "stderr_excerpt": "",
+    "table_set_list_summary": {
+      "contexts": [
+        {
+          "excerpt": [
+            {
+              "line": 190,
+              "text": "    local [\"l16\"] = (l9 + (l12 * 3))"
+            },
+            {
+              "line": 191,
+              "text": "    local [\"l17\"] = ((l10 + (l13 * 3)) + 20)"
+            },
+            {
+              "line": 192,
+              "text": "    local [\"l18\"] = (l11 + (l14 * 3))"
+            },
+            {
+              "line": 193,
+              "text": "    table-set-list l15 start=1 values=l16, l17, l18 initializer-scope=None"
+            },
+            {
+              "line": 194,
+              "text": "    local [\"l19\"] = l15"
+            },
+            {
+              "line": 195,
+              "text": "    assign l15 = global(\"CDCBFD50A277E546D\")"
+            },
+            {
+              "line": 196,
+              "text": "    assign l15 = l15[\"SC9FEDFD2BE9E787A\"]"
+            }
+          ],
+          "match_line": 193
+        }
+      ],
+      "hit_count": 1,
+      "hit_limit": 25,
+      "line_count": 675
+    }
+  },
+  "module": "main_dynamic",
+  "not_a_decompilation_success": true,
+  "original_code_offset": 1076816,
+  "original_instructions": 2071,
+  "permissive_contains_unluac_diagnostic": true,
+  "permissive_error_excerpt": "",
+  "permissive_exit_code": 0,
+  "permissive_not_equivalent": true,
+  "proto_id": 752,
+  "schema_version": 1,
+  "source_sha256": "ae4a7d0168751f53af11746ac5ae7771cb1a5bfa580bcc0f79e2b9ee85acb572",
+  "source_version": "SV Violet 4.0.0",
+  "strict_error_excerpt": "error: HIR proto#0 still contains residual table-set-list during AST lowering\n",
+  "strict_exit_code": 1,
+  "warning": "This report contains diagnostic excerpts only; recovered source/HIR are not published or runtime verified."
+}
