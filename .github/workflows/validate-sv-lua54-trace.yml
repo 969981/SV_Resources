@@ -14,6 +14,8 @@ on:
       - "tools/SV.Lua54/src/sv_lua54/dataflow.py"
       - "tools/SV.Lua54/src/sv_lua54/capture.py"
       - "tools/SV.Lua54/src/sv_lua54/aliases.py"
+      - "tools/SV.Lua54/src/sv_lua54/runtime_probes.py"
+      - "tests/test_sv_lua54_runtime_probes.py"
       - ".github/workflows/validate-sv-lua54-trace.yml"
   pull_request:
     paths:
@@ -41,6 +43,7 @@ jobs:
             tests/test_sv_lua54_dataflow.py
             tests/test_sv_lua54_capture.py
             tests/test_sv_lua54_aliases.py
+            tests/test_sv_lua54_runtime_probes.py
             scripts/Verify-SV-Lua54-CF-Decompile.py
             .github/workflows/validate-sv-lua54-trace.yml
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
@@ -50,11 +53,12 @@ jobs:
           python-version: "3.12"
       - name: Syntax and synthetic control-flow checks
         run: |
-          python -m py_compile tools/SV.Lua54/src/sv_lua54/*.py tests/test_sv_lua54_trace.py tests/test_sv_lua54_dataflow.py tests/test_sv_lua54_capture.py tests/test_sv_lua54_aliases.py
+          python -m py_compile tools/SV.Lua54/src/sv_lua54/*.py tests/test_sv_lua54_trace.py tests/test_sv_lua54_dataflow.py tests/test_sv_lua54_capture.py tests/test_sv_lua54_aliases.py tests/test_sv_lua54_runtime_probes.py
           python -m unittest discover -s tests -p 'test_sv_lua54_trace.py' -v
           python -m unittest discover -s tests -p 'test_sv_lua54_dataflow.py' -v
           python -m unittest discover -s tests -p 'test_sv_lua54_capture.py' -v
           python -m unittest discover -s tests -p 'test_sv_lua54_aliases.py' -v
+          python -m unittest discover -s tests -p 'test_sv_lua54_runtime_probes.py' -v
       - name: Pin real native C-F method and trace body
         env:
           PYTHONPATH: tools/SV.Lua54/src
@@ -130,6 +134,32 @@ jobs:
                 grp['potential_setupval_count'],grp['potential_settabup_count'])
                 for key,grp in j['groups'].items()])
           PY
+      - name: R3 bounded native call-operand windows and runtime probe contract
+        env:
+          PYTHONPATH: tools/SV.Lua54/src
+        run: |
+          python -m sv_lua54.runtime_probes \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --class-hash C850E69B34478276C \
+            --function-hash F7C68FEDB79AB6396 \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --output slr-gem-setting-runtime-probe-manifest.json
+          python - <<'PY'
+          import json
+          d=json.load(open("slr-gem-setting-runtime-probe-manifest.json"))
+          m=d["manifest"]
+          assert m["method_proto_id"] == 17900
+          assert m["root_closure_pc"] == 215522
+          assert [x["call_pc"] for x in m["call_probes"]] == [11,32,83]
+          assert [x["field_hash"] for x in m["call_probes"]] == [
+              "F7CD5FEDB7A083576", "S668179E3DFA5CD49",
+              "FA46877DC47484C79"]
+          assert d["audit"]["status"] == "NO_RUNTIME_EVIDENCE"
+          assert d["audit"]["runtime_verified"] is False
+          print("R3_NATIVE_CONTRACT_VERIFIED",m["method_code_sha256"],
+                [(x["call_pc"],x["field_hash"],x["owner_class_candidate"])
+                for x in m["call_probes"]])
+          PY
       - name: Strict decompile and Lua 5.4 syntax test of the same native method
         shell: bash
         run: |
@@ -169,5 +199,6 @@ jobs:
             slr-gem-setting-dataflow.json
             slr-gem-setting-captures.json
             slr-gem-setting-upvalue-aliases.json
+            slr-gem-setting-runtime-probe-manifest.json
           if-no-files-found: warn
           retention-days: 14
