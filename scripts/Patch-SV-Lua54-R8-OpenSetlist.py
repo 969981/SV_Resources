@@ -27,6 +27,11 @@ METHOD=r"""    /// R8: original PUC open batch with a single scalar closure prod
         binding: TableBinding,
         set_list: &crate::hir::common::HirTableSetList,
     ) -> bool {
+        if set_list.values.tail.is_some() && set_list.values.fixed.len() == 1 {
+            let start = index.saturating_sub(5);
+            eprintln!("SLR_R8_NEARBY index={} binding={:?} start={} stmts={:#?}",
+                index, binding, start, &block.stmts[start..=index]);
+        }
         let Some(seed_i) = index.checked_sub(3) else { return false };
         let TableBinding::Local(owner) = binding else { return false };
         let Some((source, seed)) = constructor_seed(&block.stmts[seed_i]) else {
