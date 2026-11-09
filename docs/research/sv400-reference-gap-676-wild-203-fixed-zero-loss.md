@@ -82,3 +82,26 @@ updated: 2026-11-09
 | 游戏规则身份 | 不得仅用 PKHeX 数据拟合游戏，未取得真实 PK9/原生运行时证据前保持默认生成器不变 |
 
 此文档为独立差异源审计，不向游戏、PKHeX 或 pkNX 正式数据库回写任何数据。
+
+
+## 2026-11-09：178、180、192 的 142 条上限差异，原始合并前后链已复核
+
+新增独立只读审计脚本 scripts/Audit-SV400-Terarium178-Original-Merge.py，使用 [Actions #42547351802](https://github.com/969981/SV_Resources/actions/runs/42547351802) 的原始来源工件 SV400-original-point-level-and-fixed-158-attributed-evidence （实际来源 **61 M2＋223 TRCOL**）；输入只接受以下固定证据：
+
+- SV400_666_wild_point_provenance.csv SHA-256：DF89744F7C484F7EBA0C1BB395D5E2B91287DCBD85EB3E4FDF01540F3E0777CA。
+- SV400_Point_Trace_Validation.json 必须证实 666 条来源关联、原生野生 .pkl SHA：01F78F4F8DE93176642B1837A5FEC65483003424DE80A20115E72E8C3187C187。
+
+重点：178←0 共 57 条、192←178 共 57 条、180←178 共 28 条。原始 preconsolidation_level_ranges_json 和 postconsolidation_level_ranges_json 逐项核对：
+
+| 来源级别的证据 | 142 条中的计数 |
+|---|---:|
+| 合并前同时存在上限为 **74** 与 **70／71** 的区间 | **142** |
+| 合并前已存在与参考完全一致的等级区间 | **127** |
+| 合并后仍存在与参考完全一致的等级区间 | **2** |
+| 合并后出现原生较宽的 **74** 级上限区间 | **142** |
+
+原始候选示例：59–70、65–70、65–74，经过区间合并可变成 59–74，固定 PKHeX 参考需要 59–70。此处只证明原始 pkNX 重建链的实际差异，**不能直接认定游戏应该把所有区间拆分**。
+
+这 142 条来源关联全部引用原始 world/data/encount/point_data/point_data/encount_data_su2.bin。对原始 PointData 索引去重后：上限 74 的候选 334 个索引，上限 70／71 的候选 378 个索引，交集 83，合计并集 629 个不同索引。**来源关联可能不唯一；这些索引不是最终序列化槽位，也不是实机刷怪证明。**
+
+下一个隔离 A/B 应优先检查 LocationStorage.Consolidate()／PaldeaEncounter.Absorb() 是否将不属于同一原始区域/点位所有权的区间过度合并，而不是统一截断 max=74。该审计只产生证据 CSV/JSON；**默认 .pkl、PKHeX 参考和原始 ROM 都不修改**。
