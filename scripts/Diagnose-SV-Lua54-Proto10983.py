@@ -130,7 +130,7 @@ def instrument(folder):
                             })
                         } else { false }
                     } else { false };
-                    if replaced == 0 && captured_by_ref && condition.nodes.len() == 2 && lowering.proto.instrs.len() == 93 && producer.id == condition.entry && producer.predicate.index() == 64 && node.predicate.index() == 70 {
+                    if replaced == 0 && captured_by_ref && condition.nodes.len() == 2 && producer.id == condition.entry && producer.predicate.index() == 64 && node.predicate.index() == 70 {
                         eprintln!("SV10983_CAPTURE_REFERENCE_RETAINED binding={:?}", binding);
                     } else if replaced != 1 {
                         eprintln!("SV10983_FAILURE=replace_binding count={} producer={:?} consumer={:?} phi={:?} expr={:?} replacement={:?} read={:?}", replaced, producer_id, node.id, value.phi, expr, replacement, read);
@@ -151,7 +151,6 @@ def instrument(folder):
     target='''        let mut prefix = self.lower_condition_prefix(owner, header)?;
         if let [producer, consumer] = condition.nodes.as_slice()
             && producer.id == condition.entry
-            && self.lowering.proto.instrs.len() == 93
             && producer.predicate.index() == 64
             && consumer.predicate.index() == 70
             && let Some(value) = &producer.materialized_value
