@@ -1,7 +1,7 @@
 ---
 aliases: [SV 4.0.0 BLUA Lua Haxe 源码还原, SLR 1.0 任务路线图]
 tags: [pokemon-sv, lua54, haxe, pokedocs, source-reconstruction, obsidian]
-status: PLANNED
+status: IN_PROGRESS
 game_version: "4.0.0"
 epic: "https://github.com/969981/SV_Resources/issues/73"
 updated: "2026-11-09"
@@ -10,7 +10,7 @@ updated: "2026-11-09"
 # SV 4.0.0 BLUA → 可编辑 Lua / Haxe 项目（SLR 1.0）
 
 > [!important] 当前状态
-> **规划完成，尚未实现反编译流水线。** 现有研究证明两个主要 BLUA 能按 Lua 5.4 解析 Prototype 和部分指令赋值关系，但不证明原始 Lua/Haxe 源码已经还原，也不证明生成代码与原游戏语义相同。
+> **已启动 R0，M0/T00 与 M1/T01 第一版通过 Actions 并合并 PR #85。** 六文件 Lua 5.4 无损 IR、字节完全一致的重新编码及 100 原型严格反编译基准（97/100 语法通过）已实现；完整源码工程/行为等价仍未完成。 现有研究证明两个主要 BLUA 能按 Lua 5.4 解析 Prototype 和部分指令赋值关系，但不证明原始 Lua/Haxe 源码已经还原，也不证明生成代码与原游戏语义相同。
 > 原始 BLUA 永远只读；原始 PokeDocs 也只读。大规模恢复的游戏源码默认导出本地，不自动提交到公开仓库。
 
 ## 目标定义
@@ -27,6 +27,8 @@ updated: "2026-11-09"
 7. 可增量重建六个输入，按模块/原型汇总 PASS、PARTIAL、UNSUPPORTED 证据。
 
 **非目标：** 不宣称能还原原始开发者变量名与注释；不把旧版反编译语料当 4.0.0 原生证据；不要求重新编译后每个字节与原版相同；不默认修改游戏、插入 Hook 或上线实机写入；不默认发布完整恢复的第三方游戏源码。
+
+[R0 原生 IR 与第一轮 100 函数基准实测](sv-lua54-r0-native-ir-benchmark.md) · [合并 PR #85](https://github.com/969981/SV_Resources/pull/85) · [成功 Actions #42550410858](https://github.com/969981/SV_Resources/actions/runs/42550410858)
 
 ## 输入与已知基线
 
