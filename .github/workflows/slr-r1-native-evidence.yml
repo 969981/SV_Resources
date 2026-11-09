@@ -3,6 +3,7 @@ name: SLR R1 - SETLIST / Upvalue / native C-F evidence
 on:
   push:
     branches:
+      - master
       - feature/sv-lua54-r1-setlist-upvalue-cf
     paths:
       - ".github/workflows/slr-r1-native-evidence.yml"
@@ -14,7 +15,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: slr-r1-native-evidence
@@ -37,13 +38,16 @@ jobs:
             tools/SV.Lua54/src
             tools/SV.Lua54/fixtures/native_manifest.json
             tools/SV.Lua54/fixtures/benchmark_cohort.json
+            tools/SV.Lua54/fixtures/r1_native_report.json
+            tools/SV.Lua54/fixtures/r1_backend_145.json
+            tools/SV.Lua54/fixtures/r1_residual_hir_752.json
             tools/PokeDocs/SV/Hashlists/Lua
             tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv
             tests/test_sv_lua54_r1.py
             tests/test_sv_lua54_parser.py
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release
           sparse-checkout-cone-mode: false
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Python 3.12
         uses: actions/setup-python@v5
@@ -115,16 +119,9 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
-      - name: Commit only compact source-backed R1 report
+      - name: Assert pinned reports reproducible without modifying the repository
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add --sparse tools/SV.Lua54/fixtures/r1_native_report.json tools/SV.Lua54/fixtures/r1_backend_145.json tools/SV.Lua54/fixtures/r1_residual_hir_752.json
-          if git diff --cached --quiet; then
-            echo "R1 summary unchanged"
-          else
-            git commit -m "data(SLR R1): original PC / Upvalue / 24085 six-module C-F evidence summary"
-            git push origin HEAD:refs/heads/feature/sv-lua54-r1-setlist-upvalue-cf
-          fi
+          git diff --exit-code --             tools/SV.Lua54/fixtures/r1_native_report.json             tools/SV.Lua54/fixtures/r1_backend_145.json             tools/SV.Lua54/fixtures/r1_residual_hir_752.json
+          echo "R1 evidence matches committed snapshots; no push performed."
