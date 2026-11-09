@@ -184,6 +184,15 @@ def instrument(folder):
     assert loops.count(source)==1
     loops=loops.replace(source,target)
     loop_file.write_text(loops)
+    # The experimental loop call site lives outside short_circuit's parent
+    # module; expose only the two already crate-scoped helpers in this
+    # ephemeral upstream checkout, not in the user's source tree.
+    public_file=folder/'src/hir/analyze/short_circuit/mod.rs'
+    public_text=public_file.read_text()
+    source='pub(super) use self::lowering::{lower_short_circuit_subject, lower_short_circuit_subject_single_eval};'
+    assert public_text.count(source)==1
+    public_text=public_text.replace(source,'pub(crate) use self::lowering::{lower_short_circuit_subject, lower_short_circuit_subject_single_eval};')
+    public_file.write_text(public_text)
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--lift',type=Path)
