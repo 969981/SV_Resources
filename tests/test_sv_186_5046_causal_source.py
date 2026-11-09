@@ -23,10 +23,10 @@ class Source186CausalAuditTests(unittest.TestCase):
 
     def test_newly_accepted_original_176_criteria_remain_attributed_to_point(self):
         original={"stage":"wild_raw_candidate","location":176,"species":88,
-                  "pointSource":"world/data/encount/point_data/point_data/encount_data_su2.bin",
-                  "pointIndex":12503,"sourceCollisionArea":"a_su0202",
+                  "pointSource":"synthetic-fixture-not-game-evidence",
+                  "pointIndex":123,"sourceCollisionArea":"a_su0202",
                   "areaName":"a_su0202","criteriaIndex":30,
-                  "rawPointMin":59,"rawPointMax":69,
+                  "rawPointMin":58,"rawPointMax":69,
                   "clippedPointMin":59,"clippedPointMax":68,
                   "criteriaMinLevel":7,"criteriaMaxLevel":80,
                   "minLevel":59,"maxLevel":68,"timeMask":0,"band":False}
@@ -35,7 +35,7 @@ class Source186CausalAuditTests(unittest.TestCase):
         b=M.raw176([altered])
         self.assertEqual(sum((b-a).values()),1)
         self.assertEqual(sum((a-b).values()),1)
-        self.assertIn(12503,{key[2] for key in (b-a)})
+        self.assertIn(123,{key[2] for key in (b-a)})
         self.assertEqual(M.raw176([dict(original,location=186)]),{})
 
     def test_duplicate_original_point_candidate_is_not_one_point(self):
