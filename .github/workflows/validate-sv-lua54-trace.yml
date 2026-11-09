@@ -1,0 +1,63 @@
+name: SLR R1 - native C-F Prototype and CFG trace
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-cf-trace-r1
+    paths:
+      - "tools/SV.Lua54/src/sv_lua54/trace.py"
+      - "tests/test_sv_lua54_trace.py"
+      - ".github/workflows/validate-sv-lua54-trace.yml"
+  pull_request:
+    paths:
+      - "tools/SV.Lua54/src/sv_lua54/trace.py"
+      - "tests/test_sv_lua54_trace.py"
+      - ".github/workflows/validate-sv-lua54-trace.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Sparse checkout parser, tests, and original 4.0.0 main.blua
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            tools/SV.Lua54/src/sv_lua54
+            tests/test_sv_lua54_trace.py
+            .github/workflows/validate-sv-lua54-trace.yml
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax and synthetic control-flow checks
+        run: |
+          python -m py_compile tools/SV.Lua54/src/sv_lua54/*.py tests/test_sv_lua54_trace.py
+          python -m unittest discover -s tests -p 'test_sv_lua54_trace.py' -v
+      - name: Pin real native C-F method and trace body
+        env:
+          PYTHONPATH: tools/SV.Lua54/src
+        run: |
+          python -m sv_lua54.trace \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --module main \
+            --class-hash C850E69B34478276C \
+            --function-hash F7C68FEDB79AB6396 \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --output slr-gem-setting-cf-trace.json
+          python -c 'import json; x=json.load(open("slr-gem-setting-cf-trace.json")); assert x["matched_definitions"]>0, "method not found"; print("method",x["class_hash"],x["function_hash"],"proto",x["items"][0]["proto_id"],"blocks",len(x["items"][0]["cfg_blocks"]),"calls",len(x["items"][0]["calls"]))'
+      - name: Upload bounded trace metadata (never original BLUA)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R1-GemSettingManager-CF-trace
+          path: slr-gem-setting-cf-trace.json
+          if-no-files-found: warn
+          retention-days: 14
