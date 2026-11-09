@@ -42,7 +42,7 @@ class NativeVerifier:
 
 class MockOpcode:
     TARGET_HANDLERS={"CALL":(0x4487C,68),"CLOSURE":(0x453FC,79),
-                     "SETI":(0x41D14,17)}
+                     "SETI":(0x41D14,17),"SETTABLE":(0x41B9C,16)}
     def __init__(self,scope="setup",pc=11,op="CALL"):
         self.scope,self.pc,self.op=scope,pc,op
         self.calls=[]
