@@ -221,6 +221,9 @@ if gdb is not None:
                 self.rva = rva
 
             def stop(self):
+                # Always disarm before reading guest memory: handler entries
+                # may execute at extremely high frequency in a live game.
+                self.enabled = False
                 self.owner.hits += 1
                 names = ("pc", "sp", "lr", "x0", "x1", "x2", "x3", "x4",
                          "x5", "x6", "x7", "x19", "x20", "x21", "x22")
