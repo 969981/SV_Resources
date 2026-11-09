@@ -134,6 +134,19 @@ jobs:
                     'cmp_bound',j['summary'].get('mask_with_81_to_84_cmp',0),
                     'candidate_count',len(j['candidates']))
           PY
+      - name: Inspect bounded canonical Lua runtime diagnostics across native modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > slr-luavm-diagnostic-string-anchors.txt
+          for name in violet_main subsdk0 sdk; do
+            elf="Unpack/4.0.0/exefs/$name/$name.elf"
+            echo "MODULE $name" >> slr-luavm-diagnostic-string-anchors.txt
+            strings -a -t x -n 10 "$elf" \
+              | grep -Ei 'attempt to (index|call|concatenate|perform arithmetic|compare)|stack overflow|C stack overflow|protected metatable|luaV_execute|luaD_call|lua_gettop|lua_pcall|too many (local|upvalue)|Lua 5\.4|\.blua' \
+              | head -45 >> slr-luavm-diagnostic-string-anchors.txt || true
+          done
+          cat slr-luavm-diagnostic-string-anchors.txt
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
         run: |
@@ -175,6 +188,7 @@ jobs:
             slr-luavm-symbol-hints.txt
             slr-violet-luavm-static-xrefs.json
             slr-violet-luavm-dispatch-shapes.json
+            slr-luavm-diagnostic-string-anchors.txt
             slr-subsdk0-luavm-dispatch-shapes.json
             slr-sdk-luavm-dispatch-shapes.json
             slr-violet-luavm-xref-neighborhood.txt
