@@ -88,6 +88,46 @@ pr: "https://github.com/969981/SV_Resources/pull/86"
 
 入口 X1（保存至 X25）在原始 AArch64 代码中依次用于：ci.func = *(X1+0)；func TValue 中的 Closure 指针 = *(ci.func+0)；LClosure 中的 Proto 指针 = *(closure+0x18)；Proto.k = *(Proto+0x38)；ci.savedpc = *(X1+0x20)。脚本对以上访问只在现场代码指纹匹配后尝试读取，读取失败按 UNREADABLE 处理。Proto.code 指针位于 +0x40 目前**仍为布局假设**；只有读出 264*4 字节并 SHA-256 与 Setup Proto17900 的原始 code 哈希 9491ca5a3f0ca76cc7a21d31ef8320bb57b95e7e2bdf990806d21d02946006c1 精确匹配时，才输出有限的 SETUP_17900_RUNTIME_CODE_BYTES_MATCH 证据。即便匹配，也没有自动证明保存的指令指针、上层 Closure 激活、子 UpValue 单元、实参及实际执行分支。
 
+## 2.2 首次完整映射：9 个原始 Lua PC → 4 个 AArch64 Handler
+
+使用 **scripts/Map-SV400-Lua54-NativeTraceTargets.py** 同时读取固定 SHA 的真实 \`main.blua\` 和 \`slr-violet-luavm-verified-native-dispatch.json\`，逐条校验 Proto ID、Lua PC、Opcode 名称、原始指令字节偏移与 83 条 Native Handler 表的索引。产出 **slr-violet-lua-pc-native-handlers.json**。
+
+| 代码来源 | Lua PC | Lua 5.4 指令 | Native Handler RVA | 采样目的 |
+| --- | ---: | --- | --- | --- |
+| root Proto 0 | 215522 | CLOSURE | 0x453FC | Setup 闭包创建前/后 UpValue 捕获 |
+| root Proto 0 | 215523 | SETTABLE | 0x41B9C | 闭包写入 class.prototype.F 字段 |
+| Setup Proto 17900 | 7 | CALL | 0x4487C | GemSettingFB.new(self[1]) 真实返回 |
+| Setup Proto 17900 | 8 | SETI | 0x41D14 | R2 保存到 self[14] |
+| Setup Proto 17900 | 11 | CALL | 0x4487C | self[14] 取得字段函数的真实被调对象 |
+| Setup Proto 17900 | 32 | CALL | 0x4487C | 全局类表 S 字段的真实被调对象 |
+| Setup Proto 17900 | 47 | CALL | 0x4487C | GemSettingStartWindow.new() 真实返回 |
+| Setup Proto 17900 | 48 | SETI | 0x41D14 | R4 保存到 self[7] |
+| Setup Proto 17900 | 83 | CALL | 0x4487C | self[7] 取得字段函数的真实被调对象 |
+
+> [!warning] 关键理解
+> 这里证明了**相同 Lua opcode 在 AArch64 原生解释器中执行哪个静态 Handler**，不是 9 个独立 Native Hook RVA。一个 Native CALL Handler 可能服务游戏内数百万处 Lua CALL。**不要无条件给这四个 Handler 全部设置高频 GDB 断点**：必须先在实际 VM 入口确认 CallInfo、Closure、Proto.code 原始指纹，再引入仅命中 root 或 Setup 的过滤条件。源文件 \`file_offset\` 也不是运行时 RVA。
+
+[Actions #42566984991](https://github.com/969981/SV_Resources/actions/runs/42566984991) 已验证该表和完整 83 操作码静态指令/重定位映射。总 **26 项 Python 合成测试通过**（4 ELF、3 静态 xref、6 GDB preflight、4 opcode 形态、2 错误消息、4 RELA 测试、3 Lua PC 映射），无真实游戏进程。
+
+源映射复现（只生成审计 JSON，不对游戏写入）：
+
+~~~bash
+python scripts/Verify-SV400-Lua54-NativeDispatch.py \
+  Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+  --output slr-violet-luavm-verified-native-dispatch.json
+
+python scripts/Map-SV400-Lua54-NativeTraceTargets.py \
+  Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+  --dispatch-manifest slr-violet-luavm-verified-native-dispatch.json \
+  --output slr-violet-lua-pc-native-handlers.json
+~~~
+
+## 2.3 实机首次命中之后的工作量
+
+GDB \`sv400-native-arm 0x41150\` 默认使用**一次性硬件断点**。命中当下记录 X0/X1 原生参数，然后沿已审计的 \`ci.func\`、\`ci.savedpc\`、\`Closure\`、\`Proto\` 指针访问作只读候选采样。如果 \`Proto.code+0x40\` 这一尚未验证的偏移确实指向相同的代码，且整段 264 条指令 SHA-256 与 Setup 原始 Proto 17900 精确相同，则标记 \`SETUP_17900_RUNTIME_CODE_BYTES_MATCH\`；这仍不等于建立了完整 CallInfo 帧或实际执行路径。
+
+**当前尚无一次真实 GDB hit**，所有实例对象 ID、R55/R58 UpVal cell 的真实身份和值、CALL 的 Lua/C 被调函数身份依旧为 \`NOT_OBSERVED\`。只有取得来自正在运行的游戏的这类证据，才能把 9 个静态采样点接入之前 R3 的 VM 事件契约，最后做行为 A/B。
+
 ## 3. 可在用户已有的 WSL2 GDB 环境执行的原生预检
 
 已添加 scripts/Probe-SV400-LuaVM-GDB.py。它不是 Game Freak Lua VM Hook，也不依赖未验证的 lua_State 偏移。作用是先验证 Ryujinx GDB 当前 guest main 内的原版代码与 ELF 相同，然后仅在明确允许的原生 RVA 下硬件断点，读取 ARM64 CPU 寄存器。
