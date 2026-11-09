@@ -4,7 +4,7 @@
 local native_path = assert(arg[1], "native bytecode slice path required")
 local raw_region = assert(loadfile(native_path, "b"))
 local generated_path = assert(arg[2], "automatically emitted Lua source path required")
-local generated_region = assert(loadfile(generated_path, "t"))()
+local generated_region = assert(loadfile(generated_path, "bt"))()
 
 local function reconstructed_region(a, b, c, d, e, f)
     -- Recovered *candidate*, based on HIR: allocation first, then values,
