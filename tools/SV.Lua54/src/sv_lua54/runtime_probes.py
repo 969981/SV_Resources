@@ -137,8 +137,10 @@ def audit_events(manifest, events):
     root_pc = manifest["root_closure_pc"]
     expected = {x["call_pc"]: x for x in manifest["call_probes"]}
     sessions = {}
+    seen_closure_ids = set()
     errors = []
     seen_calls = []
+    last_seq = {}
     for index, event in enumerate(records):
         typ = event.get("event")
         run = event.get("run_id")
@@ -147,7 +149,18 @@ def audit_events(manifest, events):
         if not _nonempty(event, ("run_id", "root_activation_id")):
             errors.append(f"event {index}: missing stable run/root activation IDs")
             continue
+        seq = event.get("event_seq")
+        if not isinstance(seq, int) or isinstance(seq, bool) or seq < 0 or (
+            key in last_seq and seq <= last_seq[key]
+        ):
+            errors.append(f"event {index}: missing or non-monotonic event_seq")
+        else:
+            last_seq[key] = seq
         if typ == "run_begin":
+            if not _nonempty(event, ("observer_build",)):
+                errors.append(f"event {index}: missing instrumented VM build identity")
+            if event.get("schema") != manifest["schema"]:
+                errors.append(f"event {index}: wrong VM trace schema")
             if event.get("source_sha256") != manifest["source_sha256"] or (
                 event.get("root_proto_code_sha256") != manifest["root_proto_code_sha256"]
             ):
@@ -155,7 +168,8 @@ def audit_events(manifest, events):
             if key in sessions:
                 errors.append(f"event {index}: duplicate run/root activation")
             else:
-                sessions[key] = {"closure_id": None, "cells": {}, "calls": []}
+                sessions[key] = {"closure_id": None, "cells": {}, "calls": [],
+                                 "snapshots": {}, "last_call_seq": -1}
         elif typ == "closure_create":
             state = sessions.get(key)
             if state is None:
@@ -185,6 +199,9 @@ def audit_events(manifest, events):
                     errors.append(f"event {index}: missing cell {slot} value identity")
             if len(ids) == 3 and len(set(ids)) < 3:
                 errors.append(f"event {index}: three distinct UpVal slots reused one cell")
+            if event.get("closure_id") in seen_closure_ids:
+                errors.append(f"event {index}: closure ID reused across runtime activations")
+            seen_closure_ids.add(event.get("closure_id"))
             state["closure_id"] = event.get("closure_id")
             state["cells"] = {s:cells[s].get("cell_id") for s in ("0", "1", "2")
                               if isinstance(cells[s], dict)}
@@ -201,6 +218,14 @@ def audit_events(manifest, events):
                 errors.append(f"event {index}: call from wrong Closure instance")
             if not _nonempty(event, ("callee_id", "receiver_id", "receiver_lookup_evidence")):
                 errors.append(f"event {index}: no real target/receiver/lookup evidence")
+            elif event["receiver_lookup_evidence"] not in {
+                "observed_table_get", "observed_metatable_index",
+                "observed_native_field_get", "direct_register_object"
+            }:
+                errors.append(f"event {index}: receiver evidence is not VM-observed")
+            for slot in ("1", "2"):
+                if state["snapshots"].get(slot, -1) <= state["last_call_seq"]:
+                    errors.append(f"event {index}: missing fresh UpVal {slot} snapshot before call")
             if event.get("callee_kind") == "lua_closure":
                 if not _nonempty(event, ("callee_proto_code_sha256",)):
                     errors.append(f"event {index}: no callee Lua Proto identity")
@@ -210,6 +235,7 @@ def audit_events(manifest, events):
             else:
                 errors.append(f"event {index}: unknown callable kind")
             state["calls"].append(pc)
+            state["last_call_seq"] = seq if isinstance(seq, int) else index
             seen_calls.append(pc)
         elif typ == "upvalue_snapshot":
             state = sessions.get(key)
@@ -220,6 +246,12 @@ def audit_events(manifest, events):
                 errors.append(f"event {index}: incorrect UpVal cell identity for slot {slot}")
             elif not _nonempty(event, ("value_type",)):
                 errors.append(f"event {index}: missing observed UpVal type")
+            elif event["value_type"] != "nil" and not (
+                event.get("value_id") or event.get("value_fingerprint")
+            ):
+                errors.append(f"event {index}: missing observed non-nil UpVal value identity")
+            else:
+                state["snapshots"][slot] = seq if isinstance(seq, int) else index
         else:
             errors.append(f"event {index}: unknown event type")
     observed = sorted(set(seen_calls))
