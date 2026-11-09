@@ -68,7 +68,7 @@ class R7Tests(unittest.TestCase):
         r = verify(x, STATIC)
         self.assertFalse(r["gates"]["same_R13_UpVal"])
         self.assertTrue(r["gates"]["same_R13_Table"])
-        self.assertIn("NOT proven", " ".join(r["errors"]).replace("NOT proven", "NOT proven") if False else "NOT proven")
+        self.assertTrue(any("UpVal addresses differ" in e for e in r["errors"]))
         self.assertEqual(r["status"], "TRACE_INCOMPLETE_OR_CONTRADICTORY")
 
     def test_different_table_objects_rejected(self):
