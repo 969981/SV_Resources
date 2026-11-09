@@ -139,8 +139,12 @@ def run(root: Path, method_index: Path | None = None, capture_index: Path | None
               f"{seen_ops['SETLIST']} SETLIST", flush=True)
     if cf_counts["main"] != 18991 or cf_counts["main_dynamic"] != 4736:
         raise ValueError(f"native C->F mapping failed established strict baseline: {cf_counts}")
-    if len(all_edges) != 23727:
-        raise ValueError(f"expected 23727 strict C/F assignments, found {len(all_edges)}")
+    # Historical 23,727 covered only main + main_dynamic.  Two DLLs add 358.
+    expected_all = {"main": 18991, "main_dynamic": 4736,
+                    "dll_danbattle": 126, "dll_stadium": 232,
+                    "dll_picnic": 0, "dll_util": 0}
+    if cf_counts != expected_all or len(all_edges) != 24085:
+        raise ValueError(f"native six-module C/F baseline differs: {cf_counts} / {len(all_edges)}")
     if sum(x["cohort_proto_count"] for x in module_data) != 100:
         raise ValueError("100-sample cohort coverage changed")
     cf_digest = None
