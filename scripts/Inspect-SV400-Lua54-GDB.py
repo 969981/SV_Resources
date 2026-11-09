@@ -72,6 +72,8 @@ def inspect_paused_frame(gdb_module, main_base, expected, elf_probe, frame_probe
 
 # Session-local identities: no guest pointers or salt exported.
 SESSION_SALT=secrets.token_bytes(32)
+SESSION_ID=hashlib.sha256(SESSION_SALT).hexdigest()[:20]
+SESSION_SAMPLE_SEQ=0
 
 
 def inspect_paused_opcode(gdb_module,main_base,expected,elf_probe,opcode_helper):
@@ -106,6 +108,12 @@ def inspect_paused_opcode(gdb_module,main_base,expected,elf_probe,opcode_helper)
     if result["status"]!="ORIGINAL_PROTO_HANDLER_WORD_AND_SHA_MATCH":
         return result
     scope,luapc=result["proto_scope"],result["lua_pc"]
+    result["root_frame_id"]=opcode_helper.pseudonym(ci,SESSION_SALT) if scope=="root" else None
+    result["setup_closure_id"]=None
+    if scope=="setup":
+        func=opcode_helper.read_u64(read,ci)
+        child=opcode_helper.read_u64(read,func)
+        result["setup_closure_id"]=opcode_helper.pseudonym(child,SESSION_SALT)
     if scope=="root" and luapc==215522:
         result["before_closure_parent_R55_R58"]=(
             opcode_helper.snapshot_root_regs_if_confirmed(
@@ -119,7 +127,12 @@ def inspect_paused_opcode(gdb_module,main_base,expected,elf_probe,opcode_helper)
             capture.inspect_completed_setup_capture(
                 read,result,regbase,nextpc,expected,opcode_helper,SESSION_SALT))
     elif scope=="setup":
-        if luapc in (8,48) and result["opcode"]=="SETI":
+        if luapc in (7,47) and result["opcode"]=="CALL":
+            a=(instr>>7)&0xff
+            result["factory_call_register"]=a
+            result["factory_callable_tvalue"]=opcode_helper.read_tvalue(
+                read,regbase+a*16,SESSION_SALT)
+        elif luapc in (8,48) and result["opcode"]=="SETI":
             slot={8:2,48:4}[luapc]
             result["factory_return_tvalue"]=opcode_helper.read_tvalue(
                 read,regbase+slot*16,SESSION_SALT)
@@ -183,7 +196,21 @@ if gdb is not None:
                 opcode=_load_source(helper_path,"sv400_pin_opcode_context")
                 base=native.configured_main_base()
                 out=inspect_paused_opcode(gdb,base,identities,native,opcode)
-                gdb.write("SV400_OPCODE_EVIDENCE "+json.dumps(out,sort_keys=True)+"\n")
+                global SESSION_SAMPLE_SEQ
+                SESSION_SAMPLE_SEQ+=1
+                out["event"]="original_lua_opcode_context_snapshot"
+                out["session_id"]=SESSION_ID
+                out["sample_seq"]=SESSION_SAMPLE_SEQ
+                out["source_attestation"]="OPERATOR_PAUSED_GDB_SESSION_UNAUTHENTICATED"
+                out["guest_runtime_capture_from_ci"]=False
+                thread=gdb.selected_thread()
+                out["thread_number"]=getattr(thread,"global_num",None) if thread else None
+                text=json.dumps(out,sort_keys=True,ensure_ascii=False)
+                output_file=os.environ.get("SV400_VM_TRACE_JSONL")
+                if output_file:
+                    with Path(output_file).expanduser().open("a",encoding="utf-8") as fp:
+                        fp.write(text+"\n")
+                gdb.write("SV400_OPCODE_EVIDENCE "+text+"\n")
             except Exception as exc:
                 raise gdb.GdbError(str(exc)) from exc
 
