@@ -1,0 +1,80 @@
+name: SLR R0 - Lua 5.4 native IR and six-file manifest
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-ir-r0
+    paths:
+      - ".github/workflows/validate-sv-lua54-reconstruction.yml"
+      - "scripts/Export-SV-Lua54-Manifest.py"
+      - "tools/SV.Lua54/src/**"
+      - "tests/test_sv_lua54_parser.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: slr-400-native-parser-feature
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Checkout only original six BLUA modules and parser
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Export-SV-Lua54-Manifest.py
+            tools/SV.Lua54
+            tests/test_sv_lua54_parser.py
+            .github/workflows/validate-sv-lua54-reconstruction.yml
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release
+          sparse-checkout-cone-mode: false
+          persist-credentials: true
+
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate parser compilation and synthetic IR tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/Export-SV-Lua54-Manifest.py tools/SV.Lua54/src/sv_lua54/*.py
+          python -m unittest discover -s tests -p "test_sv_lua54_parser.py" -v
+
+      - name: Validate all six original Lua 5.4 chunks and byte-identical roundtrips
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Export-SV-Lua54-Manifest.py
+          python scripts/Export-SV-Lua54-Manifest.py --verify-only
+
+      - name: Upload metadata report even if verification fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-native-manifest
+          path: tools/SV.Lua54/fixtures/native_manifest.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Commit verified metadata to isolated feature branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/SV.Lua54/fixtures/native_manifest.json
+          if git diff --cached --quiet; then
+            echo "Native manifest already in sync"
+          else
+            git commit -m "data(SLR): record validated six-module Lua 5.4 native manifest"
+            git push origin HEAD:refs/heads/feature/sv-lua54-ir-r0
+          fi
