@@ -61,6 +61,35 @@ def run(root: Path) -> dict:
         raise ValueError("Proto752 Upvalue capture descriptor changed")
     analyses = reaching_register_writes(root_proto, 12242, 16)
     siblings = sibling_closure_capture_sites(root_proto, 16, 12242)
+    definite = [
+        x for x in analyses["candidate_write_sites_tail"]
+        if x.get("pc") is not None and x["op"] == "CLOSURE"
+    ]
+    if (analyses["candidate_write_count"], analyses["entry_is_candidate"],
+        len(definite)) != (1, False, 1):
+        raise ValueError("R16 closure provenance is not uniquely established")
+    producer_pc = definite[0]["pc"]
+    producer_op = instructions[producer_pc]
+    if producer_op.a != 16 or producer_op.name != "CLOSURE":
+        raise ValueError("R16 unique source is no longer CLOSURE")
+    if producer_op.bx >= len(root_proto.children):
+        raise ValueError("R16 closure child index out of original range")
+    producer_child = root_proto.children[producer_op.bx]
+    producer_captures = [
+        {"slot":slot,
+         "instack":producer_child.upvalues[3*slot],
+         "source_index":producer_child.upvalues[3*slot+1],
+         "kind":producer_child.upvalues[3*slot+2]}
+        for slot in range(producer_child.upvalue_count)
+    ]
+    between = instructions[producer_pc+1:12242]
+    possible_closures = [
+        {"pc":op.pc,"opcode":op.name,"a":op.a,
+         "affected_r16":op.a <= 16}
+        for op in between if op.name in ("CLOSE","TBC")
+        and op.a <= 16
+    ]
+    helper_opcodes = decode(producer_child)
     return {
         "schema_version": 1,
         "status": "STATIC_PC_GRAPH_ONLY",
@@ -94,6 +123,23 @@ def run(root: Path) -> dict:
             bool(name) for name in root_proto.upvalue_names
         ],
         "r16_reaching_definitions": analyses,
+        "r16_producer_closure": {
+            "producer_root_pc":producer_pc,
+            "producer_byte_offset":root_proto.code_offset+producer_pc*4,
+            "register":16,"opcode":"CLOSURE",
+            "child_index":producer_op.bx,"child_proto_id":producer_child.id,
+            "num_params":producer_child.num_params,
+            "max_stack":producer_child.max_stack_size,
+            "is_vararg":bool(producer_child.is_vararg),
+            "upvalues":producer_captures,
+            "instruction_count":producer_child.instruction_count,
+            "direct_children":len(producer_child.children),
+            "opcode_histogram":dict(sorted(Counter(op.name for op in helper_opcodes).items())),
+            "value_kind_if_executed":"LUA_CLOSURE",
+            "runtime_closure_pointer":"NOT_OBSERVED",
+        },
+        "capture_lifetime_opcodes_r16_from_producer":possible_closures,
+        "lifetime_limit":"STATIC_CLOSE_TBC_ONLY_NOT_REAL_CALLINFO",
         "r16_other_closure_captures": siblings,
         "runtime_register_identity": "NOT_OBSERVED",
         "runtime_parent_upvalue0": "NOT_OBSERVED",
@@ -132,6 +178,8 @@ def main() -> None:
         "parent_r16_writes_near_capture":r["near_capture_writes_last_200"],
         "parent_r16_reaching_defs_tail":r["candidate_write_sites_tail"][-12:],
         "other_r16_closure_capture_count":report["r16_other_closure_captures"]["count"],
+        "r16_producer_closure":report["r16_producer_closure"],
+        "capture_lifetime_opcodes_r16":report["capture_lifetime_opcodes_r16_from_producer"],
         "cfg_defects":r["cfg_defect_count"],
         "graph_iterations":r["graph_iterations"],
         "root_upvalue_descriptors":report["root_upvalue_descriptors"],
