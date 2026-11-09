@@ -108,7 +108,8 @@ def inspect_paused_opcode(gdb_module,main_base,expected,elf_probe,opcode_helper)
     if result["status"]!="ORIGINAL_PROTO_HANDLER_WORD_AND_SHA_MATCH":
         return result
     scope,luapc=result["proto_scope"],result["lua_pc"]
-    result["root_frame_id"]=opcode_helper.pseudonym(ci,SESSION_SALT) if scope=="root" else None
+    result["vm_callinfo_id"]=opcode_helper.pseudonym(ci,SESSION_SALT)
+    result["root_frame_id"]=result["vm_callinfo_id"] if scope=="root" else None
     result["setup_closure_id"]=None
     if scope=="setup":
         func=opcode_helper.read_u64(read,ci)
