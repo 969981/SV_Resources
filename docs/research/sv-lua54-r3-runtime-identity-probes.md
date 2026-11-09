@@ -33,8 +33,8 @@ pr: "https://github.com/969981/SV_Resources/pull/86"
 | 83 | PC81 GETI R4,R0,7；PC82 SELF R4,R4,F...；PC83 CALL | FA46877DC47484C79 | 取 self[7] 的方法；接收者具体对象未观测 |
 
 继续向前追一层：
-- PC7 的 CALL 单返回值 R2 经 PC8 的 SETI R0,14,R2 写入 self[14]，再由 PC9/10/11 消费。
-- PC47 的 CALL 单返回值 R4 经 PC48 的 SETI R0,7,R4 写入 self[7]，再由 PC81/82/83 消费。
+- PC4 的 GETTABUP 读取 _ENV[C321A674151DEB701]（PokeDocs 对应 main.gem.setting_tool.GemSettingFB），PC5 的 GETFIELD 键为 **new**，PC6 准备参数 self[1]，PC7 执行 **GemSettingFB.new(self[1])** 形式的类表调用；单返回值 R2 经 PC8 的 SETI R0,14,R2 写入 self[14]，再由 PC9/10/11 消费。真实返回对象类型未观测。
+- PC45 的 GETTABUP 读取 _ENV[C85EFC84DF009EC3F]（PokeDocs 对应 main.gem.setting_tool.GemSettingStartWindow），PC46 的 GETFIELD 键为 **new**，PC47 执行 **GemSettingStartWindow.new()** 形式的类表调用；单返回值 R4 经 PC48 的 SETI R0,7,R4 写入 self[7]，再由 PC81/82/83 消费。真实返回对象类型未观测。
 - 静态写入链不代表字段一直不变；中间 CALL、元表方法或宿主逻辑可能修改实例对象。
 - PC32 的 C8FB6CAF7F89386B8 是从 BLUA 原始 GETTABUP 取得的类 Hash 候选，不是运行时表的经验证名称。
 - 当前 PokeDocs C/F/S Hashlists 未找到这四个 C/F/S 键的精确条目；不应凭邻近名称猜测。
@@ -104,7 +104,7 @@ python -m sv_lua54.runtime_probes \
 
 此前 R2 已验证 26 条纯合成测试、真实 main 的 C→F/CFG/Upvalue、严格反编译及 luac5.4 重新编译。
 
-R3 增加了 JSON 事件契约的正反例测试以及纯 Lua 5.4 的 VM 合成脚本。该脚本真实使用 debug.getupvalue、debug.upvalueid 验证两个 Closure 对同一个变量共享 UpVal cell，另一个 root activation 的 cell 不同，并验证模拟 SELF 的 receiver 和实际 callable 查找。这只能验证观测方法的通用 Lua 语义，绝非 Game Freak 游戏脚本行为。
+R3 增加了 JSON 事件契约的正反例测试、factory 可调用值的跨参数寄存器来源追踪，以及纯 Lua 5.4 的 VM 合成脚本。合计 **39 项 Python 合成测试**，原生 main 的三处调用、两个 new 工厂路径和重编译门槛均已通过 [Actions #42558506403](https://github.com/969981/SV_Resources/actions/runs/42558506403)。该脚本真实使用 debug.getupvalue、debug.upvalueid 验证两个 Closure 对同一个变量共享 UpVal cell，另一个 root activation 的 cell 不同，并验证模拟 SELF 的 receiver 和实际 callable 查找。这只能验证观测方法的通用 Lua 语义，绝非 Game Freak 游戏脚本行为。
 
 下一步只有在取得目标游戏实际 Lua VM 的受控运行环境或游戏内调试入口后，才可采集三处调用的真实接收对象、闭包实例、cell ID，进而解析调用的 Proto 及输出可验证的游戏行为 A/B。现阶段 PR #86 保持开放；不把静态方法归属与合成 VM 测试误报成运行时闭合。
 
