@@ -1,0 +1,101 @@
+name: SLR R10 - independent Java Lua54 fallback for remaining 93
+
+on:
+  push:
+    branches: [codex/sv-main-lua-recovery-20261109]
+    paths:
+      - ".github/workflows/slr-r10-java-fallback.yml"
+      - "scripts/SV400-Remaining-93.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fallback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/SV400-Remaining-93.txt
+            tools/SV.Lua54/src/sv_lua54
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install Lua5.4 checker and build independent unluac Java
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          git clone --depth 1 https://github.com/Jeong-Min-Cho/unluac.git "$RUNNER_TEMP/java-unluac"
+          cd "$RUNNER_TEMP/java-unluac"
+          mkdir -p build
+          cd src
+          javac -d ../build unluac/Main.java
+          cd ../build
+          jar cfm ../unluac.jar ../MANIFEST.MF unluac/
+          java -jar ../unluac.jar --version || true
+      - name: Recover 93 exact native child prototypes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,sys,subprocess,os,json,zipfile,tempfile
+          from pathlib import Path
+          from concurrent.futures import ThreadPoolExecutor,as_completed
+          root=Path(os.environ["GITHUB_WORKSPACE"]);temp=Path(os.environ["RUNNER_TEMP"])
+          sys.path.insert(0,str(root/"tools/SV.Lua54/src"))
+          from sv_lua54.chunk import Chunk,parse
+          path=root/"Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua"
+          raw=path.read_bytes()
+          assert hashlib.sha256(raw).hexdigest()=="c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815"
+          chunk=parse(raw);assert chunk.encode()==raw
+          ids=[int(x) for x in (root/"scripts/SV400-Remaining-93.txt").read_text().splitlines()]
+          assert len(ids)==93 and len(set(ids))==93
+          protos={p.id:p for p in chunk.root.children}
+          assert set(ids).issubset(protos)
+          jar=temp/"java-unluac/unluac.jar"
+          work=temp/"sv-java-fallback";work.mkdir(exist_ok=True)
+          def process(pid):
+              p=protos[pid];data=Chunk(chunk.header,p.upvalue_count,p,"").encode()
+              assert parse(data).encode()==data
+              src=work/f"native_{pid}.luac";src.write_bytes(data)
+              try:
+                  proc=subprocess.run(["java","-Xmx512m","-jar",str(jar),str(src)],capture_output=True,timeout=80)
+                  if proc.returncode:return {"id":pid,"state":"REJECTED","error":proc.stderr.decode(errors="replace")[-450:]}
+                  dest=work/f"proto_{pid}.lua";dest.write_bytes(proc.stdout)
+                  ck=subprocess.run(["luac5.4","-p",str(dest)],capture_output=True,timeout=20)
+                  if ck.returncode:return {"id":pid,"state":"SYNTAX_FAIL","error":ck.stderr.decode(errors="replace")[-450:]}
+                  return {"id":pid,"state":"LUA_SYNTAX_OK","path":dest}
+              except Exception as e:return {"id":pid,"state":"ERROR","error":repr(e)}
+              finally:src.unlink(missing_ok=True)
+          with ThreadPoolExecutor(max_workers=3) as pool:
+              results=list(pool.map(process,ids))
+          good=[x for x in results if x["state"]=="LUA_SYNTAX_OK"]
+          fail=[{k:v for k,v in x.items() if k!="path"} for x in results if x["state"]!="LUA_SYNTAX_OK"]
+          with zipfile.ZipFile(temp/"SV400-main-java-fallback.zip","w",compression=zipfile.ZIP_DEFLATED) as z:
+              z.writestr("manifest.json",json.dumps({"original_sha256":hashlib.sha256(raw).hexdigest(),"attempted":93,"valid":len(good),"failed":fail,"warning":"Lua syntax success is not runtime equivalence; recovered child upvalues require parent context."},ensure_ascii=False,indent=2))
+              for x in good:z.write(x["path"],f"java_protos/proto_{x['id']}.lua")
+          print(f"SLR_R10_JAVA_SUMMARY valid={len(good)} failed={len(fail)}",flush=True)
+          for x in fail[:20]:print("SLR_R10_JAVA_FAILURE",x,flush=True)
+          PY
+      - name: Upload independent source and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV400-main-remaining-93-java-fallback
+          path: ${{ runner.temp }}/SV400-main-java-fallback.zip
+          if-no-files-found: warn
+          retention-days: 14
