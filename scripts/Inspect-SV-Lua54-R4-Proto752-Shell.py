@@ -34,6 +34,19 @@ def build(root):
             descendants+=1
             walk(child)
     walk(p)
+    nodes={x.id:x for x in chunk.protos()}
+    parent=nodes.get(p.parent_id)
+    if parent is None:raise RuntimeError("Proto752 parent cannot be found")
+    child_indices=[i for i,x in enumerate(parent.children) if x.id==p.id]
+    if len(child_indices)!=1:raise RuntimeError("Proto752 parent child index ambiguous")
+    index=child_indices[0]
+    parent_callsites=[
+        {"pc":ins.pc,"byte_offset":parent.code_offset+ins.pc*4,
+         "target_register":ins.a,"child_index":ins.bx}
+        for ins in decode(parent)
+        if ins.name=="CLOSURE" and ins.bx==index
+    ]
+    if not parent_callsites:raise RuntimeError("No original parent CLOSURE site found")
     upvalues=[{"slot":i,"instack":p.upvalues[3*i],
                "parent_index":p.upvalues[3*i+1],
                "kind":p.upvalues[3*i+2]}
@@ -42,6 +55,10 @@ def build(root):
         "source_sha256":sha,"module":"main_dynamic","proto_id":752,
         "instructions":p.instruction_count,
         "num_params":p.num_params,"is_vararg":bool(p.is_vararg),
+        "parent_proto_id":p.parent_id,
+        "parent_child_index":index,
+        "parent_closure_creation_sites":parent_callsites,
+        "parent_instruction_count":parent.instruction_count,
         "max_stack":p.max_stack_size,
         "upvalue_count":p.upvalue_count,"upvalue_lexical_descriptors":upvalues,
         "direct_children":len(p.children),
@@ -67,5 +84,7 @@ def main():
     print("SLR_R4_SHELL",json.dumps({k:v for k,v in d.items()
           if k in ("instructions","num_params","is_vararg","max_stack",
                    "upvalue_count","upvalue_lexical_descriptors",
+                   "parent_proto_id","parent_child_index",
+                   "parent_closure_creation_sites",
                    "direct_children","descendant_prototypes","entry_instructions")}))
 if __name__=="__main__":main()
