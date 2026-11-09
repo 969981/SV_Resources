@@ -72,7 +72,7 @@ IMPL = """    /// Experimental SLR R3: a contiguous fresh LocalDecl table plus e
             || seed_decl.generic_for_initializer_producer.is_some()
             || !ctor.fields.is_empty()
             || ctor.trailing_multivalue.is_some()
-            || !matches!(ctor.allocation, crate::hir::HirTableAllocation::PucBatched(_))
+            || !matches!(&ctor.allocation, crate::hir::HirTableAllocation::PucBatched(_))
             || self.debug_identity_bindings.get(binding).copied().unwrap_or(false)
             || self.reference_captured_bindings.get(binding).copied().unwrap_or(false)
         {
