@@ -190,6 +190,23 @@ jobs:
             echo "LUA_ERR_NATIVE_BOUND $(basename "$f") $(wc -l < "$f")"
             cat "$f"
           done
+      - name: Inspect dense 7-bit opcode dispatch cluster and cross-reference Lua errors
+        shell: bash
+        run: |
+          set -euo pipefail
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          aarch64-linux-gnu-objdump -d -w --start-address=0x40e80 --stop-address=0x41440 "$elf" \
+            > slr-lua-switch-40e80-41440.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x43f50 --stop-address=0x44180 "$elf" \
+            > slr-lua-switch-43f50-44180.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x45400 --stop-address=0x45700 "$elf" \
+            > slr-lua-switch-45400-45700.txt
+          for f in slr-lua-switch-40e80-41440.txt slr-lua-switch-43f50-44180.txt slr-lua-switch-45400-45700.txt; do
+            test "$(wc -c < "$f")" -gt 200
+            test "$(wc -c < "$f")" -lt 80000
+            echo "LUA_VM_SWITCH_DISASM $(basename "$f") lines=$(wc -l < "$f")"
+            cat "$f"
+          done
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
         run: |
@@ -234,6 +251,9 @@ jobs:
             slr-luavm-diagnostic-string-anchors.txt
             slr-violet-luavm-diagnostic-xrefs.json
             slr-lua-error-common-25b90.txt
+            slr-lua-switch-40e80-41440.txt
+            slr-lua-switch-43f50-44180.txt
+            slr-lua-switch-45400-45700.txt
             slr-lua-compare-errors-26180.txt
             slr-lua-cstack-errors-3afe4.txt
             slr-lua-stack-errors-24184.txt
