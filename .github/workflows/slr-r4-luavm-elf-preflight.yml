@@ -7,6 +7,8 @@ on:
     paths:
       - "scripts/Audit-SV400-LuaVM-ELF.py"
       - "tests/test_sv400_luavm_elf.py"
+      - "scripts/Locate-SV400-LuaVM-Xrefs.py"
+      - "tests/test_sv400_luavm_xrefs.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -32,6 +34,8 @@ jobs:
           sparse-checkout: |
             scripts/Audit-SV400-LuaVM-ELF.py
             tests/test_sv400_luavm_elf.py
+            scripts/Locate-SV400-LuaVM-Xrefs.py
+            tests/test_sv400_luavm_xrefs.py
             Unpack/4.0.0/exefs/violet_main/violet_main.elf
             Unpack/4.0.0/exefs/violet_main/provenance.json
       - uses: actions/setup-python@v5
@@ -39,8 +43,9 @@ jobs:
           python-version: "3.12"
       - name: Syntax tests
         run: |
-          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py
           python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
@@ -59,6 +64,24 @@ jobs:
           assert r["runtime_vm_attached"] is False
           print("VM_STATIC_PREFLIGHT_ONLY",len(r["load_segments"]),
                 "load segments; no attached game process")
+          PY
+      - name: AArch64 ADRP and ADD xrefs for pinned Lua version and BLUA anchor
+        run: |
+          python scripts/Locate-SV400-LuaVM-Xrefs.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --blua-vaddr 0x3b36536 --lua-version-vaddr 0x3b74bee \
+            --output slr-violet-luavm-static-xrefs.json
+          python - <<'PY'
+          import json
+          x=json.load(open("slr-violet-luavm-static-xrefs.json"))
+          assert x["status"] == "STATIC_XREF_PRECURSOR_ONLY"
+          assert x["runtime_dispatch_entry"] is None
+          assert x["real_vm_events_collected"] is False
+          assert x["inputs"][".blua"]["string_vaddr"] == 0x3b36536
+          assert x["inputs"]["Lua 5.4"]["string_vaddr"] == 0x3b74bee
+          print("STATIC_XREF_COUNTS",
+                {k:v["xref_candidate_count_bounded"] for k,v in x["inputs"].items()})
           PY
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
@@ -80,5 +103,6 @@ jobs:
           path: |
             slr-violet-luavm-elf-preflight.json
             slr-luavm-symbol-hints.txt
+            slr-violet-luavm-static-xrefs.json
           retention-days: 14
           if-no-files-found: warn
