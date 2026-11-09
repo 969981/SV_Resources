@@ -17,6 +17,7 @@ on:
       - "tests/test_sv400_luavm_diagnostic_xrefs.py"
       - "scripts/Verify-SV400-Lua54-NativeDispatch.py"
       - "tests/test_sv400_luavm_native_dispatch.py"
+      - "tests/test_sv400_gdb_stub_entry.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -52,6 +53,7 @@ jobs:
             tests/test_sv400_luavm_diagnostic_xrefs.py
             scripts/Verify-SV400-Lua54-NativeDispatch.py
             tests/test_sv400_luavm_native_dispatch.py
+            tests/test_sv400_gdb_stub_entry.py
             Unpack/4.0.0/exefs/violet_main/violet_main.elf
             Unpack/4.0.0/exefs/violet_main/provenance.json
             Unpack/4.0.0/exefs/subsdk0/subsdk0.elf
@@ -70,6 +72,7 @@ jobs:
           python -m unittest discover -s tests -p "test_sv400_luavm_dispatch_shapes.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_diagnostic_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_native_dispatch.py" -v
+          python -m unittest discover -s tests -p "test_sv400_gdb_stub_entry.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
