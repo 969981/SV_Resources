@@ -193,18 +193,19 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             if (collider.ContainsPoint(w.X, w.Y, w.Z))
             {
                 var composite = GetCompositePoint(w, areaMin, areaMax, areaAdjust, Location,
-                    EncounterLevelABSV.UseRawPointRange(fieldIndex, Location), sourceCollisionArea);
+                    EncounterLevelABSV.UseRawPointMin(fieldIndex, Location),
+                    EncounterLevelABSV.UseRawPointMax(fieldIndex, Location), sourceCollisionArea);
                 Local.Add(composite); // native
             }
             // Don't check here for cross-area, as our areaMin/areaMax is not valid for that crossover case.
         }
     }
 
-    private static LocationPointDetail GetCompositePoint(LocationPointDetail original, int areaMin, int areaMax, int adjust, int location, bool useRawPointRange, string sourceCollisionArea)
+    private static LocationPointDetail GetCompositePoint(LocationPointDetail original, int areaMin, int areaMax, int adjust, int location, bool useRawPointMin, bool useRawPointMax, string sourceCollisionArea)
     {
         var ep = original.Point;
-        var newX = useRawPointRange ? ep.LevelRange.X : Math.Max(ep.LevelRange.X, areaMin);
-        var newY = useRawPointRange ? ep.LevelRange.Y : Math.Min(ep.LevelRange.Y, areaMax);
+        var newX = useRawPointMin ? ep.LevelRange.X : Math.Max(ep.LevelRange.X, areaMin);
+        var newY = useRawPointMax ? ep.LevelRange.Y : Math.Min(ep.LevelRange.Y, areaMax);
         var newPoint = ep with { LevelRange = new PackedVec2f { X = newX, Y = newY } };
         return new LocationPointDetail(newPoint)
         {
@@ -229,7 +230,24 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             for (int criteriaIndex=0;criteriaIndex<pokeData.Table.Count;criteriaIndex++)
             {
                 var pd = pokeData.Table[criteriaIndex];
-                if (!IsAbleToSpawnAt(pd, spawner, AreaName, scene, fieldIndex))
+                bool isPoint5046 = EncounterAreaFilterABSV.IsPoint5046Source(fieldIndex, Location, spawner);
+                int nationalSpecies = isPoint5046 ? SpeciesConverterSV.GetNational9((ushort)pd.DevId) : -1;
+                bool usePointSourceArea = EncounterAreaFilterABSV.UsePointSourceArea(fieldIndex, Location, spawner);
+                string filterAreaName = usePointSourceArea ? spawner.SourceCollisionArea : AreaName;
+
+                if (isPoint5046 && EncounterAreaFilterABSV.IsPoint5046ProbeTarget(
+                    fieldIndex, Location, spawner, criteriaIndex, nationalSpecies))
+                {
+                    bool storageFilterMatch = IsMatchAreaFilter(pd.LocationName, AreaName, scene, fieldIndex, spawner.Point);
+                    bool sourceFilterMatch = IsMatchAreaFilter(pd.LocationName, spawner.SourceCollisionArea, scene, fieldIndex, spawner.Point);
+                    bool storageCandidateAccepted = IsAbleToSpawnAt(pd, spawner, AreaName, scene, fieldIndex);
+                    bool sourceCandidateAccepted = IsAbleToSpawnAt(pd, spawner, spawner.SourceCollisionArea, scene, fieldIndex);
+                    TracePoint5046AreaFilter(spawner, pd, criteriaIndex, nationalSpecies,
+                        storageFilterMatch, sourceFilterMatch, storageCandidateAccepted, sourceCandidateAccepted,
+                        scene, fieldIndex, AreaName, Location);
+                }
+
+                if (!IsAbleToSpawnAt(pd, spawner, filterAreaName, scene, fieldIndex))
                     continue;
 
                 // These are the SAME pkNX candidates and order as without tracing.
@@ -238,12 +256,12 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
                 {
                     var normal=PaldeaEncounter.GetNew(pd, point);
                     spawner.Add(normal);
-                    TraceGenerated(spawner, pd, normal, criteriaIndex, 0, false);
+                    TraceGenerated(spawner, pd, normal, criteriaIndex, 0, false, filterAreaName);
                     if (pd.BandPoke != 0)
                     {
                         var band=PaldeaEncounter.GetBand(pd, point);
                         spawner.Add(band);
-                        TraceGenerated(spawner, pd, band, criteriaIndex, 0, true);
+                        TraceGenerated(spawner, pd, band, criteriaIndex, 0, true, filterAreaName);
                     }
                 }
 
@@ -252,25 +270,25 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
 
                 var adjusted=PaldeaEncounter.GetNew(pd, point, boost);
                 spawner.Add(adjusted);
-                TraceGenerated(spawner, pd, adjusted, criteriaIndex, boost, false);
+                TraceGenerated(spawner, pd, adjusted, criteriaIndex, boost, false, filterAreaName);
                 if (pd.BandPoke != 0)
                 {
                     var band=PaldeaEncounter.GetBand(pd, point, boost);
                     spawner.Add(band);
-                    TraceGenerated(spawner, pd, band, criteriaIndex, boost, true);
+                    TraceGenerated(spawner, pd, band, criteriaIndex, boost, true, filterAreaName);
                 }
             }
         }
     }
 
     private void TraceGenerated(LocationPointDetail spawner, EncountPokeData pd,
-        PaldeaEncounter result, int criteriaIndex, int appliedBoost, bool band)
+        PaldeaEncounter result, int criteriaIndex, int appliedBoost, bool band, string filterAreaName)
     {
         if (!EncounterTraceSV.Wild(Location, result.Species))
             return;
         EncounterTraceSV.Write(new {
             stage="wild_raw_candidate", fieldIndex=fieldIndex.ToString(),
-            areaName=AreaName, location=Location,
+            areaName=AreaName, areaFilterName=filterAreaName, location=Location,
             pointSource=spawner.SourcePointAsset, pointIndex=spawner.SourcePointIndex,
             sourceCollisionArea=spawner.SourceCollisionArea,
             pointX=spawner.X, pointY=spawner.Y, pointZ=spawner.Z,
@@ -284,6 +302,51 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             minLevel=result.MinLevel, maxLevel=result.MaxLevel,
             timeMask=result.Time
         });
+    }
+
+    private static void TracePoint5046AreaFilter(
+        LocationPointDetail point, EncountPokeData pd, int criteriaIndex, int nationalSpecies,
+        bool storageFilterMatch, bool sourceFilterMatch,
+        bool storageCandidateAccepted, bool sourceCandidateAccepted,
+        PaldeaSceneModel scene, PaldeaFieldIndex fieldIndex, string storageAreaName, int location)
+    {
+        var checks = new List<object>();
+        foreach (var name in pd.LocationName.Split(','))
+        {
+            checks.Add(new
+            {
+                name,
+                equalsStorageAreaName = name == storageAreaName,
+                equalsPointSourceArea = name == point.SourceCollisionArea,
+                pointInsideFilterCollider = scene.IsPointContained(fieldIndex, name, point.X, point.Y, point.Z)
+            });
+        }
+
+        var probe = new
+        {
+            stage = "wild_point5046_area_filter_probe",
+            location,
+            pointSource = point.SourcePointAsset,
+            pointIndex = point.SourcePointIndex,
+            pointX = point.X,
+            pointY = point.Y,
+            pointZ = point.Z,
+            storageAreaName,
+            pointSourceCollisionArea = point.SourceCollisionArea,
+            species = nationalSpecies,
+            criteriaIndex,
+            criteriaMinLevel = pd.MinLevel,
+            criteriaMaxLevel = pd.MaxLevel,
+            criteriaLocation = pd.LocationName,
+            storageFilterMatch,
+            pointSourceFilterMatch = sourceFilterMatch,
+            storageCandidateAccepted,
+            pointSourceCandidateAccepted = sourceCandidateAccepted,
+            activeMode = EncounterAreaFilterABSV.Mode,
+            filterTokens = checks
+        };
+        EncounterAreaFilterABSV.RecordProbe(probe);
+        EncounterTraceSV.Write(probe);
     }
 
     private static bool IsAbleToSpawnAt(EncountPokeData pd, LocationPointDetail ep, string areaName, PaldeaSceneModel scene, PaldeaFieldIndex fieldIndex)

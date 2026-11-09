@@ -14,6 +14,8 @@ public static class EncounterLevelABSV
     public const string OnlyAdjusted = "terarium-176-194-adjusted-only";
     public const string StrictOverlap = "terarium-176-194-strict-overlap";
     public const string RawPointRange = "terarium-176-194-raw-point-levels";
+    public const string RawPointMinOnly = "terarium-176-194-raw-point-min-only";
+    public const string RawPointMaxOnly = "terarium-176-194-raw-point-max-only";
 
     public static string Mode { get; private set; } = Baseline;
     public static bool Enabled => Mode != Baseline;
@@ -22,7 +24,7 @@ public static class EncounterLevelABSV
     {
         if (Mode != Baseline)
             throw new InvalidOperationException("Original SV 4.0.0 isolated A/B mode has already been set");
-        if (mode is not (Baseline or OnlyUnadjusted or OnlyAdjusted or StrictOverlap or RawPointRange))
+        if (mode is not (Baseline or OnlyUnadjusted or OnlyAdjusted or StrictOverlap or RawPointRange or RawPointMinOnly or RawPointMaxOnly))
             throw new ArgumentException("Invalid isolated native SV level experiment mode", nameof(mode));
         Mode = mode;
     }
@@ -39,6 +41,12 @@ public static class EncounterLevelABSV
     public static bool UseStrictOverlap(PaldeaFieldIndex fieldIndex, int location) =>
         IsTarget(fieldIndex, location) && Mode == StrictOverlap;
 
+    public static bool UseRawPointMin(PaldeaFieldIndex fieldIndex, int location) =>
+        IsTarget(fieldIndex, location) && (Mode == RawPointRange || Mode == RawPointMinOnly);
+
+    public static bool UseRawPointMax(PaldeaFieldIndex fieldIndex, int location) =>
+        IsTarget(fieldIndex, location) && (Mode == RawPointRange || Mode == RawPointMaxOnly);
+
     public static bool UseRawPointRange(PaldeaFieldIndex fieldIndex, int location) =>
-        IsTarget(fieldIndex, location) && Mode == RawPointRange;
+        UseRawPointMin(fieldIndex, location) && UseRawPointMax(fieldIndex, location);
 }

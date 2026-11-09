@@ -32,6 +32,8 @@ MODES=(
  "terarium-176-194-adjusted-only",
  "terarium-176-194-strict-overlap",
  "terarium-176-194-raw-point-levels",
+ "terarium-176-194-raw-point-min-only",
+ "terarium-176-194-raw-point-max-only",
 )
 STATUS="ACTUAL_ORIGINAL_SV400_ISOLATED_NATIVE_WILD_LEVEL_AB_REFERENCE_DIAGNOSTICS"
 
@@ -71,13 +73,26 @@ def mode_count(table:Counter,reference:Counter)->dict:
     return {"native":sum(table.values()),"reference":sum(reference.values()),
             "matched_occurrences":matched,"native_only":only_src,"reference_only":only_ref}
 
+def match_retention(baseline:Counter,variant:Counter,reference:Counter)->dict:
+    """Count baseline-matching slot occurrences retained, lost and newly recovered."""
+    old=baseline&reference
+    new=variant&reference
+    retained=old&new
+    return {
+        "baseline_reference_matches_retained":sum(retained.values()),
+        "baseline_reference_matches_lost":sum((old-retained).values()),
+        "new_reference_matches_recovered":sum((new-retained).values()),
+    }
+
 def verify_build(directory:Path,expected_mode:str,original:dict)->dict:
     report=json.loads((directory/"native-encounter-build.json").read_text("utf-8-sig"))
     if (report.get("status")!="GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES"
         or report.get("collisionBlocker") is not None
         or report.get("originalTrcolEntries")!=223
         or report.get("unverifiedExtraFiles")
-        or report.get("levelABMode")!=expected_mode):
+        or report.get("levelABMode")!=expected_mode
+        or report.get("areaFilterABMode")!="baseline"
+        or report.get("crossoverABMode")!="baseline"):
         raise ValueError(f"Not independently SHA-verified original 4.0.0 generation for {expected_mode}")
     mapping={item["name"]:item for item in report["generated"]}
     for kind,name in BASE_SHAS.items():
@@ -121,6 +136,7 @@ def compare(baseline:Path,manifest:Path,tolerance:Path,variant_dirs:dict[str,Pat
     unaffected_native=Counter({k:v for k,v in native.items() if not is_focal(k)})
     stats=[]
     deltas=[]
+    per_location=[]
     for mode in ("baseline",*MODES):
         directory=baseline if mode=="baseline" else variant_dirs[mode].resolve()
         verify_build(directory,mode,original)
@@ -132,7 +148,14 @@ def compare(baseline:Path,manifest:Path,tolerance:Path,variant_dirs:dict[str,Pat
             raise ValueError(f"Isolated Terarium A/B modified non-target wild locations: {mode}")
         focal=Counter({k:v for k,v in current.items() if is_focal(k)})
         score=mode_count(focal,focus_reference)
+        retention=match_retention(focus_native,focal,focus_reference)
+        if (retention["new_reference_matches_recovered"]-retention["baseline_reference_matches_lost"]
+            != score["matched_occurrences"]-sum((focus_native&focus_reference).values())):
+            raise ValueError(f"Terarium A/B matched-template retention does not reconcile for {mode}")
         score.update({
+            **retention,
+            "baseline_matched_occurrences":sum((focus_native&focus_reference).values()),
+            "match_delta":score["matched_occurrences"]-sum((focus_native&focus_reference).values()),
             "mode":mode,
             "wild_sha256":hashfile(directory/BASE_SHAS["wild"]),
             "wild_total_rows":len(rows),
@@ -144,6 +167,22 @@ def compare(baseline:Path,manifest:Path,tolerance:Path,variant_dirs:dict[str,Pat
             "status":"COMPARED_WITH_PINNED_PKHEX_REFERENCE_NOT_GAME_RNG",
         })
         stats.append(score)
+        location_pairs=sorted({(k[0],k[1]) for k in set(focal)|set(focus_native)|set(focus_reference)})
+        for location,cross_from in location_pairs:
+            before=Counter({k:v for k,v in focus_native.items() if k[0]==location and k[1]==cross_from})
+            after=Counter({k:v for k,v in focal.items() if k[0]==location and k[1]==cross_from})
+            ref=Counter({k:v for k,v in focus_reference.items() if k[0]==location and k[1]==cross_from})
+            per_location.append({
+                "mode":mode,"location_id":location,"cross_from_id":cross_from,
+                "baseline_matched":sum((before&ref).values()),
+                "variant_matched":sum((after&ref).values()),
+                "match_delta":sum((after&ref).values())-sum((before&ref).values()),
+                **match_retention(before,after,ref),
+                "baseline_native_only":sum((before-ref).values()),
+                "variant_native_only":sum((after-ref).values()),
+                "baseline_reference_only":sum((ref-before).values()),
+                "variant_reference_only":sum((ref-after).values()),
+            })
         if mode!="baseline":
             for key in sorted(set(focal)|set(focus_native)):
                 delta=focal[key]-focus_native[key]
@@ -155,6 +194,12 @@ def compare(baseline:Path,manifest:Path,tolerance:Path,variant_dirs:dict[str,Pat
                         "flag":"AB_HYPOTHETICAL_NATIVE_OUTPUT_NOT_OFFICIAL_LEGALITY",
                     })
     output.mkdir(parents=True,exist_ok=True)
+    with (output/"SV400_Terarium_176_194_AB_By_Location.csv").open(
+            "w",newline="",encoding="utf-8-sig") as f:
+        fields=list(per_location[0])
+        writer=csv.DictWriter(f,fieldnames=fields,lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(per_location)
     with (output/"SV400_Terarium_176_194_AB_True_Native_Changes.csv").open(
             "w",newline="",encoding="utf-8-sig") as f:
         fields=["mode",*SLOTS,"native_baseline_count","variant_count","delta",
@@ -172,6 +217,7 @@ def compare(baseline:Path,manifest:Path,tolerance:Path,variant_dirs:dict[str,Pat
         "baseline_full_multiset_match_count":sum((native&reference).values()),
         "focus":"met or cross_from location 176 or 194",
         "reference_parity_comparison":stats,
+        "reference_match_retention_by_location":per_location,
         "changed_rows_count":len(deltas),
         "limits":[
             "A/B modes are source-driven experimental branches of pkNX, not automatically correct official PKHeX legality.",
@@ -190,7 +236,7 @@ def main():
     for field in ("baseline","manifest","tolerance","auditor","output"):
         p.add_argument("--"+field,type=Path,required=True)
     p.add_argument("--variant",action="append",required=True,
-                   help="mode=path for all four actual source-generated variants")
+                   help="mode=path for all six actual source-generated variants")
     a=p.parse_args()
     variants={}
     for spec in a.variant:
@@ -199,7 +245,7 @@ def main():
             raise ValueError("Duplicate/bad native A/B mode=path")
         variants[mode]=Path(path)
     if set(variants)!=set(MODES):
-        raise ValueError("Exactly the four original-data native level A/B modes required")
+        raise ValueError("Exactly the six original-data native level A/B modes required")
     compare(a.baseline,a.manifest,a.tolerance,variants,a.auditor,a.output)
 
 if __name__=="__main__":

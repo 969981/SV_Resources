@@ -174,3 +174,37 @@ The follow-up implementation now:
 6. Makes the comparison fail closed unless the manifest explicitly proves a non-empty, partitioned Location 158 index. A global index or an all-WorldEnd-overlap/blanket-exclude index is rejected.
 
 This corrects the experiment's scope; it does not assume the overlap should be suppressed in the final encounter database. The next real-ROM Actions run must compare both corrected owner variants against the strict 0f mode and baseline, again reporting original-match retention/loss/recovery separately. Default pkNX output remains unchanged.
+
+
+## 2026-11-08 corrected LocationStorage=158 five-way A/B replay #42475599973
+
+[Actions #42475599973](https://github.com/969981/SV_Resources/actions/runs/42475599973) completed the corrected owner-index replay. The first implementation that scanned all Kitakami locations was invalid; the corrected code now partitions original PointData identities only inside \`db.Locations[158].Local\`.
+
+Correct source-owner evidence from the actual native build manifest:
+- LocationStorage 158 local PointData records: **9,655**
+- distinct WorldEnd PointData identities: **8,653**
+- distinct non-WorldEnd specific-area identities: **964**
+- exact overlap inside this same storage: **964**
+- WorldEnd-only identities: **7,689**
+- identity key: original PointData asset path + original array ordinal
+
+The corrected five-way result uses occurrence-aware reference matching:
+
+| Mode | Baseline matches retained | Baseline matches lost | New matches recovered | Final CrossFrom=158 matches |
+|---|---:|---:|---:|---:|
+| WorldEnd strict target geometry | 808 | 0 | 34 | 842 |
+| WorldEnd excluded | 643 | 165 | 65 | 708 |
+| Exact source collider name | 619 | 189 | 65 | 684 |
+| Specific owner priority | 808 | 0 | 1 | 809 |
+| **Specific owner priority + strict geometry** | **808** | **0** | **36** | **844** |
+
+The final row is currently the best **experimental reference-parity** result: it retains all 808 original matches and recovers 36 additional matches. It is not yet a game-runtime legality proof. The 36 new matches are concentrated at locations 140 (+21), 158 (+6), 156 (+5), 160 (+2) and 168 (+2). Non-\`CrossFrom=158\` wild records and fixed/three ordinary Raid SHAs remain unchanged.
+
+The stale PR #66 carrying the earlier global owner-index correction was closed because the corrected LocationStorage-scoped implementation was already merged into \`master\` at \`ac93f8ef1ca3be929aeda2bf48462933b156f46a\`. Do not use the first global-index result table as source-ownership evidence.
+
+## Follow-up research notes
+
+- [Terarium 176/194 PointData vs AreaInfo level clipping](sv400-terarium-176194-point-level-area-clipping.md) — full native A/B baseline 389 matches vs raw-point-levels 431 (+42); split raw minimum/maximum experiments are now being added.
+- [Kitakami PointData #5046 area-filter context](sv400-point5046-area-filter-context.md) — exact original criteria 40/41/74/110/111/112/113 and a one-point source-area filter probe/A/B.
+
+These are separate experiments: PointData #5046's raw 1–99 interval is already inside its observed AreaInfo 1–100, so its broad candidate levels are not explained by the Terarium AreaInfo clipping hypothesis.

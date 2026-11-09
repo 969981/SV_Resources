@@ -74,9 +74,11 @@ jobs:
                   b["cases_with_nonzero_boost_samples"])==(37,2402,279,9)
           with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as f:
               f.write("## Original SV 4.0.0 Terarium 176/194 PointData source formula A/B\n\n")
-              f.write("Baseline exact reproduction: **6003/6003** sampled criteria. Raw instead of clipped PointData changes **3227/6003** samples across **74/78** source cases.\\n\\n")
-              f.write("AdjustEncLv !=0 in 176/194 sample: **0/6003**; other DLC control: **279/2402** across 9/37 cases.\\n\\n")
-              f.write("Only a sample-based level formula experiment: this is NOT a full regenerated encounter pkl parity claim.\\n")
+              f.write("Baseline exact reproduction: **6003/6003** sampled criteria. Raw instead of clipped PointData changes **3227/6003** samples across **74/78** source cases.\n\n")
+              f.write(f"Independent bounds: raw minimum only changes **{a['raw_point_min_range_changes']}/6003** samples; raw maximum only changes **{a['raw_point_max_range_changes']}/6003** samples.\n\n")
+              f.write(f"Cases affected: min-only **{a['cases_with_raw_point_min_range_changes']}/78**, max-only **{a['cases_with_raw_point_max_range_changes']}/78**.\n\n")
+              f.write("AdjustEncLv !=0 in 176/194 sample: **0/6003**; other DLC control: **279/2402** across 9/37 cases.\n\n")
+              f.write("Only a sample-based level formula experiment: this is NOT a full regenerated encounter pkl parity claim.\n")
           PY
       - uses: actions/upload-artifact@v4
         if: always()

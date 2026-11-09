@@ -16,22 +16,33 @@ class TerariumLevelABTests(unittest.TestCase):
                     areaAdjust=0,areaLevelMin=59,areaLevelMax=69)
 
     def test_actual_clipped_formula_reproduces_original_event(self):
-        self.assertEqual(M.recompute(self.sample(),False),(59,69))
-        self.assertEqual(M.recompute(self.sample(),True),(57,75))
+        self.assertEqual(M.recompute(self.sample()),(59,69))
+        self.assertEqual(M.recompute(self.sample(),raw_min=True,raw_max=True),(57,75))
 
     def test_criteria_intersection_and_boost_cannot_be_confused_with_area_clipping(self):
         t=dict(self.sample(),rawPointMin=20,rawPointMax=99,clippedPointMin=40,
                clippedPointMax=78,criteriaMinLevel=45,criteriaMaxLevel=70,
                appliedBoost=3,minLevel=48,maxLevel=73)
-        self.assertEqual(M.recompute(t,False),(48,73))
-        self.assertEqual(M.recompute(t,True),(48,73))
+        self.assertEqual(M.recompute(t),(48,73))
+        self.assertEqual(M.recompute(t,raw_min=True),(48,73))
+        self.assertEqual(M.recompute(t,raw_max=True),(48,73))
+        self.assertEqual(M.recompute(t,raw_min=True,raw_max=True),(48,73))
 
     def test_get_new_caps_level_100_but_band_uses_original(self):
         t=dict(self.sample(),rawPointMax=110,clippedPointMax=100,
                criteriaMaxLevel=120,appliedBoost=10,minLevel=69)
-        self.assertEqual(M.recompute(t,False),(69,100))
-        self.assertEqual(M.recompute(t,True),(67,100))
-        self.assertEqual(M.recompute(dict(t,band=True),True),(67,120))
+        self.assertEqual(M.recompute(t),(69,100))
+        self.assertEqual(M.recompute(t,raw_min=True,raw_max=True),(67,100))
+        self.assertEqual(M.recompute(dict(t,band=True),raw_min=True,raw_max=True),(67,120))
+
+    def test_lower_and_upper_area_clips_are_independent(self):
+        t=dict(self.sample(),rawPointMin=57,rawPointMax=75,
+               clippedPointMin=59,clippedPointMax=69,
+               criteriaMinLevel=7,criteriaMaxLevel=80,
+               minLevel=59,maxLevel=69)
+        self.assertEqual(M.recompute(t,raw_min=True),(57,69))
+        self.assertEqual(M.recompute(t,raw_max=True),(59,75))
+        self.assertEqual(M.recompute(t,raw_min=True,raw_max=True),(57,75))
 
     def test_sample_bound_does_not_claim_actual_final_pkl(self):
         self.assertIn("NOT_FULL_PKL_RERUN",M.STATUS)

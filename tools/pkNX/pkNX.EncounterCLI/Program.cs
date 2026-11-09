@@ -44,9 +44,17 @@ internal static class Program
                 !parameters.ContainsKey("--verified-trcol-manifest"))
                 throw new ArgumentException("Isolated A/B mode requires both 61-file native M2 and original 223 TRCOL verification manifests");
             EncounterLevelABSV.Configure(levelABMode);
+            string areaFilterABMode = parameters.GetValueOrDefault("--area-filter-ab-mode", EncounterAreaFilterABSV.Baseline);
+            if (areaFilterABMode != EncounterAreaFilterABSV.Baseline &&
+                (!parameters.ContainsKey("--verified-trcol-manifest") ||
+                 levelABMode != EncounterLevelABSV.Baseline))
+                throw new ArgumentException("PointData area-filter A/B requires verified original 223 TRCOL and baseline level mode");
+            EncounterAreaFilterABSV.Configure(areaFilterABMode);
             string crossoverABMode = parameters.GetValueOrDefault("--crossover-ab-mode", EncounterCrossoverABSV.Baseline);
             if (crossoverABMode != EncounterCrossoverABSV.Baseline &&
-                (!parameters.ContainsKey("--verified-trcol-manifest") || levelABMode != EncounterLevelABSV.Baseline))
+                (!parameters.ContainsKey("--verified-trcol-manifest") ||
+                 levelABMode != EncounterLevelABSV.Baseline ||
+                 areaFilterABMode != EncounterAreaFilterABSV.Baseline))
                 throw new ArgumentException("Original crossover A/B requires SHA-verified 223 TRCOL and baseline level mode");
             EncounterCrossoverABSV.Configure(crossoverABMode);
             bool hasTraceTargets = parameters.TryGetValue("--trace-targets", out var targets);
@@ -104,6 +112,14 @@ internal static class Program
                 var scene = new PaldeaSceneModel(rom, field);
                 Console.WriteLine("Native field and collision scene loaded.");
                 EncounterSlotDumper9.DumpSlots(rom, config, scene);
+                if (parameters.TryGetValue("--point5046-probe-output", out var probeOutput))
+                {
+                    var fullProbeOutput = Path.GetFullPath(probeOutput);
+                    if (fullProbeOutput.StartsWith(source.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar,
+                                                   StringComparison.OrdinalIgnoreCase))
+                        throw new ArgumentException("PointData probe report cannot be written inside original game assets");
+                    EncounterAreaFilterABSV.WriteProbeReport(fullProbeOutput);
+                }
                 products.Add(WildName);
                 Console.WriteLine($"Generated from raw spawners + geometry: {WildName}");
                 FixedSymbolDumper9.Dump(rom, config, scene);
@@ -136,10 +152,13 @@ internal static class Program
                 version = "Pokemon SV 4.0.0",
                 algorithm = EncounterCrossoverABSV.Enabled
                     ? "EXPERIMENTAL_ORIGINAL_KITAKAMI_CROSS158_SOURCE_COLLIDER_AB_NOT_GAME_LEGALITY"
-                    : EncounterLevelABSV.Enabled
-                        ? "EXPERIMENTAL_ISOLATED_TERARIUM_176_194_LEVEL_AB_BASED_ON_VENDORED_PKNX"
-                        : "Vendored pkNX EncounterSlotDumper9 and FixedSymbolDumper9, UNMODIFIED",
+                    : EncounterAreaFilterABSV.Enabled
+                        ? "EXPERIMENTAL_SINGLE_KITAKAMI_POINT5046_SOURCE_AREA_FILTER_AB_NOT_GAME_LEGALITY"
+                        : EncounterLevelABSV.Enabled
+                            ? "EXPERIMENTAL_ISOLATED_TERARIUM_176_194_LEVEL_AB_BASED_ON_VENDORED_PKNX"
+                            : "Vendored pkNX EncounterSlotDumper9 and FixedSymbolDumper9, UNMODIFIED",
                 levelABMode = EncounterLevelABSV.Mode,
+                areaFilterABMode = EncounterAreaFilterABSV.Mode,
                 crossoverABMode = EncounterCrossoverABSV.Mode,
                 specificOwnerEvidence = EncounterCrossoverABSV.SpecificOwnerEvidence,
                 importantLimits = new[]
@@ -211,7 +230,7 @@ internal static class Program
         foreach (var key in new[] { "--virtual-root", "--verified-manifest", "--output" })
             if (!result.ContainsKey(key))
                 throw new ArgumentException($"Missing mandatory {key}");
-        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode" or "--crossover-ab-mode" or "--trace-fixed-only")))
+        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode" or "--area-filter-ab-mode" or "--crossover-ab-mode" or "--trace-fixed-only" or "--point5046-probe-output")))
             throw new ArgumentException("Unsupported option");
         return result;
     }
