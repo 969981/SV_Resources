@@ -59,21 +59,37 @@ internal static class Program
             EncounterCrossoverABSV.Configure(crossoverABMode);
             bool hasTraceTargets = parameters.TryGetValue("--trace-targets", out var targets);
             bool hasTraceOutput = parameters.TryGetValue("--trace-output", out var traceOutput);
-            if (hasTraceTargets != hasTraceOutput)
+            bool hasCausalProfile = parameters.TryGetValue("--trace-causal-profile", out var causalProfile);
+            if (hasCausalProfile && (!hasTraceOutput || hasTraceTargets || parameters.ContainsKey("--trace-fixed-only")))
+                throw new ArgumentException("Original focused causal trace requires --trace-output and cannot use broad/fixed trace targets");
+            if (!hasCausalProfile && hasTraceTargets != hasTraceOutput)
                 throw new ArgumentException("--trace-targets and --trace-output must both be supplied");
             if (!hasTraceTargets && parameters.ContainsKey("--trace-fixed-only"))
                 throw new ArgumentException("--trace-fixed-only requires source-verified --trace-targets and --trace-output");
-            if (hasTraceTargets)
+            if (hasTraceOutput)
             {
                 var fullTrace = Path.GetFullPath(traceOutput!);
                 if (fullTrace.StartsWith(source.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar,
                                          StringComparison.OrdinalIgnoreCase))
                     throw new ArgumentException("Diagnostic trace cannot be placed inside original game virtual assets");
-                bool fixedOnly = parameters.TryGetValue("--trace-fixed-only", out var fixedOnlySetting) &&
-                    string.Equals(fixedOnlySetting, "true", StringComparison.OrdinalIgnoreCase);
-                if (parameters.ContainsKey("--trace-fixed-only") && fixedOnlySetting is not ("true" or "false"))
-                    throw new ArgumentException("--trace-fixed-only must be true or false");
-                EncounterTraceSV.Enable(Path.GetFullPath(targets!), fullTrace, fixedOnly);
+                if (hasCausalProfile)
+                {
+                    if (!parameters.ContainsKey("--verified-trcol-manifest") ||
+                        crossoverABMode != EncounterCrossoverABSV.Baseline ||
+                        (areaFilterABMode != EncounterAreaFilterABSV.Baseline &&
+                         (areaFilterABMode != EncounterAreaFilterABSV.Point5046SourceArea ||
+                          levelABMode != EncounterLevelABSV.Baseline)))
+                        throw new ArgumentException("Causal trace needs 61+223 exact original sources and an isolated supported AB");
+                    EncounterTraceSV.EnableCausalAudit(fullTrace, causalProfile!);
+                }
+                else
+                {
+                    bool fixedOnly = parameters.TryGetValue("--trace-fixed-only", out var fixedOnlySetting) &&
+                        string.Equals(fixedOnlySetting, "true", StringComparison.OrdinalIgnoreCase);
+                    if (parameters.ContainsKey("--trace-fixed-only") && fixedOnlySetting is not ("true" or "false"))
+                        throw new ArgumentException("--trace-fixed-only must be true or false");
+                    EncounterTraceSV.Enable(Path.GetFullPath(targets!), fullTrace, fixedOnly);
+                }
             }
             var verified = LoadVerifiedSources(manifest);
             string? trcolEvidence = parameters.TryGetValue("--verified-trcol-manifest", out var trcolManifest)
@@ -158,6 +174,7 @@ internal static class Program
                             ? "EXPERIMENTAL_ISOLATED_TERARIUM_176_194_LEVEL_AB_BASED_ON_VENDORED_PKNX"
                             : "Vendored pkNX EncounterSlotDumper9 and FixedSymbolDumper9, UNMODIFIED",
                 levelABMode = EncounterLevelABSV.Mode,
+                traceCausalProfile = hasCausalProfile ? EncounterTraceSV.SourceCausalProfile : null,
                 areaFilterABMode = EncounterAreaFilterABSV.Mode,
                 crossoverABMode = EncounterCrossoverABSV.Mode,
                 specificOwnerEvidence = EncounterCrossoverABSV.SpecificOwnerEvidence,
@@ -230,7 +247,7 @@ internal static class Program
         foreach (var key in new[] { "--virtual-root", "--verified-manifest", "--output" })
             if (!result.ContainsKey(key))
                 throw new ArgumentException($"Missing mandatory {key}");
-        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode" or "--area-filter-ab-mode" or "--crossover-ab-mode" or "--trace-fixed-only" or "--point5046-probe-output")))
+        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode" or "--area-filter-ab-mode" or "--crossover-ab-mode" or "--trace-fixed-only" or "--trace-causal-profile" or "--point5046-probe-output")))
             throw new ArgumentException("Unsupported option");
         return result;
     }

@@ -13,6 +13,8 @@ on:
       - 'tests/test_sv_158_crossover_geometry_merge.py'
       - 'scripts/Compare-SV-Terarium-176-194-Native-AB.py'
       - 'scripts/Compare-SV400-Point5046-AreaFilter-AB.py'
+      - 'scripts/Audit-SV400-186-MinLoss-5046-Duplicate-Trace.py'
+      - 'tests/test_sv_186_5046_causal_source.py'
       - 'tests/test_sv_point5046_area_filter_ab.py'
       - 'tests/test_sv_176194_source_level_ab.py'
       - 'tests/test_sv_176194_native_ab_compare.py'
@@ -33,6 +35,8 @@ on:
       - 'tests/test_sv_158_crossover_geometry_merge.py'
       - 'scripts/Compare-SV-Terarium-176-194-Native-AB.py'
       - 'scripts/Compare-SV400-Point5046-AreaFilter-AB.py'
+      - 'scripts/Audit-SV400-186-MinLoss-5046-Duplicate-Trace.py'
+      - 'tests/test_sv_186_5046_causal_source.py'
       - 'tests/test_sv_point5046_area_filter_ab.py'
       - 'tests/test_sv_176194_source_level_ab.py'
       - 'tests/test_sv_176194_native_ab_compare.py'
@@ -64,9 +68,11 @@ jobs:
             scripts/Audit-SV400-Cross158-Geometry-Merges.py
             scripts/Compare-SV400-Source158-Original-AB.py
             scripts/Compare-SV400-Point5046-AreaFilter-AB.py
+            scripts/Audit-SV400-186-MinLoss-5046-Duplicate-Trace.py
             scripts/Compare-SV-Terarium-176-194-Native-AB.py
             scripts/AB-SV-Terarium-176-194-Source-Levels.py
             tests/test_sv_point5046_area_filter_ab.py
+            tests/test_sv_186_5046_causal_source.py
             tests/test_sv_176194_source_level_ab.py
             tests/test_sv_176194_native_ab_compare.py
             tests/test_sv_kitakami_cross158_source_ab.py
@@ -97,6 +103,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Terarium native match-retention regression tests failed' }
           python -m unittest discover -s tests -p test_sv_point5046_area_filter_ab.py -v
           if ($LASTEXITCODE -ne 0) { throw 'PointData 5046 source-area probe tests failed' }
+          python -m unittest discover -s tests -p test_sv_186_5046_causal_source.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Original 186 min-loss and 5046 duplicate-source forensic tests failed' }
           python -m unittest discover -s tests -p test_sv_fixed_collision_source_proof.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Original collision source SHA tests failed' }
 
@@ -143,6 +151,7 @@ jobs:
             scripts/Audit-SV400-Cross158-Geometry-Merges.py
             scripts/Compare-SV400-Source158-Original-AB.py
             scripts/Compare-SV400-Point5046-AreaFilter-AB.py
+            scripts/Audit-SV400-186-MinLoss-5046-Duplicate-Trace.py
             scripts/AB-SV-Terarium-176-194-Source-Levels.py
             scripts/Sweep-SV-Collision-Tolerance.py
             scripts/deps/oo2core_8_win64.dll
@@ -426,6 +435,51 @@ jobs:
             ${{ runner.temp }}/SV400-cross158-AB-comparison/*.csv
             ${{ runner.temp }}/SV400-cross158-AB-comparison/*.json
             ${{ runner.temp }}/SV400-cross158-AB-*/native-encounter-build.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Generate five small separate source-defined 186-from-176 and 158-5046 original variant traces
+        shell: pwsh
+        run: |
+          $base=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual','--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json','--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json')
+          $modes=@('baseline','raw-min-only','raw-max-only','raw-both','point5046-area')
+          foreach ($mode in $modes) {
+            $dest=Join-Path $env:RUNNER_TEMP "SV400-causal/$mode"
+            New-Item -ItemType Directory -Force $dest | Out-Null
+            $variant=@()
+            switch ($mode) {
+              'raw-min-only' { $variant=@('--level-ab-mode','terarium-176-194-raw-point-min-only') }
+              'raw-max-only' { $variant=@('--level-ab-mode','terarium-176-194-raw-point-max-only') }
+              'raw-both' { $variant=@('--level-ab-mode','terarium-176-194-raw-point-levels') }
+              'point5046-area' { $variant=@('--area-filter-ab-mode','kitakami-158-point5046-source-area-filter') }
+            }
+            dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @base @variant --output $dest --trace-causal-profile sv400-186-from176-min-level-and-158-5046-duplicate --trace-output "$dest/trace.jsonl"
+            if ($LASTEXITCODE -ne 0) { throw "Source-defined original 186/5046 focused replay failed: $mode" }
+          }
+
+      - name: Fail-closed original causal audit of exact 186 min-loss and alternative PointData 5046 sources
+        shell: pwsh
+        run: |
+          $root=Join-Path $env:RUNNER_TEMP 'SV400-causal'
+          $auditArgs=@()
+          foreach ($mode in @('baseline','raw-min-only','raw-max-only','raw-both','point5046-area')) {
+            $auditArgs+=@('--build',"$mode=$root/$mode",'--trace',"$mode=$root/$mode/trace.jsonl")
+          }
+          python scripts/Audit-SV400-186-MinLoss-5046-Duplicate-Trace.py @auditArgs --output "$root/audit"
+          if ($LASTEXITCODE -ne 0) { throw 'Original source-point 186 causal merge or #5046 duplicate PointData evidence did not close' }
+          $audit=Get-Content "$root/audit/SV400_186_Min_Loss_5046_Duplicate_Causal_Manifest.json" -Raw | ConvertFrom-Json
+          "Actual 186<-176 source-specific loss: min-only $($audit.lost_source_slots.'raw-min-only'.lost); max-only $($audit.lost_source_slots.'raw-max-only'.lost); both $($audit.lost_source_slots.'raw-both'.lost)." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "PointData #5046 is not unique: independent original indices $($audit.point5046_independent_source_point_indices -join ', '). Same final .pkl SHA after single-point area filtering." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-original-186-min-loss-and-5046-duplicate-focused-causal-source
+          path: |
+            ${{ runner.temp }}/SV400-causal/audit/*.csv
+            ${{ runner.temp }}/SV400-causal/audit/*.json
+            ${{ runner.temp }}/SV400-causal/*/trace.jsonl
+            ${{ runner.temp }}/SV400-causal/*/native-encounter-build.json
           retention-days: 30
           if-no-files-found: warn
 
