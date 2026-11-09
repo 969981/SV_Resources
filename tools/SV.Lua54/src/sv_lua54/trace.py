@@ -50,6 +50,11 @@ def string_at(proto: Proto, index: int, kind: str | None = None):
     return result
 
 
+def field_hash_at(proto: Proto, index: int):
+    """C/F/S hashes are *names of fields*, not necessarily callable owners."""
+    return string_at(proto, index, "F") or string_at(proto, index, "S")
+
+
 def native_methods(chunk: Chunk):
     """Confirmed root _ENV[C].prototype[F]=closure; not all possible layouts."""
     p = chunk.root
@@ -178,15 +183,31 @@ def call_sites(proto: Proto, blocks, code):
                 registers.pop(a, None)
                 if value is not None:
                     registers[a] = value
+            elif op in {"LOADK", "LOADKX"}:
+                # LOADKX consumes the next EXTRAARG's Ax constant index.
+                index = bx if op == "LOADK" else (
+                    code[pc+1][6] + 16777215 if pc+1 < len(code)
+                    and code[pc+1][0] == "EXTRAARG" else None)
+                key = field_hash_at(proto, index) if index is not None else None
+                registers.pop(a, None)
+                if key is not None:
+                    registers[a] = ("hash_key", key)
+            elif op == "GETTABLE":
+                index = registers.get(c)  # index comes from R[C]
+                registers.pop(a, None)
+                if index and index[0] == "hash_key":
+                    registers[a] = ("field_hash", index[1])
             elif op == "SELF":
+                index = field_hash_at(proto, c) if k else (
+                    registers.get(c, (None, None))[1]
+                    if registers.get(c, (None,))[0] == "hash_key" else None)
                 registers.pop(a, None)
                 registers.pop(a+1, None)
-                key = string_at(proto, c, "F") if k else None
-                if key is not None:
-                    registers[a] = ("method_hash", key)
+                if index is not None:
+                    registers[a] = ("method_hash", index)
             elif op in {"GETFIELD", "GETTABUP"}:
                 registers.pop(a, None)
-                key = string_at(proto, c, "F")
+                key = field_hash_at(proto, c)
                 if key is not None:
                     registers[a] = ("field_hash", key)
             elif op in {"CALL", "TAILCALL"}:
@@ -199,7 +220,9 @@ def call_sites(proto: Proto, blocks, code):
                     status, callee, f_hash = "UNRESOLVED_DYNAMIC_CALL", None, None
                 rows.append({"pc": pc, "file_offset": proto.code_offset + pc*4,
                              "opcode": op, "receiver_register": a,
-                             "target_proto_id": callee, "target_function_hash": f_hash,
+                             "target_proto_id": callee,
+                             "target_field_hash": f_hash,
+                             "target_function_hash": f_hash if f_hash and f_hash.startswith("F") else None,
                              "resolution": status})
                 # Lua CALL overwrites result registers only, not unrelated ones.
                 if c == 0:
