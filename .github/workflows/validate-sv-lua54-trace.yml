@@ -31,6 +31,7 @@ jobs:
           sparse-checkout: |
             tools/SV.Lua54/src/sv_lua54
             tests/test_sv_lua54_trace.py
+            scripts/Verify-SV-Lua54-CF-Decompile.py
             .github/workflows/validate-sv-lua54-trace.yml
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
           sparse-checkout-cone-mode: false
@@ -53,11 +54,28 @@ jobs:
             --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
             --output slr-gem-setting-cf-trace.json
           python -c 'import json; x=json.load(open("slr-gem-setting-cf-trace.json")); assert x["matched_definitions"]>0, "method not found"; print("method",x["class_hash"],x["function_hash"],"proto",x["items"][0]["proto_id"],"blocks",len(x["items"][0]["cfg_blocks"]),"calls",len(x["items"][0]["calls"]))'
+      - name: Strict decompile and Lua 5.4 syntax test of the same native method
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 https://github.com/x3zvawq/unluac-rs/releases/download/v1.4.4/unluac-1.4.4-linux-x86_64 -o "$RUNNER_TEMP/unluac-cli"
+          echo "45dd5ef946fbd18a2e284267e32c2b14caeabe7dfc76d688f704244c5c3d4baf  $RUNNER_TEMP/unluac-cli" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/unluac-cli"
+          if ! command -v luac5.4 >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq lua5.4; fi
+          python scripts/Verify-SV-Lua54-CF-Decompile.py \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --class-hash C850E69B34478276C \
+            --function-hash F7C68FEDB79AB6396 \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --decompiler "$RUNNER_TEMP/unluac-cli" --luac luac5.4 \
+            --output slr-gem-setting-decompile.json
       - name: Upload bounded trace metadata (never original BLUA)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: SLR-R1-GemSettingManager-CF-trace
-          path: slr-gem-setting-cf-trace.json
+          path: |
+            slr-gem-setting-cf-trace.json
+            slr-gem-setting-decompile.json
           if-no-files-found: warn
           retention-days: 14
