@@ -3,13 +3,13 @@ name: SLR R2 - Native table ownership and Lua 5.4 differential
 on:
   push:
     branches:
+      - master
       - feature/sv-lua54-r2-table-ownership
     paths:
       - ".github/workflows/slr-r2-table-ownership.yml"
       - "scripts/Analyze-SV-Lua54-R2-TableOwner.py"
       - "scripts/Build-SV-Lua54-R2-NativeSlice.py"
       - "scripts/Emit-SV-Lua54-R2-SafeRegion.py"
-      - "scripts/Build-SV-Lua54-R2-NativeSlice.py"
       - "tools/SV.Lua54/src/sv_lua54/ownership.py"
       - "tests/test_sv_lua54_r2.py"
       - "tests/fixtures/sv_lua54/r2_table_semantics.lua"
@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: slr-r2-table-native
@@ -40,11 +40,13 @@ jobs:
             scripts/Emit-SV-Lua54-R2-SafeRegion.py
             tools/SV.Lua54/src/sv_lua54
             tools/SV.Lua54/fixtures/r1_residual_hir_752.json
+            tools/SV.Lua54/fixtures/r2_proto752_ownership.json
+            tools/SV.Lua54/fixtures/r2_ast_report.json
             tests/test_sv_lua54_r2.py
             tests/fixtures/sv_lua54/r2_table_semantics.lua
             tests/fixtures/sv_lua54/r2_native_region_compare.lua
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -102,16 +104,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Commit only original source-backed metadata to feature branch
+      - name: Verify bounded native evidence matches pinned snapshots
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add --sparse tools/SV.Lua54/fixtures/r2_proto752_ownership.json tools/SV.Lua54/fixtures/r2_ast_report.json
-          if git diff --cached --quiet; then
-            echo "R2 report already matches repository"
-          else
-            git commit -m "data(SLR R2): pin Proto 752 private table owner and escape diagnostics"
-            git push origin HEAD:refs/heads/feature/sv-lua54-r2-table-ownership
-          fi
+          git diff --exit-code --             tools/SV.Lua54/fixtures/r2_proto752_ownership.json             tools/SV.Lua54/fixtures/r2_ast_report.json
+          echo "PASS: native ownership and AST source-map evidence unchanged; read-only CI."
