@@ -140,6 +140,16 @@ def run(root: Path) -> dict:
             raise ValueError("root helper CLOSURE signature changed")
         n=root_proto.children[h.bx]
         helper_ops=decode(n)
+        keyed=[]
+        for ins in helper_ops:
+            ix=None
+            if ins.name in ("GETFIELD","GETTABUP"):ix=ins.c
+            if ins.name=="SETFIELD":ix=ins.b
+            if ix is not None and ix<len(n.constants):
+                z=n.constants[ix]
+                if z.tag in (4,20) and isinstance(z.payload,bytes) and len(z.payload)<=48:
+                    try:keyed.append(z.payload.decode("ascii"))
+                    except UnicodeDecodeError:pass
         summary={
             "root_pc":helper_pc,"root_register":h.a,
             "child_proto_id":n.id,"child_index":h.bx,
@@ -148,6 +158,12 @@ def run(root: Path) -> dict:
             "upvalue_descriptors":[list(n.upvalues[i*3:i*3+3]) for i in range(n.upvalue_count)],
             "opcode_counts":dict(sorted(Counter(x.name for x in helper_ops).items())),
             "opcode_names_head":[x.name for x in helper_ops[:28]],
+            "string_key_refs":list(dict.fromkeys(keyed)),
+            "role_candidate":{
+                42:"_hx_obj_newindex",48:"_hx_a",49:"_hx_e",
+                50:"_hx_o",51:"_hx_new",52:"UNKNOWN_HAXE_HELPER"
+            }.get(helper_pc),
+            "role_evidence":"HAXE_GENERATED_RUNTIME_STRUCTURAL_ANALOGY_NOT_NATIVE_NAME",
         }
         role_candidates.append(summary)
     root_window = []
@@ -235,6 +251,13 @@ def run(root: Path) -> dict:
         "lifetime_limit":"STATIC_CLOSE_TBC_ONLY_NOT_REAL_CALLINFO",
         "r16_other_closure_captures": siblings,
         "r16_captured_by_direct_native_c_to_f_count":len(r16_capture_method_edges),
+        "r16_native_method_capture_name_histogram":dict(
+            sorted(Counter(x["method_name_candidate"] or "<UNKNOWN>"
+                           for x in r16_capture_method_edges).items())
+        ),
+        "r16_native_method_capture_distinct_class_hashes":len(set(
+            x["class_hash"] for x in r16_capture_method_edges
+        )),
         "r16_direct_native_method_capture_examples":r16_capture_method_edges[:30],
         "r16_direct_native_method_capture_edges_truncated":len(r16_capture_method_edges)>30,
         "root_pc35_54_native_opcodes":root_window,
@@ -288,6 +311,8 @@ def main() -> None:
         "parent_r16_reaching_defs_tail":r["candidate_write_sites_tail"][-12:],
         "other_r16_closure_capture_count":report["r16_other_closure_captures"]["count"],
         "r16_captured_by_direct_native_c_to_f_count":report["r16_captured_by_direct_native_c_to_f_count"],
+        "r16_native_method_capture_name_histogram":report["r16_native_method_capture_name_histogram"],
+        "r16_native_method_capture_distinct_class_hashes":report["r16_native_method_capture_distinct_class_hashes"],
         "r16_direct_native_method_capture_examples":report["r16_direct_native_method_capture_examples"][:9],
         "r16_producer_closure":report["r16_producer_closure"],
         "capture_lifetime_opcodes_r16":report["capture_lifetime_opcodes_r16_from_producer"],
