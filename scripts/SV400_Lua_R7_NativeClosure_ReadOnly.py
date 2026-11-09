@@ -157,11 +157,14 @@ class NativePost(gdb.Breakpoint):
         global SEQ
         try:
             thread = tid()
-            prior = PENDING.pop(thread, None)
+            prior = PENDING.get(thread)
             if prior is None:
                 return False
+            # A nested/unrelated VM handler must not consume the pending
+            # original-root sample. Ignore it until the right result slot.
             if reg("x22") != prior["result_slot"]:
-                raise ValueError("closure result target x22 changed")
+                return False
+            PENDING.pop(thread, None)
             pc = prior["pc"]
             expected_word, child_id, regnum = PC[pc]
             slot = prior["result_slot"]
