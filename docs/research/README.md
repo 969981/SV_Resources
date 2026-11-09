@@ -78,6 +78,10 @@ Keep evidence statuses visible. Do not present planned work as completed.
 
 - [186←176 四条原匹配损失、PointData #5046／5072／5257 重复原生候选与五模式 focused trace 验收边界](sv400-186-min-only-and-worldend-5046-duplicate-source.md)：原始基线观察可复核；五模式变体因果回放仍需实证，不更改默认 `.pkl`。
 
+## 野生 676 / 固定 203 参考残差与零损失研究
+
+- [SV 4.0.0 原生 61+223 来源审计：676 条野生差异（372 上限／220 下限／74 双侧／10 多区间）与 203 条固定差异（189 额外 158 研究候选／14 独立原因），保护已匹配 26,185／774 条](sv400-reference-gap-676-wild-203-fixed-zero-loss.md) — 只读 SHA 固定来源差异诊断，不修改任何正式 `.pkl`。
+
 ## 4.0.0 原生六方案等级与 PointData #5046 最终 A/B 证据
 
 - [实际 ROM→pkNX 六种等级 A/B：raw-max-only 439／389 保留；PointData #5046 七条件来源区域的四次拒绝、零序列化变化](sv400-original-rawmax-5046-verified-results.md) — 已通过 Actions #42538746081（61 项遭遇源文件、223 TRCOL），只读研究，不是游戏 PK9 合法性保证。
