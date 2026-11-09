@@ -171,6 +171,25 @@ jobs:
               print('LUA_ERROR_SOURCE',name,'anchors',row['occurrence_count_bounded'],
                     'xrefs',sum(x['candidate_xref_count'] for x in row['anchors']))
           PY
+      - name: Disassemble bounded Lua comparison error and stack-error native clusters
+        shell: bash
+        run: |
+          set -euo pipefail
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          aarch64-linux-gnu-objdump -d -w --start-address=0x25b30 --stop-address=0x25c70 "$elf" \
+            > slr-lua-error-common-25b90.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x260e0 --stop-address=0x26220 "$elf" \
+            > slr-lua-compare-errors-26180.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x3af80 --stop-address=0x3b100 "$elf" \
+            > slr-lua-cstack-errors-3afe4.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x240e0 --stop-address=0x24220 "$elf" \
+            > slr-lua-stack-errors-24184.txt
+          for f in slr-lua-error-common-25b90.txt slr-lua-compare-errors-26180.txt slr-lua-cstack-errors-3afe4.txt slr-lua-stack-errors-24184.txt; do
+            test "$(wc -c < "$f")" -gt 120
+            test "$(wc -c < "$f")" -lt 30000
+            echo "LUA_ERR_NATIVE_BOUND $(basename "$f") $(wc -l < "$f")"
+            cat "$f"
+          done
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
         run: |
@@ -214,6 +233,10 @@ jobs:
             slr-violet-luavm-dispatch-shapes.json
             slr-luavm-diagnostic-string-anchors.txt
             slr-violet-luavm-diagnostic-xrefs.json
+            slr-lua-error-common-25b90.txt
+            slr-lua-compare-errors-26180.txt
+            slr-lua-cstack-errors-3afe4.txt
+            slr-lua-stack-errors-24184.txt
             slr-subsdk0-luavm-dispatch-shapes.json
             slr-sdk-luavm-dispatch-shapes.json
             slr-violet-luavm-xref-neighborhood.txt
