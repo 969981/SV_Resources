@@ -134,7 +134,10 @@ def verify(trace, static):
             if type(seq) is not int or seq <= last_seq:
                 raise ValueError("nonmonotonic sequence")
             last_seq = seq
-            sample_scope = (address(e.get("lua_state")), address(e.get("root_frame")))
+            activation = e.get("root_activation_id")
+            if not isinstance(activation, str) or not activation.strip():
+                raise ValueError("root_activation_id missing; stack address alone is not an activation identity")
+            sample_scope = (address(e.get("lua_state")), address(e.get("root_frame")), activation)
             if scope is None:
                 scope = sample_scope
             elif sample_scope != scope:
@@ -154,6 +157,10 @@ def verify(trace, static):
         closures = [address(x["closure"]) for x in first]
         gates["same_R13_UpVal"] = len(set(uv)) == 1
         gates["same_R13_Table"] = len(set(tbl)) == 1
+        if not gates["same_R13_UpVal"]:
+            errors.append("PC48/49/50 UpVal addresses differ; shared cell NOT proven")
+        if not gates["same_R13_Table"]:
+            errors.append("PC48/49/50 Table addresses differ; shared value NOT proven")
         if len(set(closures)) != 3:
             errors.append("three CLOSURE sites must yield distinct closure identities")
         mainbody = seen[12242]
@@ -163,11 +170,15 @@ def verify(trace, static):
             address(mainbody["value"]) == address(seen[50]["closure"])
             and address(mainbody["upvalue"]) != address(seen[50]["upvalue"])
         )
+        if not gates["mainBody_captures_Proto20"]:
+            errors.append("PC12242 R16 cell value differs from PC50 Proto20 closure (or aliases R13 cell)")
     for k in ("enter", "return"):
         if k in seen and 12242 in seen:
             if (address(seen[k]["closure"]) == address(seen[12242]["closure"])
                     and seen[k]["seq"] > seen[12242]["seq"]):
                 gates["mainBody_entered" if k == "enter" else "mainBody_returned"] = True
+    if "enter" not in seen:
+        errors.append("Proto752 function entry NOT_OBSERVED")
     if "return" in seen and "enter" in seen and seen["return"]["seq"] <= seen["enter"]["seq"]:
         gates["mainBody_returned"] = False
         errors.append("return precedes enter")
