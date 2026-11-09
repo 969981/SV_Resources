@@ -51,16 +51,17 @@ jobs:
           python3 slr/scripts/R3-Instrument-Unluac-SourceSite.py upstream
           python3 slr/scripts/R3-Export-Proto752.py --root slr --output "$RUNNER_TEMP/r3_proto752_native.luac"
 
-      - name: Rust compiler pinned compatible with v1.4.5
+      - name: Rust stable (matches upstream release CI)
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: "1.94.0"
+          toolchain: stable
 
       - name: Build patched upstream decompiler
         shell: bash
         working-directory: upstream
         run: |
           set -euo pipefail
+          rustc --version
           cargo build --locked -p unluac-cli
           test -x target/debug/unluac
 
