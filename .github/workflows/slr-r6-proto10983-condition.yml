@@ -90,7 +90,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          timeout 240s "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+          timeout 900s "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
             -i "$GITHUB_WORKSPACE/Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua" \
             -D lua5.4 --generate-mode strict \
             > "$RUNNER_TEMP/main.strict.experimental.lua" \
@@ -103,7 +103,7 @@ jobs:
             wc -c "$RUNNER_TEMP/main.strict.experimental.lua"
           else
             rm -f "$RUNNER_TEMP/main.strict.experimental.lua"
-            grep -E 'error:|SV10983_FAILURE=' "$RUNNER_TEMP/full-main-diagnostic.log" | tail -n 12 || true
+            grep -E 'error:|SV10983_FAILURE=|SLR_CAPTURE_(KEEP|WRITE)' "$RUNNER_TEMP/full-main-diagnostic.log" | tail -n 20 || true
           fi
           exit 0
 

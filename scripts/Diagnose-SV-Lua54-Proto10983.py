@@ -140,7 +140,7 @@ def instrument(folder):
                         && matches!(&replacement, HirExpr::Binary(binary)
                             if binary.op == crate::hir::HirBinaryOpKind::Lt)
                     {
-                        eprintln!("SV10983_CAPTURE_REFERENCE_RETAINED binding={:?}", binding);
+                        eprintln!("SLR_CAPTURE_KEEP proto={:?} producer={:?} consumer={:?} binding={:?}", lowering.id, producer.predicate, node.predicate, binding);
                     } else if replaced != 1 {
                         eprintln!("SV10983_FAILURE=replace_binding count={} producer={:?} consumer={:?} phi={:?} expr={:?} replacement={:?} read={:?}", replaced, producer_id, node.id, value.phi, expr, replacement, read);
                         return None;
@@ -178,7 +178,7 @@ def instrument(folder):
                 capture.mode == crate::hir::HirCaptureMode::ByReference &&
                 capture.binding == crate::hir::HirBinding::Local(local_id))
         {
-            eprintln!("SV10983_EXPLICIT_CAPTURED_BOOLEAN local={:?} from={:?}", local_id, producer.predicate);
+            eprintln!("SLR_CAPTURE_WRITE proto={:?} producer={:?} consumer={:?} local={:?}", self.proto, producer.predicate, consumer.predicate, local_id);
             prefix.push(assign_stmt(
                 vec![HirLValue::Local(local_id)],
                 vec![producer_expr],
