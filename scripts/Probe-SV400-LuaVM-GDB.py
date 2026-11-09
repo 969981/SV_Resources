@@ -3,7 +3,8 @@
 Run from WSL2 gdb-multiarch AFTER connecting to the remote target:
     source -s python scripts/Probe-SV400-LuaVM-GDB.py
     sv400-native-preflight
-    sv400-native-arm 0x458a4
+    # Only after independently auditing an executable site:
+    sv400-native-arm 0xYOUR_VALIDATED_RVA
 
 Requires SV400_MAIN_BASE (verified guest VA) and SV400_VIOLET_ELF.
 Does NOT identify the Lua VM dispatch loop or actual Lua Proto PCs.
@@ -24,7 +25,7 @@ except ImportError:
     gdb = None
 
 SOURCE_SHA = "84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30"
-LUA_VERSION_STRING_XREF_RVA = 0x458A4
+LUA_VERSION_STRING_XREF_RVA = 0x458A4  # diagnostic string site, NOT VM dispatch
 CHECK_RVAS = (0x1000, LUA_VERSION_STRING_XREF_RVA)
 PROBE_MARKER = "NATIVE_CPU_BREAKPOINT_ONLY_NO_LUA_PROTO_IDENTITY"
 
@@ -129,13 +130,15 @@ if gdb is not None:
             self.preflight()
             if self.bp is not None and self.bp.is_valid():
                 raise ValueError("native hardware breakpoint already armed")
-            permitted = {LUA_VERSION_STRING_XREF_RVA}
+            permitted = set()  # no default hook: old Lua 5.4 xref is a diagnostic formatter
             for token in os.environ.get("SV400_AUDITED_NATIVE_RVAS", "").split(","):
                 if token.strip():
                     permitted.add(int(token.strip(), 0))
             if rva not in permitted:
-                raise ValueError("RVA has not been audited; explicitly add it to "
-                                 "SV400_AUDITED_NATIVE_RVAS only after ARM64 validation")
+                raise ValueError("No hookable VM RVA verified. Do not use the Lua-version "
+                                 "diagnostic xref as opcode dispatcher. Set "
+                                 "SV400_AUDITED_NATIVE_RVAS only after an independent "
+                                 "instruction and guest mapping audit.")
             expected = code_bytes_at_rva(self.elf, rva, 16)
             actual = bytes(gdb.selected_inferior().read_memory(self.base+rva, 16))
             if expected != actual:
@@ -204,7 +207,7 @@ if gdb is not None:
             super().__init__("sv400-native-arm", gdb.COMMAND_USER)
         def invoke(self, arg, from_tty):
             if not arg.strip():
-                raise gdb.GdbError("usage: sv400-native-arm 0x458a4")
+                raise gdb.GdbError("usage: sv400-native-arm <independently-validated-RVA>")
             try:
                 SESSION.arm(int(arg.strip(), 0))
             except Exception as exc:
