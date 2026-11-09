@@ -55,6 +55,69 @@ def instrument(folder):
     (!nodes.is_empty()).then_some(HirDecisionExpr {'''
     assert text.count(before)==1
     text=text.replace(before,after)
+    source='''                let (mut expr, mut test_source) = if node.id == condition.entry {
+                    lower_short_circuit_subject(lowering, node.block, node.predicate)
+                } else {
+                    lower_short_circuit_subject_single_eval(lowering, node.block, node.predicate)
+                }?;'''
+    target='''                let (mut expr, mut test_source) = match if node.id == condition.entry {
+                    lower_short_circuit_subject(lowering, node.block, node.predicate)
+                } else {
+                    lower_short_circuit_subject_single_eval(lowering, node.block, node.predicate)
+                } {
+                    Some(value) => value,
+                    None => {
+                        eprintln!("SV10983_FAILURE=subject node={:?} block={:?} predicate={:?}", node.id, node.block, node.predicate);
+                        return None;
+                    }
+                };'''
+    assert text.count(source)==1
+    text=text.replace(source,target)
+    source='''                    let read = super::super::exprs::expr_for_ssa_value_in_block(
+                        lowering,
+                        node.block,
+                        crate::structure::SsaValue::Phi(value.phi),
+                    )?;
+                    let binding = crate::hir::HirBinding::from_expr(&read)?;'''
+    target='''                    let read = match super::super::exprs::expr_for_ssa_value_in_block(
+                        lowering,
+                        node.block,
+                        crate::structure::SsaValue::Phi(value.phi),
+                    ) {
+                        Some(read) => read,
+                        None => {
+                            eprintln!("SV10983_FAILURE=ssa_value_in_block producer={:?} consumer={:?} phi={:?}", producer_id, node.id, value.phi);
+                            return None;
+                        }
+                    };
+                    let binding = match crate::hir::HirBinding::from_expr(&read) {
+                        Some(binding) => binding,
+                        None => {
+                            eprintln!("SV10983_FAILURE=binding_from_expr read={:?}", read);
+                            return None;
+                        }
+                    };'''
+    assert text.count(source)==1
+    text=text.replace(source,target)
+    source='''                    if crate::hir::rewrite::replace_binding_in_expr(
+                        &mut expr,
+                        binding,
+                        &replacement,
+                    ) != 1
+                    {
+                        return None;
+                    }'''
+    target='''                    let replaced = crate::hir::rewrite::replace_binding_in_expr(
+                        &mut expr,
+                        binding,
+                        &replacement,
+                    );
+                    if replaced != 1 {
+                        eprintln!("SV10983_FAILURE=replace_binding count={} producer={:?} consumer={:?} phi={:?} expr={:?} replacement={:?} read={:?}", replaced, producer_id, node.id, value.phi, expr, replacement, read);
+                        return None;
+                    }'''
+    assert text.count(source)==1
+    text=text.replace(source,target)
     # This diagnostic does not allow any new rejected lowering to pass.
     path.write_text(text)
 
