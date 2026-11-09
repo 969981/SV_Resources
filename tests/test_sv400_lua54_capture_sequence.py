@@ -19,6 +19,7 @@ def core(seq,scope,pc):
         "status":"ORIGINAL_PROTO_HANDLER_WORD_AND_SHA_MATCH",
         "proto_scope":scope,"lua_pc":pc,
         "thread_number":1,
+        "vm_callinfo_id":"rootframe-1" if scope=="root" else "setupframe-1",
         "root_frame_id":"rootframe-1" if scope=="root" else None,
         "setup_closure_id":"closure-1" if scope=="setup" else None,
     }
@@ -62,6 +63,7 @@ class SequenceSchemaTests(unittest.TestCase):
         self.assertTrue(a["child_upval_parent_stack_links"])
         self.assertTrue(a["complete_target_pc_coverage"])
         self.assertTrue(a["complete_same_setup_closure_coverage"])
+        self.assertTrue(a["complete_same_setup_activation"])
         self.assertEqual(a["setup_events_same_child_closure"],[7,8,11,32,47,48,83])
         self.assertEqual(a["factory_return_to_receiver_checks"]["PC8_return_to_PC11_receiver"],
                          "IDENTITY_MATCH")
@@ -95,8 +97,23 @@ class SequenceSchemaTests(unittest.TestCase):
         a=m.audit_capture(events)
         self.assertNotIn(11,a["setup_events_same_child_closure"])
         self.assertFalse(a["complete_same_setup_closure_coverage"])
+        self.assertFalse(a["complete_same_setup_activation"])
         self.assertEqual(a["factory_return_to_receiver_checks"]["PC8_return_to_PC11_receiver"],
                          "IDENTITY_OR_ORDER_MISMATCH")
+
+    def test_two_invocations_same_closure_must_not_mix_target_pc_coverage(self):
+        rows=fixture()
+        rows[5]["vm_callinfo_id"]="second-setupframe"
+        a=m.audit_capture(rows)
+        self.assertTrue(a["complete_same_setup_closure_coverage"])
+        self.assertFalse(a["complete_same_setup_activation"])
+
+    def test_missing_thread_identity_does_not_confirm_root_order(self):
+        rows=fixture()
+        rows[0]["thread_number"]=None
+        rows[1]["thread_number"]=None
+        a=m.audit_capture(rows)
+        self.assertFalse(a["root_creation_order_consistent"])
 
     def test_wrong_order_or_mixed_session_rejected(self):
         events=fixture()
