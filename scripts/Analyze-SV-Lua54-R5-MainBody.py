@@ -92,6 +92,45 @@ def run(root: Path) -> dict:
     ]
     helper_opcodes = decode(producer_child)
     source_r13 = reaching_register_writes(root_proto, producer_pc, 13)
+    # A Haxe Lua-style anonymous-object metatable is assembled in R13
+    # directly before the wrapper's CLOSURE. This is a structural hint,
+    # not proof that the original editable Haxe source can be reconstructed.
+    if (instructions[43].name,instructions[43].a) != ("NEWTABLE",13):
+        raise ValueError("R13 native object metatable allocation differs")
+    if (instructions[45].name,instructions[45].a,instructions[45].c) != ("SETFIELD",13,12):
+        raise ValueError("R13 __newindex setup differs")
+    if (instructions[47].name,instructions[47].a,instructions[47].c) != ("SETFIELD",13,14):
+        raise ValueError("R13 __tostring setup differs")
+    def ascii_key(index):
+        k = root_proto.constants[index]
+        return (k.payload.decode("ascii") if k.tag in (4,20)
+                and isinstance(k.payload,bytes) else None)
+    if (ascii_key(instructions[45].b),ascii_key(instructions[46].c),
+        ascii_key(instructions[47].b)) != (
+        "__newindex","_hx_tostring","__tostring"
+    ):
+        raise ValueError("native Haxe-style metatable keys changed")
+    newindex_source=reaching_register_writes(root_proto,45,12)
+    if (newindex_source["candidate_write_count"]!=1
+        or newindex_source["candidate_write_sites_tail"][-1].get("pc")!=42):
+        raise ValueError("R12 __newindex closure source changed")
+    role_candidates=[]
+    for helper_pc in (42,48,49,50,51,52):
+        h= instructions[helper_pc]
+        if h.name!="CLOSURE" or h.bx>=len(root_proto.children):
+            raise ValueError("root helper CLOSURE signature changed")
+        n=root_proto.children[h.bx]
+        helper_ops=decode(n)
+        summary={
+            "root_pc":helper_pc,"root_register":h.a,
+            "child_proto_id":n.id,"child_index":h.bx,
+            "instructions":n.instruction_count,"num_params":n.num_params,
+            "is_vararg":bool(n.is_vararg),
+            "upvalue_descriptors":[list(n.upvalues[i*3:i*3+3]) for i in range(n.upvalue_count)],
+            "opcode_counts":dict(sorted(Counter(x.name for x in helper_ops).items())),
+            "opcode_names_head":[x.name for x in helper_ops[:28]],
+        }
+        role_candidates.append(summary)
     root_window = []
     for op in instructions[35:55]:
         entry={"pc":op.pc,"op":op.name,"a":op.a,"b":op.b,
@@ -177,6 +216,18 @@ def run(root: Path) -> dict:
         "lifetime_limit":"STATIC_CLOSE_TBC_ONLY_NOT_REAL_CALLINFO",
         "r16_other_closure_captures": siblings,
         "root_pc35_54_native_opcodes":root_window,
+        "haxe_style_object_metatable": {
+            "producer_pc":43,"target_register":13,
+            "__newindex_assignment_pc":45,
+            "__newindex_source_r12":newindex_source,
+            "__tostring_lookup_pc":46,
+            "__tostring_assignment_pc":47,
+            "keys":["__newindex","_hx_tostring","__tostring"],
+            "haxe_runtime_role_candidate":"_hx_obj_mt",
+            "role_evidence":"STRUCTURAL_MATCH_NOT_ORIGINAL_SOURCE",
+            "runtime_table_identity":"NOT_OBSERVED",
+        },
+        "haxe_style_closure_role_candidates":role_candidates,
         "runtime_register_identity": "NOT_OBSERVED",
         "runtime_parent_upvalue0": "NOT_OBSERVED",
         "runtime_mainbody_calls": "NOT_OBSERVED",
@@ -217,6 +268,8 @@ def main() -> None:
         "r16_producer_closure":report["r16_producer_closure"],
         "capture_lifetime_opcodes_r16":report["capture_lifetime_opcodes_r16_from_producer"],
         "root_pc35_54_native_opcodes":report["root_pc35_54_native_opcodes"],
+        "haxe_style_object_metatable":report["haxe_style_object_metatable"],
+        "haxe_style_closure_role_candidates":report["haxe_style_closure_role_candidates"],
         "cfg_defects":r["cfg_defect_count"],
         "graph_iterations":r["graph_iterations"],
         "root_upvalue_descriptors":report["root_upvalue_descriptors"],
