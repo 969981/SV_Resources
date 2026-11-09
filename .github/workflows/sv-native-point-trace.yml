@@ -326,12 +326,17 @@ jobs:
           if ($min.matched_occurrences -ne 385 -or $min.baseline_reference_matches_lost -ne 4 -or $min.new_reference_matches_recovered -ne 0 -or $min.match_delta -ne -4) {
             throw 'Original raw-min-only four-match regression evidence drift'
           }
-          foreach ($target in @(@(176,0,25),@(194,176,25),@(186,176,0))) {
-            $loc=$result.reference_match_retention_by_location | Where-Object { $_.mode -eq 'terarium-176-194-raw-point-max-only' -and $_.location_id -eq $target[0] -and $_.cross_from_id -eq $target[1] }
-            if ($null -eq $loc -or $loc.new_reference_matches_recovered -ne $target[2] -or $loc.baseline_reference_matches_lost -ne 0) {
-              throw "Original source-backed raw-max location $($target[0]) <- $($target[1]) parity drift"
+          $targetCases=@(
+            [pscustomobject]@{ Location=176; CrossFrom=0; Recovered=25 }
+            [pscustomobject]@{ Location=194; CrossFrom=176; Recovered=25 }
+            [pscustomobject]@{ Location=186; CrossFrom=176; Recovered=0 }
+          )
+          foreach ($target in $targetCases) {
+            $loc=$result.reference_match_retention_by_location | Where-Object { $_.mode -eq 'terarium-176-194-raw-point-max-only' -and $_.location_id -eq $target.Location -and $_.cross_from_id -eq $target.CrossFrom }
+            if ($null -eq $loc -or $loc.new_reference_matches_recovered -ne $target.Recovered -or $loc.baseline_reference_matches_lost -ne 0) {
+              throw "Original source-backed raw-max location $($target.Location) <- $($target.CrossFrom) parity drift"
             }
-            if ($target[0] -eq 186 -and ($loc.baseline_matched -ne 32 -or $loc.variant_matched -ne 32)) {
+            if ($target.Location -eq 186 -and ($loc.baseline_matched -ne 32 -or $loc.variant_matched -ne 32)) {
               throw 'Original Coastal Plaza 186 <- 176 32/32 reference matches not retained'
             }
           }
