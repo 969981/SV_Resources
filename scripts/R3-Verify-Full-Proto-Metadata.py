@@ -48,8 +48,11 @@ def main():
         raise AssertionError("wrong full Proto752 original, expected 2071 opcode words")
     if not all((original["roundtrip_exact"],compiled["roundtrip_exact"])):
         raise AssertionError("Lua 5.4 parser reserialization failed")
+    same_signature=all(original[k]==compiled[k] for k in ("root_parameters","root_is_vararg","root_upvalues"))
     report={
         "status":"ORIGINAL_AND_RECOMPILED_FULL_PROTO_STRUCTURALLY_PARSEABLE",
+        "root_abi_signature_preserved":same_signature,
+        "root_abi_signature_note":"Different root signature: source compiled as a Lua chunk, not yet a drop-in original Proto replacement" if not same_signature else "Root signature matches; runtime still unverified",
         "not_semantic_equivalence":True,
         "original_proto":original,
         "recompiled_source":compiled,
@@ -64,6 +67,7 @@ def main():
     args.output.write_text(json.dumps(report,indent=2,sort_keys=True)+"\n")
     print("Original root:",original)
     print("Recompiled:",compiled)
+    print("Original->recompiled root ABI matches:",same_signature)
     print("R3 full function is structurally compiled only; behavioral parity NOT verified")
 
 if __name__=="__main__":
