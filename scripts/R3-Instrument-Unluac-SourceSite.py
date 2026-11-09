@@ -37,7 +37,7 @@ def patch_constructor(source: str) -> str:
                 changed = true;'''
     trace = '''            if std::env::var_os("SV_R3_TRACE").is_some()
                 && set_list.source_site.is_some_and(|s| s.proto.index() == 0
-                    && (630..=670).contains(&s.instr.index())) {
+                    && s.instr.index() == 683) {
                 eprintln!("SV_R3 SETLIST native-site={:?} owner={:?} index={} start={} fixed={} tail={}",
                     set_list.source_site.map(|s| (s.proto.index(), s.instr.index())),
                     binding, index, set_list.start_index,
