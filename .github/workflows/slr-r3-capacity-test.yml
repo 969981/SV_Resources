@@ -1,0 +1,81 @@
+name: SLR R3 - original Lua table capacity and nil-hole A/B
+
+on:
+  push:
+    branches: [feature/sv-lua54-r3-hir-ast]
+    paths:
+      - ".github/workflows/slr-r3-capacity-test.yml"
+      - "scripts/R3-Emit-Capacity-Preserved.py"
+      - "tests/fixtures/sv_lua54/r3_nil_hole_probe.lua"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-native-nil:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Build-SV-Lua54-R2-NativeSlice.py
+            scripts/Emit-SV-Lua54-R2-SafeRegion.py
+            scripts/R3-Emit-Capacity-Preserved.py
+            tools/SV.Lua54/src/sv_lua54
+            tests/fixtures/sv_lua54/r2_native_region_compare.lua
+            tests/fixtures/sv_lua54/r3_nil_hole_probe.lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+
+      - name: Install Lua 5.4
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+
+      - name: Create ephemeral real-bytecode input and two AST variants
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/Build-SV-Lua54-R2-NativeSlice.py --output "$RUNNER_TEMP/native.luac"
+          python3 scripts/Emit-SV-Lua54-R2-SafeRegion.py --out-lua "$RUNNER_TEMP/standard.lua"
+          python3 scripts/R3-Emit-Capacity-Preserved.py \
+            --emitted "$RUNNER_TEMP/standard.lua" --output "$RUNNER_TEMP/preserved.lua"
+          luac5.4 -p "$RUNNER_TEMP/preserved.lua"
+          luac5.4 -o "$RUNNER_TEMP/preserved.luac" "$RUNNER_TEMP/preserved.lua"
+
+      - name: Contrast original and capacity-preserved nil hole states
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "=== R2 original indexed writes ==="
+          lua5.4 tests/fixtures/sv_lua54/r3_nil_hole_probe.lua \
+            "$RUNNER_TEMP/native.luac" "$RUNNER_TEMP/standard.lua" | tee "$RUNNER_TEMP/standard.log"
+          echo "=== R3 capacity preserved indexed writes ==="
+          lua5.4 tests/fixtures/sv_lua54/r3_nil_hole_probe.lua \
+            "$RUNNER_TEMP/native.luac" "$RUNNER_TEMP/preserved.lua" | tee "$RUNNER_TEMP/preserved.log"
+          echo "=== R3 163-case original native A/B with Lua SOURCE ==="
+          lua5.4 tests/fixtures/sv_lua54/r2_native_region_compare.lua \
+            "$RUNNER_TEMP/native.luac" "$RUNNER_TEMP/preserved.lua"
+          echo "=== R3 163-case original native A/B with compiled Lua BINARY ==="
+          lua5.4 tests/fixtures/sv_lua54/r2_native_region_compare.lua \
+            "$RUNNER_TEMP/native.luac" "$RUNNER_TEMP/preserved.luac"
+          echo "=== Summary ==="
+          grep "NIL-HOLE PROBE" "$RUNNER_TEMP/standard.log" "$RUNNER_TEMP/preserved.log"
+          rm -f "$RUNNER_TEMP/native.luac" "$RUNNER_TEMP/standard.lua" \
+            "$RUNNER_TEMP/preserved.lua" "$RUNNER_TEMP/preserved.luac"
+
+      - name: Publish only short test logs (no original code/chunks)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R3-capacity-nil-hole-summaries
+          path: |
+            ${{ runner.temp }}/standard.log
+            ${{ runner.temp }}/preserved.log
+          if-no-files-found: warn
+          retention-days: 14
