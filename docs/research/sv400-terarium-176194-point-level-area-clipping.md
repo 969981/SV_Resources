@@ -93,3 +93,23 @@ The source-formula sample script and unit tests now report/test min-only, max-on
 更重要的是，全部八条之前已匹配但因 raw-both 模式而损失的模板属于 **Location 186 / CrossFrom 176**；它们 **没有出现在此 115 条来源采样案例中**，因此不能依靠上述采样去判定 186 的具体修复。只有完整的六方案 `.pkl` 原生重建能够检验 `raw-min-only`、`raw-max-only` 对 186 的真实影响，并检验非目标野生及固定、普通 Raid 的 SHA 不变。
 
 CI 障碍修复：PR #67 中 `compile-no-rom` 的稀疏检出曾漏掉 `scripts/Compare-SV-Terarium-176-194-Native-AB.py`，导致匹配保留测试的导入失败；修复后 [Actions #42538490818](https://github.com/969981/SV_Resources/actions/runs/42538490818) 的专项编译／测试通过。合并提交 `909b1291122bdb087dd3db42184a0d0ca4a34547` 已触发真实完整重跑 [Actions #42538746081](https://github.com/969981/SV_Resources/actions/runs/42538746081)。**此处的六方案新结果尚未写入本文，避免将未完成的原生重跑当成验证成功。**
+
+## 2026-11-09: 186 ← 176 的八条原匹配损失都仅涉及最高等级
+
+对已有真实 native raw-both A/B `SV400_Terarium_176_194_AB_True_Native_Changes.csv` 的 **92 行**逐一过滤 `location_id=186, cross_from_id=176`，并按完整九字段记录及参考多重集合复核后确认：八条之前与固定 PKHeX 参考完全匹配的遭遇记录，**最低等级均保持 58 不变，只有最高等级 68 → 69**。记录见原生 [Actions #42475599973](https://github.com/969981/SV_Resources/actions/runs/42475599973) 的 `SV400-real-original-level-AB-WorldEnd-158-AreaInfo-TRCOL` 工件。
+
+| National species | time_forbidden_mask | baseline matched level | raw-both level | original matching occurrences lost |
+|---:|---|---|---|---:|
+| 88 | 0 | 58–68 | 58–69 | 1 |
+| 287 | 0 | 58–68 | 58–69 | 1 |
+| 335 | 6, 9 | 58–68 | 58–69 | 2 |
+| 336 | 6, 9 | 58–68 | 58–69 | 2 |
+| 546 | 0 | 58–68 | 58–69 | 1 |
+| 547 | 0 | 58–68 | 58–69 | 1 |
+| **总计** | | | | **8** |
+
+每条被移除的 baseline 模板都在原始 PKHeX 参考中计数为 1，而对应的 raw-both 高一级模板在固定参考中计数为 0，因此不能用“新模板取代旧模板”的净匹配指标掩盖这八条损失。
+
+**新的可证伪预期：**单独启用 `raw-point-min-only` 不直接放宽 PointData 最高等级，可能保住这八条 58–68 模板；`raw-point-max-only` 则可能再次将它们扩大到 58–69。这是从已生成 .pkl 的逐字段差异得到的 **实验预测**，而不是两种单边模式已完成的结论。是否发生其他来源的合并与补偿，仍取决于当前完整六方案原生重建 [Actions #42538746081](https://github.com/969981/SV_Resources/actions/runs/42538746081) 的实际结果。
+
+此处所有变化只针对原生野生槽位；即使与 PKHeX 参考完全一致，也不直接证明游戏内的随机生成条件或 PK9 合法性。
