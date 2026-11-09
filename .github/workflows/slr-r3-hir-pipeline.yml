@@ -7,6 +7,7 @@ on:
       - ".github/workflows/slr-r3-hir-pipeline.yml"
       - "scripts/R3-Instrument-Unluac-SourceSite.py"
       - "scripts/R3-Export-Proto752.py"
+      - "tests/fixtures/sv_lua54/r3_nil_hole_probe.lua"
   workflow_dispatch:
 
 permissions:
@@ -73,6 +74,18 @@ jobs:
           SV_R3_TRACE=1 "$BIN" -i "$RUNNER_TEMP/r3_proto752_native.luac" -D lua5.4 \
             --dump hir --detail verbose --stop-after hir --proto 0 \
             > "$RUNNER_TEMP/r3_hir.txt" 2> "$RUNNER_TEMP/r3_trace.txt"
+          "$BIN" -i "$RUNNER_TEMP/r3_proto752_native.luac" -D lua5.4 \
+            --dump transformer --detail verbose --stop-after transformer --proto 0 \
+            > "$RUNNER_TEMP/r3_transformer.txt"
+          echo "=== Authoritative lowered InstrRef -> original bytecode PC ==="
+          grep -E '^[[:space:]]*@68[0-6][[:space:]]' "$RUNNER_TEMP/r3_transformer.txt" | tail -n 7
+          LOW683="$(grep -E '^[[:space:]]*@683[[:space:]]' "$RUNNER_TEMP/r3_transformer.txt" | head -n 1)"
+          echo "instrref 683: $LOW683"
+          if [[ "$LOW683" != *"origin=pc=665"* ]]; then
+            echo "The source-site 683 does not map to native PC 665; stop and investigate"
+            exit 1
+          fi
+          echo "SOURCE_SITE_TO_RAW_PC=PASS instrref683 -> PC665"
           echo "=== R3 instrumented source-site and bounded owner decisions ==="
           grep -F "table-set-list" "$RUNNER_TEMP/r3_hir.txt" | tail -n 15
           grep -E '^SV_R3 (SETLIST|OWNER_SEEDS|PROOFS)' "$RUNNER_TEMP/r3_trace.txt" | tail -n 18 || true
@@ -107,6 +120,7 @@ jobs:
           owners=[x[:650] for x in t if x.startswith("SV_R3 ") and
                   any(tag in x for tag in ("SETLIST","OWNER_SEEDS","PROOFS"))]
           report={"status":"INSTRUMENTED_HIR_DIAGNOSTIC_ONLY",
+                  "source_site": {"proto":0,"low_instr":683,"raw_pc":665,"mapping":"VERIFIED_TRANSFORMER_PC_MAP"},
                   "pinned_upstream_commit":"76d1452359b207c2a6fdec3c7c894152c7a61374",
                   "proto_id":752,"setlist_residual":selected,
                   "owner_decisions":owners[:25],
@@ -125,3 +139,39 @@ jobs:
           path: ${{ runner.temp }}/r3_diagnostics.json
           if-no-files-found: warn
           retention-days: 14
+
+
+  nil-hole-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout original proto and bounded R2 tools
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Build-SV-Lua54-R2-NativeSlice.py
+            scripts/Emit-SV-Lua54-R2-SafeRegion.py
+            tools/SV.Lua54/src/sv_lua54
+            tests/fixtures/sv_lua54/r3_nil_hole_probe.lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+
+      - name: Lua 5.4
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+
+      - name: Probe real original bytecode against nil-valued metamethods
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/Build-SV-Lua54-R2-NativeSlice.py --output "$RUNNER_TEMP/r3_native.luac"
+          python3 scripts/Emit-SV-Lua54-R2-SafeRegion.py --out-lua "$RUNNER_TEMP/r3_emitted.lua"
+          luac5.4 -p "$RUNNER_TEMP/r3_emitted.lua"
+          lua5.4 tests/fixtures/sv_lua54/r3_nil_hole_probe.lua "$RUNNER_TEMP/r3_native.luac" "$RUNNER_TEMP/r3_emitted.lua"
+          rm -f "$RUNNER_TEMP/r3_native.luac" "$RUNNER_TEMP/r3_emitted.lua"
