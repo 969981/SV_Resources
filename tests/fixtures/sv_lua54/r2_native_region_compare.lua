@@ -3,6 +3,8 @@
 -- PC 649..665 from main_dynamic Proto 752; caller-supplied registers only.
 local native_path = assert(arg[1], "native bytecode slice path required")
 local raw_region = assert(loadfile(native_path, "b"))
+local generated_path = assert(arg[2], "automatically emitted Lua source path required")
+local generated_region = assert(loadfile(generated_path, "t"))()
 
 local function reconstructed_region(a, b, c, d, e, f)
     -- Recovered *candidate*, based on HIR: allocation first, then values,
@@ -25,10 +27,14 @@ end
 local function run_one(label, args)
     local a = {raw_region(table.unpack(args, 1, 6))}
     local b = {reconstructed_region(table.unpack(args, 1, 6))}
-    assert(#a == 1 and #b == 1, "region should return one table")
+    local auto = {generated_region(table.unpack(args, 1, 6))}
+    assert(#a == 1 and #b == 1 and #auto == 1, "region should return one table")
     local equal, key = equivalent(a[1], b[1])
     assert(equal, ("mismatch %s index=%s native=%s candidate=%s"):
         format(label, tostring(key), tostring(a[1][key]), tostring(b[1][key])))
+    local equivalent_auto, auto_key = equivalent(a[1], auto[1])
+    assert(equivalent_auto, ("AUTO mismatch %s key=%s native=%s auto=%s"):
+        format(label, tostring(auto_key), tostring(a[1][auto_key]), tostring(auto[1][auto_key])))
 end
 
 local count = 0
@@ -59,7 +65,7 @@ end
 
 local function run_logged(which)
     log = {}
-    local fn = which == "native" and raw_region or reconstructed_region
+    local fn = which == "native" and raw_region or (which == "generated" and generated_region or reconstructed_region)
     local t = fn(value(10, "a"), value(20, "b"), value(30, "c"),
                  value(2, "d"), value(3, "e"), value(4, "f"))
     return {t[1], t[2], t[3]}, table.concat(log, "|")
@@ -69,6 +75,9 @@ local n, nl = run_logged("native")
 local c, cl = run_logged("candidate")
 for k = 1,3 do assert(n[k] == c[k], "metamethod result mismatch " .. k) end
 assert(nl == cl, "metamethod evaluation order differs: " .. nl .. " <> " .. cl)
+local a, al = run_logged("generated")
+for k=1,3 do assert(n[k] == a[k] and math.type(n[k]) == math.type(a[k]), "auto metamethod result mismatch " .. k) end
+assert(nl == al, "auto metamethod evaluation order differs: " .. nl .. " <> " .. al)
 count = count + 1
 
 -- Error paths: demonstrate real VM MMBIN fallback reaches the same error
@@ -83,8 +92,9 @@ local function first_error(fn)
 end
 assert(first_error(raw_region):find("expected%-mul%-error"))
 assert(first_error(reconstructed_region):find("expected%-mul%-error"))
+assert(first_error(generated_region):find("expected%-mul%-error"))
 count = count + 1
 
-print("PASS " .. count .. " real-native-bytecode vs reconstructed Lua 5.4 region cases")
+print("PASS " .. count .. " real-native-bytecode vs manual AND AUTOMATICALLY EMITTED Lua 5.4 region cases")
 print("PASS native MMBIN*/metamethod effect ordering and expected failure path")
 print("SCOPE: 17 source instruction words; no whole Proto 752 or game runtime parity")
