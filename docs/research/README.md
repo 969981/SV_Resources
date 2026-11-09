@@ -61,6 +61,10 @@ Keep evidence statuses visible. Do not present planned work as completed.
 
 - [原生 TRSCN → Havok TRCOL 动态引用与 PKHeX 遭遇几何闭合](sv-pkhex-trcol-collision-closure.md) — 从 TrinitySceneObjectTemplate 的第一子对象读取 CollisionComponent union，识别真实 TrcolFilePath，定位额外包与验证 SHA，明确与 PKHeX 参考遭遇数据库的证据分界。
 
+## 4.0.0 原生六方案等级与 PointData #5046 最终 A/B 证据
+
+- [实际 ROM→pkNX 六种等级 A/B：raw-max-only 439／389 保留；PointData #5046 七条件来源区域的四次拒绝、零序列化变化](sv400-original-rawmax-5046-verified-results.md) — 已通过 Actions #42538746081（61 项遭遇源文件、223 TRCOL），只读研究，不是游戏 PK9 合法性保证。
+
 ## 北上乡 158 跨区与六组等级的原始碰撞证据
 
 - [SV 4.0.0：CrossFrom=158 真正源碰撞区域、0f/30f 容差和六组 Absorb 链](sv400-cross158-original-collider-six-level-merges.md) — 绑定原始 PointData 索引、TRSCN/TRCOL SHA、SourceCollisionArea；分清已核对参考差异与仍待真实 Actions 验证的新增诊断。
