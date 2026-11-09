@@ -154,3 +154,9 @@ python scripts/Verify-SV-Lua54-R7-Runtime.py --trace r7-live.json --report r7-ev
 下一步优先级：**Native OP_CLOSURE 指令分派定位 + 同一 root 实例的四处运行时读数**。没有这些，不能将 `mainBody` 的 Lua/Haxe 语义认定为运行时等价。
 
 关联：[[sv-lua54-r5-mainbody-haxe-runtime-captures]] · [[sv-lua54-r6-metatable-newindex-alias]] · [[sv-lua54-source-reconstruction-roadmap]]。
+
+## 2026-11-09 R7 Native 补充：ELF 真实分派位置现已静态定位
+
+后续原版 ELF 反汇编发现 `luaV_execute` 候选入口 `main+0x41150`，其 `AND opcode,#0x7f` / jump table 直接位于 `main+0x411E4/0x411EC`。第 79 号 Lua opcode 的 `R_AARCH64_RELATIVE` 分派表项 `main+0x4383610` 指向 **`main+0x453FC` OP_CLOSURE handler**；该 handler 的 BL 直达闭包分配 `main+0x29640` 与 UpVal 复用查找 `main+0x29760`。
+
+**这更新了本篇第 5 节中“Native VM 断点尚未定位”的旧状态，仅代表 Native 静态地址定位已完成。** 当前尚未附加实机，CallInfo/UpVal/Table 指针尚无真实读数。新的完整 ARM64 反汇编、逐条注释、偏移证据、实机 GDB 取证入口与独立测试参见 [[sv-lua54-r7-native-opclosure-dispatch]]。
