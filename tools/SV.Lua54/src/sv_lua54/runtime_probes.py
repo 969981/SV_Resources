@@ -65,7 +65,7 @@ def receiver_origin(proto, code, call_pc):
                     if pc > 0 and kk == 0:
                         prev = code[pc-1]
                         if (prev[0] == "CALL" and prev[1] == cc
-                            and prev[4] == 2):
+                            and prev[3] == 2):
                             writer["value_origin"] = "PRECEDING_CALL_SINGLE_RESULT"
                             writer["producer_call_pc"] = pc-1
                     writers.append(writer)
