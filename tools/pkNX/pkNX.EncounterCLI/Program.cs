@@ -174,6 +174,7 @@ internal static class Program
                             ? "EXPERIMENTAL_ISOLATED_TERARIUM_176_194_LEVEL_AB_BASED_ON_VENDORED_PKNX"
                             : "Vendored pkNX EncounterSlotDumper9 and FixedSymbolDumper9, UNMODIFIED",
                 levelABMode = EncounterLevelABSV.Mode,
+                traceCausalProfile = hasCausalProfile ? EncounterTraceSV.SourceCausalProfile : null,
                 areaFilterABMode = EncounterAreaFilterABSV.Mode,
                 crossoverABMode = EncounterCrossoverABSV.Mode,
                 specificOwnerEvidence = EncounterCrossoverABSV.SpecificOwnerEvidence,
