@@ -9,8 +9,10 @@ on:
       - "tests/test_sv_lua54_trace.py"
       - "tests/test_sv_lua54_dataflow.py"
       - "tests/test_sv_lua54_capture.py"
+      - "tests/test_sv_lua54_aliases.py"
       - "tools/SV.Lua54/src/sv_lua54/dataflow.py"
       - "tools/SV.Lua54/src/sv_lua54/capture.py"
+      - "tools/SV.Lua54/src/sv_lua54/aliases.py"
       - ".github/workflows/validate-sv-lua54-trace.yml"
   pull_request:
     paths:
@@ -37,6 +39,7 @@ jobs:
             tests/test_sv_lua54_trace.py
             tests/test_sv_lua54_dataflow.py
             tests/test_sv_lua54_capture.py
+            tests/test_sv_lua54_aliases.py
             scripts/Verify-SV-Lua54-CF-Decompile.py
             .github/workflows/validate-sv-lua54-trace.yml
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
@@ -46,10 +49,11 @@ jobs:
           python-version: "3.12"
       - name: Syntax and synthetic control-flow checks
         run: |
-          python -m py_compile tools/SV.Lua54/src/sv_lua54/*.py tests/test_sv_lua54_trace.py tests/test_sv_lua54_dataflow.py tests/test_sv_lua54_capture.py
+          python -m py_compile tools/SV.Lua54/src/sv_lua54/*.py tests/test_sv_lua54_trace.py tests/test_sv_lua54_dataflow.py tests/test_sv_lua54_capture.py tests/test_sv_lua54_aliases.py
           python -m unittest discover -s tests -p 'test_sv_lua54_trace.py' -v
           python -m unittest discover -s tests -p 'test_sv_lua54_dataflow.py' -v
           python -m unittest discover -s tests -p 'test_sv_lua54_capture.py' -v
+          python -m unittest discover -s tests -p 'test_sv_lua54_aliases.py' -v
       - name: Pin real native C-F method and trace body
         env:
           PYTHONPATH: tools/SV.Lua54/src
@@ -108,6 +112,23 @@ jobs:
           print("ROOT_CAPTURE_VERIFIED", [(x["slot"], x["captured_register"],
                 x["capture_status"]) for x in j["capture_slots"]])
           PY
+      - name: Scan root-register shared Upvalue writers across all original Prototypes
+        env:
+          PYTHONPATH: tools/SV.Lua54/src
+        run: |
+          python -m sv_lua54.aliases \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --registers 55,58 --output slr-gem-setting-upvalue-aliases.json
+          python - <<'PY'
+          import json
+          j=json.load(open('slr-gem-setting-upvalue-aliases.json'))
+          assert set(j['groups'])=={'55','58'}
+          assert all(x['holder_count']>=1 for x in j['groups'].values())
+          print('ALIASES_VERIFIED', [(key,grp['holder_count'],
+                grp['potential_setupval_count'],grp['potential_settabup_count'])
+                for key,grp in j['groups'].items()])
+          PY
       - name: Strict decompile and Lua 5.4 syntax test of the same native method
         shell: bash
         run: |
@@ -133,5 +154,6 @@ jobs:
             slr-gem-setting-decompile.json
             slr-gem-setting-dataflow.json
             slr-gem-setting-captures.json
+            slr-gem-setting-upvalue-aliases.json
           if-no-files-found: warn
           retention-days: 14
