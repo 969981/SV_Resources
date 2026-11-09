@@ -42,6 +42,11 @@ def verify(raw: bytes, class_hash: str, function_hash: str,
         "derived_chunk_roundtrip": True,
         "decompile_status": "NOT_ATTEMPTED",
         "luac_5_4_syntax": "NOT_TESTED",
+        "recompiled_chunk_status": "NOT_TESTED",
+        "recompiled_chunk_sha256": None,
+        "recompiled_chunk_roundtrip": False,
+        "recompiled_proto_count": None,
+        "recompiled_instruction_count": None,
         "semantic_equivalence": "NOT_TESTED",
         "parent_upvalues_preserved": False,
         "diagnostic": "",
@@ -69,6 +74,24 @@ def verify(raw: bytes, class_hash: str, function_hash: str,
                                       errors="replace", timeout=timeout)
             result["luac_5_4_syntax"] = "PASS" if compiled.returncode == 0 else "FAIL"
             result["diagnostic"] = "" if compiled.returncode == 0 else compiled.stderr[-800:]
+            if compiled.returncode == 0:
+                output = Path(tmp) / "recompiled.luac"
+                emit = subprocess.run([luac, "-o", str(output), str(source)],
+                                      capture_output=True, text=True,
+                                      errors="replace", timeout=timeout)
+                if emit.returncode:
+                    result["recompiled_chunk_status"] = "COMPILE_FAILED"
+                    result["diagnostic"] = emit.stderr[-800:]
+                else:
+                    encoded = output.read_bytes()
+                    rebuilt = parse(encoded)
+                    result["recompiled_chunk_sha256"] = hashlib.sha256(encoded).hexdigest()
+                    result["recompiled_chunk_roundtrip"] = rebuilt.encode() == encoded
+                    result["recompiled_proto_count"] = rebuilt.summary()["prototype_count"]
+                    result["recompiled_instruction_count"] = rebuilt.summary()["instruction_count"]
+                    result["recompiled_chunk_status"] = (
+                        "PASS" if result["recompiled_chunk_roundtrip"] else "ROUNDTRIP_FAILED"
+                    )
         except (OSError, subprocess.TimeoutExpired) as exc:
             result["diagnostic"] = str(exc)[-800:]
             if result["decompile_status"] == "NOT_ATTEMPTED":
@@ -99,6 +122,7 @@ def main():
                            encoding="utf-8")
     print(f"Proto {result['proto_id']} decompile={result['decompile_status']} "
           f"syntax={result['luac_5_4_syntax']} "
+          f"recompile={result['recompiled_chunk_status']} "
           f"diagnostic={result['diagnostic'][:160]!r}")
 
 
