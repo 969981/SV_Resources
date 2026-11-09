@@ -104,6 +104,49 @@ class RuntimeProbeTests(unittest.TestCase):
         self.assertTrue(m["vm_hook_scope"]["never_use_as_cpu_pc"])
         self.assertEqual(m["runtime_evidence_status"],"NOT_COLLECTED")
 
+    def test_self_indexed_slots_and_static_s_field_are_structural_only(self):
+        p = node(7, 0, [
+            abc("GETI", 2, 0, 14),
+            abc("SELF", 2, 2, 0, 1),
+            abc("CALL", 2, 2, 1),
+            abc("GETTABUP", 3, 0, 1),
+            abc("GETFIELD", 3, 3, 2),
+            abc("CALL", 3, 1, 2),
+            abc("GETI", 4, 0, 7),
+            abc("SELF", 4, 4, 3, 1),
+            abc("CALL", 4, 2, 1),
+            abc("RETURN0"),
+        ], constants=[
+            Constant(4, FIELDS[0].encode()),
+            Constant(4, CLASS.encode()),
+            Constant(4, FIELDS[1].encode()),
+            Constant(4, FIELDS[2].encode()),
+        ])
+        code = trace.instructions(p)
+        a = runtime_probes.receiver_origin(p, code, 2)
+        b = runtime_probes.receiver_origin(p, code, 5)
+        c = runtime_probes.receiver_origin(p, code, 8)
+        self.assertEqual((a["kind"], a["slot_index"]), ("SELF_INDEXED_SLOT",14))
+        self.assertEqual((c["kind"], c["slot_index"]), ("SELF_INDEXED_SLOT",7))
+        self.assertEqual(b["kind"],"ENV_CLASS_STATIC_FIELD")
+        self.assertEqual(b["class_hash"],CLASS)
+        self.assertEqual(b["field_hash"],FIELDS[1])
+        self.assertFalse(any(x["runtime_verified"] for x in (a,b,c)))
+
+    def test_same_block_seti_return_producer_only_candidate(self):
+        p = node(7, 0, [
+            abc("CALL",2,1,2),
+            abc("SETI",0,14,2),
+            abc("GETI",2,0,14),
+            abc("SELF",2,2,0,1),
+            abc("CALL",2,2,1),abc("RETURN0"),
+        ], constants=[Constant(4, FIELDS[0].encode())])
+        info = runtime_probes.receiver_origin(p,trace.instructions(p),4)
+        self.assertEqual(info["slot_index"],14)
+        self.assertEqual(info["same_block_seti_writers"][0]["pc"],1)
+        self.assertEqual(info["same_block_seti_writers"][0]["producer_call_pc"],0)
+        self.assertFalse(info["runtime_verified"])
+
     def test_no_game_events_never_claim_verified(self):
         result = runtime_probes.audit_events(self.manifest, [])
         self.assertEqual(result["status"], "NO_RUNTIME_EVIDENCE")
