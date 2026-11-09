@@ -10,6 +10,19 @@ date: "2026-11-09"
 > [!warning] 静态与运行时的区别
 > 原生 Violet 4.0.0 ELF 的 83 路 Lua5.4 分派函数已经由指令字与 RELA 重定位静态验证。新工具仅能在用户本地已暂停的 GDB 会话中尝试验证帧指纹，CI 不连接 Switch/Ryujinx 游戏进程；实际游戏 Closure、UpVal、工厂返回对象、PC 执行仍为 NOT_OBSERVED。
 
+## 从真实 main.blua 得到的完整 Proto code 指纹
+
+Actions #42568510819 已实际重解码原版 main.blua，得到以下可复验结果：
+
+| 作用域 | Proto ID | 原始 code 字节数 | 原始 code SHA-256 |
+| --- | ---: | ---: | --- |
+| root | 0 | **1,716,136**（429,034 条 Lua 指令） | 402537c209657ed69f8147a0cc5ac7a377b88e30b1485595a993463f2ce68265 |
+| Setup | 17900 | **1,056**（264 条 Lua 指令） | 9491ca5a3f0ca76cc7a21d31ef8320bb57b95e7e2bdf990806d21d02946006c1 |
+
+这解释了为何不能继续使用旧版只适配约 1 MiB root 的读取预算。只读内存分析器现在独立限制每个 Proto 不超过 8 MiB，**必须逐字节完整 SHA 校验**，而不是读取前几个 opcode 就认定正在执行 Setup。测试验证：长度不匹配或中断读取、代码被篡改、savedpc 脱离代码区间、不是 main+0x41150 停点时均不允许确认身份。
+
+完整主程序静态端到端复核：[Actions #42568510819](https://github.com/969981/SV_Resources/actions/runs/42568510819)。本轮新增 7 个模拟 guest 内存测试和 2 个 GDB 命令门禁测试；它们都不是实际游戏观测。
+
 ## 原生事实
 
 Violet ELF SHA256：84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30。
