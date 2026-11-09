@@ -50,6 +50,16 @@ updated: "2026-11-09"
 
 证据：[[sv-lua54-r2-proto752-ownership-ab]] · [R2 CI](https://github.com/969981/SV_Resources/actions/runs/42558291234)。
 
+## 2026-11-09：R3 完整 Proto752 的 HIR→AST 静态编译阶段性通过
+
+- 原生 nil-hole 反例：简单空表+索引写入 8 组中 4 组 rawlen/#table 不等价；保留三个原始数组预分配槽后 8/8 一致。
+- unluac-rs v1.4.5 的确切拒绝条件为 values_have_safe_nil_shape（LocalId15, HIR index161），不是随机反编译失败。
+- 实验性 guarded PucBatched 容量恢复在 HIR index161、seed157 命中；**完整 2,071 指令 Proto752 严格 Lua 生成、语法与 luac 编译均通过**。
+- 固定 100 原型的 Lua 5.4 严格语法回归从 99/100 → **100/100**；这不是 100/100 实机行为等价。
+- **仍待：上游正式 Rust PR、全部原型、运行时 C API/Upvalue/副作用 A/B**。Haxe 继续排在 Lua 工程化之后。
+
+详见 [[sv-lua54-r3-proto752-hir-nil-preallocation]] 和 [R3 成功 CI](https://github.com/969981/SV_Resources/actions/runs/42569532395)。
+
 ## 输入与已知基线
 
 相对于 Unpack/4.0.0/romfs/arc/data.trpfs/：

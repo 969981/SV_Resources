@@ -1,0 +1,121 @@
+name: SLR R3 - experimental exact-capacity HIR SETLIST patch
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-r3-hir-setlist
+    paths:
+      - ".github/workflows/slr-r3-capacity-patch.yml"
+      - "scripts/Patch-SV-Lua54-R3-Unluac-Capacity.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  strict-patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout pinned original bytecode and SLR scripts
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Patch-SV-Lua54-R3-Unluac-Capacity.py
+            scripts/Benchmark-SV-Lua54.py
+            tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/fixtures/benchmark_cohort.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Prepare disposable upstream v1.4.5 and guarded capacity patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          sed -i '1i #![feature(if_let_guard)]' "$RUNNER_TEMP/unluac-rs/src/lib.rs"
+          python scripts/Patch-SV-Lua54-R3-Unluac-Capacity.py --checkout "$RUNNER_TEMP/unluac-rs"
+      - name: Build instrumented Rust CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install nightly-2026-11-08 --profile minimal
+          cd "$RUNNER_TEMP/unluac-rs"
+          cargo +nightly-2026-11-08 build --release --locked --package unluac-cli
+      - name: Strict-decompile the complete 2071-instruction Proto 752
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          python - <<'PY'
+          from pathlib import Path
+          import sys,os
+          from hashlib import sha256
+          sys.path.insert(0,"tools/SV.Lua54/src")
+          from sv_lua54.chunk import parse,Chunk
+          p=Path("Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua")
+          raw=p.read_bytes()
+          assert sha256(raw).hexdigest()=="ae4a7d0168751f53af11746ac5ae7771cb1a5bfa580bcc0f79e2b9ee85acb572"
+          c=parse(raw)
+          x=next(x for x in c.protos() if x.id==752)
+          assert x.instruction_count==2071
+          Path(os.environ["RUNNER_TEMP"],"r3-proto752.luac").write_bytes(Chunk(c.header,x.upvalue_count,x,"").encode())
+          PY
+          set +e
+          "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$RUNNER_TEMP/r3-proto752.luac" -D lua5.4 --generate-mode strict \
+            > "$RUNNER_TEMP/r3-full752.lua" 2> "$RUNNER_TEMP/r3-upstream.log"
+          rc=$?
+          set -e
+          echo "SLR_R3_PATCHED_STRICT_EXIT=$rc"
+          grep -E 'SLR_R3_PREALLOC_PASS|residual table-set-list|error:' "$RUNNER_TEMP/r3-upstream.log" | tail -n 35 || true
+          if test "$rc" -ne 0; then
+            echo "R3 strict full-function fix NOT VERIFIED"
+            exit 1
+          fi
+          luac5.4 -p "$RUNNER_TEMP/r3-full752.lua"
+          luac5.4 -o "$RUNNER_TEMP/r3-full752-recompiled.luac" "$RUNNER_TEMP/r3-full752.lua"
+          echo "R3 complete 2071-op Proto752 strict Lua syntax + compiler PASS"
+          echo "RUNTIME/EQUIVALENCE NOT TESTED"
+          rm -f "$RUNNER_TEMP/r3-proto752.luac" "$RUNNER_TEMP/r3-full752.lua" "$RUNNER_TEMP/r3-full752-recompiled.luac"
+      - name: Verify regression on full pinned 100-Proto sample cohort
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Benchmark-SV-Lua54.py --verify-only \
+            --decompiler "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            --backend-id "unluac-rs v1.4.5 + R3 exact-capacity experimental patch" \
+            --luac luac5.4 --timeout 20 \
+            --report "$RUNNER_TEMP/r3-100-proto-report.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads(Path(os.environ["RUNNER_TEMP"],"r3-100-proto-report.json").read_text())
+          print("SLR_R3_COHORT:",r["states"])
+          assert r["cohort_count"] == 100
+          assert r["states"].get("LUA_SYNTAX_OK", 0) == 100, "regression or unresolved Proto 752"
+          PY
+      - name: Keep only bounded patch test status
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f "$RUNNER_TEMP/r3-upstream.log"; then
+            grep -E 'SLR_R3_PREALLOC_PASS|residual table-set-list|error:' "$RUNNER_TEMP/r3-upstream.log" | tail -n 40 > "$RUNNER_TEMP/slr-r3-patch-status.txt" || true
+          fi
+      - name: Upload diagnostics only (no game source/chunks)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R3-guarded-capacity-experiment
+          path: |
+            ${{ runner.temp }}/slr-r3-patch-status.txt
+            ${{ runner.temp }}/r3-100-proto-report.json
+          if-no-files-found: warn
+          retention-days: 14

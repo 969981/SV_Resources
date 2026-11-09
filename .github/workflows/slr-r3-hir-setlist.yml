@@ -1,0 +1,115 @@
+name: SLR R3 - upstream unluac-rs HIR SETLIST guard diagnosis
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-r3-hir-setlist
+    paths:
+      - ".github/workflows/slr-r3-hir-setlist.yml"
+      - "scripts/Instrument-SV-Lua54-R3-Unluac.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: slr-r3-hir-guard
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout source SHA and tooling only
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Instrument-SV-Lua54-R3-Unluac.py
+            tools/SV.Lua54/src/sv_lua54
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pin upstream unluac-rs 1.4.5 and inject temporary HIR probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          test "$(grep -m1 '^version = ' "$RUNNER_TEMP/unluac-rs/Cargo.toml")" = 'version = "1.4.5"'
+          python scripts/Instrument-SV-Lua54-R3-Unluac.py --checkout "$RUNNER_TEMP/unluac-rs"
+
+      - name: Build temporary diagnostic unluac CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install nightly-2026-11-08 --profile minimal
+          cd "$RUNNER_TEMP/unluac-rs"
+          # Upstream v1.4.5 uses the experimental if-let guard match syntax.
+          # Enable that feature only in this disposable checkout.
+          sed -i '1i #![feature(if_let_guard)]' src/lib.rs
+          cargo +nightly-2026-11-08 build --release --locked --package unluac-cli
+          test -x target/release/unluac-cli
+
+      - name: Diagnose upstream HIR→AST rejection on entire lifted Proto 752
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import sys, os
+          from hashlib import sha256
+          sys.path.insert(0,"tools/SV.Lua54/src")
+          from sv_lua54.chunk import parse, Chunk
+          p=Path("Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua")
+          raw=p.read_bytes()
+          assert sha256(raw).hexdigest()=="ae4a7d0168751f53af11746ac5ae7771cb1a5bfa580bcc0f79e2b9ee85acb572"
+          c=parse(raw)
+          x=next(v for v in c.protos() if v.id==752)
+          payload=Chunk(c.header,x.upvalue_count,x,"").encode()
+          assert parse(payload).encode()==payload
+          Path(os.environ["RUNNER_TEMP"],"sv-r3-proto752.luac").write_bytes(payload)
+          print("Pinned Proto 752 lifted, original instructions:",x.instruction_count)
+          PY
+          set +e
+          "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$RUNNER_TEMP/sv-r3-proto752.luac" -D lua5.4 --generate-mode strict \
+            > "$RUNNER_TEMP/r3-result.lua" 2> "$RUNNER_TEMP/r3-diagnostics.log"
+          rc=$?
+          set -e
+          echo "SLR_R3_BACKEND_EXIT=$rc"
+          grep -E 'SLR_R3_|residual table-set-list|initializer-scope' "$RUNNER_TEMP/r3-diagnostics.log" | tail -n 130 || true
+          echo "SLR_R3_SITE_COUNT=$(grep -c '^SLR_R3_SITE' "$RUNNER_TEMP/r3-diagnostics.log" || true)"
+          echo "SLR_R3_REJECT_COUNT=$(grep -c '^SLR_R3_INDEXED_REJECT' "$RUNNER_TEMP/r3-diagnostics.log" || true)"
+          if test "$rc" -eq 0; then
+            echo "Unexpected full strict backend success: verify independently."
+          else
+            echo "Strict failure reproduced — diagnostics only, no AST/runtime fix claimed."
+          fi
+          rm -f "$RUNNER_TEMP/sv-r3-proto752.luac" "$RUNNER_TEMP/r3-result.lua"
+
+      - name: Store bounded guard diagnostics
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f "$RUNNER_TEMP/r3-diagnostics.log"; then
+            grep -E 'SLR_R3_|residual table-set-list|initializer-scope' "$RUNNER_TEMP/r3-diagnostics.log" | tail -n 140 \
+              > "$RUNNER_TEMP/slr-r3-guard-diagnostics.txt" || true
+          fi
+
+      - name: Upload bounded diagnostic report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R3-upstream-HIR-guard-diagnostics
+          path: ${{ runner.temp }}/slr-r3-guard-diagnostics.txt
+          if-no-files-found: warn
+          retention-days: 14
