@@ -13,6 +13,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## SV 4.0.0 Lua / Haxe 源码还原工程（SLR 1.0）
 
 - [BLUA → 可重编译 Lua / Haxe 的里程碑与任务路线图](sv-lua54-source-reconstruction-roadmap.md) — M0–M6、11 项可复验任务、六个 BLUA 输入、PokeDocs 符号恢复、Lua 5.4 AST/编译与 Haxe PoC；当前 **IN_PROGRESS**（M0/M1 首轮通过），跟踪 [EPIC #73](https://github.com/969981/SV_Resources/issues/73)。
+- [SLR R7 Native：Lua VM 分派表与 OP_CLOSURE 逐条反汇编](sv-lua54-r7-native-opclosure-dispatch.md) — 紫 4.0.0 ELF 原生 opcode 79 → main+0x453FC、luaF_findupval 复用链、CallInfo.savedpc 与 GDB 只读取证方案；**实际 guest 对象身份尚 NOT_OBSERVED**。
 - [SLR R7：实机 UpVal*/Table* 身份验收与 ELF 锚点](sv-lua54-r7-runtime-upval-table-identity.md) — 原版紫 4.0.0 ELF/BL、root PC48/49/50/12242 重读，GDB 装载观察及脱敏运行时日志校验器；**实际 UpVal* 和 Proto752 调用仍 NOT_OBSERVED**。
 - [SLR R6：__newindex 字段登记与 R13 元表别名审计](sv-lua54-r6-metatable-newindex-alias.md) — Proto17 原生 `__fields__[key]=true; rawset` 语义严格校验、PC48/49/50 三个 R13 捕获；元表堆对象别名与完整 mainBody 实机行为仍 NOT_OBSERVED。
 - [SLR R5：mainBody 的 Haxe Lua 元表、辅助闭包与 Upvalue 静态链](sv-lua54-r5-mainbody-haxe-runtime-captures.md) — root PC42→43→50→12242 溯源、56 条 C→F 方法捕获、40 个类 Hash；实际游戏运行时仍 NOT_OBSERVED。

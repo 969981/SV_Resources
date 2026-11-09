@@ -1,0 +1,56 @@
+name: SLR R7 native Lua VM closure dispatch and read-only GDB contract
+
+on:
+  push:
+    branches:
+      - master
+      - feature/sv-lua54-r7-native-dispatch-closure
+    paths:
+      - ".github/workflows/slr-r7-native-closure.yml"
+      - "scripts/Verify-SV-Lua54-R7-NativeDispatch.py"
+      - "scripts/SV400_Lua_R7_NativeClosure_ReadOnly.py"
+      - "scripts/Build-SV-Lua54-R7-GdbTrace.py"
+      - "tools/SV.Lua54/src/sv_lua54/r7_log.py"
+      - "tests/test_sv_lua54_r7_native.py"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/slr-r7-native-closure.yml"
+      - "scripts/Verify-SV-Lua54-R7-NativeDispatch.py"
+      - "scripts/SV400_Lua_R7_NativeClosure_ReadOnly.py"
+      - "scripts/Build-SV-Lua54-R7-GdbTrace.py"
+      - "tools/SV.Lua54/src/sv_lua54/r7_log.py"
+      - "tests/test_sv_lua54_r7_native.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout R7 tools and tests only
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Verify-SV-Lua54-R7-NativeDispatch.py
+            scripts/SV400_Lua_R7_NativeClosure_ReadOnly.py
+            scripts/Build-SV-Lua54-R7-GdbTrace.py
+            tools/SV.Lua54/src/sv_lua54
+            tests/test_sv_lua54_r7_native.py
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax check, relocation decoding and negative GDB trace tests
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/Verify-SV-Lua54-R7-NativeDispatch.py scripts/SV400_Lua_R7_NativeClosure_ReadOnly.py scripts/Build-SV-Lua54-R7-GdbTrace.py tools/SV.Lua54/src/sv_lua54/r7_log.py
+          python -m unittest discover -s tests -p 'test_sv_lua54_r7_native.py' -v
+          echo 'R7_NATIVE_CI_SYNTHETIC_OK: original Violet ELF and actual guest are NOT present in CI.'
