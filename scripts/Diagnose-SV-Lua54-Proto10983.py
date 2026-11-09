@@ -118,8 +118,72 @@ def instrument(folder):
                     }'''
     assert text.count(source)==1
     text=text.replace(source,target)
-    # This diagnostic does not allow any new rejected lowering to pass.
+    # EXPERIMENT: bypass scalar substitution only when the consumer is a freshly
+    # created closure that captures the exact lexical binding by reference.
+    source='''                    if replaced != 1 {
+                        eprintln!("SV10983_FAILURE=replace_binding count={} producer={:?} consumer={:?} phi={:?} expr={:?} replacement={:?} read={:?}", replaced, producer_id, node.id, value.phi, expr, replacement, read);
+                        return None;
+                    }'''
+    target='''                    let captured_by_ref = if let HirExpr::Call(call) = &expr {
+                        if let HirExpr::Closure(closure) = &call.callee {
+                            closure.captures.iter().any(|capture| {
+                                capture.mode == crate::hir::HirCaptureMode::ByReference
+                                    && capture.binding == binding
+                            })
+                        } else { false }
+                    } else { false };
+                    if replaced == 0 && captured_by_ref {
+                        eprintln!("SV10983_CAPTURE_REFERENCE_RETAINED binding={:?}", binding);
+                    } else if replaced != 1 {
+                        eprintln!("SV10983_FAILURE=replace_binding count={} producer={:?} consumer={:?} phi={:?} expr={:?} replacement={:?} read={:?}", replaced, producer_id, node.id, value.phi, expr, replacement, read);
+                        return None;
+                    }'''
+    assert text.count(source)==1
+    text=text.replace(source,target)
     path.write_text(text)
+
+    # The control connectors originally contain LFALSESKIP/LOADTRUE writes.
+    # An observed ByReference capture requires an explicit lexical-cell write
+    # after the header prefix and before the closure expression is evaluated.
+    loop_file=folder/'src/hir/analyze/structure/plan_body/loops.rs'
+    loops=loop_file.read_text()
+    source='''        Ok(PlannedLoopCondition {
+            prefix: self.lower_condition_prefix(owner, header)?,
+            cond: finalize_condition_decision_expr('''
+    target='''        let mut prefix = self.lower_condition_prefix(owner, header)?;
+        if let [producer, consumer] = condition.nodes.as_slice()
+            && producer.id == condition.entry
+            && producer.predicate.index() == 64
+            && consumer.predicate.index() == 70
+            && let Some(value) = &producer.materialized_value
+            && value.consumer == consumer.id
+            && let Some(HirExpr::LocalRef(local_id)) =
+                super::super::exprs::expr_for_ssa_value_in_block(
+                    self.lowering, consumer.block,
+                    crate::structure::SsaValue::Phi(value.phi))
+            && let Some((producer_expr, _)) =
+                super::super::short_circuit::lower_short_circuit_subject(
+                    self.lowering, producer.block, producer.predicate)
+            && let Some((HirExpr::Call(call), _)) =
+                super::super::short_circuit::lower_short_circuit_subject_single_eval(
+                    self.lowering, consumer.block, consumer.predicate)
+            && let HirExpr::Closure(closure) = &call.callee
+            && closure.captures.iter().any(|capture|
+                capture.mode == crate::hir::HirCaptureMode::ByReference &&
+                capture.binding == crate::hir::HirBinding::Local(local_id))
+        {
+            eprintln!("SV10983_EXPLICIT_CAPTURED_BOOLEAN local={:?} from={:?}", local_id, producer.predicate);
+            prefix.push(assign_stmt(
+                vec![HirLValue::Local(local_id)],
+                vec![producer_expr],
+            ));
+        }
+        Ok(PlannedLoopCondition {
+            prefix,
+            cond: finalize_condition_decision_expr('''
+    assert loops.count(source)==1
+    loops=loops.replace(source,target)
+    loop_file.write_text(loops)
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--lift',type=Path)
