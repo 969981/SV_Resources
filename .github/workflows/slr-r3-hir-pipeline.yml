@@ -63,13 +63,13 @@ jobs:
           set -euo pipefail
           rustc --version
           cargo build --locked -p unluac-cli
-          test -x target/debug/unluac
+          test -x target/debug/unluac-cli
 
       - name: Audit source-site and rejection decisions, strict baseline expected to fail
         shell: bash
         run: |
           set -euo pipefail
-          BIN="$(pwd)/upstream/target/debug/unluac"
+          BIN="$(pwd)/upstream/target/debug/unluac-cli"
           SV_R3_TRACE=1 "$BIN" -i "$RUNNER_TEMP/r3_proto752_native.luac" -D lua5.4 \
             --dump hir --detail verbose --stop-after hir --proto 0 \
             > "$RUNNER_TEMP/r3_hir.txt" 2> "$RUNNER_TEMP/r3_trace.txt"
