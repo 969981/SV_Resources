@@ -20,6 +20,8 @@ on:
       - "tests/test_sv400_gdb_stub_entry.py"
       - "scripts/Map-SV400-Lua54-NativeTraceTargets.py"
       - "tests/test_sv400_luavm_native_trace_plan.py"
+      - "scripts/Inspect-SV400-Lua54-LiveFrame.py"
+      - "tests/test_sv400_luavm_liveframe.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -58,6 +60,8 @@ jobs:
             tests/test_sv400_gdb_stub_entry.py
             scripts/Map-SV400-Lua54-NativeTraceTargets.py
             tests/test_sv400_luavm_native_trace_plan.py
+            scripts/Inspect-SV400-Lua54-LiveFrame.py
+            tests/test_sv400_luavm_liveframe.py
             tools/SV.Lua54/src/sv_lua54
             tests/test_sv_lua54_trace.py
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
@@ -72,7 +76,7 @@ jobs:
           python-version: "3.12"
       - name: Syntax tests
         run: |
-          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py scripts/Inspect-SV400-Lua54-LiveFrame.py
           python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_probe.py" -v
@@ -81,6 +85,7 @@ jobs:
           python -m unittest discover -s tests -p "test_sv400_luavm_native_dispatch.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_stub_entry.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_native_trace_plan.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_liveframe.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
@@ -132,6 +137,24 @@ jobs:
           assert d["game_lua_runtime_events"] is False
           print("DISPATCH_SHAPE_COUNT",len(d["candidates"]),
                 "masked_opcode_shapes", d["summary"].get("mask_total",0))
+          PY
+      - name: Generate exact root/Setup full-code fingerprints for future live GDB frame gating
+        run: |
+          python scripts/Inspect-SV400-Lua54-LiveFrame.py \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --output slr-violet-original-frame-identities.json
+          python - <<'PY'
+          import json
+          d=json.load(open("slr-violet-original-frame-identities.json"))
+          assert d["runtime_status"]=="NOT_OBSERVED"
+          assert d["native_layout_offsets_verified_in_game"] is False
+          m=d["proto_code_identities"]
+          assert m["root"]["proto_id"]==0
+          assert m["setup"]["proto_id"]==17900
+          assert m["setup"]["code_length_bytes"]==1056
+          assert m["setup"]["code_sha256"]=="9491ca5a3f0ca76cc7a21d31ef8320bb57b95e7e2bdf990806d21d02946006c1"
+          print("ORIGINAL_FRAME_FINGERPRINTS_READY",[(k,v["code_length_bytes"],v["code_sha256"]) for k,v in m.items()])
           PY
       - name: Compare opcode dispatch shapes in subsdk0 and sdk ELF modules
         run: |
@@ -390,6 +413,7 @@ jobs:
             slr-violet-luavm-elf-preflight.json
             slr-luavm-symbol-hints.txt
             slr-violet-luavm-static-xrefs.json
+            slr-violet-original-frame-identities.json
             slr-violet-luavm-dispatch-shapes.json
             slr-violet-luavm-opcode-table-audit.json
             slr-violet-luavm-table-relocations.json
