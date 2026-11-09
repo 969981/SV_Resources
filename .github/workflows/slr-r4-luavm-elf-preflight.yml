@@ -175,6 +175,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq binutils-aarch64-linux-gnu
           elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
           aarch64-linux-gnu-objdump -d -w --start-address=0x25b30 --stop-address=0x25c70 "$elf" \
             > slr-lua-error-common-25b90.txt
