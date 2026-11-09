@@ -110,6 +110,17 @@ def build_manifest(chunk: Chunk, class_hash: str, function_hash: str,
             raise ValueError(f"call PC {pc} not supported by original field-hash evidence")
         if code[pc][0] not in ("CALL", "TAILCALL"):
             raise ValueError(f"PC {pc} is not a call in native method")
+        receiver = receiver_origin(proto, code, pc)
+        upstream_calls = []
+        for writer in receiver.get("same_block_seti_writers", []):
+            call_source = writer.get("producer_call_pc")
+            if call_source is not None:
+                upstream_calls.append({
+                    "producer_call_pc": call_source,
+                    "opcode_window": [_instruction_view(proto, code, i) for i in
+                                      range(max(0, call_source-7),
+                                            min(len(code), call_source+2))],
+                })
         targets.append({
             "call_pc": pc,
             "call_register": call["callee_register"],
@@ -119,7 +130,8 @@ def build_manifest(chunk: Chunk, class_hash: str, function_hash: str,
             "opcode_window": [_instruction_view(proto, code, i) for i in
                               range(max(0, pc - 5), min(len(code), pc + 3))],
             "symbolic_status": call["status"],
-            "receiver_static_origin": receiver_origin(proto, code, pc),
+            "receiver_static_origin": receiver,
+            "upstream_call_windows": upstream_calls,
             "runtime_receiver_status": "NOT_OBSERVED",
             "runtime_callee_status": "NOT_OBSERVED",
         })
