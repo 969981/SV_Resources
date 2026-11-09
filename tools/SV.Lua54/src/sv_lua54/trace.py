@@ -151,8 +151,20 @@ def basic_blocks(proto: Proto):
 
 
 def call_sites(proto: Proto, blocks, code):
-    """Block-local reaching definitions; no guesses across branches/Upvalues."""
+    """Block-local register reaching definitions; no guesses across block joins.
+
+    A known function value survives unrelated register writes. Unknown / complex
+    instructions discard provenance only where their documented destination is
+    known, otherwise all provenance is invalidated.
+    """
     rows = []
+    write_a = set("""LOADI LOADF LOADK LOADKX LOADFALSE LFALSESKIP LOADTRUE
+        GETUPVAL GETTABLE GETI ADDI ADDK SUBK MULK MODK POWK DIVK IDIVK
+        BANDK BORK BXORK SHRI SHLI ADD SUB MUL MOD POW DIV IDIV BAND BOR
+        BXOR SHL SHR UNM BNOT NOT LEN CONCAT NEWTABLE""".split())
+    no_register_write = set("""SETUPVAL SETTABUP SETTABLE SETI SETFIELD
+        SETLIST JMP EQ LT LE EQK EQI LTI LEI GTI GEI TEST
+        RETURN RETURN0 RETURN1 CLOSE TBC EXTRAARG""".split())
     for block in blocks:
         registers = {}
         for pc in range(block["start_pc"], block["end_pc_exclusive"]):
@@ -189,14 +201,23 @@ def call_sites(proto: Proto, blocks, code):
                              "opcode": op, "receiver_register": a,
                              "target_proto_id": callee, "target_function_hash": f_hash,
                              "resolution": status})
-                registers.clear()  # multi-return writes/unknown top make state unsafe
-            elif op in {"RETURN", "RETURN0", "RETURN1", "JMP", "CLOSE", "TBC", "SETTABLE",
-                        "SETFIELD", "SETTABUP", "SETI", "SETUPVAL", "SETLIST", "EXTRAARG"}:
+                # Lua CALL overwrites result registers only, not unrelated ones.
+                if c == 0:
+                    registers.clear()  # open / multret top is dynamically sized
+                else:
+                    for reg in range(a, a + max(1, c-1)):
+                        registers.pop(reg, None)
+            elif op == "LOADNIL":
+                for reg in range(a, a+b+1):
+                    registers.pop(reg, None)
+            elif op in write_a:
+                registers.pop(a, None)
+            elif op in no_register_write:
                 pass
             else:
-                registers.clear()  # conservatively discard possible clobbers
+                # FOR/TFOR, VARARG, TESTSET, metamethod and other complex ops.
+                registers.clear()
     return rows
-
 
 def report(chunk: Chunk, module: str, class_hash: str, function_hash: str, limit: int = 5):
     if limit < 1:
