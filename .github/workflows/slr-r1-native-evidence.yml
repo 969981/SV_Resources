@@ -1,0 +1,92 @@
+name: SLR R1 - SETLIST / Upvalue / native C-F evidence
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-r1-setlist-upvalue-cf
+    paths:
+      - ".github/workflows/slr-r1-native-evidence.yml"
+      - "scripts/Analyze-SV-Lua54-R1.py"
+      - "tools/SV.Lua54/src/sv_lua54/r1.py"
+      - "tests/test_sv_lua54_r1.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: slr-r1-native-evidence
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout pinned original Lua bytecode and R1 tooling
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Analyze-SV-Lua54-R1.py
+            tools/SV.Lua54/src
+            tools/SV.Lua54/fixtures/native_manifest.json
+            tools/SV.Lua54/fixtures/benchmark_cohort.json
+            tools/PokeDocs/SV/Hashlists/Lua
+            tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv
+            tests/test_sv_lua54_r1.py
+            tests/test_sv_lua54_parser.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release
+          sparse-checkout-cone-mode: false
+          persist-credentials: true
+
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile and test opcode/Upvalue/Hash recognition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile tools/SV.Lua54/src/sv_lua54/*.py scripts/Analyze-SV-Lua54-R1.py
+          python -m unittest discover -s tests -p "test_sv_lua54_r1.py" -v
+          python -m unittest discover -s tests -p "test_sv_lua54_parser.py" -v
+
+      - name: Analyze three failed source prototypes and all native method owners
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Analyze-SV-Lua54-R1.py \
+            --method-index "$RUNNER_TEMP/slr-native-cf-index.jsonl" \
+            --capture-index "$RUNNER_TEMP/slr-native-capture-index.jsonl"
+          python scripts/Analyze-SV-Lua54-R1.py --verify-only \
+            --method-index "$RUNNER_TEMP/slr-native-cf-index.jsonl" \
+            --capture-index "$RUNNER_TEMP/slr-native-capture-index.jsonl"
+
+      - name: Upload source-backed R1 evidence/indices
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R1-native-evidence
+          path: |
+            tools/SV.Lua54/fixtures/r1_native_report.json
+            ${{ runner.temp }}/slr-native-cf-index.jsonl
+            ${{ runner.temp }}/slr-native-capture-index.jsonl
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Commit only compact source-backed R1 report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/SV.Lua54/fixtures/r1_native_report.json
+          if git diff --cached --quiet; then
+            echo "R1 summary unchanged"
+          else
+            git commit -m "data(SLR R1): original PC / Upvalue / 23727 C-F evidence summary"
+            git push origin HEAD:refs/heads/feature/sv-lua54-r1-setlist-upvalue-cf
+          fi
