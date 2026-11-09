@@ -46,4 +46,16 @@ Inspect original NEWTABLE→SETLIST ownership and HIR structural fingerprint:
 
 For the real-bytecode 17-op differential, use the dedicated Actions workflow that temporarily composes original opcode words in the runner (never uploaded). See [R2 native A/B notebook](../../docs/research/sv-lua54-r2-proto752-ownership-ab.md). This validates a bounded pure arithmetic/table slice only, not game runtime compatibility.
 
+## R3: Experimental full Proto 752 SETLIST repair (source and bytecode validation)
+
+- scripts/Instrument-SV-Lua54-R3-Unluac.py pinpoints native HIR guard rejection.
+- scripts/Patch-SV-Lua54-R3-Unluac-Capacity.py conditionally preserves the exact native PucBatched array capacity. This script modifies only an ephemeral checkout of unluac-rs v1.4.5 in CI; it is not yet merged upstream.
+- .github/workflows/slr-r3-hir-setlist.yml captures rejection diagnostics (read-only).
+- .github/workflows/slr-r3-nil-shape.yml runs actual native SETLIST nil-hole counterexamples.
+- .github/workflows/slr-r3-capacity-patch.yml builds the temporary upstream patch, strict-decompiles the complete 2071-instruction Proto 752 and compiles the generated Lua; pinned 100/100 sample syntaxes pass.
+
+The original module's full runtime/Upvalue/C API semantic equivalence is NOT verified; do not mark behavioral or game load success.
+
+[Obsidian R3 full report](../../docs/research/sv-lua54-r3-proto752-hir-nil-preallocation.md).
+
 Roadmap: [SV Lua54 source reconstruction](../../docs/research/sv-lua54-source-reconstruction-roadmap.md).
