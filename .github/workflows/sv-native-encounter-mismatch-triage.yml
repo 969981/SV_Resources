@@ -12,7 +12,6 @@ on:
       - 'tests/test_sv_native_difference_triage.py'
       - 'docs/4.0.0/Verification/SV-400-Native-Encounter-Root-Cause-Triage.md'
       - 'docs/research/sv400-reference-gap-676-wild-203-fixed-zero-loss.md'
-      - 'docs/research/sv400-reference-gap-676-wild-203-fixed-zero-loss.md'
   pull_request:
     paths:
       - '.github/workflows/sv-native-encounter-mismatch-triage.yml'
@@ -21,6 +20,7 @@ on:
       - 'tests/test_sv400_zero_loss_reference_gap.py'
       - 'tests/test_sv_native_difference_triage.py'
       - 'docs/4.0.0/Verification/SV-400-Native-Encounter-Root-Cause-Triage.md'
+      - 'docs/research/sv400-reference-gap-676-wild-203-fixed-zero-loss.md'
 
 permissions:
   contents: read
@@ -36,7 +36,6 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             scripts/Triage-SV-400-Native-Encounter-Differences.py
-            scripts/Audit-SV400-Remaining-676-Wild-203-Fixed.py
             scripts/Audit-SV400-Remaining-676-Wild-203-Fixed.py
             tests/test_sv_native_difference_triage.py
             tests/test_sv400_zero_loss_reference_gap.py
@@ -61,6 +60,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             scripts/Triage-SV-400-Native-Encounter-Differences.py
+            scripts/Audit-SV400-Remaining-676-Wild-203-Fixed.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
