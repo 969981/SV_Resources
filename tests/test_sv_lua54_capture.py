@@ -69,7 +69,7 @@ class CaptureTests(unittest.TestCase):
 
     def test_predecessor_move_chain_stays_candidate_not_runtime_proof(self):
         chunk, method = sample([
-            abx("LOADK",4,3), abc("MOVE",3,4), sj(0)])
+            abx("LOADK",4,3), abc("MOVE",3,4), sj(1), abc("RETURN0")])
         out = capture.capture_context(chunk, method)
         cap = out["capture_slots"][0]
         self.assertIsNone(cap["same_block_fact"])
