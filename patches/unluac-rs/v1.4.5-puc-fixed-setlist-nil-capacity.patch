@@ -1,0 +1,99 @@
+diff --git a/src/hir/simplify/table_constructors/mod.rs b/src/hir/simplify/table_constructors/mod.rs
+--- a/src/hir/simplify/table_constructors/mod.rs
++++ b/src/hir/simplify/table_constructors/mod.rs
+@@ -1270,8 +1270,31 @@
+             }
+         }
+     }
+ 
++    /// Preserve the native array part when a *fresh* empty PUC table's fixed
++    /// SETLIST may contain nil: indexed writes alone change rawlen/#table.
++    /// Only exact original PucBatched capacity, no hash part, no prefix
++    /// fields, no open pack, and a contiguous [1..N] batch are accepted.
++    fn preserves_exact_native_fixed_setlist_capacity(
++        seed: &HirTableConstructor,
++        batch: &crate::hir::common::HirTableSetList,
++    ) -> bool {
++        let crate::hir::HirTableAllocation::PucBatched(allocation) = seed.allocation else {
++            return false;
++        };
++        let count = batch.values.fixed.len();
++        count > 0
++            && count <= 64
++            && seed.fields.is_empty()
++            && seed.trailing_multivalue.is_none()
++            && batch.start_index == 1
++            && batch.values.tail.is_none()
++            && allocation.hash_capacity == 0
++            && u32::try_from(count).ok() == Some(allocation.array_capacity)
++            && allocation.matches(count, 0)
++    }
++
+     fn find_local_set_list_seed_for_indexed_writes(
+         &self,
+         block: &crate::hir::common::HirBlock,
+         set_list_index: usize,
+@@ -1333,15 +1356,15 @@
+             // raw SETLIST 与逐项 SETTABLE 可能形成不同 array part/`#table`。
+             if !array_fields_have_safe_nil_shape(&seed.fields) || !set_list_can_overwrite_seed {
+                 return None;
+             }
+-            if !values_have_safe_nil_shape(
+-                set_list
+-                    .values
+-                    .fixed
+-                    .iter()
+-                    .map(|value| expr_is_definitely_non_nil_from_definitions(value, non_nil)),
+-            ) {
++            if !values_have_safe_nil_shape(
++                set_list
++                    .values
++                    .fixed
++                    .iter()
++                    .map(|value| expr_is_definitely_non_nil_from_definitions(value, non_nil)),
++            ) && !Self::preserves_exact_native_fixed_setlist_capacity(seed, set_list) {
+                 // 候选拒绝[SemanticBarrier:TableShape]：raw SETLIST 与逐项 SETTABLE 对中间
+                 // nil hole 的 array part/`#table` 不等价；官方 Lua 5.4 反例见 regress_337。
+                 return None;
+             }
+@@ -995,13 +1018,35 @@
+             // Fresh local seeds can have harmless scalar/keyed setup statements between the
+             // allocation and SETLIST. Preserve those statements and replace only the raw fixed
+             // batch, so neither the table allocation nor a physical-root overwrite moves.
+             if self.stage == TableConstructorStage::LowerFixedBatches
+-                && let Some(_seed_index) = self.find_local_set_list_seed_for_indexed_writes(
+-                    block, index, binding, &set_list, &non_nil,
+-                )
+-            {
+-                let base = set_list.base.clone();
++                && let Some(seed_index) = self.find_local_set_list_seed_for_indexed_writes(
++                    block, index, binding, &set_list, &non_nil,
++                )
++            {
++                // Lua indexed stores do not recreate PUC's preallocated array
++                // part when an arithmetic metamethod returns nil.  Insert
++                // exact nil slots at the *original* NEWTABLE allocation site;
++                // preserve the following original scalar evaluation order.
++                let values_may_be_nil = !values_have_safe_nil_shape(
++                    set_list.values.fixed.iter().map(|value| {
++                        expr_is_definitely_non_nil_from_definitions(value, &non_nil)
++                    }),
++                );
++                if values_may_be_nil {
++                    let Some((_, seed_ref)) = constructor_seed(&block.stmts[seed_index]) else {
++                        unreachable!("R3 preallocation must have a native seed");
++                    };
++                    let mut seed = seed_ref.clone();
++                    if !Self::preserves_exact_native_fixed_setlist_capacity(&seed, &set_list) {
++                        unreachable!("R3 capacity proof must be repeated at commit");
++                    }
++                    seed.fields = (0..set_list.values.fixed.len())
++                        .map(|_| HirTableField::Array(HirExpr::Nil))
++                        .collect();
++                    install_constructor_seed(&mut block.stmts[seed_index], seed);
++                }
++                let base = set_list.base.clone();
+                 let fixed_len = set_list.values.fixed.len();
+                 let assignments = set_list
+                     .values
+                     .fixed
