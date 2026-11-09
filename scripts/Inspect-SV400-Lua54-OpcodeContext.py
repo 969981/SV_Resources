@@ -140,7 +140,12 @@ def inspect_handler_entry(reader,ci_ptr,register_base,x27_nextpc,w20_opcode,
             length=row["code_length_bytes"]
             if pc>=length//4:
                 continue
-            code=read_exact(reader,code_ptr,length,align=4)
+            try:
+                code=read_exact(reader,code_ptr,length,align=4)
+            except Exception:
+                # A candidate Proto with the wrong expected length may
+                # be unreadable. Try the other pinned, shorter exact length.
+                continue
             sha=hashlib.sha256(code).hexdigest()
             if sha!=row["code_sha256"]:
                 continue
