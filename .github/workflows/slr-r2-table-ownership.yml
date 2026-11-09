@@ -1,0 +1,117 @@
+name: SLR R2 - Native table ownership and Lua 5.4 differential
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-r2-table-ownership
+    paths:
+      - ".github/workflows/slr-r2-table-ownership.yml"
+      - "scripts/Analyze-SV-Lua54-R2-TableOwner.py"
+      - "scripts/Build-SV-Lua54-R2-NativeSlice.py"
+      - "scripts/Emit-SV-Lua54-R2-SafeRegion.py"
+      - "scripts/Build-SV-Lua54-R2-NativeSlice.py"
+      - "tools/SV.Lua54/src/sv_lua54/ownership.py"
+      - "tests/test_sv_lua54_r2.py"
+      - "tests/fixtures/sv_lua54/r2_table_semantics.lua"
+      - "tests/fixtures/sv_lua54/r2_native_region_compare.lua"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: slr-r2-table-native
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout only Lua 5.4 evidence and native original
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Analyze-SV-Lua54-R2-TableOwner.py
+            scripts/Build-SV-Lua54-R2-NativeSlice.py
+            scripts/Emit-SV-Lua54-R2-SafeRegion.py
+            tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/fixtures/r1_residual_hir_752.json
+            tests/test_sv_lua54_r2.py
+            tests/fixtures/sv_lua54/r2_table_semantics.lua
+            tests/fixtures/sv_lua54/r2_native_region_compare.lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify analyzer and targeted pure synthetic tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/Analyze-SV-Lua54-R2-TableOwner.py scripts/Build-SV-Lua54-R2-NativeSlice.py scripts/Emit-SV-Lua54-R2-SafeRegion.py tools/SV.Lua54/src/sv_lua54/ownership.py
+          python -m unittest discover -s tests -p "test_sv_lua54_r2.py" -v
+
+      - name: Original main_dynamic 4.0.0 PC owner and alias trace
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Analyze-SV-Lua54-R2-TableOwner.py
+          python scripts/Analyze-SV-Lua54-R2-TableOwner.py --verify-only
+
+      - name: Compile and execute synthetic Lua 5.4 equivalence and negative control
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          luac5.4 -p tests/fixtures/sv_lua54/r2_table_semantics.lua
+          luac5.4 -o "$RUNNER_TEMP/r2_table_semantics.luac" tests/fixtures/sv_lua54/r2_table_semantics.lua
+          lua5.4 "$RUNNER_TEMP/r2_table_semantics.luac"
+
+      - name: Execute exact original 17-word PC slice vs Lua 5.4 candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Build-SV-Lua54-R2-NativeSlice.py --output "$RUNNER_TEMP/sv-proto752-pc649-665.luac"
+          python scripts/Emit-SV-Lua54-R2-SafeRegion.py \
+            --out-lua "$RUNNER_TEMP/r2_auto_region.lua" \
+            --report tools/SV.Lua54/fixtures/r2_ast_report.json
+          luac5.4 -p "$RUNNER_TEMP/r2_auto_region.lua"
+          luac5.4 -o "$RUNNER_TEMP/r2_auto_region.luac" "$RUNNER_TEMP/r2_auto_region.lua"
+          luac5.4 -p tests/fixtures/sv_lua54/r2_native_region_compare.lua
+          luac5.4 -o "$RUNNER_TEMP/r2_native_region_compare.luac" tests/fixtures/sv_lua54/r2_native_region_compare.lua
+          lua5.4 "$RUNNER_TEMP/r2_native_region_compare.luac" "$RUNNER_TEMP/sv-proto752-pc649-665.luac" "$RUNNER_TEMP/r2_auto_region.lua"
+          lua5.4 "$RUNNER_TEMP/r2_native_region_compare.luac" "$RUNNER_TEMP/sv-proto752-pc649-665.luac" "$RUNNER_TEMP/r2_auto_region.luac"
+          rm -f "$RUNNER_TEMP/sv-proto752-pc649-665.luac" "$RUNNER_TEMP/r2_auto_region.lua" "$RUNNER_TEMP/r2_auto_region.luac"
+
+      - name: Upload bounded native owner report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R2-proto752-ownership
+          path: |
+            tools/SV.Lua54/fixtures/r2_proto752_ownership.json
+            tools/SV.Lua54/fixtures/r2_ast_report.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Commit only original source-backed metadata to feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse tools/SV.Lua54/fixtures/r2_proto752_ownership.json tools/SV.Lua54/fixtures/r2_ast_report.json
+          if git diff --cached --quiet; then
+            echo "R2 report already matches repository"
+          else
+            git commit -m "data(SLR R2): pin Proto 752 private table owner and escape diagnostics"
+            git push origin HEAD:refs/heads/feature/sv-lua54-r2-table-ownership
+          fi

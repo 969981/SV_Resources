@@ -41,6 +41,15 @@ updated: "2026-11-09"
 
 完整证据：[[sv-lua54-r1-setlist-upvalue-cf]]。
 
+## 2026-11-09：R2 Proto 752 受控区域验证
+
+- **已验证原版 PC 649 NEWTABLE R14 → PC 665 SETLIST R14 三个数组元素**；PC 666 才发生表的 MOVE 别名。计算序列包含七条 MMBIN/MMBINK 后备指令，未发现该区间的表提前逃逸或覆盖。
+- 两个原生常量 K117 / K118 均是 Lua 5.4 **浮点 3.0 / 20.0**，自动源码发射不能把它们改为整数。
+- 采用 fail-closed 白名单从原始 17 个指令字生成 Lua；**自动生成 Lua 源**以及由 luac5.4 **重新编译的 .luac**，均对临时包装的原始指令执行 **163/163** 的受控 A/B，包含类型与元方法顺序验证。
+- 范围只涵盖 Proto 752 的 PC 649–665，**不表示整个 2,071 指令函数或 unluac-rs 的 HIR→AST 已修复**。仍需内部 HIR source-site 映射、全范围 SSA/alias 和游戏环境验证。
+
+证据：[[sv-lua54-r2-proto752-ownership-ab]] · [R2 CI](https://github.com/969981/SV_Resources/actions/runs/42558291234)。
+
 ## 输入与已知基线
 
 相对于 Unpack/4.0.0/romfs/arc/data.trpfs/：

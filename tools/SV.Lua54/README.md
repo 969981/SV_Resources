@@ -34,4 +34,16 @@ The remaining main_dynamic Proto 752 HIR failure can be inspected with the pinne
 
 Read the [R1 evidence notebook](../../docs/research/sv-lua54-r1-setlist-upvalue-cf.md). Static parse/CFG/decompilation is not runtime parity.
 
+## R2: PC 649-665 native table region (not full Proto 752)
+
+Run synthetic safety tests:
+
+    python -m unittest discover -s tests -p 'test_sv_lua54_r2.py' -v
+
+Inspect original NEWTABLE→SETLIST ownership and HIR structural fingerprint:
+
+    python scripts/Analyze-SV-Lua54-R2-TableOwner.py --verify-only
+
+For the real-bytecode 17-op differential, use the dedicated Actions workflow that temporarily composes original opcode words in the runner (never uploaded). See [R2 native A/B notebook](../../docs/research/sv-lua54-r2-proto752-ownership-ab.md). This validates a bounded pure arithmetic/table slice only, not game runtime compatibility.
+
 Roadmap: [SV Lua54 source reconstruction](../../docs/research/sv-lua54-source-reconstruction-roadmap.md).
