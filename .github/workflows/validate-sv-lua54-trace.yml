@@ -1,0 +1,225 @@
+name: SLR R1 - native C-F Prototype and CFG trace
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-cf-trace-r1
+    paths:
+      - "tools/SV.Lua54/src/sv_lua54/trace.py"
+      - "tests/test_sv_lua54_trace.py"
+      - "scripts/Verify-SV-Lua54-CF-Decompile.py"
+      - "tests/test_sv_lua54_dataflow.py"
+      - "tests/test_sv_lua54_capture.py"
+      - "tests/test_sv_lua54_aliases.py"
+      - "tools/SV.Lua54/src/sv_lua54/dataflow.py"
+      - "tools/SV.Lua54/src/sv_lua54/capture.py"
+      - "tools/SV.Lua54/src/sv_lua54/aliases.py"
+      - "tools/SV.Lua54/src/sv_lua54/runtime_probes.py"
+      - "tests/test_sv_lua54_runtime_probes.py"
+      - "tests/fixtures/sv_lua54_runtime_identity.lua"
+      - ".github/workflows/validate-sv-lua54-trace.yml"
+  pull_request:
+    paths:
+      - "tools/SV.Lua54/src/sv_lua54/trace.py"
+      - "tests/test_sv_lua54_trace.py"
+      - ".github/workflows/validate-sv-lua54-trace.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Sparse checkout parser, tests, and original 4.0.0 main.blua
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            tools/SV.Lua54/src/sv_lua54
+            tests/test_sv_lua54_trace.py
+            tests/test_sv_lua54_dataflow.py
+            tests/test_sv_lua54_capture.py
+            tests/test_sv_lua54_aliases.py
+            tests/test_sv_lua54_runtime_probes.py
+            tests/fixtures/sv_lua54_runtime_identity.lua
+            scripts/Verify-SV-Lua54-CF-Decompile.py
+            .github/workflows/validate-sv-lua54-trace.yml
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax and synthetic control-flow checks
+        run: |
+          python -m py_compile tools/SV.Lua54/src/sv_lua54/*.py tests/test_sv_lua54_trace.py tests/test_sv_lua54_dataflow.py tests/test_sv_lua54_capture.py tests/test_sv_lua54_aliases.py tests/test_sv_lua54_runtime_probes.py
+          python -m unittest discover -s tests -p 'test_sv_lua54_trace.py' -v
+          python -m unittest discover -s tests -p 'test_sv_lua54_dataflow.py' -v
+          python -m unittest discover -s tests -p 'test_sv_lua54_capture.py' -v
+          python -m unittest discover -s tests -p 'test_sv_lua54_aliases.py' -v
+          python -m unittest discover -s tests -p 'test_sv_lua54_runtime_probes.py' -v
+      - name: Pin real native C-F method and trace body
+        env:
+          PYTHONPATH: tools/SV.Lua54/src
+        run: |
+          python -m sv_lua54.trace \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --module main \
+            --class-hash C850E69B34478276C \
+            --function-hash F7C68FEDB79AB6396 \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --output slr-gem-setting-cf-trace.json
+          python -c 'import json; x=json.load(open("slr-gem-setting-cf-trace.json")); assert x["matched_definitions"]>0, "method not found"; print("method",x["class_hash"],x["function_hash"],"proto",x["items"][0]["proto_id"],"blocks",len(x["items"][0]["cfg_blocks"]),"calls",len(x["items"][0]["calls"]))'
+      - name: R2 real native must-dataflow and upvalue audit
+        env:
+          PYTHONPATH: tools/SV.Lua54/src
+        run: |
+          python -m sv_lua54.dataflow \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --class-hash C850E69B34478276C \
+            --function-hash F7C68FEDB79AB6396 \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --output slr-gem-setting-dataflow.json
+          python - <<'PY'
+          import json
+          j=json.load(open('slr-gem-setting-dataflow.json'))
+          assert len(j['matches']) >= 1
+          a=j['matches'][0]['analysis']
+          assert len(a['calls']) == 63, len(a['calls'])
+          assert sum(a['call_status_counts'].values()) == 63
+          assert a['reachable_pcs'] <= a['instruction_count']
+          for call in a['calls']:
+              if call['status'] != 'DIRECT_LOCAL_CLOSURE':
+                  assert call['target_proto_id'] is None
+          print('VERIFIED_R2', 'proto', a['proto_id'],
+                'upvalues', len(a['upvalues']),
+                'calls', a['call_status_counts'])
+          PY
+      - name: Probe root CLOSURE parent register capture context
+        env:
+          PYTHONPATH: tools/SV.Lua54/src
+        run: |
+          python -m sv_lua54.capture \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --class-hash C850E69B34478276C \
+            --function-hash F7C68FEDB79AB6396 \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --output slr-gem-setting-captures.json
+          python - <<'PY'
+          import json
+          j=json.load(open("slr-gem-setting-captures.json"))
+          assert j["body_proto_id"] == 17900
+          assert len(j["capture_slots"]) == 3
+          assert j["capture_slots"][1]["captured_register"] == 58
+          assert j["capture_slots"][2]["captured_register"] == 55
+          assert j["runtime_upvalues_recovered"] is False
+          print("ROOT_CAPTURE_VERIFIED", [(x["slot"], x["captured_register"],
+                x["capture_status"]) for x in j["capture_slots"]])
+          PY
+      - name: Scan root-register shared Upvalue writers across all original Prototypes
+        env:
+          PYTHONPATH: tools/SV.Lua54/src
+        run: |
+          python -m sv_lua54.aliases \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --registers 55,58 --output slr-gem-setting-upvalue-aliases.json
+          python - <<'PY'
+          import json
+          j=json.load(open('slr-gem-setting-upvalue-aliases.json'))
+          assert set(j['groups'])=={'55','58'}
+          assert all(x['holder_count']>=1 for x in j['groups'].values())
+          print('ALIASES_VERIFIED', [(key,grp['holder_count'],
+                grp['potential_setupval_count'],grp['potential_settabup_count'])
+                for key,grp in j['groups'].items()])
+          PY
+      - name: R3 bounded native call-operand windows and runtime probe contract
+        env:
+          PYTHONPATH: tools/SV.Lua54/src
+        run: |
+          python -m sv_lua54.runtime_probes \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --class-hash C850E69B34478276C \
+            --function-hash F7C68FEDB79AB6396 \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --output slr-gem-setting-runtime-probe-manifest.json
+          python - <<'PY'
+          import json
+          d=json.load(open("slr-gem-setting-runtime-probe-manifest.json"))
+          m=d["manifest"]
+          assert m["method_proto_id"] == 17900
+          assert m["root_closure_pc"] == 215522
+          assert [x["call_pc"] for x in m["call_probes"]] == [11,32,83]
+          assert [x["field_hash"] for x in m["call_probes"]] == [
+              "F7CD5FEDB7A083576", "S668179E3DFA5CD49",
+              "FA46877DC47484C79"]
+          origins = {x["call_pc"]: x["receiver_static_origin"] for x in m["call_probes"]}
+          assert origins[11]["kind"] == "SELF_INDEXED_SLOT" and origins[11]["slot_index"] == 14, origins
+          assert origins[83]["kind"] == "SELF_INDEXED_SLOT" and origins[83]["slot_index"] == 7, origins
+          assert origins[32]["kind"] == "ENV_CLASS_STATIC_FIELD" and origins[32]["class_hash"] == "C8FB6CAF7F89386B8", origins
+          assert origins[32]["field_hash"] == "S668179E3DFA5CD49", origins
+          assert origins[11]["same_block_seti_writers"][-1]["pc"] == 8
+          assert origins[11]["same_block_seti_writers"][-1]["producer_call_pc"] == 7
+          assert origins[83]["same_block_seti_writers"][-1]["pc"] == 48
+          assert origins[83]["same_block_seti_writers"][-1]["producer_call_pc"] == 47
+          producers = {x["call_pc"]: x["upstream_call_windows"][0]["producer_static_origin"]
+                       for x in m["call_probes"] if x["upstream_call_windows"]}
+          assert producers[11]["kind"] == "ENV_CLASS_FIELD_CALL" and producers[11]["class_hash"] == "C321A674151DEB701", producers
+          assert producers[83]["kind"] == "ENV_CLASS_FIELD_CALL" and producers[83]["class_hash"] == "C85EFC84DF009EC3F", producers
+          assert all(p["runtime_verified"] is False for p in producers.values())
+          assert all(not row["runtime_verified"] for row in origins.values())
+          assert d["audit"]["status"] == "NO_RUNTIME_EVIDENCE"
+          assert d["audit"]["runtime_verified"] is False
+          print("R3_NATIVE_CONTRACT_VERIFIED",m["method_code_sha256"],
+                [(x["call_pc"],x["field_hash"],x["owner_class_candidate"])
+                for x in m["call_probes"]])
+          PY
+      - name: Strict decompile and Lua 5.4 syntax test of the same native method
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 https://github.com/x3zvawq/unluac-rs/releases/download/v1.4.4/unluac-1.4.4-linux-x86_64 -o "$RUNNER_TEMP/unluac-cli"
+          echo "45dd5ef946fbd18a2e284267e32c2b14caeabe7dfc76d688f704244c5c3d4baf  $RUNNER_TEMP/unluac-cli" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/unluac-cli"
+          if ! command -v luac5.4 >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq lua5.4; fi
+          python scripts/Verify-SV-Lua54-CF-Decompile.py \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --class-hash C850E69B34478276C \
+            --function-hash F7C68FEDB79AB6396 \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --decompiler "$RUNNER_TEMP/unluac-cli" --luac luac5.4 \
+            --output slr-gem-setting-decompile.json
+          python - <<'PY'
+          import json
+          j=json.load(open("slr-gem-setting-decompile.json"))
+          assert j['decompile_status'] == 'SOURCE_GENERATED', j
+          assert j['luac_5_4_syntax'] == 'PASS', j
+          assert j['recompiled_chunk_status'] == 'PASS', j
+          assert j['recompiled_chunk_roundtrip'] is True, j
+          assert j['semantic_equivalence'] == 'NOT_TESTED', j
+          print('LUA54_RECOMPILE_VERIFIED',
+                'proto', j['proto_id'],
+                'generated_protos', j['recompiled_proto_count'],
+                'generated_instructions', j['recompiled_instruction_count'])
+          PY
+      - name: Validate UpValue cell semantics in a real Lua 5.4 VM (synthetic fixtures)
+        run: |
+          if ! command -v lua5.4 >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq lua5.4; fi
+          lua5.4 tests/fixtures/sv_lua54_runtime_identity.lua
+      - name: Upload bounded trace metadata (never original BLUA)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R1-GemSettingManager-CF-trace
+          path: |
+            slr-gem-setting-cf-trace.json
+            slr-gem-setting-decompile.json
+            slr-gem-setting-dataflow.json
+            slr-gem-setting-captures.json
+            slr-gem-setting-upvalue-aliases.json
+            slr-gem-setting-runtime-probe-manifest.json
+          if-no-files-found: warn
+          retention-days: 14
