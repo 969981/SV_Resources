@@ -58,9 +58,10 @@ IMPL = """    /// Experimental SLR R3: a contiguous fresh LocalDecl table plus e
         let Some(seed_index) = set_index.checked_sub(4) else {
             return false;
         };
-        let Some((seed_binding, mut ctor)) = constructor_seed(&block.stmts[seed_index]) else {
+        let Some((seed_binding, ctor_ref)) = constructor_seed(&block.stmts[seed_index]) else {
             return false;
         };
+        let mut ctor = ctor_ref.clone();
         let HirStmt::LocalDecl(seed_decl) = &block.stmts[seed_index] else {
             return false;
         };
