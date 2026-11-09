@@ -87,7 +87,7 @@ class LiveFrameIdentityTests(unittest.TestCase):
 
     def test_bad_or_unbounded_manifest_fails_closed(self):
         expected,mem,reader,seen=fixture()
-        expected["root"]["code_length_bytes"]=1_100_004
+        expected["root"]["code_length_bytes"]=8*1024*1024+4
         with self.assertRaisesRegex(ValueError,"bounded"):
             vm.inspect_frame(reader,CI,expected)
 
