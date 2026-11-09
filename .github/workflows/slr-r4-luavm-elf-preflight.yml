@@ -28,6 +28,9 @@ on:
       - "scripts/Inspect-SV400-Lua54-OpcodeContext.py"
       - "tests/test_sv400_luavm_opcode_context.py"
       - "tests/test_sv400_gdb_opcode_command.py"
+      - "scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py"
+      - "tests/test_sv400_lua54_read_watch_plan.py"
+      - "scripts/Analyze-SV400-Setup-ClosureBridge.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -74,6 +77,9 @@ jobs:
             scripts/Inspect-SV400-Lua54-OpcodeContext.py
             tests/test_sv400_luavm_opcode_context.py
             tests/test_sv400_gdb_opcode_command.py
+            scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py
+            tests/test_sv400_lua54_read_watch_plan.py
+            scripts/Analyze-SV400-Setup-ClosureBridge.py
             tools/SV.Lua54/src/sv_lua54
             tests/test_sv_lua54_trace.py
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
@@ -88,7 +94,7 @@ jobs:
           python-version: "3.12"
       - name: Syntax tests
         run: |
-          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py scripts/Inspect-SV400-Lua54-LiveFrame.py scripts/Inspect-SV400-Lua54-GDB.py scripts/Audit-SV400-Lua54-OpcodeFrames.py scripts/Inspect-SV400-Lua54-OpcodeContext.py
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py scripts/Inspect-SV400-Lua54-LiveFrame.py scripts/Inspect-SV400-Lua54-GDB.py scripts/Audit-SV400-Lua54-OpcodeFrames.py scripts/Inspect-SV400-Lua54-OpcodeContext.py scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py scripts/Analyze-SV400-Setup-ClosureBridge.py
           python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_probe.py" -v
@@ -101,6 +107,7 @@ jobs:
           python -m unittest discover -s tests -p "test_sv400_gdb_frame_command.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_opcode_context.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_opcode_command.py" -v
+          python -m unittest discover -s tests -p "test_sv400_lua54_read_watch_plan.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
@@ -402,6 +409,22 @@ jobs:
           print('SV_NATIVE_LUA_PC_HOOK_PLAN', d['unique_native_handler_rvas'],
                 '9 PC sites; original runtime events absent')
           PY
+      - name: Pin original root CLOSURE -> SETTABLE register bridge
+        run: |
+          python scripts/Analyze-SV400-Setup-ClosureBridge.py \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --output slr-violet-root-closure-register-bridge.json
+          python - <<'PY'
+          import json
+          a=json.load(open("slr-violet-root-closure-register-bridge.json"))
+          assert a["root_proto_id"]==0 and a["setup_proto_id"]==17900
+          assert a["closure_lua_pc"]==215522
+          assert a["next_assignment_pc"]==215523
+          assert a["return_object_observed_in_game"] is False
+          print("ROOT_CLOSURE_REGISTER_A",a["closure_result_register"],
+                "SETTABLE_C_REGISTER",a["settable_rhs_register"],
+                "SOURCE_MATCH",a["closure_is_next_settable_rhs"])
+          PY
       - name: Cross-check native savedpc and open/closed UpVal ABI instructions
         run: |
           python scripts/Audit-SV400-Lua54-OpcodeFrames.py \
@@ -469,6 +492,7 @@ jobs:
             slr-r4-seti-native.txt
             slr-r4-upval-native.txt
             slr-violet-native-opcode-upval-abi.json
+            slr-violet-root-closure-register-bridge.json
             slr-violet-luavm-dispatch-shapes.json
             slr-violet-luavm-opcode-table-audit.json
             slr-violet-luavm-table-relocations.json
