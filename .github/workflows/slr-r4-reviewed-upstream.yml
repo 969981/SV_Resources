@@ -1,0 +1,157 @@
+name: SLR R4 - reviewed upstream Rust patch with executable regressions
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-r4-upstream-patch-regressions
+    paths:
+      - ".github/workflows/slr-r4-reviewed-upstream.yml"
+      - "patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch"
+      - "scripts/Validate-SV-Lua54-R4-Upstream-AB.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reviewed-patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout pinned 4.0.0 original and Rust patch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch
+            scripts/Validate-SV-Lua54-R4-Upstream-AB.py
+            scripts/Benchmark-SV-Lua54.py
+            scripts/Build-SV-Lua54-R2-NativeSlice.py
+            scripts/Emit-SV-Lua54-R2-SafeRegion.py
+            tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/fixtures/benchmark_cohort.json
+            tests/fixtures/sv_lua54/r2_native_region_compare.lua
+            tests/fixtures/sv_lua54/r3_nil_shape.lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Clone upstream v1.4.5 and apply reviewed patch cleanly
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          cd "$RUNNER_TEMP/unluac-rs"
+          test "$(git rev-parse HEAD)" = "76d1452359b207c2a6fdec3c7c894152c7a61374"
+          PATCH="$GITHUB_WORKSPACE/patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch"
+          git apply --check "$PATCH"
+          git apply "$PATCH"
+          git diff --check
+          test "$(git diff --name-only)" = "src/hir/simplify/table_constructors/mod.rs"
+          echo "PASS standalone Rust patch application"
+
+      - name: Compile Rust CLI and run upstream library unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install nightly-2026-11-08 --profile minimal
+          cd "$RUNNER_TEMP/unluac-rs"
+          sed -i '1i #![feature(if_let_guard)]' src/lib.rs
+          cargo +nightly-2026-11-08 build --release --locked --package unluac-cli
+          cargo +nightly-2026-11-08 test --release --locked --lib
+
+      - name: Decompile and compile complete original 2071-op Proto 752
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          python - <<'PY'
+          from pathlib import Path
+          import sys,os
+          from hashlib import sha256
+          sys.path.insert(0,"tools/SV.Lua54/src")
+          from sv_lua54.chunk import parse,Chunk
+          p=Path("Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua")
+          raw=p.read_bytes()
+          assert sha256(raw).hexdigest()=="ae4a7d0168751f53af11746ac5ae7771cb1a5bfa580bcc0f79e2b9ee85acb572"
+          c=parse(raw)
+          x=next(p for p in c.protos() if p.id==752)
+          assert x.instruction_count==2071
+          raw_proto=Chunk(c.header,x.upvalue_count,x,"").encode()
+          assert parse(raw_proto).encode()==raw_proto
+          Path(os.environ["RUNNER_TEMP"],"r4-proto752-original.luac").write_bytes(raw_proto)
+          print("SLR_R4_ORIGINAL_PROTOTYPE",x.id,"count",x.instruction_count)
+          PY
+          "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$RUNNER_TEMP/r4-proto752-original.luac" -D lua5.4 \
+            --generate-mode strict > "$RUNNER_TEMP/r4-proto752-source.lua"
+          luac5.4 -p "$RUNNER_TEMP/r4-proto752-source.lua"
+          luac5.4 -o "$RUNNER_TEMP/r4-proto752-recompiled.luac" "$RUNNER_TEMP/r4-proto752-source.lua"
+          echo "SLR_R4_FULL_PROTO752_STRICT_COMPILE_PASS 2071"
+
+      - name: Verify fixed 100-prototype native syntax cohort
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Benchmark-SV-Lua54.py --verify-only \
+            --decompiler "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            --backend-id "upstream unluac-rs v1.4.5 + R4 reviewed Rust patch" \
+            --luac luac5.4 --timeout 25 \
+            --report "$RUNNER_TEMP/r4-100-proto-report.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads(Path(os.environ["RUNNER_TEMP"],"r4-100-proto-report.json").read_text())
+          assert r["cohort_count"]==100 and r["states"].get("LUA_SYNTAX_OK")==100
+          print("SLR_R4_NATIVE_COHORT",r["states"])
+          PY
+
+      - name: Real native 17-op A/B and metamethod nil-hole counterexamples
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Build-SV-Lua54-R2-NativeSlice.py --output "$RUNNER_TEMP/r4-native-region.luac"
+          python scripts/Emit-SV-Lua54-R2-SafeRegion.py --out-lua "$RUNNER_TEMP/r4-bounded-generated.lua"
+          lua5.4 tests/fixtures/sv_lua54/r2_native_region_compare.lua \
+            "$RUNNER_TEMP/r4-native-region.luac" "$RUNNER_TEMP/r4-bounded-generated.lua"
+          lua5.4 tests/fixtures/sv_lua54/r3_nil_shape.lua \
+            "$RUNNER_TEMP/r4-native-region.luac" "$RUNNER_TEMP/r4-bounded-generated.lua" \
+            "$RUNNER_TEMP/r4-nil-hole-summary.txt"
+          grep -q 'cases=8 divergences=4 preallocated_divergences=0' "$RUNNER_TEMP/r4-nil-hole-summary.txt"
+
+      - name: Execute official upstream Lua table/SETLIST regression cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Validate-SV-Lua54-R4-Upstream-AB.py \
+            --checkout "$RUNNER_TEMP/unluac-rs" \
+            --backend "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            --report "$RUNNER_TEMP/r4-upstream-table-ab.json"
+
+      - name: Delete ephemeral recovered game source and chunks
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/r4-proto752-original.luac" \
+            "$RUNNER_TEMP/r4-proto752-source.lua" \
+            "$RUNNER_TEMP/r4-proto752-recompiled.luac" \
+            "$RUNNER_TEMP/r4-native-region.luac" \
+            "$RUNNER_TEMP/r4-bounded-generated.lua"
+
+      - name: Upload bounded regression reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R4-reviewed-upstream-regression
+          path: |
+            ${{ runner.temp }}/r4-100-proto-report.json
+            ${{ runner.temp }}/r4-nil-hole-summary.txt
+            ${{ runner.temp }}/r4-upstream-table-ab.json
+          if-no-files-found: warn
+          retention-days: 14
