@@ -189,7 +189,7 @@ def instrument(folder):
     # ephemeral upstream checkout, not in the user's source tree.
     public_file=folder/'src/hir/analyze/short_circuit/mod.rs'
     public_text=public_file.read_text()
-    source='pub(super) use self::lowering::{lower_short_circuit_subject, lower_short_circuit_subject_single_eval};'
+    source='use self::lowering::{lower_short_circuit_subject, lower_short_circuit_subject_single_eval};'
     assert public_text.count(source)==1
     public_text=public_text.replace(source,'pub(crate) use self::lowering::{lower_short_circuit_subject, lower_short_circuit_subject_single_eval};')
     public_file.write_text(public_text)
