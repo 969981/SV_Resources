@@ -128,26 +128,56 @@ IMPL = """    /// Experimental SLR R3: a contiguous fresh LocalDecl table plus e
         // No value-producing local may be referenced, overwritten or captured
         // after the original raw batch. Otherwise removing declarations would
         // be a semantic change. The original owner local itself survives.
-        let mut index = BindingIndex::new(self.temp_count, self.next_local_index);
-        let ids = producers.iter().map(|x| index.intern(*x)).collect::<Vec<_>>();
-        eprintln!("SLR_R3_FOLD checking later uses after index={set_index}");
+        let mut binding_index = BindingIndex::new(self.temp_count, self.next_local_index);
+        let ids = producers.iter().map(|x| binding_index.intern(*x)).collect::<Vec<_>>();
+        let mut live = ids.iter().copied().collect::<BTreeSet<_>>();
+        eprintln!("SLR_R3_FOLD checking reaching definitions after index={set_index}");
         for (offset, stmt) in block.stmts[set_index + 1..].iter().enumerate() {
-            let summary = collect_stmt_binding_summary(stmt, &mut index);
-            let touched_uses = summary.uses().filter(|id| ids.contains(id)).collect::<Vec<_>>();
-            let touched_writes = summary.writes().filter(|id| ids.contains(id)).collect::<Vec<_>>();
-            if !touched_uses.is_empty() || !touched_writes.is_empty() {
-                eprintln!("SLR_R3_FOLD blocked at future_stmt={} used={touched_uses:?} rewritten={touched_writes:?} stmt={}",
-                    set_index + 1 + offset, format!("{stmt:?}").chars().take(1400).collect::<String>());
+            let summary = collect_stmt_binding_summary(stmt, &mut binding_index);
+            let uses = summary.uses().filter(|id| live.contains(id)).collect::<Vec<_>>();
+            if !uses.is_empty() {
+                eprintln!("SLR_R3_FOLD blocked: OLD computed value read at future_stmt={} uses={uses:?}",
+                    set_index + 1 + offset);
+                return false;
+            }
+            // Only an unconditional top-level Local assignment can kill
+            // the old scalar epoch. A branch or nested write cannot prove
+            // that every future read sees the new definition.
+            if let HirStmt::Assign(assign) = stmt
+                && !assign.is_phi_transfer
+                && assign.values.tail.is_none()
+            {
+                for (id, producer) in ids.iter().zip(&producers) {
+                    if assign.targets.iter().any(|target|
+                        binding_from_lvalue(target) == Some(*producer))
+                    {
+                        live.remove(id);
+                        eprintln!("SLR_R3_FOLD killed old producer epoch at stmt={} owner={producer:?}",
+                            set_index + 1 + offset);
+                    }
+                }
+            }
+            // Any other write while that epoch is live may be conditional
+            // or carry an unresolved lifetime, and must remain rejected.
+            if summary.writes().any(|id| live.contains(&id)) {
+                eprintln!("SLR_R3_FOLD blocked: non-definite producer overwrite");
                 return false;
             }
         }
-        // A Lua 5.4 table constructor evaluates its value expressions in
-        // increasing order after allocating the table. It emits raw SETLIST
-        // for its final fixed batch, including possible nil array values.
-        eprintln!("SLR_R3_FOLD SUCCESS owner={owner:?} index={set_index} fresh table and three producer expressions");
+        // Keep original local declarations for later register reuse. Their
+        // scalar computations are moved ONCE into the table constructor;
+        // the deleted SETLIST was their only pre-kill use. Setting the
+        // declarations to empty initializers retains lexical ownership.
         ctor.fields.extend(expressions.into_iter().map(HirTableField::Array));
         install_constructor_seed(&mut block.stmts[seed_index], ctor);
-        block.stmts.drain(seed_index + 1..=set_index);
+        for offset in 0..3 {
+            let HirStmt::LocalDecl(decl) = &mut block.stmts[seed_index + offset + 1] else {
+                unreachable!("fresh scalar batch producer must be LocalDecl");
+            };
+            decl.values.fixed.clear();
+        }
+        block.stmts.remove(set_index);
+        eprintln!("SLR_R3_FOLD SUCCESS owner={owner:?}: constructor fused with value producer declarations preserved for later reuse");
         true
     }
 
