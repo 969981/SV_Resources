@@ -1,0 +1,100 @@
+name: SV 4.0.0 Terarium 178 original 142 pre/post merge source proof
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/Audit-SV400-Terarium178-Original-Merge.py'
+      - 'tests/test_sv400_terarium178_merge_witness.py'
+      - '.github/workflows/sv-terarium178-original-merge-proof.yml'
+      - 'docs/research/sv400-reference-gap-676-wild-203-fixed-zero-loss.md'
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/Audit-SV400-Terarium178-Original-Merge.py'
+      - 'tests/test_sv400_terarium178_merge_witness.py'
+      - '.github/workflows/sv-terarium178-original-merge-proof.yml'
+      - 'docs/research/sv400-reference-gap-676-wild-203-fixed-zero-loss.md'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  synthetic-178-source-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Audit-SV400-Terarium178-Original-Merge.py
+            tests/test_sv400_terarium178_merge_witness.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m py_compile scripts/Audit-SV400-Terarium178-Original-Merge.py
+          python -m unittest discover -s tests -p test_sv400_terarium178_merge_witness.py -v
+
+  original-666-source-merge-proof:
+    if: github.event_name != 'pull_request'
+    needs: synthetic-178-source-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Audit-SV400-Terarium178-Original-Merge.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recover actual 61 M2 + 223 TRCOL source-linked point evidence (not a fixture)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/source-666"
+          gh run download 42547351802 -R "$GITHUB_REPOSITORY" \
+            -n SV400-original-point-level-and-fixed-158-attributed-evidence \
+            -D "$RUNNER_TEMP/source-666"
+          test -s "$RUNNER_TEMP/source-666/SV-400-point-provenance-linked/SV400_666_wild_point_provenance.csv"
+          test -s "$RUNNER_TEMP/source-666/SV-400-point-provenance-linked/SV400_Point_Trace_Validation.json"
+      - name: Independently certify actual 142 Terarium source point/area merging witnesses
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Audit-SV400-Terarium178-Original-Merge.py \
+            --source-csv "$RUNNER_TEMP/source-666/SV-400-point-provenance-linked/SV400_666_wild_point_provenance.csv" \
+            --validation "$RUNNER_TEMP/source-666/SV-400-point-provenance-linked/SV400_Point_Trace_Validation.json" \
+            --output "$RUNNER_TEMP/SV400-terarium178-source-proof"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'SV400-terarium178-source-proof'
+          d=json.loads((root/'SV400_178_142_Original_PrePost_Merge_Evidence.json').read_text())
+          assert d['source_178_reference_only_occurrences']==142
+          assert d['pre_has_max74_and_max70or71']==142
+          assert d['reference_exact_in_pre']==127
+          assert d['reference_exact_in_post']==2
+          assert d['native_wide_in_post']==142
+          assert d['source_point_ordinals_union']==629
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('## Real original 4.0.0 Terarium 178 source pre/post consolidation\n\n')
+              out.write('142/142 original candidates include broad max74 and narrow max70/71 BEFORE consolidation.\n\n')
+              out.write('127/142 pinned reference intervals exist premerge but only 2/142 survive postmerge; 142/142 final native intervals have max74.\n\n')
+              out.write('Original PointData: encount_data_su2.bin (629 unique ordinals in observed candidate groups). **Not a game runtime or legality proof.**\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SV400-original-Terarium178-142-prepost-merge-proof
+          path: |
+            ${{ runner.temp }}/SV400-terarium178-source-proof/*.csv
+            ${{ runner.temp }}/SV400-terarium178-source-proof/*.json
+          retention-days: 30
+          if-no-files-found: warn
