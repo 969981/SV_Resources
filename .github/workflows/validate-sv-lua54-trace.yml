@@ -16,6 +16,7 @@ on:
       - "tools/SV.Lua54/src/sv_lua54/aliases.py"
       - "tools/SV.Lua54/src/sv_lua54/runtime_probes.py"
       - "tests/test_sv_lua54_runtime_probes.py"
+      - "tests/fixtures/sv_lua54_runtime_identity.lua"
       - ".github/workflows/validate-sv-lua54-trace.yml"
   pull_request:
     paths:
@@ -44,6 +45,7 @@ jobs:
             tests/test_sv_lua54_capture.py
             tests/test_sv_lua54_aliases.py
             tests/test_sv_lua54_runtime_probes.py
+            tests/fixtures/sv_lua54_runtime_identity.lua
             scripts/Verify-SV-Lua54-CF-Decompile.py
             .github/workflows/validate-sv-lua54-trace.yml
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
@@ -194,6 +196,10 @@ jobs:
                 'generated_protos', j['recompiled_proto_count'],
                 'generated_instructions', j['recompiled_instruction_count'])
           PY
+      - name: Validate UpValue cell semantics in a real Lua 5.4 VM (synthetic fixtures)
+        run: |
+          if ! command -v lua5.4 >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq lua5.4; fi
+          lua5.4 tests/fixtures/sv_lua54_runtime_identity.lua
       - name: Upload bounded trace metadata (never original BLUA)
         if: always()
         uses: actions/upload-artifact@v4
