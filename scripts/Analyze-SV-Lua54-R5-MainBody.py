@@ -91,6 +91,21 @@ def run(root: Path) -> dict:
         and op.a <= 16
     ]
     helper_opcodes = decode(producer_child)
+    source_r13 = reaching_register_writes(root_proto, producer_pc, 13)
+    # Only compact six-word helper opcode records are emitted, not recovered Lua.
+    helper_records = []
+    for op in helper_opcodes:
+        entry = {"pc":op.pc, "op":op.name, "a":op.a,"b":op.b,"c":op.c,"k":op.k}
+        if op.name in ("GETTABUP", "GETFIELD") and op.c < len(producer_child.constants):
+            constant=producer_child.constants[op.c]
+            raw_constant=constant.payload
+            entry["key_tag"]=constant.tag
+            entry["key_text"]=(
+                raw_constant.decode("ascii") if isinstance(raw_constant,bytes)
+                and len(raw_constant)<=40 and all(32<=v<127 for v in raw_constant)
+                else "UNPRINTABLE_OR_NOT_A_STRING"
+            )
+        helper_records.append(entry)
     return {
         "schema_version": 1,
         "status": "STATIC_PC_GRAPH_ONLY",
@@ -136,6 +151,8 @@ def run(root: Path) -> dict:
             "instruction_count":producer_child.instruction_count,
             "direct_children":len(producer_child.children),
             "opcode_histogram":dict(sorted(Counter(op.name for op in helper_opcodes).items())),
+            "opcode_sequence":helper_records,
+            "captured_parent_r13_reaching_definitions":source_r13,
             "value_kind_if_executed":"LUA_CLOSURE",
             "runtime_closure_pointer":"NOT_OBSERVED",
         },
