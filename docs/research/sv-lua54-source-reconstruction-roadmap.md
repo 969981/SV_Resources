@@ -70,6 +70,16 @@ updated: "2026-11-09"
 
 技术报告：[[sv-lua54-r4-upstream-rust-patch-runtime-ab]]。
 
+## 2026-11-09：R5 原生 Haxe Lua bootstrap 与 mainBody 闭包来源
+
+- main_dynamic root PC43 NEWTABLE R13，PC45 安装 __newindex，PC46–47 引用 _hx_tostring/安装 __tostring；PC50 CLOSURE R16 创建包装函数 Proto20，6 条指令明确调用 setmetatable(参数, 捕获的 R13)。
+- root PC12242 CLOSURE R56 创建 Proto752/mainBody，其第二个 Upvalue 捕获 R16。静态 PC reaching-def 证明 R16 唯一可达写入点为 PC50、R13 在 PC50 的来源为 PC43、R12 在 PC45 的来源为 PC42；仍没有运行时 UpVal* 证据。
+- PC42/48/49/50/51/52 的子闭包与 Haxe Lua 的 _hx_obj_newindex/_hx_a/_hx_e/_hx_o/_hx_new/_hx_field_arr **结构匹配**；不视为 BLUA 原始函数名或已经恢复的 Haxe 源码。
+- 69 个子闭包创建点捕获 R16；其中 56 条有严格原生 C→F 方法赋值，分布于 40 个不同的 C Hash。PokeDocs 确认其中 22 条方法名是 mainBody，其他名称按来源等级记录。
+- 下一关必须建立 Lua VM Dispatch、真实 CallInfo/savedpc、PC50 与 PC12242 的 LClosure*/UpVal* 同一实例取证；没有实机记录前，不标记完整 Proto752 语义 A/B。
+
+证据：[[sv-lua54-r5-mainbody-haxe-runtime-captures]]。
+
 ## 输入与已知基线
 
 相对于 Unpack/4.0.0/romfs/arc/data.trpfs/：

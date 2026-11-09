@@ -66,4 +66,12 @@ The original module's full runtime/Upvalue/C API semantic equivalence is NOT ver
 - [Runtime prerequisites](../../scripts/Inspect-SV-Lua54-R4-Proto752-Shell.py): 1 parameter; Upvalue0 inherited parent cell, Upvalue1 captured from parent R16. Host ABI and real values still NOT OBSERVED.
 - [R4 Obsidian notebook](../../docs/research/sv-lua54-r4-upstream-rust-patch-runtime-ab.md).
 
+## R5: Haxe-style Lua bootstrap and mainBody native capture provenance
+
+- [Static reaching register writes](src/sv_lua54/r5.py) and [R5 mainBody evidence generator](../../scripts/Analyze-SV-Lua54-R5-MainBody.py) pin original 4.0.0 main_dynamic SHA and root closure PCs.
+- [Compact pinned native signature](fixtures/r5_mainbody_static_signature.json) is independently recomputed and verified in [R5 GitHub Actions](../../.github/workflows/slr-r5-mainbody-r16.yml).
+- root R13 is allocated PC43 with __newindex/_hx_tostring metamethods; root PC50 creates Proto20, a setmetatable helper capturing R13; root PC12242 creates Proto752/mainBody capturing that helper through R16.
+- 69 closure sites capture R16; 56 match exact native C→F registration and cover 40 distinct C hashes. Names like _hx_o are **Haxe runtime structural candidates**, not original native function names.
+- [Obsidian R5 report](../../docs/research/sv-lua54-r5-mainbody-haxe-runtime-captures.md). Real game CallInfo/UpVal*/TValue and full-function runtime parity remain NOT_OBSERVED / NOT_VERIFIED.
+
 Roadmap: [SV Lua54 source reconstruction](../../docs/research/sv-lua54-source-reconstruction-roadmap.md).
