@@ -104,6 +104,19 @@ def serialized_counter(events):
                    for x in events if x.get("stage") == "wild_serialized" and slot186(x))
 
 
+def raw176(events):
+    """Actual original source PointData + Criteria identity, including rejected-by-baseline discoveries."""
+    return Counter((
+        int(x["species"]), x["pointSource"], int(x["pointIndex"]),
+        x["sourceCollisionArea"], x["areaName"], int(x["criteriaIndex"]),
+        int(x["rawPointMin"]), int(x["rawPointMax"]),
+        int(x["clippedPointMin"]), int(x["clippedPointMax"]),
+        int(x["criteriaMinLevel"]), int(x["criteriaMaxLevel"]),
+        int(x["minLevel"]), int(x["maxLevel"]), int(x["timeMask"]), bool(x["band"])
+    ) for x in events if x.get("stage") == "wild_raw_candidate"
+        and x.get("location") == 176 and x.get("species") in S186)
+
+
 def raw313(events):
     return Counter((int(x["species"]), int(x["criteriaIndex"]), x["pointSource"],
                     int(x["pointIndex"]), x["sourceCollisionArea"], x["areaName"],
@@ -146,6 +159,28 @@ def close_causal_evidence(folders, traces, output):
         or lost4["raw-max-only"]["gained"] != 0
         or lost4["raw-both"]["lost"] != 8):
         raise ValueError("Original 186<-176 4/0/8 true-serialized slot losses changed")
+
+    # Explicitly preserve criteria ordinal and point-level provenance for
+    # candidates that only appear when the raw lower bound is enabled.
+    source_candidates = {mode: raw176(events[mode]) for mode in MODES}
+    baseline_candidates = source_candidates["baseline"]
+    source_deltas = []
+    source_counts = {}
+    raw_fields = ("species", "source_asset", "point_index", "source_collision_area",
+                  "storage_area_name", "criteria_index", "raw_point_min", "raw_point_max",
+                  "clipped_point_min", "clipped_point_max", "criteria_min", "criteria_max",
+                  "candidate_min", "candidate_max", "time_mask", "band")
+    for mode in ("raw-min-only", "raw-max-only", "raw-both"):
+        added = source_candidates[mode] - baseline_candidates
+        removed = baseline_candidates - source_candidates[mode]
+        source_counts[mode] = {"candidate_observations_added":sum(added.values()),
+                               "candidate_observations_removed":sum(removed.values()),
+                               "distinct_added_source_candidate_keys":len(added),
+                               "distinct_removed_source_candidate_keys":len(removed)}
+        for direction, table in (("added", added), ("removed", removed)):
+            for key, count in table.items():
+                source_deltas.append({"mode":mode,"direction":direction,
+                    **dict(zip(raw_fields,key)),"observed_repetitions":count})
 
     # Cross-mode source candidates and real Absorb witnesses.
     row_changes = []
@@ -198,6 +233,12 @@ def close_causal_evidence(folders, traces, output):
         # original point+criteria level tuple once for inspectable evidence.
         for row in dict.fromkeys(tuple(r.values()) for r in row_changes):
             w.writerow(dict(zip(row_changes[0], row)))
+    if not source_deltas:
+        raise ValueError("Original raw-min/upper A/B source PointData criteria changes not observed")
+    with (target / "SV400_176_Raw_Min_Max_Source_Criteria_Deltas.csv").open(
+            "w", newline="", encoding="utf-8-sig") as f:
+        w = csv.DictWriter(f, fieldnames=list(source_deltas[0]))
+        w.writeheader();w.writerows(source_deltas)
     dups = []
     for (sp, crit), ordinals in sorted(points.items()):
         for idx in sorted(ordinals):
@@ -216,6 +257,7 @@ def close_causal_evidence(folders, traces, output):
         "provenance": "five separate original 61 M2 + 223 TRCOL SHA-verified native parser runs",
         "focus": "Location 186 CrossFrom 176 six species; Location 158 species 313/314 criteria 110-113",
         "lost_source_slots": lost4,
+        "source_176_criteria_delta_from_baseline": source_counts,
         "original_186_weather_candidate_evidence_rows": len(row_changes),
         "original_186_distinct_source_records": len({
             (x["point_asset"], x["point_index"], x["source_collision_area"])
