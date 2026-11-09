@@ -136,6 +136,9 @@ METHOD=r"""    /// R8: original PUC open batch with a single scalar closure prod
     }
 
 """
+# Fail-closed guard diagnostics; emitted only during this R8 test checkout.
+METHOD=METHOD.replace("return false", 'eprintln!("SLR_R8_GUARD_REJECT line={} index={} binding={:?}", line!(), index, binding); return false')
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--checkout",type=Path,required=True)
