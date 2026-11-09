@@ -158,14 +158,14 @@ def instrument(folder):
             && let Some(value) = &producer.materialized_value
             && value.consumer == consumer.id
             && let Some(HirExpr::LocalRef(local_id)) =
-                super::super::exprs::expr_for_ssa_value_in_block(
+                super::super::super::exprs::expr_for_ssa_value_in_block(
                     self.lowering, consumer.block,
                     crate::structure::SsaValue::Phi(value.phi))
             && let Some((producer_expr, _)) =
-                super::super::short_circuit::lower_short_circuit_subject(
+                super::super::super::short_circuit::lower_short_circuit_subject(
                     self.lowering, producer.block, producer.predicate)
             && let Some((HirExpr::Call(call), _)) =
-                super::super::short_circuit::lower_short_circuit_subject_single_eval(
+                super::super::super::short_circuit::lower_short_circuit_subject_single_eval(
                     self.lowering, consumer.block, consumer.predicate)
             && let HirExpr::Closure(closure) = &call.callee
             && closure.captures.iter().any(|capture|
