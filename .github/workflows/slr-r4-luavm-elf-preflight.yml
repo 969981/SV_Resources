@@ -15,6 +15,8 @@ on:
       - "tests/test_sv400_luavm_dispatch_shapes.py"
       - "scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py"
       - "tests/test_sv400_luavm_diagnostic_xrefs.py"
+      - "scripts/Verify-SV400-Lua54-NativeDispatch.py"
+      - "tests/test_sv400_luavm_native_dispatch.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -48,6 +50,8 @@ jobs:
             tests/test_sv400_luavm_dispatch_shapes.py
             scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py
             tests/test_sv400_luavm_diagnostic_xrefs.py
+            scripts/Verify-SV400-Lua54-NativeDispatch.py
+            tests/test_sv400_luavm_native_dispatch.py
             Unpack/4.0.0/exefs/violet_main/violet_main.elf
             Unpack/4.0.0/exefs/violet_main/provenance.json
             Unpack/4.0.0/exefs/subsdk0/subsdk0.elf
@@ -59,12 +63,13 @@ jobs:
           python-version: "3.12"
       - name: Syntax tests
         run: |
-          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py
           python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_probe.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_dispatch_shapes.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_diagnostic_xrefs.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_native_dispatch.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
@@ -286,6 +291,29 @@ jobs:
           print("DISPATCH_TABLE_RELOCATIONS",len(rows),
                 "first",rows[:8], "last",rows[-4:])
           PY
+      - name: Verify Lua VM execute 0x41150 with exact native instruction words and 83 RELA opcode handlers
+        run: |
+          python scripts/Verify-SV400-Lua54-NativeDispatch.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --output slr-violet-luavm-verified-native-dispatch.json
+          python - <<'PY'
+          import json
+          j=json.load(open('slr-violet-luavm-verified-native-dispatch.json'))
+          assert j['static_identity']=='LUA54_83_WAY_NATIVE_OPCODE_DISPATCH_VERIFIED'
+          assert j['dispatch_native_entry_rva']=='0x41150'
+          assert j['dispatch_table_slots']==83
+          assert j['relative_relocation_count']==83
+          assert j['unique_targets']==83
+          assert j['runtime_state']=='NOT_OBSERVED'
+          handlers=j['opcode_handlers']
+          assert [x['target_handler_rva'] for x in handlers[:5]]==[
+              '0x4126c','0x412bc','0x4130c','0x4135c','0x413b0']
+          assert [x['target_handler_rva'] for x in handlers[-4:]]==[
+              '0x453fc','0x45554','0x455b8','0x45628']
+          print("NATIVE_LUA54_VM_OPCODE_DISPATCH_CONFIRMED",j['dispatch_native_entry_rva'],
+                '83 native relocations and handlers, runtime',j['runtime_state'])
+          PY
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
         run: |
@@ -329,6 +357,7 @@ jobs:
             slr-violet-luavm-dispatch-shapes.json
             slr-violet-luavm-opcode-table-audit.json
             slr-violet-luavm-table-relocations.json
+            slr-violet-luavm-verified-native-dispatch.json
             slr-luavm-diagnostic-string-anchors.txt
             slr-violet-luavm-diagnostic-xrefs.json
             slr-lua-error-common-25b90.txt
