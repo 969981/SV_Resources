@@ -35,7 +35,8 @@ def fixture(scope="setup",pc=7,opcode=68):
     root=bytearray(struct.pack("<I",0)* (215522+1))
     struct.pack_into("<I",root,215522*4,79)
     setup=bytearray(struct.pack("<I",0)*264)
-    struct.pack_into("<I",setup,pc*4,opcode)
+    if scope=="setup":
+        struct.pack_into("<I",setup,pc*4,opcode)
     manifest={
         "root":{"proto_id":0,"code_length_bytes":len(root),
                 "code_sha256":hashlib.sha256(root).hexdigest(),
