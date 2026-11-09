@@ -24,6 +24,7 @@ CASE_PATHS = (
     "tests/case_tables/setlist_07_table_constructor_local_acceptance.lua",
     "tests/case_tables/multireturn_04_table_result_nil_shape.lua",
     "tests/case_tables/capacity_01_indexed_array_capacity.lua",
+    "tests/case_tables/setlist_08_puc_fixed_setlist_nil_capacity.lua",
 )
 
 def execute(cmd: list[str], timeout: int):
