@@ -102,9 +102,16 @@ def inspect_frame(reader, ci_ptr, expected, *,
             # Reject impossible saved PC before attempting large guest reads.
             if savedpc < code_ptr or savedpc > code_ptr+length or (savedpc-code_ptr)%4:
                 continue
-            original = bytes(reader(code_ptr,length))
+            try:
+                original = bytes(reader(code_ptr,length))
+            except Exception:
+                # A shorter guest buffer or unmapped tail for one expected
+                # Proto length must not prevent testing the other exact length.
+                evidence["diagnostic"]="guest Proto.code length unreadable for at least one candidate"
+                continue
             if len(original) != length:
-                raise ValueError("short guest Proto.code read")
+                evidence["diagnostic"]="short guest Proto.code read for at least one candidate"
+                continue
             digest = hashlib.sha256(original).hexdigest()
             if digest != record["code_sha256"]:
                 continue
