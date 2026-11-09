@@ -152,6 +152,9 @@ def audit_capture(events):
         )
     result["complete_target_pc_coverage"]=all(
         pc in result["setup_function_pcs_observed"] for pc in EXPECTED_SETUP)
+    result["complete_same_setup_closure_coverage"]=bool(
+        expected_closure and all(pc in result["setup_events_same_child_closure"]
+                                 for pc in EXPECTED_SETUP))
     result["event_source_consistency"]="ONLY_SANITIZED_USER_SUPPLIED_JSON"
     return result
 
