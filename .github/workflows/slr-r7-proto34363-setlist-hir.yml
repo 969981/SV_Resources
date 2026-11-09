@@ -86,7 +86,7 @@ jobs:
           set +e
           sudo apt-get update -qq
           sudo apt-get install -y -qq lua5.4
-          "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+          timeout 90s "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
             -i "$RUNNER_TEMP/proto34363.luac" -D lua5.4 --generate-mode strict \
             > "$RUNNER_TEMP/proto34363.recovered.lua" 2> "$RUNNER_TEMP/r8-proto34363.errors"
           result=$?
