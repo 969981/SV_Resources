@@ -61,6 +61,7 @@ class SequenceSchemaTests(unittest.TestCase):
         self.assertTrue(a["root_stack_values_unchanged_across_creation"])
         self.assertTrue(a["child_upval_parent_stack_links"])
         self.assertTrue(a["complete_target_pc_coverage"])
+        self.assertTrue(a["complete_same_setup_closure_coverage"])
         self.assertEqual(a["setup_events_same_child_closure"],[7,8,11,32,47,48,83])
         self.assertEqual(a["factory_return_to_receiver_checks"]["PC8_return_to_PC11_receiver"],
                          "IDENTITY_MATCH")
@@ -93,6 +94,7 @@ class SequenceSchemaTests(unittest.TestCase):
         events[4]["setup_closure_id"]="another-closure"
         a=m.audit_capture(events)
         self.assertNotIn(11,a["setup_events_same_child_closure"])
+        self.assertFalse(a["complete_same_setup_closure_coverage"])
         self.assertEqual(a["factory_return_to_receiver_checks"]["PC8_return_to_PC11_receiver"],
                          "IDENTITY_OR_ORDER_MISMATCH")
 
