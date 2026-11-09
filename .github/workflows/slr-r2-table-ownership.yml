@@ -7,9 +7,11 @@ on:
     paths:
       - ".github/workflows/slr-r2-table-ownership.yml"
       - "scripts/Analyze-SV-Lua54-R2-TableOwner.py"
+      - "scripts/Build-SV-Lua54-R2-NativeSlice.py"
       - "tools/SV.Lua54/src/sv_lua54/ownership.py"
       - "tests/test_sv_lua54_r2.py"
       - "tests/fixtures/sv_lua54/r2_table_semantics.lua"
+      - "tests/fixtures/sv_lua54/r2_native_region_compare.lua"
   workflow_dispatch:
 
 permissions:
@@ -32,10 +34,12 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             scripts/Analyze-SV-Lua54-R2-TableOwner.py
+            scripts/Build-SV-Lua54-R2-NativeSlice.py
             tools/SV.Lua54/src/sv_lua54
             tools/SV.Lua54/fixtures/r1_residual_hir_752.json
             tests/test_sv_lua54_r2.py
             tests/fixtures/sv_lua54/r2_table_semantics.lua
+            tests/fixtures/sv_lua54/r2_native_region_compare.lua
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
           persist-credentials: true
 
@@ -48,7 +52,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile scripts/Analyze-SV-Lua54-R2-TableOwner.py tools/SV.Lua54/src/sv_lua54/ownership.py
+          python -m py_compile scripts/Analyze-SV-Lua54-R2-TableOwner.py scripts/Build-SV-Lua54-R2-NativeSlice.py tools/SV.Lua54/src/sv_lua54/ownership.py
           python -m unittest discover -s tests -p "test_sv_lua54_r2.py" -v
 
       - name: Original main_dynamic 4.0.0 PC owner and alias trace
@@ -67,6 +71,16 @@ jobs:
           luac5.4 -p tests/fixtures/sv_lua54/r2_table_semantics.lua
           luac5.4 -o "$RUNNER_TEMP/r2_table_semantics.luac" tests/fixtures/sv_lua54/r2_table_semantics.lua
           lua5.4 "$RUNNER_TEMP/r2_table_semantics.luac"
+
+      - name: Execute exact original 17-word PC slice vs Lua 5.4 candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Build-SV-Lua54-R2-NativeSlice.py --output "$RUNNER_TEMP/sv-proto752-pc649-665.luac"
+          luac5.4 -p tests/fixtures/sv_lua54/r2_native_region_compare.lua
+          luac5.4 -o "$RUNNER_TEMP/r2_native_region_compare.luac" tests/fixtures/sv_lua54/r2_native_region_compare.lua
+          lua5.4 "$RUNNER_TEMP/r2_native_region_compare.luac" "$RUNNER_TEMP/sv-proto752-pc649-665.luac"
+          rm -f "$RUNNER_TEMP/sv-proto752-pc649-665.luac"
 
       - name: Upload bounded native owner report
         if: always()
