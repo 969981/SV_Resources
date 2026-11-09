@@ -475,10 +475,10 @@ jobs:
         with:
           name: SV400-original-186-min-loss-and-5046-duplicate-focused-causal-source
           path: |
-            \${{ runner.temp }}/SV400-causal/audit/*.csv
-            \${{ runner.temp }}/SV400-causal/audit/*.json
-            \${{ runner.temp }}/SV400-causal/*/trace.jsonl
-            \${{ runner.temp }}/SV400-causal/*/native-encounter-build.json
+            ${{ runner.temp }}/SV400-causal/audit/*.csv
+            ${{ runner.temp }}/SV400-causal/audit/*.json
+            ${{ runner.temp }}/SV400-causal/*/trace.jsonl
+            ${{ runner.temp }}/SV400-causal/*/native-encounter-build.json
           retention-days: 30
           if-no-files-found: warn
 
