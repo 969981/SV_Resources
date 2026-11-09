@@ -30,6 +30,17 @@ updated: "2026-11-09"
 
 [R0 原生 IR 与第一轮 100 函数基准实测](sv-lua54-r0-native-ir-benchmark.md) · [合并 PR #85](https://github.com/969981/SV_Resources/pull/85) · [成功 Actions #42550410858](https://github.com/969981/SV_Resources/actions/runs/42550410858)
 
+## 2026-11-09：R1 原生 PC / Upvalue / C→F 阶段性验收
+
+- **已合并 [PR #87](https://github.com/969981/SV_Resources/pull/87)**；master [Actions #42554893510](https://github.com/969981/SV_Resources/actions/runs/42554893510) 通过，连续复核原始 4.0.0 BLUA 和固定元数据报告。
+- 六模块已关联 **24,085** 条真实 C→F 方法赋值（原 23,727 为 main/main_dynamic 两模块口径）。
+- 原生 **54,803** 条 Upvalue 描述符的词法来源已可递归追踪，发现 **0 个无效源索引**；并非游戏运行时对象身份。
+- 保守 PC 诊断追踪了三处原失败 Proto 的全部 SETLIST；unluac-rs v1.4.5 使固定 100 原型的 Lua 5.4 严格语法通过从 **97/100 提升到 99/100**。
+- 仍未解决的 main_dynamic Proto 752 已缩小到 HIR 节点 `table-set-list l15 start=1 values=l16,l17,l18 initializer-scope=None`；需要证明表对象别名/作用域后才能安全降低成 Lua AST。
+- **#76 / #77 / #79 仍保持 OPEN**；源码拆分、完整重编译、Haxe 和游戏运行时语义验证尚未完成。
+
+完整证据：[[sv-lua54-r1-setlist-upvalue-cf]]。
+
 ## 输入与已知基线
 
 相对于 Unpack/4.0.0/romfs/arc/data.trpfs/：
