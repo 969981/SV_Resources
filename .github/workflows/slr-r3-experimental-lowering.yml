@@ -7,6 +7,7 @@ on:
       - ".github/workflows/slr-r3-experimental-lowering.yml"
       - "scripts/R3-Experimental-Unluac-Setlist-Patch.py"
       - "scripts/R3-Export-Proto752.py"
+      - "scripts/R3-Verify-Full-Proto-Metadata.py"
   workflow_dispatch:
 
 permissions:
@@ -31,6 +32,7 @@ jobs:
           sparse-checkout: |
             scripts/R3-Experimental-Unluac-Setlist-Patch.py
             scripts/R3-Export-Proto752.py
+            scripts/R3-Verify-Full-Proto-Metadata.py
             tools/SV.Lua54/src/sv_lua54
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
           persist-credentials: false
@@ -101,6 +103,10 @@ jobs:
           luac5.4 -p "$RUNNER_TEMP/experimental.lua"
           luac5.4 -o "$RUNNER_TEMP/experimental_recompiled.luac" "$RUNNER_TEMP/experimental.lua"
           echo "PASS complete 2071-original-opcode Proto752 STRICT Lua5.4 syntax/compile"
+          python3 slr/scripts/R3-Verify-Full-Proto-Metadata.py \
+            --original "$RUNNER_TEMP/full752_native.luac" \
+            --recompiled "$RUNNER_TEMP/experimental_recompiled.luac" \
+            --output "$RUNNER_TEMP/r3_structure_compare.json"
           python3 - "$RUNNER_TEMP/experimental.lua" "$RUNNER_TEMP/r3_full_proto_metrics.json" <<'PY'
           import hashlib, json, sys, pathlib
           p=pathlib.Path(sys.argv[1]); b=p.read_bytes()
@@ -131,6 +137,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: SLR-R3-Experimental-Proto752-Syntax
-          path: ${{ runner.temp }}/r3_full_proto_metrics.json
+          path: |
+            ${{ runner.temp }}/r3_full_proto_metrics.json
+            ${{ runner.temp }}/r3_structure_compare.json
           retention-days: 14
           if-no-files-found: warn
