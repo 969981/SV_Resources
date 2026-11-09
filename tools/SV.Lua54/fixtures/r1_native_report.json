@@ -1,7 +1,11 @@
 {
   "basis": "Real original Lua 5.4 code; not a gameplay execution or AST reconstruction",
   "capture_entries_total": 54803,
-  "capture_index_sha256": "3f6599dfe315e4658e8d40867021ec2c3503a52a71bac8215fa80f0f99372a20",
+  "capture_index_sha256": "63aa61d54e9fc77186c73a37057a2229528d3582e6ae85dc97e7c962826db5c8",
+  "capture_lexical_origin_counts": {
+    "ANCESTOR_REGISTER_AT_CLOSURE": 24782,
+    "ROOT_HOST_UPVALUE": 30021
+  },
   "caveats": [
     "SETLIST array indices and source register spans are native bytecode semantics, not a recovered table constructor AST.",
     "B=0 SETLIST uses runtime top and cannot be assigned a static item count.",
@@ -4556,6 +4560,12 @@
           ],
           "instack": 0,
           "kind": 0,
+          "lexical_origin": {
+            "hops": 1,
+            "kind": "ROOT_HOST_UPVALUE",
+            "proto_id": 0,
+            "upvalue_index": 0
+          },
           "parent_proto_id": 0,
           "proto_id": 2406,
           "source_index": 0,
@@ -5845,6 +5855,12 @@
           ],
           "instack": 0,
           "kind": 0,
+          "lexical_origin": {
+            "hops": 1,
+            "kind": "ROOT_HOST_UPVALUE",
+            "proto_id": 0,
+            "upvalue_index": 0
+          },
           "parent_proto_id": 0,
           "proto_id": 3769,
           "source_index": 0,
@@ -5863,6 +5879,12 @@
           ],
           "instack": 1,
           "kind": 0,
+          "lexical_origin": {
+            "hops": 0,
+            "kind": "ANCESTOR_REGISTER_AT_CLOSURE",
+            "proto_id": 0,
+            "register": 16
+          },
           "parent_proto_id": 0,
           "proto_id": 3769,
           "source_index": 16,
@@ -5881,6 +5903,12 @@
           ],
           "instack": 1,
           "kind": 0,
+          "lexical_origin": {
+            "hops": 0,
+            "kind": "ANCESTOR_REGISTER_AT_CLOSURE",
+            "proto_id": 0,
+            "register": 58
+          },
           "parent_proto_id": 0,
           "proto_id": 3769,
           "source_index": 58,
@@ -5899,6 +5927,12 @@
           ],
           "instack": 1,
           "kind": 0,
+          "lexical_origin": {
+            "hops": 0,
+            "kind": "ANCESTOR_REGISTER_AT_CLOSURE",
+            "proto_id": 0,
+            "register": 42
+          },
           "parent_proto_id": 0,
           "proto_id": 3769,
           "source_index": 42,
@@ -5917,6 +5951,12 @@
           ],
           "instack": 1,
           "kind": 0,
+          "lexical_origin": {
+            "hops": 0,
+            "kind": "ANCESTOR_REGISTER_AT_CLOSURE",
+            "proto_id": 0,
+            "register": 10
+          },
           "parent_proto_id": 0,
           "proto_id": 3769,
           "source_index": 10,
@@ -7167,6 +7207,12 @@
           ],
           "instack": 0,
           "kind": 0,
+          "lexical_origin": {
+            "hops": 1,
+            "kind": "ROOT_HOST_UPVALUE",
+            "proto_id": 0,
+            "upvalue_index": 0
+          },
           "parent_proto_id": 0,
           "proto_id": 752,
           "source_index": 0,
@@ -7185,6 +7231,12 @@
           ],
           "instack": 1,
           "kind": 0,
+          "lexical_origin": {
+            "hops": 0,
+            "kind": "ANCESTOR_REGISTER_AT_CLOSURE",
+            "proto_id": 0,
+            "register": 16
+          },
           "parent_proto_id": 0,
           "proto_id": 752,
           "source_index": 16,
@@ -7212,7 +7264,110 @@
     "POKEDOCS_NAMED": 20573,
     "UNKNOWN": 3512
   },
-  "method_index_sha256": "4c9fee92d8d9f654dc14ea9b725cd2e48d12a22e158e221317c237b1f85ca943",
+  "method_index_sha256": "0d0f3e8399e451d5d131e8abc31b50980ef4f38c5f3d78ac81c332e1ae829ce0",
+  "method_namespace_distinct": 509,
+  "method_namespace_top": [
+    {
+      "method_assignments": 10651,
+      "namespace": "<unresolved>"
+    },
+    {
+      "method_assignments": 526,
+      "namespace": "main.battle.ui"
+    },
+    {
+      "method_assignments": 409,
+      "namespace": "main.battle"
+    },
+    {
+      "method_assignments": 330,
+      "namespace": "main.field.behaviour"
+    },
+    {
+      "method_assignments": 249,
+      "namespace": "main.battle.parts"
+    },
+    {
+      "method_assignments": 219,
+      "namespace": "main.system.game_event"
+    },
+    {
+      "method_assignments": 196,
+      "namespace": "main.field.behaviour.scenario.main.champion.gym.kusa"
+    },
+    {
+      "method_assignments": 187,
+      "namespace": "main.field.behaviour.base"
+    },
+    {
+      "method_assignments": 184,
+      "namespace": "main.ui.bag.bag_ui_state_machine"
+    },
+    {
+      "method_assignments": 149,
+      "namespace": "main.ui.btlspot.ui"
+    },
+    {
+      "method_assignments": 148,
+      "namespace": "main.ui.bag"
+    },
+    {
+      "method_assignments": 147,
+      "namespace": "main.encount"
+    },
+    {
+      "method_assignments": 143,
+      "namespace": "main.battle.director"
+    },
+    {
+      "method_assignments": 140,
+      "namespace": "main.ui.gym"
+    },
+    {
+      "method_assignments": 136,
+      "namespace": "main.event.debug"
+    },
+    {
+      "method_assignments": 135,
+      "namespace": "main.nushi"
+    },
+    {
+      "method_assignments": 134,
+      "namespace": "main.ui.ymap.mapicon"
+    },
+    {
+      "method_assignments": 133,
+      "namespace": "main.field.action"
+    },
+    {
+      "method_assignments": 130,
+      "namespace": "main.ui.box.search.view"
+    },
+    {
+      "method_assignments": 130,
+      "namespace": "main.ui.ymap.mainview"
+    },
+    {
+      "method_assignments": 129,
+      "namespace": "main.ui.pokelist"
+    },
+    {
+      "method_assignments": 122,
+      "namespace": "main.ui.util"
+    },
+    {
+      "method_assignments": 113,
+      "namespace": "main.pokepicnic"
+    },
+    {
+      "method_assignments": 110,
+      "namespace": "main.mystery_gift"
+    },
+    {
+      "method_assignments": 110,
+      "namespace": "main.ui.pokemon_select"
+    }
+  ],
   "module_count": 6,
   "module_metrics": [
     {
@@ -7223,7 +7378,11 @@
       },
       "capture_entries": 495,
       "capture_errors": [],
-      "closure_sites": 494,
+      "capture_origin_counts": {
+        "ANCESTOR_REGISTER_AT_CLOSURE": 314,
+        "ROOT_HOST_UPVALUE": 181
+      },
+      "capture_site_links": 494,
       "cohort_cfg_problems": {},
       "cohort_proto_count": 5,
       "cohort_setlist_count": 0,
@@ -7250,7 +7409,11 @@
       },
       "capture_entries": 90,
       "capture_errors": [],
-      "closure_sites": 89,
+      "capture_origin_counts": {
+        "ANCESTOR_REGISTER_AT_CLOSURE": 60,
+        "ROOT_HOST_UPVALUE": 30
+      },
+      "capture_site_links": 89,
       "cohort_cfg_problems": {},
       "cohort_proto_count": 3,
       "cohort_setlist_count": 0,
@@ -7276,7 +7439,11 @@
       },
       "capture_entries": 647,
       "capture_errors": [],
-      "closure_sites": 646,
+      "capture_origin_counts": {
+        "ANCESTOR_REGISTER_AT_CLOSURE": 292,
+        "ROOT_HOST_UPVALUE": 355
+      },
+      "capture_site_links": 646,
       "cohort_cfg_problems": {},
       "cohort_proto_count": 5,
       "cohort_setlist_count": 2,
@@ -7302,7 +7469,11 @@
       },
       "capture_entries": 121,
       "capture_errors": [],
-      "closure_sites": 120,
+      "capture_origin_counts": {
+        "ANCESTOR_REGISTER_AT_CLOSURE": 74,
+        "ROOT_HOST_UPVALUE": 47
+      },
+      "capture_site_links": 120,
       "cohort_cfg_problems": {},
       "cohort_proto_count": 2,
       "cohort_setlist_count": 1,
@@ -7328,7 +7499,11 @@
       },
       "capture_entries": 46934,
       "capture_errors": [],
-      "closure_sites": 46933,
+      "capture_origin_counts": {
+        "ANCESTOR_REGISTER_AT_CLOSURE": 21754,
+        "ROOT_HOST_UPVALUE": 25180
+      },
+      "capture_site_links": 46933,
       "cohort_cfg_problems": {},
       "cohort_proto_count": 60,
       "cohort_setlist_count": 29,
@@ -7355,7 +7530,11 @@
       },
       "capture_entries": 6516,
       "capture_errors": [],
-      "closure_sites": 6515,
+      "capture_origin_counts": {
+        "ANCESTOR_REGISTER_AT_CLOSURE": 2288,
+        "ROOT_HOST_UPVALUE": 4228
+      },
+      "capture_site_links": 6515,
       "cohort_cfg_problems": {},
       "cohort_proto_count": 25,
       "cohort_setlist_count": 10,
