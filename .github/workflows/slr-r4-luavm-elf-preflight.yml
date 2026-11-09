@@ -234,7 +234,7 @@ jobs:
           values=[struct.unpack_from("<Q",b,tableoff+8*i)[0] for i in range(83)]
           exec_segs=[s for s in segments if s["flags"]&1]
           def isexec(v):
-              return any(s["addr"]<=v<s["addr"]+s["size"] for s in exec_segs)
+              return v != 0 and any(s["addr"]<=v<s["addr"]+s["size"] for s in exec_segs)
           valid=[isexec(v) for v in values]
           print("LUA54_DISPATCH_TABLE_RAW",hex(tableva),"first12",[hex(v) for v in values[:12]],
                 "direct_exec_targets",sum(valid),"unique",len(set(values)),
@@ -246,12 +246,45 @@ jobs:
               "entry_count_tested":83,
               "raw_entries":[hex(v) for v in values],
               "executable_address_count":sum(valid),
+              "zero_raw_slots":values.count(0),
+              "table_slot_status":"RAW_ZERO_REQUIRES_LOADER_RELOCATION_OR_INIT" if values.count(0)==83 else "HAS_FILE_INITIALIZED_ENTRIES",
               "executable_address_flags":valid,
               "status":"STATIC_JUMP_TABLE_NOT_RUNTIME_VERIFIED",
               "vm_runtime_attached":False,
           }
           Path("slr-violet-luavm-opcode-table-audit.json").write_text(
               json.dumps(preview,sort_keys=True,indent=2)+"\n")
+          PY
+      - name: Inspect loader relocation records for 83-entry native Lua dispatch table
+        shell: bash
+        run: |
+          set -euo pipefail
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          readelf -rW "$elf" > "$RUNNER_TEMP/violet-rela-all.txt"
+          python - <<'PY'
+          import re,json,os
+          from pathlib import Path
+          src=Path(os.environ['RUNNER_TEMP'])/"violet-rela-all.txt"
+          table=0x4383398
+          end=table+83*8
+          rows=[]
+          for line in src.read_text(errors="replace").splitlines():
+              x=re.match(r"^\s*([0-9a-fA-F]{8,16})\s+([0-9a-fA-F]{8,16})\s+(\S+)\s*(.*)$",line)
+              if x:
+                  off=int(x.group(1),16)
+                  if table <= off < end:
+                      rows.append({"offset":hex(off),"type":x.group(3),"details":x.group(4)[:96]})
+          result={
+              "dispatch_table_rva":hex(table),"entry_count":83,
+              "relocation_count_in_range":len(rows),
+              "relocations":rows,
+              "status":"STATIC_RELOCATION_CANDIDATES_NOT_RUNTIME_OBSERVATION",
+              "runtime_vm_verified":False,
+          }
+          Path("slr-violet-luavm-table-relocations.json").write_text(
+              json.dumps(result,sort_keys=True,indent=2)+"\n")
+          print("DISPATCH_TABLE_RELOCATIONS",len(rows),
+                "first",rows[:8], "last",rows[-4:])
           PY
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
@@ -295,6 +328,7 @@ jobs:
             slr-violet-luavm-static-xrefs.json
             slr-violet-luavm-dispatch-shapes.json
             slr-violet-luavm-opcode-table-audit.json
+            slr-violet-luavm-table-relocations.json
             slr-luavm-diagnostic-string-anchors.txt
             slr-violet-luavm-diagnostic-xrefs.json
             slr-lua-error-common-25b90.txt
