@@ -56,6 +56,22 @@ SLR_R3_FIND_LOCAL false
 - [R3 上游诊断 CI](../../.github/workflows/slr-r3-upstream-table-lowering.yml)
 - [探测 Actions #42564717787](https://github.com/969981/SV_Resources/actions/runs/42564717787)
 
+### 追加诊断：旧标量值与物理寄存器复用
+
+第一个实验补丁尝试在旧 Batch 后没有引用时**删除**三个标量 LocalDecl，严格模式仍失败。上游调试显示第一次冲突在 **HIR 后续 statement 165**：
+
+~~~text
+SLR_R3_FOLD blocked at future_stmt=165
+  used=[]
+  rewritten=[0]
+  targets=[Local(LocalId(16))]
+  values=["s1_side02_0060_sazare"]
+~~~
+
+这不是对原来的乘加结果的读取，而是 LocalId(16) 所代表的存储位置被新字符串**重新定义**。若不检查定义的生存区间，直接删除 LocalDecl(16/17/18) 会破坏后续赋值的词法所有者。因此新实验版引入**old value epoch** 分析：从 Batch 往后追踪每个 producer，未遇到确定性覆盖之前的 read 使候选拒绝；确定性的顶层 local 赋值使原值失效。既有 LocalDecl 保留（仅清除被移入 constructor 的原初始化表达式），确保后续本地变量依然存在。任何条件覆盖、引用捕获、同一语句先读再写仍拒绝。
+
+这一变换仍可能影响 debug.getlocal 可观察的局部变量内容和用户自定义 __gc 最终化时间，因此它是**实验性静态重建**，不应未经上下文检验就推广为全 Lua 语义等价。
+
 ## 四、实验性修复（非通用放行）
 
 [Patch-SV-Lua54-R3-FreshBatch.py](../../scripts/Patch-SV-Lua54-R3-FreshBatch.py) 在临时 upstream src/hir/simplify/table_constructors/mod.rs 中加入一个非常窄的变换：
