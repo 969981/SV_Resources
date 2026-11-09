@@ -100,6 +100,25 @@ jobs:
           else
             echo "No matching exposed ELF symbol names. This is NOT proof Lua VM is absent."
           fi
+      - name: Bound AArch64 disassembly for Lua marker xref and two nearby BL targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq binutils-aarch64-linux-gnu
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          aarch64-linux-gnu-objdump -d -w --start-address=0x457f0 --stop-address=0x45950 "$elf" \
+            > slr-violet-luavm-xref-neighborhood.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0xb85b80 --stop-address=0xb85c80 "$elf" \
+            > slr-violet-luavm-bl-target-b85bd0.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0xdfaf60 --stop-address=0xdfb060 "$elf" \
+            > slr-violet-luavm-bl-target-dfafb0.txt
+          for f in slr-violet-luavm-xref-neighborhood.txt slr-violet-luavm-bl-target-b85bd0.txt slr-violet-luavm-bl-target-dfafb0.txt; do
+            test "$(wc -c < "$f")" -ge 50
+            test "$(wc -c < "$f")" -lt 50000
+            echo "BOUNDED_DISASM $(basename "$f") lines=$(wc -l < "$f")"
+            cat "$f"
+          done
       - name: Upload metadata only, not ELF or game code
         if: always()
         uses: actions/upload-artifact@v4
@@ -109,5 +128,8 @@ jobs:
             slr-violet-luavm-elf-preflight.json
             slr-luavm-symbol-hints.txt
             slr-violet-luavm-static-xrefs.json
+            slr-violet-luavm-xref-neighborhood.txt
+            slr-violet-luavm-bl-target-b85bd0.txt
+            slr-violet-luavm-bl-target-dfafb0.txt
           retention-days: 14
           if-no-files-found: warn
