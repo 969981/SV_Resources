@@ -46,6 +46,10 @@ jobs:
             tests/test_sv400_luavm_dispatch_shapes.py
             Unpack/4.0.0/exefs/violet_main/violet_main.elf
             Unpack/4.0.0/exefs/violet_main/provenance.json
+            Unpack/4.0.0/exefs/subsdk0/subsdk0.elf
+            Unpack/4.0.0/exefs/subsdk0/provenance.json
+            Unpack/4.0.0/exefs/sdk/sdk.elf
+            Unpack/4.0.0/exefs/sdk/provenance.json
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -108,6 +112,28 @@ jobs:
           print("DISPATCH_SHAPE_COUNT",len(d["candidates"]),
                 "masked_opcode_shapes", d["summary"].get("mask_total",0))
           PY
+      - name: Compare opcode dispatch shapes in subsdk0 and sdk ELF modules
+        run: |
+          python scripts/Scan-SV400-Lua54-DispatchShapes.py \
+            Unpack/4.0.0/exefs/subsdk0/subsdk0.elf \
+            --expected-sha256 463db1eac0b20bc7b92984b50c807af0640a2dc1aa586e1b920ab6a63c1a2a1a \
+            --output slr-subsdk0-luavm-dispatch-shapes.json
+          python scripts/Scan-SV400-Lua54-DispatchShapes.py \
+            Unpack/4.0.0/exefs/sdk/sdk.elf \
+            --expected-sha256 23f55ce1b1609f1086f62a93f45ee7dc98233db4d0486b192798feeec9926abf \
+            --output slr-sdk-luavm-dispatch-shapes.json
+          python - <<'PY'
+          import json
+          for name in ('violet','subsdk0','sdk'):
+              j=json.load(open(f"slr-{name}-luavm-dispatch-shapes.json"))
+              assert j['status']=='STATIC_DISPATCH_SHAPE_CANDIDATES_NOT_VM_PROOF'
+              assert j['vm_opcode_dispatch_rva'] is None
+              assert j['game_lua_runtime_events'] is False
+              print('MODULE_STATIC_ONLY',name,'mask_count',
+                    j['summary'].get('mask_total',0),
+                    'cmp_bound',j['summary'].get('mask_with_81_to_84_cmp',0),
+                    'candidate_count',len(j['candidates']))
+          PY
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
         run: |
@@ -149,6 +175,8 @@ jobs:
             slr-luavm-symbol-hints.txt
             slr-violet-luavm-static-xrefs.json
             slr-violet-luavm-dispatch-shapes.json
+            slr-subsdk0-luavm-dispatch-shapes.json
+            slr-sdk-luavm-dispatch-shapes.json
             slr-violet-luavm-xref-neighborhood.txt
             slr-violet-luavm-bl-target-b85bd0.txt
             slr-violet-luavm-bl-target-dfafb0.txt
