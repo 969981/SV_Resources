@@ -13,7 +13,7 @@ import hashlib
 import json
 import struct
 
-FRAME_LIMIT = 1_100_000
+FRAME_LIMIT = 8 * 1024 * 1024
 MAX_ADDRESS = (1 << 64) - 1
 
 
