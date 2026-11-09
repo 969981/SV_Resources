@@ -1,0 +1,81 @@
+name: SLR R6 - static Haxe-style metatable and newindex evidence
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-r6-metatable-alias-audit
+      - master
+    paths:
+      - ".github/workflows/slr-r6-metatable.yml"
+      - "tools/SV.Lua54/src/sv_lua54/r6.py"
+      - "scripts/Analyze-SV-Lua54-R6-Metatable.py"
+      - "tests/test_sv_lua54_r6.py"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/slr-r6-metatable.yml"
+      - "tools/SV.Lua54/src/sv_lua54/r6.py"
+      - "scripts/Analyze-SV-Lua54-R6-Metatable.py"
+      - "tests/test_sv_lua54_r6.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Sparse checkout pinned Lua and analysis
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Analyze-SV-Lua54-R6-Metatable.py
+            tools/SV.Lua54/src/sv_lua54
+            tests/test_sv_lua54_r6.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Synthetic instruction contract tests
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/Analyze-SV-Lua54-R6-Metatable.py tools/SV.Lua54/src/sv_lua54/r6.py
+          python -m unittest discover -s tests -p "test_sv_lua54_r6.py" -v
+
+      - name: Audit pinned original 4.0.0 root and handler
+        run: |
+          set -euo pipefail
+          python scripts/Analyze-SV-Lua54-R6-Metatable.py --report "$RUNNER_TEMP/r6-metatable.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          v=json.loads((Path(os.environ["RUNNER_TEMP"])/"r6-metatable.json").read_text())
+          assert v["source_sha256"]=="ae4a7d0168751f53af11746ac5ae7771cb1a5bfa580bcc0f79e2b9ee85acb572"
+          assert v["newindex_handler"]["proto_id"]==17
+          assert v["newindex_handler"]["strict_three_argument_handler_shape"]
+          assert [(x["pc"], x["field"]) for x in v["direct_r13_fields_before_capture"]] == [
+              (45,"__newindex"),(47,"__tostring")
+          ]
+          assert v["wrapper"]["captured_upvalues"] == [[0,0,0],[1,13,0]]
+          assert v["mainbody"]["captured_upvalues"] == [[0,0,0],[1,16,0]]
+          assert v["heap_table_alias_mutations"]=="NOT_PROVEN_ABSENT"
+          assert v["root_callinfo_and_upval_cell_identity"]=="NOT_OBSERVED"
+          assert v["mainbody_runtime_parity"]=="NOT_VERIFIED"
+          print("SLR_R6_ORIGINAL_BOOTSTRAP_OK",v["root_r13_syntactic_captures_before_mainbody_count"])
+          PY
+
+      - name: Publish bounded static metadata only
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R6-metatable-static-metadata
+          path: ${{ runner.temp }}/r6-metatable.json
+          retention-days: 14
