@@ -31,6 +31,8 @@ on:
       - "scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py"
       - "tests/test_sv400_lua54_read_watch_plan.py"
       - "scripts/Analyze-SV400-Setup-ClosureBridge.py"
+      - "scripts/Inspect-SV400-Lua54-ClosureCapture.py"
+      - "tests/test_sv400_lua54_closure_capture.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -80,6 +82,8 @@ jobs:
             scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py
             tests/test_sv400_lua54_read_watch_plan.py
             scripts/Analyze-SV400-Setup-ClosureBridge.py
+            scripts/Inspect-SV400-Lua54-ClosureCapture.py
+            tests/test_sv400_lua54_closure_capture.py
             tools/SV.Lua54/src/sv_lua54
             tests/test_sv_lua54_trace.py
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
@@ -94,7 +98,7 @@ jobs:
           python-version: "3.12"
       - name: Syntax tests
         run: |
-          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py scripts/Inspect-SV400-Lua54-LiveFrame.py scripts/Inspect-SV400-Lua54-GDB.py scripts/Audit-SV400-Lua54-OpcodeFrames.py scripts/Inspect-SV400-Lua54-OpcodeContext.py scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py scripts/Analyze-SV400-Setup-ClosureBridge.py
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py scripts/Inspect-SV400-Lua54-LiveFrame.py scripts/Inspect-SV400-Lua54-GDB.py scripts/Audit-SV400-Lua54-OpcodeFrames.py scripts/Inspect-SV400-Lua54-OpcodeContext.py scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py scripts/Analyze-SV400-Setup-ClosureBridge.py scripts/Inspect-SV400-Lua54-ClosureCapture.py
           python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_probe.py" -v
@@ -108,6 +112,7 @@ jobs:
           python -m unittest discover -s tests -p "test_sv400_luavm_opcode_context.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_opcode_command.py" -v
           python -m unittest discover -s tests -p "test_sv400_lua54_read_watch_plan.py" -v
+          python -m unittest discover -s tests -p "test_sv400_lua54_closure_capture.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
@@ -420,6 +425,9 @@ jobs:
           assert a["root_proto_id"]==0 and a["setup_proto_id"]==17900
           assert a["closure_lua_pc"]==215522
           assert a["next_assignment_pc"]==215523
+          assert a["closure_result_register"]==70
+          assert a["settable_rhs_register"]==70
+          assert a["closure_is_next_settable_rhs"] is True
           assert a["return_object_observed_in_game"] is False
           print("ROOT_CLOSURE_REGISTER_A",a["closure_result_register"],
                 "SETTABLE_C_REGISTER",a["settable_rhs_register"],
