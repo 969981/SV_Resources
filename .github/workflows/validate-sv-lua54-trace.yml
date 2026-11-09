@@ -165,6 +165,11 @@ jobs:
           assert origins[11]["same_block_seti_writers"][-1]["producer_call_pc"] == 7
           assert origins[83]["same_block_seti_writers"][-1]["pc"] == 48
           assert origins[83]["same_block_seti_writers"][-1]["producer_call_pc"] == 47
+          producers = {x["call_pc"]: x["upstream_call_windows"][0]["producer_static_origin"]
+                       for x in m["call_probes"] if x["upstream_call_windows"]}
+          assert producers[11]["kind"] == "ENV_CLASS_FIELD_CALL" and producers[11]["class_hash"] == "C321A674151DEB701", producers
+          assert producers[83]["kind"] == "ENV_CLASS_FIELD_CALL" and producers[83]["class_hash"] == "C85EFC84DF009EC3F", producers
+          assert all(p["runtime_verified"] is False for p in producers.values())
           assert all(not row["runtime_verified"] for row in origins.values())
           assert d["audit"]["status"] == "NO_RUNTIME_EVIDENCE"
           assert d["audit"]["runtime_verified"] is False
