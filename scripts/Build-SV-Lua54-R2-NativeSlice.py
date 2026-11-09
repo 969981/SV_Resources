@@ -55,7 +55,7 @@ def create_slice(source: bytes) -> bytes:
         652, 654, 656, 658, 660, 662, 664,
     ]:
         raise ValueError("metamethod fallback PC set differs")
-    if p.constants[117].value_repr() != "3" or p.constants[118].value_repr() != "20":
+    if (p.constants[117].tag, p.constants[117].value_repr(), p.constants[118].tag, p.constants[118].value_repr()) != (19, "3.0", 19, "20.0"):
         raise ValueError(f"native arithmetic constants differ: K117={p.constants[117].tag}/{p.constants[117].value_repr()} K118={p.constants[118].tag}/{p.constants[118].value_repr()}")
     # Values of the original register frame R8..R13 are supplied as 6 args.
     # R0..R5 are initial parameters; move to the *same* native registers.
