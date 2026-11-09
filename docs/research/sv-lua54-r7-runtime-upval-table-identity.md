@@ -20,11 +20,19 @@ issues: [73, 76, 81, 82, 84]
 | 《紫》4.0.0 原始 ELF | SHA-256 `d17403eaa9d844db82f647fd2f1518806b10c0518d53602fc0ac1766298fdba0` |
 | ELF Build ID | `709BFD66115298640155FCC4979DBA151C7CC79A` |
 | `main_dynamic.blua` | SHA-256 `ae4a7d0168751f53af11746ac5ae7771cb1a5bfa580bcc0f79e2b9ee85acb572` |
-| ELF `.text` RVA→文件偏移 | 本 EL​​F `file_offset = RVA+0x8D8`（限位于 `.text` 内的 RVA） |
+| ELF `.text` RVA→文件偏移 | 本 ELF `file_offset = RVA+0x8D8`（限位于 `.text` 内的 RVA） |
 | ELF Native load BL | `main+0xE37F70`, AArch64 原字节 `CC 00 00 94` |
 | ELF load call target | `main+0xE382A0`（BL immediate `0xCC × 4 = 0x330`） |
 
 这里的 Native `main+0xE37F70` 与 Lua `root PC48` **是不同坐标系**。后者是 `Proto.code[48]`，不能直接对 main 下硬件断点。实际 PC 须先验证某个执行帧的 `Proto*`、其 `code` 指针与 `CallInfo.savedpc`（取当前或下一指令取决于断点所在相位），再计算。
+
+可通过 [离线 ELF 校验器](../../scripts/Verify-SV-Lua54-R7-ElfAnchor.py) 对本机原件重演 RVA、BL opcode 和目标：
+
+```bash
+python scripts/Verify-SV-Lua54-R7-ElfAnchor.py --elf /path/to/Violet4.0.0.elf --report r7-elf-anchor.json
+```
+
+这是静态校验，不会连接游戏进程。
 
 ## 2. GitHub Actions 已重读的原生 Lua CLOSURE 指令
 
