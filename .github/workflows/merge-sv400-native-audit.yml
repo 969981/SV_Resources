@@ -1,0 +1,65 @@
+name: Merge audited SV 4.0.0 native Trinity extraction
+on:
+  push:
+    branches:
+      - merge/sv400-native-audit-20261109
+    paths:
+      - .github/workflows/merge-sv400-native-audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sv400-audited-native-tree-merge
+  cancel-in-progress: false
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout merge utility, without copying the complete ROM tree
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Merge-SV400-Native-Audit.py
+            .github/workflows/merge-sv400-native-audit.yml
+          persist-credentials: true
+
+      - name: Fetch pinned full extraction and fresh master Git trees
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --filter=blob:none origin \
+            +refs/heads/master:refs/remotes/origin/master \
+            +refs/heads/m2-full-extract:refs/remotes/origin/m2-full-extract
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python3 -m py_compile scripts/Merge-SV400-Native-Audit.py
+
+      - name: Verify original SHA coverage and create safe two-parent merge
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/Merge-SV400-Native-Audit.py --push
+
+      - name: Verify master now references the exact audited virtual tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --filter=blob:none origin \
+            +refs/heads/master:refs/remotes/origin/master
+          src=$(git rev-parse 'refs/remotes/origin/m2-full-extract:Unpack/4.0.0/romfs/arc/data.trpfs/virtual')
+          merged=$(git rev-parse 'refs/remotes/origin/master:Unpack/4.0.0/romfs/arc/data.trpfs/virtual')
+          test "$src" = "$merged"
+          git show 'refs/remotes/origin/master:Unpack/4.0.0/romfs/arc/data.trpfs/_index/full-extract-audit.json' > "$RUNNER_TEMP/native-audit.json"
+          python3 - "$RUNNER_TEMP/native-audit.json" <<'PY'
+          import json,sys
+          a=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert a['complete'] and a['verifiedOKByRecordedNativeSha256']==408641
+          assert a['failed']==0 and a['unseen']==0
+          print('MERGE VERIFIED: full native tree and all 408641 SHA-256 entries.')
+          PY
