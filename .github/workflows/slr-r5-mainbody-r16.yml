@@ -1,0 +1,72 @@
+name: SLR R5 - mainBody root R16 reaching definitions
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-r5-mainbody-r16-provenance
+    paths:
+      - ".github/workflows/slr-r5-mainbody-r16.yml"
+      - "tools/SV.Lua54/src/sv_lua54/r5.py"
+      - "scripts/Analyze-SV-Lua54-R5-MainBody.py"
+      - "tests/test_sv_lua54_r5.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout original SV 4.0.0 Lua and scoped R5 tools
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Analyze-SV-Lua54-R5-MainBody.py
+            tools/SV.Lua54/src/sv_lua54
+            tests/test_sv_lua54_r5.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate conservative register write semantics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/Analyze-SV-Lua54-R5-MainBody.py \
+            tools/SV.Lua54/src/sv_lua54/r5.py
+          python -m unittest discover -s tests -p "test_sv_lua54_r5.py" -v
+
+      - name: Resolve native root PC12242 R16 without simulating runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Analyze-SV-Lua54-R5-MainBody.py \
+            --report "$RUNNER_TEMP/slr-r5-mainbody-r16.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads(Path(os.environ["RUNNER_TEMP"],"slr-r5-mainbody-r16.json").read_text())
+          assert x["registration_root_pc"]==12236
+          assert x["closure_create_root_pc"]==12242
+          assert x["assignment_root_pc"]==12243
+          assert x["method_hash"]=="FD8D5F3745B4B5174"
+          assert x["child_upvalue_descriptors"][1]["parent_register"]==16
+          assert x["full_function_runtime_equivalence"]=="NOT_VERIFIED"
+          print("SLR_R5_EVIDENCE_OK",x["r16_reaching_definitions"]["candidate_write_count"])
+          PY
+
+      - name: Upload metadata only, never recovered game code
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R5-native-root-R16-candidate-graph
+          path: ${{ runner.temp }}/slr-r5-mainbody-r16.json
+          retention-days: 14
