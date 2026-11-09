@@ -92,6 +92,23 @@ def run(root: Path) -> dict:
     ]
     helper_opcodes = decode(producer_child)
     source_r13 = reaching_register_writes(root_proto, producer_pc, 13)
+    root_window = []
+    for op in instructions[35:55]:
+        entry={"pc":op.pc,"op":op.name,"a":op.a,"b":op.b,
+               "c":op.c,"k":op.k,"bx":op.bx}
+        index=None
+        if op.name in ("GETTABUP","GETFIELD","SETFIELD"):
+            index=op.c if op.name != "SETFIELD" else op.b
+        elif op.name=="LOADK":
+            index=op.bx
+        if index is not None and index < len(root_proto.constants):
+            constant=root_proto.constants[index]
+            payload=constant.payload
+            entry["constant_tag"]=constant.tag
+            entry["constant"]=(payload.decode("ascii") if isinstance(payload,bytes)
+                and len(payload)<=48 and all(32<=c<127 for c in payload)
+                else "NON_ASCII_OR_NUMERIC")
+        root_window.append(entry)
     # Only compact six-word helper opcode records are emitted, not recovered Lua.
     helper_records = []
     for op in helper_opcodes:
@@ -159,6 +176,7 @@ def run(root: Path) -> dict:
         "capture_lifetime_opcodes_r16_from_producer":possible_closures,
         "lifetime_limit":"STATIC_CLOSE_TBC_ONLY_NOT_REAL_CALLINFO",
         "r16_other_closure_captures": siblings,
+        "root_pc35_54_native_opcodes":root_window,
         "runtime_register_identity": "NOT_OBSERVED",
         "runtime_parent_upvalue0": "NOT_OBSERVED",
         "runtime_mainbody_calls": "NOT_OBSERVED",
@@ -198,6 +216,7 @@ def main() -> None:
         "other_r16_closure_capture_count":report["r16_other_closure_captures"]["count"],
         "r16_producer_closure":report["r16_producer_closure"],
         "capture_lifetime_opcodes_r16":report["capture_lifetime_opcodes_r16_from_producer"],
+        "root_pc35_54_native_opcodes":report["root_pc35_54_native_opcodes"],
         "cfg_defects":r["cfg_defect_count"],
         "graph_iterations":r["graph_iterations"],
         "root_upvalue_descriptors":report["root_upvalue_descriptors"],
