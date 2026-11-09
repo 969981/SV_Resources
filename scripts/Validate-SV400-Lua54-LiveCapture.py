@@ -63,6 +63,7 @@ def audit_capture(events):
         if event["proto_scope"]=="root" and event["lua_pc"]==215523 and before:
             same=(event.get("root_frame_id") is not None
                   and event.get("root_frame_id")==before.get("root_frame_id")
+                  and event.get("thread_number") is not None
                   and event.get("thread_number")==before.get("thread_number"))
             if same and event["sample_seq"]>before["sample_seq"] and (
                 isinstance(event.get("after_closure_setup_and_upval_cells"),dict)
@@ -144,10 +145,15 @@ def audit_capture(events):
             continue
         ident1=object_id(ret.get("factory_return_tvalue"))
         ident2=object_id(call.get("actual_receiver_tvalue"))
-        same_closure=(ret.get("setup_closure_id")==call.get("setup_closure_id"))
+        same_closure=(ret.get("setup_closure_id") is not None
+                      and ret.get("setup_closure_id")==call.get("setup_closure_id"))
+        same_activation=(ret.get("vm_callinfo_id") is not None
+                         and ret.get("vm_callinfo_id")==call.get("vm_callinfo_id")
+                         and ret.get("thread_number") is not None
+                         and ret.get("thread_number")==call.get("thread_number"))
         in_order=ret["sample_seq"]<call["sample_seq"]
         result["factory_return_to_receiver_checks"][key]=(
-            "IDENTITY_MATCH" if ident1 and ident1==ident2 and same_closure and in_order
+            "IDENTITY_MATCH" if ident1 and ident1==ident2 and same_closure and same_activation and in_order
             else "IDENTITY_OR_ORDER_MISMATCH"
         )
     result["complete_target_pc_coverage"]=all(
@@ -155,6 +161,29 @@ def audit_capture(events):
     result["complete_same_setup_closure_coverage"]=bool(
         expected_closure and all(pc in result["setup_events_same_child_closure"]
                                  for pc in EXPECTED_SETUP))
+    # A single reused Closure can serve several Setup invocations.
+    # Require the same CallInfo* identity, thread and ordered PC sequence,
+    # not just seven PC observations spread across different activations.
+    groups={}
+    for e in setup:
+        ident=e.get("vm_callinfo_id")
+        thread=e.get("thread_number")
+        if (not expected_closure or not ident or thread is None
+            or e.get("setup_closure_id")!=expected_closure):
+            continue
+        groups.setdefault((ident,thread),[]).append(e["lua_pc"])
+    def contains_complete_order(pcs):
+        matched=0
+        for pc in pcs:
+            if pc==EXPECTED_SETUP[matched]:
+                matched+=1
+                if matched==len(EXPECTED_SETUP):
+                    return True
+            elif pc==EXPECTED_SETUP[0]:
+                matched=1
+        return False
+    result["complete_same_setup_activation"]=any(
+        contains_complete_order(pcs) for pcs in groups.values())
     result["event_source_consistency"]="ONLY_SANITIZED_USER_SUPPLIED_JSON"
     return result
 
