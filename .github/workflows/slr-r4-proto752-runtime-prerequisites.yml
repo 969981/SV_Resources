@@ -1,0 +1,45 @@
+name: SLR R4 - native Proto752 runtime prerequisites
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-r4-upstream-patch-regressions
+    paths:
+      - ".github/workflows/slr-r4-proto752-runtime-prerequisites.yml"
+      - "scripts/Inspect-SV-Lua54-R4-Proto752-Shell.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout compact parser and original source only
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Inspect-SV-Lua54-R4-Proto752-Shell.py
+            tools/SV.Lua54/src/sv_lua54
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Inspect original function shape, not its recovered source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Inspect-SV-Lua54-R4-Proto752-Shell.py \
+            --report "$RUNNER_TEMP/r4-proto752-shell.json"
+      - name: Upload bounded metadata only
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R4-proto752-runtime-prerequisites
+          path: ${{ runner.temp }}/r4-proto752-shell.json
+          retention-days: 14
