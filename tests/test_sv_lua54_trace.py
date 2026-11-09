@@ -137,5 +137,25 @@ class TestTrace(unittest.TestCase):
             trace.basic_blocks(bad)
 
 
+    def test_hash_target_survives_unrelated_register_write(self):
+        p = proto(0, None, [abc("GETFIELD", 1, 0, 0),
+                            abx("LOADK", 2, 1), abc("CALL", 1, 1, 1),
+                            abc("RETURN0")],
+                  constants=[Constant(4, F_OTHER.encode()), Constant(4, b"argument")])
+        blocks, _, code = trace.basic_blocks(p)
+        calls = trace.call_sites(p, blocks, code)
+        self.assertEqual(calls[0]["resolution"], "HASH_FIELD_TARGET_UNRESOLVED")
+        self.assertEqual(calls[0]["target_function_hash"], F_OTHER)
+
+    def test_overwrite_of_call_register_invalidates_hash(self):
+        p = proto(0, None, [abc("GETFIELD", 1, 0, 0),
+                            abx("LOADK", 1, 1), abc("CALL", 1, 1, 1),
+                            abc("RETURN0")],
+                  constants=[Constant(4, F_OTHER.encode()), Constant(4, b"argument")])
+        blocks, _, code = trace.basic_blocks(p)
+        self.assertEqual(trace.call_sites(p, blocks, code)[0]["resolution"],
+                         "UNRESOLVED_DYNAMIC_CALL")
+
+
 if __name__ == "__main__":
     unittest.main()
