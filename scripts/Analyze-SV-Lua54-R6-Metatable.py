@@ -40,6 +40,9 @@ def main() -> None:
     args.report.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print("SLR_R6_META", json.dumps({
         "handler_shape": report["newindex_handler"]["strict_three_argument_handler_shape"],
+        "handler_instructions": report["newindex_handler"]["instructions"],
+        "handler_keys": report["newindex_handler"]["key_refs"],
+        "r13_captures": report["root_r13_syntactic_captures_first_20"],
         "direct_fields": report["direct_r13_fields_before_capture"],
         "r13_capture_count": report["root_r13_syntactic_captures_before_mainbody_count"],
         "r13_later_write_count": report["root_r13_subsequent_register_writes_total"],
