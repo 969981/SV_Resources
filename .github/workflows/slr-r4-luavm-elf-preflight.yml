@@ -208,6 +208,51 @@ jobs:
             echo "LUA_VM_SWITCH_DISASM $(basename "$f") lines=$(wc -l < "$f")"
             cat "$f"
           done
+      - name: Probe native 83-entry Lua 5.4 jump table and exact dispatcher instructions
+        run: |
+          python - <<'PY'
+          import hashlib,json,struct
+          from pathlib import Path
+          p=Path("Unpack/4.0.0/exefs/violet_main/violet_main.elf")
+          b=p.read_bytes()
+          assert hashlib.sha256(b).hexdigest()=="84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30"
+          phoff=struct.unpack_from("<Q",b,32)[0]
+          entsize,count=struct.unpack_from("<HH",b,54)
+          segments=[]
+          for i in range(count):
+              t,flags,off,addr,_,sz,_,_=struct.unpack_from("<IIQQQQQQ",b,phoff+i*entsize)
+              if t==1:
+                  segments.append(dict(flags=flags,off=off,addr=addr,size=sz))
+          def mapva(vaddr, length=1):
+              for s in segments:
+                  if s["addr"]<=vaddr and vaddr+length<=s["addr"]+s["size"]:
+                      return s["off"]+vaddr-s["addr"]
+              raise ValueError(hex(vaddr))
+          codeva=0x41150
+          tableva=0x4383398
+          tableoff=mapva(tableva,83*8)
+          values=[struct.unpack_from("<Q",b,tableoff+8*i)[0] for i in range(83)]
+          exec_segs=[s for s in segments if s["flags"]&1]
+          def isexec(v):
+              return any(s["addr"]<=v<s["addr"]+s["size"] for s in exec_segs)
+          valid=[isexec(v) for v in values]
+          print("LUA54_DISPATCH_TABLE_RAW",hex(tableva),"first12",[hex(v) for v in values[:12]],
+                "direct_exec_targets",sum(valid),"unique",len(set(values)),
+                "last3",[hex(v) for v in values[-3:]])
+          preview={
+              "elf_sha256":hashlib.sha256(b).hexdigest(),
+              "dispatch_candidate_entry_rva":codeva,
+              "dispatch_table_vaddr":tableva,
+              "entry_count_tested":83,
+              "raw_entries":[hex(v) for v in values],
+              "executable_address_count":sum(valid),
+              "executable_address_flags":valid,
+              "status":"STATIC_JUMP_TABLE_NOT_RUNTIME_VERIFIED",
+              "vm_runtime_attached":False,
+          }
+          Path("slr-violet-luavm-opcode-table-audit.json").write_text(
+              json.dumps(preview,sort_keys=True,indent=2)+"\n")
+          PY
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
         run: |
@@ -249,6 +294,7 @@ jobs:
             slr-luavm-symbol-hints.txt
             slr-violet-luavm-static-xrefs.json
             slr-violet-luavm-dispatch-shapes.json
+            slr-violet-luavm-opcode-table-audit.json
             slr-luavm-diagnostic-string-anchors.txt
             slr-violet-luavm-diagnostic-xrefs.json
             slr-lua-error-common-25b90.txt
