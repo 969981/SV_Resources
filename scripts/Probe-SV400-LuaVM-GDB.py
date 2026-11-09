@@ -3,13 +3,14 @@
 Run from WSL2 gdb-multiarch AFTER connecting to the remote target:
     source -s python scripts/Probe-SV400-LuaVM-GDB.py
     sv400-native-preflight
-    # Only after independently auditing an executable site:
     sv400-native-arm 0x41150  # statically verified 83-opcode interpreter
 
 Requires SV400_MAIN_BASE (verified guest VA) and SV400_VIOLET_ELF.
-Does NOT identify the Lua VM dispatch loop or actual Lua Proto PCs.
-Only registers at a native hardware breakpoint are collected. No guessed
-Lua state layout and no software-breakpoint fallback.
+Identifies the statically verified 83-way Lua 5.4 VM native entry at 0x41150,
+but does NOT certify live Lua Proto PC, UpValue cells, or runtime identity.
+Reads only a bounded pointer chain documented by native ARM64 instructions;
+Proto.code+0x40 is a hypothesis and requires matching the target code SHA.
+No guest writes and no software-breakpoint fallback.
 """
 from __future__ import annotations
 
