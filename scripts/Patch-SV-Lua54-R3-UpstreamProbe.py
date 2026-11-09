@@ -34,6 +34,25 @@ PROBE = r"""
                     eprintln!("SLR_R3_BATCH {}", dbg.chars().take(2000).collect::<String>());
                     eprintln!("SLR_R3_FIND_LOCAL {}", self.find_local_set_list_seed_for_indexed_writes(
                         block, index, binding, &set_list, &non_nil).is_some());
+
+                    let value_safe = set_list.values.fixed.iter().map(expr_is_indexed_set_list_value_safe).collect::<Vec<_>>();
+                    let definitely_non_nil = set_list.values.fixed.iter().map(
+                        |value| expr_is_definitely_non_nil_from_definitions(value, &non_nil)
+                    ).collect::<Vec<_>>();
+                    eprintln!("SLR_R3_VALUE_GUARDS safe={value_safe:?} non_nil={definitely_non_nil:?} nil_shape={}",
+                        values_have_safe_nil_shape(definitely_non_nil.iter().copied()));
+                    for seed_pos in (0..index).rev().take(12) {
+                        if let Some((seed_binding, seed)) = constructor_seed(&block.stmts[seed_pos]) {
+                            if seed_binding == binding {
+                                eprintln!("SLR_R3_SEED seed_index={seed_pos} direct_local={} local_indexed_proof={} seed_has_open_tail={} seed_fields={}",
+                                    matches!(block.stmts[seed_pos], HirStmt::LocalDecl(_)),
+                                    self.fixed_set_list_prefix_is_safe(block, seed_pos, index, binding),
+                                    seed.trailing_multivalue.is_some(), seed.fields.len());
+                                break;
+                            }
+                        }
+                    }
+
                 }
             }
 """
