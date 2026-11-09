@@ -125,6 +125,15 @@ class TestTrace(unittest.TestCase):
         self.assertEqual(succ2[0], [1, 3])
         self.assertEqual(succ2[2], [1, 3])
 
+    def test_newtable_unconditionally_consumes_extraarg(self):
+        # Lua 5.4 OP_NEWTABLE has an EXTRAARG even if k=0.
+        for k in (0, 1):
+            p = proto(0, None, [abc("NEWTABLE", 0, 0, 0, k),
+                                abx("EXTRAARG", 0, 0), abc("RETURN0")])
+            _, succ, _ = trace.basic_blocks(p)
+            self.assertEqual(succ[0], [2])
+            self.assertEqual(succ[1], [])
+
     def test_extraarg_consumed_not_executable_target(self):
         p = proto(0, None, [abx("LOADKX", 0, 0), abx("EXTRAARG", 0, 0),
                             abc("RETURN0")])
