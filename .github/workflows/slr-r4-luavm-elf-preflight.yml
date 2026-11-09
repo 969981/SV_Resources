@@ -1,0 +1,84 @@
+name: SLR R4 - Violet 4.0.0 Lua VM ELF preflight
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-cf-trace-r1
+    paths:
+      - "scripts/Audit-SV400-LuaVM-ELF.py"
+      - "tests/test_sv400_luavm_elf.py"
+      - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
+  pull_request:
+    paths:
+      - "scripts/Audit-SV400-LuaVM-ELF.py"
+      - "tests/test_sv400_luavm_elf.py"
+      - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Read-only sparse checkout verified Violet ELF
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Audit-SV400-LuaVM-ELF.py
+            tests/test_sv400_luavm_elf.py
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf
+            Unpack/4.0.0/exefs/violet_main/provenance.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax tests
+        run: |
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py
+          python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
+      - name: Pin exact ELF bytes and extract possible Lua VM markers
+        run: |
+          python scripts/Audit-SV400-LuaVM-ELF.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --output slr-violet-luavm-elf-preflight.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          elf=Path("Unpack/4.0.0/exefs/violet_main/provenance.json")
+          p=json.loads(elf.read_text(encoding="utf-8"))
+          r=json.loads(Path("slr-violet-luavm-elf-preflight.json").read_text())
+          assert r["source_sha256"]==p["elfSha256"]
+          assert r["status"]=="STATIC_IMAGE_STRING_PREFLIGHT_ONLY"
+          assert r["candidate_dispatch_pc"] is None
+          assert r["runtime_vm_attached"] is False
+          print("VM_STATIC_PREFLIGHT_ONLY",len(r["load_segments"]),
+                "load segments; no attached game process")
+          PY
+      - name: Check actual exported ELF symbol names (not string-guess entrypoints)
+        shell: bash
+        run: |
+          readelf --wide --symbols Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            | grep -E 'lua[VDFHC]_|lua_getstack|lua_getinfo|lua_sethook|lua_upvalueid|luaL_loadbufferx|lua_pcallk' \
+            | head -100 > slr-luavm-symbol-hints.txt || true
+          if test -s slr-luavm-symbol-hints.txt; then
+            echo "ELF symbolic candidates are present; symbol types/sections require verification."
+            cat slr-luavm-symbol-hints.txt
+          else
+            echo "No matching exposed ELF symbol names. This is NOT proof Lua VM is absent."
+          fi
+      - name: Upload metadata only, not ELF or game code
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R4-Violet-LuaVM-ELF-preflight
+          path: |
+            slr-violet-luavm-elf-preflight.json
+            slr-luavm-symbol-hints.txt
+          retention-days: 14
+          if-no-files-found: warn
