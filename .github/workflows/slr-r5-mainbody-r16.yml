@@ -28,6 +28,7 @@ jobs:
           sparse-checkout: |
             scripts/Analyze-SV-Lua54-R5-MainBody.py
             tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/fixtures/r5_mainbody_static_signature.json
             tools/PokeDocs/SV/Hashlists/Lua
             tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv
             tests/test_sv_lua54_r5.py
@@ -63,6 +64,24 @@ jobs:
           assert x["method_hash"]=="FD8D5F3745B4B5174"
           assert x["child_upvalue_descriptors"][1]["parent_register"]==16
           assert x["full_function_runtime_equivalence"]=="NOT_VERIFIED"
+          ref=json.loads(Path("tools/SV.Lua54/fixtures/r5_mainbody_static_signature.json").read_text())
+          assert x["source_sha256"]==ref["original_main_dynamic_sha256"]
+          assert x["r16_reaching_definitions"]["candidate_write_count"]==1
+          assert not x["r16_reaching_definitions"]["entry_is_candidate"]
+          assert [d["pc"] for d in x["r16_reaching_definitions"]["candidate_write_sites_tail"]]==ref["r16"]["definite_reaching_write_sites"]
+          assert x["r16_producer_closure"]["child_proto_id"]==ref["r16"]["child_proto_id"]
+          assert x["r16_producer_closure"]["captured_parent_r13_reaching_definitions"]["candidate_write_sites_tail"][-1]["pc"]==ref["r16"]["root_R13_producer_pc"]
+          assert x["haxe_style_object_metatable"]["__newindex_source_r12"]["candidate_write_sites_tail"][-1]["pc"]==ref["r16"]["root_R12_newindex_source_pc"]
+          assert len(x["capture_lifetime_opcodes_r16_from_producer"])==ref["r16"]["intervening_close_tbc_affecting_R16"]
+          assert x["r16_other_closure_captures"]["count"]==ref["r16"]["closure_capture_count"]
+          assert x["r16_captured_by_direct_native_c_to_f_count"]==ref["r16"]["direct_native_C_to_F_count"]
+          assert x["r16_native_method_capture_distinct_class_hashes"]==ref["r16"]["distinct_native_class_hashes"]
+          assert x["r16_native_method_capture_name_histogram"]==ref["r16"]["method_name_histogram"]
+          assert [(v["root_pc"],v["child_proto_id"],v["role_candidate"])
+                  for v in x["haxe_style_closure_role_candidates"]]==[
+                  (v["root_pc"],v["child_proto_id"],v["role"])
+                  for v in ref["haxe_lua_structural_candidates"]]
+          assert x["full_function_runtime_equivalence"]==ref["full_function_runtime_parity"]
           print("SLR_R5_EVIDENCE_OK",x["r16_reaching_definitions"]["candidate_write_count"])
           PY
 
