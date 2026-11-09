@@ -18,6 +18,8 @@ on:
       - "scripts/Verify-SV400-Lua54-NativeDispatch.py"
       - "tests/test_sv400_luavm_native_dispatch.py"
       - "tests/test_sv400_gdb_stub_entry.py"
+      - "scripts/Map-SV400-Lua54-NativeTraceTargets.py"
+      - "tests/test_sv400_luavm_native_trace_plan.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -54,6 +56,11 @@ jobs:
             scripts/Verify-SV400-Lua54-NativeDispatch.py
             tests/test_sv400_luavm_native_dispatch.py
             tests/test_sv400_gdb_stub_entry.py
+            scripts/Map-SV400-Lua54-NativeTraceTargets.py
+            tests/test_sv400_luavm_native_trace_plan.py
+            tools/SV.Lua54/src/sv_lua54
+            tests/test_sv_lua54_trace.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
             Unpack/4.0.0/exefs/violet_main/violet_main.elf
             Unpack/4.0.0/exefs/violet_main/provenance.json
             Unpack/4.0.0/exefs/subsdk0/subsdk0.elf
@@ -65,7 +72,7 @@ jobs:
           python-version: "3.12"
       - name: Syntax tests
         run: |
-          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py
           python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_probe.py" -v
@@ -73,6 +80,7 @@ jobs:
           python -m unittest discover -s tests -p "test_sv400_luavm_diagnostic_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_native_dispatch.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_stub_entry.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_native_trace_plan.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
@@ -317,6 +325,31 @@ jobs:
           print("NATIVE_LUA54_VM_OPCODE_DISPATCH_CONFIRMED",j['dispatch_native_entry_rva'],
                 '83 native relocations and handlers, runtime',j['runtime_state'])
           PY
+      - name: Pin exact Setup and root Lua PCs to four verified ARM64 opcode handlers
+        run: |
+          python scripts/Map-SV400-Lua54-NativeTraceTargets.py \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --dispatch-manifest slr-violet-luavm-verified-native-dispatch.json \
+            --output slr-violet-lua-pc-native-handlers.json
+          python - <<'PY'
+          import json
+          d=json.load(open('slr-violet-lua-pc-native-handlers.json'))
+          assert d['status']=='PINNED_LUA_PC_TO_NATIVE_HANDLER_PLAN_ONLY'
+          assert d['setup_proto_id']==17900
+          assert d['root_closure_creation_pc']==215522
+          assert len(d['probe_rows'])==9
+          assert d['native_handler_count']==4
+          assert d['unique_native_handler_rvas']=={
+              'CALL':'0x4487c',
+              'SETI':'0x41d14',
+              'CLOSURE':'0x453fc',
+              'SETTABLE':'0x41b9c'}
+          assert d['runtime_vm_attached'] is False
+          assert d['runtime_objects_observed'] is False
+          print('SV_NATIVE_LUA_PC_HOOK_PLAN', d['unique_native_handler_rvas'],
+                '9 PC sites; original runtime events absent')
+          PY
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
         run: |
@@ -361,6 +394,7 @@ jobs:
             slr-violet-luavm-opcode-table-audit.json
             slr-violet-luavm-table-relocations.json
             slr-violet-luavm-verified-native-dispatch.json
+            slr-violet-lua-pc-native-handlers.json
             slr-luavm-diagnostic-string-anchors.txt
             slr-violet-luavm-diagnostic-xrefs.json
             slr-lua-error-common-25b90.txt
