@@ -8,7 +8,9 @@ on:
       - "tools/SV.Lua54/src/sv_lua54/trace.py"
       - "tests/test_sv_lua54_trace.py"
       - "tests/test_sv_lua54_dataflow.py"
+      - "tests/test_sv_lua54_capture.py"
       - "tools/SV.Lua54/src/sv_lua54/dataflow.py"
+      - "tools/SV.Lua54/src/sv_lua54/capture.py"
       - ".github/workflows/validate-sv-lua54-trace.yml"
   pull_request:
     paths:
@@ -34,6 +36,7 @@ jobs:
             tools/SV.Lua54/src/sv_lua54
             tests/test_sv_lua54_trace.py
             tests/test_sv_lua54_dataflow.py
+            tests/test_sv_lua54_capture.py
             scripts/Verify-SV-Lua54-CF-Decompile.py
             .github/workflows/validate-sv-lua54-trace.yml
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
@@ -43,9 +46,10 @@ jobs:
           python-version: "3.12"
       - name: Syntax and synthetic control-flow checks
         run: |
-          python -m py_compile tools/SV.Lua54/src/sv_lua54/*.py tests/test_sv_lua54_trace.py tests/test_sv_lua54_dataflow.py
+          python -m py_compile tools/SV.Lua54/src/sv_lua54/*.py tests/test_sv_lua54_trace.py tests/test_sv_lua54_dataflow.py tests/test_sv_lua54_capture.py
           python -m unittest discover -s tests -p 'test_sv_lua54_trace.py' -v
           python -m unittest discover -s tests -p 'test_sv_lua54_dataflow.py' -v
+          python -m unittest discover -s tests -p 'test_sv_lua54_capture.py' -v
       - name: Pin real native C-F method and trace body
         env:
           PYTHONPATH: tools/SV.Lua54/src
@@ -83,6 +87,27 @@ jobs:
                 'upvalues', len(a['upvalues']),
                 'calls', a['call_status_counts'])
           PY
+      - name: Probe root CLOSURE parent register capture context
+        env:
+          PYTHONPATH: tools/SV.Lua54/src
+        run: |
+          python -m sv_lua54.capture \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --class-hash C850E69B34478276C \
+            --function-hash F7C68FEDB79AB6396 \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --output slr-gem-setting-captures.json
+          python - <<'PY'
+          import json
+          j=json.load(open("slr-gem-setting-captures.json"))
+          assert j["body_proto_id"] == 17900
+          assert len(j["capture_slots"]) == 3
+          assert j["capture_slots"][1]["captured_register"] == 58
+          assert j["capture_slots"][2]["captured_register"] == 55
+          assert j["runtime_upvalues_recovered"] is False
+          print("ROOT_CAPTURE_VERIFIED", [(x["slot"], x["captured_register"],
+                x["capture_status"]) for x in j["capture_slots"]])
+          PY
       - name: Strict decompile and Lua 5.4 syntax test of the same native method
         shell: bash
         run: |
@@ -107,5 +132,6 @@ jobs:
             slr-gem-setting-cf-trace.json
             slr-gem-setting-decompile.json
             slr-gem-setting-dataflow.json
+            slr-gem-setting-captures.json
           if-no-files-found: warn
           retention-days: 14
