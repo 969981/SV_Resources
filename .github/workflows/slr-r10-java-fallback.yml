@@ -1,4 +1,4 @@
-name: SLR R10 - independent Java Lua54 fallback for remaining 93
+name: SLR R11 - patched Java Lua54 recovery of remaining 93
 
 on:
   push:
@@ -41,6 +41,18 @@ jobs:
           sudo apt-get install -y -qq lua5.4
           git clone --depth 1 https://github.com/Jeong-Min-Cho/unluac.git "$RUNNER_TEMP/java-unluac"
           cd "$RUNNER_TEMP/java-unluac"
+          python - <<'PY'
+          from pathlib import Path
+          a=Path("src/unluac/decompile/Upvalues.java")
+          old="LUpvalue[] parentvals = func.parent.upvalues;"
+          assert a.read_text().count(old)==1
+          a.write_text(a.read_text().replace(old,"LUpvalue[] parentvals = func.parent == null ? new LUpvalue[0] : func.parent.upvalues;"))
+          b=Path("src/unluac/decompile/expression/TableReference.java")
+          old="upvalue.name.equals(id)"
+          assert b.read_text().count(old)==1
+          b.write_text(b.read_text().replace(old,"id.equals(upvalue.name)"))
+          print("SLR_R11_JAVA_NULL_GUARDS_INSTALLED")
+          PY
           mkdir -p build
           cd src
           javac -d ../build unluac/Main.java
