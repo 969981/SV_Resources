@@ -7,12 +7,18 @@ on:
     paths:
       - '.github/workflows/sv-native-encounter-mismatch-triage.yml'
       - 'scripts/Triage-SV-400-Native-Encounter-Differences.py'
+      - 'scripts/Audit-SV400-Remaining-676-Wild-203-Fixed.py'
+      - 'tests/test_sv400_zero_loss_reference_gap.py'
       - 'tests/test_sv_native_difference_triage.py'
       - 'docs/4.0.0/Verification/SV-400-Native-Encounter-Root-Cause-Triage.md'
+      - 'docs/research/sv400-reference-gap-676-wild-203-fixed-zero-loss.md'
+      - 'docs/research/sv400-reference-gap-676-wild-203-fixed-zero-loss.md'
   pull_request:
     paths:
       - '.github/workflows/sv-native-encounter-mismatch-triage.yml'
       - 'scripts/Triage-SV-400-Native-Encounter-Differences.py'
+      - 'scripts/Audit-SV400-Remaining-676-Wild-203-Fixed.py'
+      - 'tests/test_sv400_zero_loss_reference_gap.py'
       - 'tests/test_sv_native_difference_triage.py'
       - 'docs/4.0.0/Verification/SV-400-Native-Encounter-Root-Cause-Triage.md'
 
@@ -30,13 +36,18 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             scripts/Triage-SV-400-Native-Encounter-Differences.py
+            scripts/Audit-SV400-Remaining-676-Wild-203-Fixed.py
+            scripts/Audit-SV400-Remaining-676-Wild-203-Fixed.py
             tests/test_sv_native_difference_triage.py
+            tests/test_sv400_zero_loss_reference_gap.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: |
           python -m py_compile scripts/Triage-SV-400-Native-Encounter-Differences.py
           python -m unittest discover -s tests -p test_sv_native_difference_triage.py -v
+          python -m py_compile scripts/Audit-SV400-Remaining-676-Wild-203-Fixed.py
+          python -m unittest discover -s tests -p test_sv400_zero_loss_reference_gap.py -v
 
   source-signed-forensic-report:
     needs: no-rom-matching-tests
@@ -74,6 +85,10 @@ jobs:
             --tolerance-dir "$RUNNER_TEMP/sv-tolerance" \
             --native-bridge-dir "$RUNNER_TEMP/sv-native" \
             --output "$RUNNER_TEMP/sv-root-cause"
+          python scripts/Audit-SV400-Remaining-676-Wild-203-Fixed.py \
+            --tolerance-dir "$RUNNER_TEMP/sv-tolerance" \
+            --native-bridge-dir "$RUNNER_TEMP/sv-native" \
+            --output "$RUNNER_TEMP/sv-root-cause"
           python - <<'PY'
           import json,os
           from pathlib import Path
@@ -87,6 +102,13 @@ jobs:
           assert f['unsafe_global_remove_158_projected_pkhex_matches']==850
           assert f['baseline_pkhex_matches']==774
           assert f['unsafe_global_remove_158_empty_location_templates']==22
+          q=json.loads((p/'SV400_676_Wild_203_Fixed_ZeroLoss_Provenance.json').read_text('utf-8'))
+          assert q['status']=='SOURCE_ATTESTED_676_WILD_203_FIXED_ZERO_LOSS_RESEARCH_NOT_RUNTIME_LEGALITY'
+          assert q['wild']['delta_kinds']=={'max-only':372,'min-only':220,'both':74}
+          assert q['wild']['candidate_178_192_180_max_lower']==142
+          assert q['fixed']['exact_remove158_counterfactual_pairs']==189
+          assert q['fixed']['non158_families']=={'176_and_194':9,'wooper_146_and_158':2,'16_and_67':2,'unmatched_nonlocation_297':1}
+          assert q['fixed']['baseline_matched_with_158_must_not_delete']==114
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as fp:
               fp.write('## Actual 4.0.0 original-source encounter mismatch forensics\n\n')
               fp.write('Wild: **666/676** reference-only cases pair with same metadata, differing only in level range.\\n\\n')
