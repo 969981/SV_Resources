@@ -12,7 +12,7 @@ from pathlib import Path
 TARGET = Path("src/hir/simplify/table_constructors/mod.rs")
 MARKER = "SLR_R3_SCOPE_DIAGNOSTIC"
 ANCHOR = """            // A raw SETLIST is not generally equivalent to ordinary indexed assignment:
-            // the former bypasses \`__newindex\` and has distinct nil-hole/array-part rules."""
+            // the former bypasses `__newindex` and has distinct nil-hole/array-part rules."""
 
 PROBE = r"""
             // SLR_R3_SCOPE_DIAGNOSTIC: bounded diagnostics only; fail-closed normal behavior.
