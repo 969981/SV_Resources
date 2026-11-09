@@ -154,6 +154,12 @@ jobs:
           assert [x["field_hash"] for x in m["call_probes"]] == [
               "F7CD5FEDB7A083576", "S668179E3DFA5CD49",
               "FA46877DC47484C79"]
+          origins = {x["call_pc"]: x["receiver_static_origin"] for x in m["call_probes"]}
+          assert origins[11]["kind"] == "SELF_INDEXED_SLOT" and origins[11]["slot_index"] == 14, origins
+          assert origins[83]["kind"] == "SELF_INDEXED_SLOT" and origins[83]["slot_index"] == 7, origins
+          assert origins[32]["kind"] == "ENV_CLASS_STATIC_FIELD" and origins[32]["class_hash"] == "C8FB6CAF7F89386B8", origins
+          assert origins[32]["field_hash"] == "S668179E3DFA5CD49", origins
+          assert all(not row["runtime_verified"] for row in origins.values())
           assert d["audit"]["status"] == "NO_RUNTIME_EVIDENCE"
           assert d["audit"]["runtime_verified"] is False
           print("R3_NATIVE_CONTRACT_VERIFIED",m["method_code_sha256"],
