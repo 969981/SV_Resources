@@ -35,7 +35,9 @@ def patch_debug(source: str) -> str:
 def patch_constructor(source: str) -> str:
     old = '''            if self.fold_fixed_batch_across_root_copy(block, index, binding, &set_list) {
                 changed = true;'''
-    trace = '''            if std::env::var_os("SV_R3_TRACE").is_some() {
+    trace = '''            if std::env::var_os("SV_R3_TRACE").is_some()
+                && set_list.source_site.is_some_and(|s| s.proto.index() == 0
+                    && (630..=670).contains(&s.instr.index())) {
                 eprintln!("SV_R3 SETLIST native-site={:?} owner={:?} index={} start={} fixed={} tail={}",
                     set_list.source_site.map(|s| (s.proto.index(), s.instr.index())),
                     binding, index, set_list.start_index,
