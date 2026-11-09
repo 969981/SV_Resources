@@ -21,6 +21,10 @@ public static class EncounterTraceSV
     private static readonly HashSet<int> WildSpecies = [];
 
     private static bool fixedOnly;
+    private static bool focusedForCausalAudit;
+    public const string SourceCausalProfile = "sv400-186-from176-min-level-and-158-5046-duplicate";
+    private static readonly int[] Causal186Species = [88, 287, 335, 336, 546, 547];
+    private static readonly int[] Causal158Species = [313, 314];
     public static bool Enabled => writer is not null;
 
     public static void Enable(string targetDirectory, string jsonlFile, bool onlyFixed = false)
@@ -55,6 +59,45 @@ public static class EncounterTraceSV
             targetPairs = WildTargets.Count, fixedSpecies = FixedTargets.Count,
             fixedOnly = onlyFixed,
             claim = "SOURCE_CANDIDATE_TRACE_NOT_LEGALITY_OR_RNG_PROOF",
+        });
+    }
+
+    /// <summary>
+    /// Minimal SOURCE-defined, immutable provenance targets: a variant-specific
+    /// original-ROM trace without allocating another 8GB 666-case trace.
+    /// Neither PKHeX reference values nor user-provided species lists influence
+    /// the native parser or the default .pkl.
+    /// </summary>
+    public static void EnableCausalAudit(string jsonlFile, string profile)
+    {
+        if (writer is not null || profile != SourceCausalProfile)
+            throw new InvalidOperationException("Causal trace profile unavailable, or a trace is already enabled");
+        WildTargets.Clear();
+        WildSpecies.Clear();
+        FixedTargets.Clear();
+        Counts.Clear();
+        fixedOnly = false;
+        focusedForCausalAudit = true;
+        foreach (var species in Causal186Species)
+        {
+            WildSpecies.Add(species);
+            WildTargets.Add((176, species));
+            WildTargets.Add((186, species));
+        }
+        foreach (var species in Causal158Species)
+        {
+            WildSpecies.Add(species);
+            WildTargets.Add((158, species));
+        }
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(jsonlFile))!);
+        writer = new StreamWriter(jsonlFile, false, new UTF8Encoding(false), 65536);
+        Write(new {
+            stage="trace_start", source="SV_4_0_0_original_game_pkNX",
+            focusedProfile=SourceCausalProfile,
+            targetPairs=WildTargets.Count,
+            wildSpecies=WildSpecies.OrderBy(x=>x).ToArray(),
+            fixedOnly=false,
+            claim="SOURCE_DEFINED_FOCUSED_CANDIDATE_AND_ABSORB_TRACE_NOT_PK9_GAME_LEGALITY"
         });
     }
 
@@ -103,10 +146,12 @@ public static class EncounterTraceSV
     // stable forensic targets, not exceptions used by encounter generation.
     public static bool FocusWildMerge(int location, int crossFrom, int species) =>
         writer is not null && !fixedOnly &&
+        (focusedForCausalAudit && location == 186 && crossFrom == 176 &&
+         Array.IndexOf(Causal186Species, species) >= 0 ||
         (location, crossFrom, species) is
             (140, 158, 163) or (140, 158, 532) or
             (158, 0, 129) or (158, 0, 313) or
-            (158, 0, 314) or (158, 0, 744);
+            (158, 0, 314) or (158, 0, 744));
 
     public static void Write(object data)
     {
@@ -132,6 +177,7 @@ public static class EncounterTraceSV
         writer.Dispose();
         writer = null;
         fixedOnly = false;
+        focusedForCausalAudit = false;
         if (manifestPath is not null)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(manifestPath))!);
