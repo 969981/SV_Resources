@@ -17,4 +17,4 @@ Manifest target: fixtures/native_manifest.json. CI only writes metadata and neve
 
 The pinned main/main_dynamic sizes, hashes and prototype counts are independently checked. The four DLL baselines are recorded by first successful six-file CI run. This is a structured parser/byte-exact reserialization gate, **not** successful decompilation, Lua recompilation, or game-runtime validation.
 
-Roadmap: [SV Lua54 source reconstruction](../../../docs/research/sv-lua54-source-reconstruction-roadmap.md).
+Roadmap: [SV Lua54 source reconstruction](../../docs/research/sv-lua54-source-reconstruction-roadmap.md).
