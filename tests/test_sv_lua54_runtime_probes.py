@@ -133,6 +133,20 @@ class RuntimeProbeTests(unittest.TestCase):
         self.assertEqual(b["field_hash"],FIELDS[1])
         self.assertFalse(any(x["runtime_verified"] for x in (a,b,c)))
 
+    def test_producer_class_member_is_only_a_factory_candidate(self):
+        p = node(7,0,[
+            abc("GETTABUP",4,0,0),
+            abc("GETFIELD",4,4,1),
+            abc("CALL",4,1,2),
+            abc("RETURN0"),
+        ],constants=[Constant(4,CLASS.encode()),Constant(4,b"new")])
+        origin=runtime_probes.producer_call_origin(p,trace.instructions(p),2)
+        self.assertEqual(origin["kind"],"ENV_CLASS_FIELD_CALL")
+        self.assertEqual(origin["class_hash"],CLASS)
+        self.assertEqual(origin["field_key"],"new")
+        self.assertEqual(origin["returned_object_type"],"UNOBSERVED")
+        self.assertFalse(origin["runtime_verified"])
+
     def test_same_block_seti_return_producer_only_candidate(self):
         p = node(7, 0, [
             abc("CALL",2,1,2),
