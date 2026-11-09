@@ -13,6 +13,8 @@ class Original178SourceMergeTests(unittest.TestCase):
     def test_existing_reference_interval_disappears_after_merge(self):
         d=module.evaluate_intervals([(59,70),(65,70),(65,74)],[(59,74)],(59,70),(59,74))
         self.assertEqual(d,{"pre_has_max74_and_max70or71":True,
+                            "broad_and_narrow_strictly_overlap":True,
+                            "reference_pre_strictly_overlaps_broad":True,
                             "reference_exact_in_pre":True,
                             "reference_exact_in_post":False,
                             "native_wide_in_post":True})
@@ -20,11 +22,15 @@ class Original178SourceMergeTests(unittest.TestCase):
     def test_no_mechanical_level_74_cap_rule_from_source(self):
         d=module.evaluate_intervals([(59,74)],[(59,74)],(59,70),(59,74))
         self.assertFalse(d["pre_has_max74_and_max70or71"])
+        self.assertFalse(d["broad_and_narrow_strictly_overlap"])
+        self.assertFalse(d["reference_pre_strictly_overlaps_broad"])
         self.assertFalse(d["reference_exact_in_pre"])
 
     def test_multiple_original_point_sources_not_unique_by_synthetic_example(self):
         d=module.evaluate_intervals([(59,70),(65,74)],[(59,74)],(59,70),(59,74))
         self.assertTrue(d["pre_has_max74_and_max70or71"])
+        self.assertTrue(d["broad_and_narrow_strictly_overlap"])
+        self.assertTrue(d["reference_pre_strictly_overlaps_broad"])
         self.assertFalse(d["reference_exact_in_post"])
 
     def test_original_sha_fails_closed(self):

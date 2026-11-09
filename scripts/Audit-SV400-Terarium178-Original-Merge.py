@@ -21,9 +21,14 @@ def evaluate_intervals(pre,post,reference,native):
     post={tuple(int(v) for v in x) for x in post}
     ref=tuple(int(v) for v in reference)
     gen=tuple(int(v) for v in native)
+    broad=[(lo,hi) for lo,hi in pre if hi==74]
+    narrow=[(lo,hi) for lo,hi in pre if hi in (70,71)]
+    def overlap(x,y):
+        return max(x[0],y[0])<=min(x[1],y[1])
     return {
-        "pre_has_max74_and_max70or71":
-            any(hi==74 for lo,hi in pre) and any(hi in (70,71) for lo,hi in pre),
+        "pre_has_max74_and_max70or71":bool(broad and narrow),
+        "broad_and_narrow_strictly_overlap":any(overlap(x,y) for x in broad for y in narrow),
+        "reference_pre_strictly_overlaps_broad":ref in pre and any(overlap(ref,x) for x in broad),
         "reference_exact_in_pre":ref in pre,
         "reference_exact_in_post":ref in post,
         "native_wide_in_post":gen in post and gen[1]==74,
@@ -82,6 +87,8 @@ def audit(csvpath:Path,validation:Path,out:Path):
             })
     if ({loc:stats[loc] for loc in FOCUS}!=FOCUS or
         stats["pre_has_max74_and_max70or71"]!=142 or
+        stats["broad_and_narrow_strictly_overlap"]!=142 or
+        stats["reference_pre_strictly_overlaps_broad"]!=127 or
         stats["reference_exact_in_pre"]!=127 or
         stats["reference_exact_in_post"]!=2 or
         stats["native_wide_in_post"]!=142 or
@@ -97,6 +104,8 @@ def audit(csvpath:Path,validation:Path,out:Path):
         "source_178_reference_only_occurrences":len(rows),
         "by_location_cross_from":{f"{a}_{b}":stats[(a,b)] for a,b in FOCUS},
         "pre_has_max74_and_max70or71":stats["pre_has_max74_and_max70or71"],
+        "broad_and_narrow_strictly_overlap":stats["broad_and_narrow_strictly_overlap"],
+        "reference_pre_strictly_overlaps_broad":stats["reference_pre_strictly_overlaps_broad"],
         "reference_exact_in_pre":stats["reference_exact_in_pre"],
         "reference_exact_in_post":stats["reference_exact_in_post"],
         "native_wide_in_post":stats["native_wide_in_post"],
@@ -112,6 +121,8 @@ def audit(csvpath:Path,validation:Path,out:Path):
         "limitations":[
             "127/142 premerge reference intervals are candidate identities, not game legality proof.",
             "A PointData can contribute multiple criteria/area traversal observations; source association is not a unique causal owner.",
+            "Strict overlap is present in all 142 groups; adjacency-only merging is not the sole explanation.",
+            "Original point/collider ownership must be checked before creating any grouping rule.",
             "No rule to disable Absorb is inferred solely from a PKHeX reference interval.",
             "Do not mutate native source, baseline pkl, or pinned PKHeX legality resources."
         ],
