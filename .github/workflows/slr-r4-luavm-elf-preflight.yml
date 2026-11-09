@@ -24,6 +24,9 @@ on:
       - "tests/test_sv400_luavm_liveframe.py"
       - "scripts/Inspect-SV400-Lua54-GDB.py"
       - "tests/test_sv400_gdb_frame_command.py"
+      - "scripts/Audit-SV400-Lua54-OpcodeFrames.py"
+      - "scripts/Inspect-SV400-Lua54-OpcodeContext.py"
+      - "tests/test_sv400_luavm_opcode_context.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -66,6 +69,9 @@ jobs:
             tests/test_sv400_luavm_liveframe.py
             scripts/Inspect-SV400-Lua54-GDB.py
             tests/test_sv400_gdb_frame_command.py
+            scripts/Audit-SV400-Lua54-OpcodeFrames.py
+            scripts/Inspect-SV400-Lua54-OpcodeContext.py
+            tests/test_sv400_luavm_opcode_context.py
             tools/SV.Lua54/src/sv_lua54
             tests/test_sv_lua54_trace.py
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
@@ -80,7 +86,7 @@ jobs:
           python-version: "3.12"
       - name: Syntax tests
         run: |
-          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py scripts/Inspect-SV400-Lua54-LiveFrame.py scripts/Inspect-SV400-Lua54-GDB.py
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py scripts/Inspect-SV400-Lua54-LiveFrame.py scripts/Inspect-SV400-Lua54-GDB.py scripts/Audit-SV400-Lua54-OpcodeFrames.py scripts/Inspect-SV400-Lua54-OpcodeContext.py
           python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_probe.py" -v
@@ -91,6 +97,7 @@ jobs:
           python -m unittest discover -s tests -p "test_sv400_luavm_native_trace_plan.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_liveframe.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_frame_command.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_opcode_context.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
@@ -392,6 +399,26 @@ jobs:
           print('SV_NATIVE_LUA_PC_HOOK_PLAN', d['unique_native_handler_rvas'],
                 '9 PC sites; original runtime events absent')
           PY
+      - name: Cross-check native savedpc and open/closed UpVal ABI instructions
+        run: |
+          python scripts/Audit-SV400-Lua54-OpcodeFrames.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --output slr-violet-native-opcode-upval-abi.json
+          python - <<'PY'
+          import json
+          a=json.load(open("slr-violet-native-opcode-upval-abi.json"))
+          assert a["runtime_identity_status"]=="NOT_OBSERVED"
+          assert a["savedpc_runtime_calibrated"] is False
+          assert a["upvalue_cell_values_runtime_verified"] is False
+          assert len(a["validated_instruction_words"])>=39
+          assert a["native_register_model"]["current_lua_pc_formula"] == "((x27 - verified_proto_code_ptr)/4) - 1"
+          p=a["closure_capture_abi_candidates"]
+          assert p["root_R55_stack_relative_to_x26"]=="0x370"
+          assert p["root_R58_stack_relative_to_x26"]=="0x3a0"
+          assert p["upval_v_tvalue_pointer_offset"]==16
+          assert p["tvalue_tag_byte_offset"]==8
+          print("SV400_NATIVE_UPVAL_ABI_BOUNDED",len(a["validated_instruction_words"]),"runtime NOT_OBSERVED")
+          PY
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
         run: |
@@ -438,6 +465,7 @@ jobs:
             slr-r4-closure-native.txt
             slr-r4-seti-native.txt
             slr-r4-upval-native.txt
+            slr-violet-native-opcode-upval-abi.json
             slr-violet-luavm-dispatch-shapes.json
             slr-violet-luavm-opcode-table-audit.json
             slr-violet-luavm-table-relocations.json
