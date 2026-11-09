@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .chunk import Chunk, parse
 from .dataflow import analyze_method
-from .trace import instructions, native_methods, string_at
+from .trace import basic_blocks, instructions, native_methods, string_at
 
 TARGET_CALL_PCS = (11, 32, 83)
 TARGET_ROOT_CLOSURE_PC = 215522
@@ -38,6 +38,54 @@ def _instruction_view(proto, code, pc):
         ):
             out["symbolic_constant"] = value
     return out
+
+
+def receiver_origin(proto, code, call_pc):
+    """Short *structural* source slice; no proof of runtime self/object type."""
+    call_op, a, b, c, k, bx, sj = code[call_pc]
+    unknown = {"kind": "DYNAMIC_OR_INDIRECT_RECEIVER", "runtime_verified": False}
+    if call_op not in ("CALL", "TAILCALL") or call_pc < 2:
+        return unknown
+    previous = code[call_pc - 1]
+    before = code[call_pc - 2]
+    if previous[0] == "SELF" and previous[1] == a:
+        base = previous[2]
+        if before[0] == "GETI" and before[1] == base and before[2] == 0:
+            slot = before[3]
+            blocks, _, _ = basic_blocks(proto)
+            start = next(z["start_pc"] for z in blocks
+                         if z["start_pc"] <= call_pc < z["end_pc_exclusive"])
+            writers = []
+            for pc in range(start, call_pc-1):
+                op, aa, bb, cc, kk, *_ = code[pc]
+                if op == "SETI" and aa == 0 and bb == slot:
+                    writer = {"pc": pc, "value_register": cc if kk == 0 else None,
+                              "constant_rhs": bool(kk),
+                              "value_origin": "UNRESOLVED"}
+                    if pc > 0 and kk == 0:
+                        prev = code[pc-1]
+                        if (prev[0] == "CALL" and prev[1] == cc
+                            and prev[4] == 2):
+                            writer["value_origin"] = "PRECEDING_CALL_SINGLE_RESULT"
+                            writer["producer_call_pc"] = pc-1
+                    writers.append(writer)
+            return {
+                "kind": "SELF_INDEXED_SLOT", "self_parameter_register": 0,
+                "slot_index": slot, "geti_pc": call_pc-2, "self_pc": call_pc-1,
+                "same_block_seti_writers": writers,
+                "runtime_verified": False,
+                "warning": "Function calls/metamethods may mutate the self slot after a static write",
+            }
+    if (previous[0] == "GETFIELD" and previous[1] == a
+        and previous[2] == a and before[0] == "GETTABUP"
+        and before[1] == a and before[2] == 0):
+        klass = string_at(proto, before[3], "C")
+        key = string_at(proto, previous[3], "S") or string_at(proto, previous[3], "F")
+        return {"kind": "ENV_CLASS_STATIC_FIELD", "class_hash": klass,
+                "field_hash": key, "gettabup_pc": call_pc-2,
+                "getfield_pc": call_pc-1, "runtime_verified": False,
+                "warning": "Global table field or metatable may be replaced at runtime"}
+    return unknown
 
 
 def build_manifest(chunk: Chunk, class_hash: str, function_hash: str,
@@ -71,6 +119,7 @@ def build_manifest(chunk: Chunk, class_hash: str, function_hash: str,
             "opcode_window": [_instruction_view(proto, code, i) for i in
                               range(max(0, pc - 5), min(len(code), pc + 3))],
             "symbolic_status": call["status"],
+            "receiver_static_origin": receiver_origin(proto, code, pc),
             "runtime_receiver_status": "NOT_OBSERVED",
             "runtime_callee_status": "NOT_OBSERVED",
         })
