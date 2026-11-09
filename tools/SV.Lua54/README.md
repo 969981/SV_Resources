@@ -17,4 +17,21 @@ Manifest target: fixtures/native_manifest.json. CI only writes metadata and neve
 
 The pinned main/main_dynamic sizes, hashes and prototype counts are independently checked. The four DLL baselines are recorded by first successful six-file CI run. This is a structured parser/byte-exact reserialization gate, **not** successful decompilation, Lua recompilation, or game-runtime validation.
 
+
+## R1 reproducible native evidence
+
+With the six original BLUA files present in the repository:
+
+    python -m unittest discover -s tests -p 'test_sv_lua54_r1.py' -v
+    python scripts/Analyze-SV-Lua54-R1.py
+    python scripts/Analyze-SV-Lua54-R1.py --verify-only
+
+Optional --method-index and --capture-index produce detailed JSONL in a local/CI artifact path; do not default to pushing full derived records. Native report: tools/SV.Lua54/fixtures/r1_native_report.json.
+
+The remaining main_dynamic Proto 752 HIR failure can be inspected with the pinned unluac-rs v1.4.5 executable:
+
+    python scripts/Inspect-SV-Lua54-ResidualHIR.py --backend /path/to/unluac-1.4.5-linux-x86_64
+
+Read the [R1 evidence notebook](../../docs/research/sv-lua54-r1-setlist-upvalue-cf.md). Static parse/CFG/decompilation is not runtime parity.
+
 Roadmap: [SV Lua54 source reconstruction](../../docs/research/sv-lua54-source-reconstruction-roadmap.md).
