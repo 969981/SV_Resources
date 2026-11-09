@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/slr-r1-native-evidence.yml"
       - "scripts/Analyze-SV-Lua54-R1.py"
+      - "scripts/Benchmark-SV-Lua54.py"
       - "tools/SV.Lua54/src/sv_lua54/r1.py"
       - "tests/test_sv_lua54_r1.py"
   workflow_dispatch:
@@ -30,6 +31,7 @@ jobs:
           filter: blob:none
           sparse-checkout: |
             scripts/Analyze-SV-Lua54-R1.py
+            scripts/Benchmark-SV-Lua54.py
             tools/SV.Lua54/src
             tools/SV.Lua54/fixtures/native_manifest.json
             tools/SV.Lua54/fixtures/benchmark_cohort.json
@@ -65,13 +67,39 @@ jobs:
             --method-index "$RUNNER_TEMP/slr-native-cf-index.jsonl" \
             --capture-index "$RUNNER_TEMP/slr-native-capture-index.jsonl"
 
+      - name: Test pinned unluac-rs v1.4.5 against all 100 source prototypes
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 https://github.com/x3zvawq/unluac-rs/releases/download/v1.4.5/unluac-1.4.5-linux-x86_64 -o "$RUNNER_TEMP/unluac-1.4.5"
+          echo "53ff3f4659c0a529b01bd6fc14ca56d50943c7cbb7c68840a269e320f6f2e337  $RUNNER_TEMP/unluac-1.4.5" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/unluac-1.4.5"
+          if ! command -v luac5.4 >/dev/null 2>&1; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq lua5.4
+          fi
+          python scripts/Benchmark-SV-Lua54.py --verify-only \
+            --decompiler "$RUNNER_TEMP/unluac-1.4.5" --luac luac5.4 --timeout 15 \
+            --backend-id "unluac-rs v1.4.5 strict Lua 5.4" \
+            --report tools/SV.Lua54/fixtures/r1_backend_145.json
+          python - <<'PY'
+          import json
+          r=json.load(open("tools/SV.Lua54/fixtures/r1_backend_145.json", encoding="utf-8"))
+          assert r["cohort_count"]==100
+          selected={("main",2406),("main",3769),("main_dynamic",752)}
+          focused=[x for x in r["cases"] if (x["module"],x["proto_id"]) in selected]
+          assert len(focused)==3
+          for x in focused: print("FIXTURE",x["module"],x["proto_id"],x["state"],x["diagnostic"][:100])
+          print("backend v1.4.5:",r["states"])
+          PY
+
       - name: Upload source-backed R1 evidence/indices
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: SLR-R1-native-evidence
+          name: SLR-R1-native-and-backend-evidence
           path: |
             tools/SV.Lua54/fixtures/r1_native_report.json
+            tools/SV.Lua54/fixtures/r1_backend_145.json
             ${{ runner.temp }}/slr-native-cf-index.jsonl
             ${{ runner.temp }}/slr-native-capture-index.jsonl
           retention-days: 14
@@ -83,7 +111,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add --sparse tools/SV.Lua54/fixtures/r1_native_report.json
+          git add --sparse tools/SV.Lua54/fixtures/r1_native_report.json tools/SV.Lua54/fixtures/r1_backend_145.json
           if git diff --cached --quiet; then
             echo "R1 summary unchanged"
           else
