@@ -9,7 +9,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools" / "SV.Lua54" / "src"))
-from sv_lua54.chunk import Chunk, Constant, Lua54FormatError, Proto, enc_vint, parse
+from sv_lua54.chunk import Chunk, Constant, Lua54FormatError, Proto, Reader, enc_vint, parse
 
 HEADER = (bytes.fromhex("1b4c7561540019930d0a1a0a")
           + b"\x04\x08\x08" + (0x5678).to_bytes(8, "little")
@@ -88,9 +88,9 @@ class Lua54ParserTests(unittest.TestCase):
 
     def test_vint(self):
         for value in [0, 1, 127, 128, 16383, 16384, 2**32, 2**63]:
-            chunk = fixture().replace(b"can\x00ary", b"can\x00ary")
-            self.assertTrue(enc_vint(value)[-1] & 128)
-            self.assertEqual(parse(chunk).encode(), chunk)
+            encoded = enc_vint(value)
+            self.assertTrue(encoded[-1] & 128)
+            self.assertEqual(Reader(encoded).vint(), value)
 
     def test_reject_trailing(self):
         with self.assertRaisesRegex(Lua54FormatError, "trailing"):
