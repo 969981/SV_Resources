@@ -161,6 +161,10 @@ jobs:
           assert origins[83]["kind"] == "SELF_INDEXED_SLOT" and origins[83]["slot_index"] == 7, origins
           assert origins[32]["kind"] == "ENV_CLASS_STATIC_FIELD" and origins[32]["class_hash"] == "C8FB6CAF7F89386B8", origins
           assert origins[32]["field_hash"] == "S668179E3DFA5CD49", origins
+          assert origins[11]["same_block_seti_writers"][-1]["pc"] == 8
+          assert origins[11]["same_block_seti_writers"][-1]["producer_call_pc"] == 7
+          assert origins[83]["same_block_seti_writers"][-1]["pc"] == 48
+          assert origins[83]["same_block_seti_writers"][-1]["producer_call_pc"] == 47
           assert all(not row["runtime_verified"] for row in origins.values())
           assert d["audit"]["status"] == "NO_RUNTIME_EVIDENCE"
           assert d["audit"]["runtime_verified"] is False
