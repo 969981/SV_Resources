@@ -242,7 +242,7 @@ if gdb is not None:
                     "runtime_upvalue_cells":None,
                 }
                 if self.rva == LUA_NATIVE_OPCODE_ENTRY_RVA:
-                    ci_literal=regs.get("x1")
+                    ci_literal=registers.get("x1")
                     try:
                         candidate_ci=int(ci_literal,16) if ci_literal else 0
                         event["static_lua_dispatch_candidate"]=snapshot_native_dispatch_structures(
