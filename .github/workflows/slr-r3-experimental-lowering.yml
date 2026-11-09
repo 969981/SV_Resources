@@ -33,8 +33,10 @@ jobs:
             scripts/R3-Experimental-Unluac-Setlist-Patch.py
             scripts/R3-Export-Proto752.py
             scripts/R3-Verify-Full-Proto-Metadata.py
+            scripts/Benchmark-SV-Lua54.py
             tools/SV.Lua54/src/sv_lua54
-            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+            tools/SV.Lua54/fixtures/benchmark_cohort.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release
           persist-credentials: false
 
       - name: Checkout exact public upstream version
@@ -125,6 +127,37 @@ jobs:
           print(json.dumps(result,indent=2))
           PY
 
+      - name: Check baseline 100 Proto 5.4 samples with default and opt-in HIR lowering
+        shell: bash
+        run: |
+          set -euo pipefail
+          BIN="$(pwd)/upstream/target/debug/unluac-cli"
+          python3 slr/scripts/Benchmark-SV-Lua54.py --root slr --verify-only \
+            --decompiler "$BIN" --luac luac5.4 --timeout 20 \
+            --backend-id "pinned unluac v1.4.5 default semantics" \
+            --report "$RUNNER_TEMP/r3_cohort_default.json"
+          SV_R3_EXPERIMENTAL_752=1 python3 slr/scripts/Benchmark-SV-Lua54.py --root slr --verify-only \
+            --decompiler "$BIN" --luac luac5.4 --timeout 20 \
+            --backend-id "pinned unluac v1.4.5 opt-in source site 0:683" \
+            --report "$RUNNER_TEMP/r3_cohort_experimental.json"
+          python3 - "$RUNNER_TEMP/r3_cohort_default.json" "$RUNNER_TEMP/r3_cohort_experimental.json" "$RUNNER_TEMP/r3_cohort_diff.json" <<'PY'
+          import sys,json
+          a,b=(json.load(open(path)) for path in sys.argv[1:3])
+          p={(x["module"],x["proto_id"]):x["state"] for x in a["cases"]}
+          q={(x["module"],x["proto_id"]):x["state"] for x in b["cases"]}
+          changed=[dict(module=k[0],proto_id=k[1],before=p[k],after=q[k])
+                   for k in p if p[k]!=q[k]]
+          report={"default_states":a["states"],"experimental_states":b["states"],
+                  "changes":changed,"semantic_equivalence":"NOT_VERIFIED"}
+          json.dump(report,open(sys.argv[3],"w"),indent=2)
+          print(json.dumps(report,indent=2))
+          assert len(p)==len(q)==100
+          assert a["states"].get("LUA_SYNTAX_OK")==99
+          assert b["states"].get("LUA_SYNTAX_OK")==100
+          assert changed==[{"module":"main_dynamic","proto_id":752,
+              "before":"DECOMPILE_FAILED","after":"LUA_SYNTAX_OK"}]
+          PY
+
       - name: Remove original test bytes and generated source after assertions
         if: always()
         shell: bash
@@ -140,5 +173,6 @@ jobs:
           path: |
             ${{ runner.temp }}/r3_full_proto_metrics.json
             ${{ runner.temp }}/r3_structure_compare.json
+            ${{ runner.temp }}/r3_cohort_diff.json
           retention-days: 14
           if-no-files-found: warn
