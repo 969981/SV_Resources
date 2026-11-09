@@ -131,10 +131,13 @@ IMPL = """    /// Experimental SLR R3: a contiguous fresh LocalDecl table plus e
         let mut index = BindingIndex::new(self.temp_count, self.next_local_index);
         let ids = producers.iter().map(|x| index.intern(*x)).collect::<Vec<_>>();
         eprintln!("SLR_R3_FOLD checking later uses after index={set_index}");
-        for stmt in &block.stmts[set_index + 1..] {
+        for (offset, stmt) in block.stmts[set_index + 1..].iter().enumerate() {
             let summary = collect_stmt_binding_summary(stmt, &mut index);
-            if summary.uses().chain(summary.writes()).any(|id| ids.contains(&id)) {
-                eprintln!("SLR_R3_FOLD rejected: producer local referenced/rewritten later");
+            let touched_uses = summary.uses().filter(|id| ids.contains(id)).collect::<Vec<_>>();
+            let touched_writes = summary.writes().filter(|id| ids.contains(id)).collect::<Vec<_>>();
+            if !touched_uses.is_empty() || !touched_writes.is_empty() {
+                eprintln!("SLR_R3_FOLD blocked at future_stmt={} used={touched_uses:?} rewritten={touched_writes:?} stmt={}",
+                    set_index + 1 + offset, format!("{stmt:?}").chars().take(1400).collect::<String>());
                 return false;
             }
         }
