@@ -135,18 +135,29 @@ def trace_owner(proto: Proto, setlist_pc: int, window: int = 140) -> dict:
         for start, end, kind in edges if producer.pc <= start < setlist_pc
         and kind not in {"SEQUENTIAL", "CONSUME_EXTRAARG"}
     ]
+    mm = [x.pc for x in instructions[producer.pc+1:setlist_pc]
+          if x.name in {"MMBIN", "MMBINI", "MMBINK"}]
+    capture = []
+    for x in instructions[producer.pc+1:setlist_pc]:
+        if x.name == "CLOSURE" and x.bx < len(proto.children):
+            child = proto.children[x.bx]
+            if any(child.upvalues[i:i+2] == bytes([1, reg])
+                   for i in range(0, len(child.upvalues), 3)):
+                capture.append(x.pc)
     hard = [e for e in events if e["write_kind"] != "NONE"
             or e["read_kind"] not in (None, "TABLE_MUTATION")]
     barriers = {
         "candidate_clobber_or_escape": hard,
         "region_incoming_edges": inbound,
         "region_nontrivial_branches": branches,
+        "implicit_metamethod_skip_pcs": mm,
+        "closure_capture_of_table_pcs": capture,
         "cfg_defects": [x for x in cfg_errors
                         if x.get("pc", -1) >= producer.pc and x.get("pc", -1) <= setlist_pc],
     }
     # Even without barriers this is ONLY a potential private constructor:
     # value effects and native metamethod path have not been fully proved.
-    clean = not (hard or inbound or branches or barriers["cfg_defects"])
+    clean = not (hard or inbound or branches or mm or capture or barriers["cfg_defects"])
     return {
         "proto_id": proto.id, "setlist_pc": setlist_pc,
         "native_byte_offset": proto.code_offset + setlist_pc * 4,
