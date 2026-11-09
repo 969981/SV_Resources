@@ -3,6 +3,7 @@ name: SLR R0 - Lua 5.4 native IR and six-file manifest
 on:
   push:
     branches:
+      - master
       - feature/sv-lua54-ir-r0
     paths:
       - ".github/workflows/validate-sv-lua54-reconstruction.yml"
@@ -16,7 +17,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: slr-400-native-parser-feature
+  group: slr-400-native-parser
   cancel-in-progress: false
 
 jobs:
@@ -90,7 +91,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Commit verified metadata to isolated feature branch only
+      - name: Commit verified native metadata to the current branch
         shell: bash
         run: |
           set -euo pipefail
@@ -104,5 +105,5 @@ jobs:
             echo "Native manifest already in sync"
           else
             git commit -m "data(SLR): record six native Lua modules and benchmark outcomes"
-            git push origin HEAD:refs/heads/feature/sv-lua54-ir-r0
+            git push origin HEAD:refs/heads/$GITHUB_REF_NAME
           fi
