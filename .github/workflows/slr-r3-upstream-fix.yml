@@ -1,0 +1,116 @@
+name: SLR R3 - experimental upstream guarded table-constructor fusion
+
+on:
+  push:
+    branches: [feature/sv-lua54-r3-unluac-lowering]
+    paths:
+      - ".github/workflows/slr-r3-upstream-fix.yml"
+      - "scripts/Patch-SV-Lua54-R3-FreshBatch.py"
+      - "scripts/Build-SV-Lua54-R3-Proto.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  experimental-upstream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout source-backed R3 tests and original BLUA
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Patch-SV-Lua54-R3-FreshBatch.py
+            scripts/Build-SV-Lua54-R3-Proto.py
+            scripts/Build-SV-Lua54-R2-NativeSlice.py
+            tests/fixtures/sv_lua54/r3_nil_hole_constructor.lua
+            scripts/Benchmark-SV-Lua54.py
+            tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/fixtures/benchmark_cohort.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release
+          persist-credentials: false
+
+      - name: Python and stable Rust
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build exact original full Proto752 in temporary location
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Build-SV-Lua54-R3-Proto.py --out "$RUNNER_TEMP/proto752.luac"
+
+      - name: Clone upstream v1.4.5 and apply experimental source patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          python scripts/Patch-SV-Lua54-R3-FreshBatch.py --upstream "$RUNNER_TEMP/unluac-rs"
+          cd "$RUNNER_TEMP/unluac-rs"
+          git diff --check
+          cargo build --release --locked -p unluac-cli
+
+      - name: Native 17-opcode SETLIST versus fused constructor with nil results
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          python scripts/Build-SV-Lua54-R2-NativeSlice.py --output "$RUNNER_TEMP/r3_native_slice.luac"
+          luac5.4 -p tests/fixtures/sv_lua54/r3_nil_hole_constructor.lua
+          lua5.4 tests/fixtures/sv_lua54/r3_nil_hole_constructor.lua "$RUNNER_TEMP/r3_native_slice.luac"
+          rm -f "$RUNNER_TEMP/r3_native_slice.luac"
+
+      - name: Run full 2071-opcode Proto752 strict AST and compile test
+        shell: bash
+        run: |
+          set -euo pipefail
+          exe="$RUNNER_TEMP/unluac-rs/target/release/unluac-cli"
+          if test ! -x "$exe"; then exe="$RUNNER_TEMP/unluac-rs/target/release/unluac"; fi
+          set +e
+          "$exe" -i "$RUNNER_TEMP/proto752.luac" -D lua5.4 --generate-mode strict >"$RUNNER_TEMP/proto752_recovered.lua" 2>"$RUNNER_TEMP/proto752_stderr.log"
+          rc=$?
+          set -e
+          echo "SLR_R3_PATCHED_STRICT_RC=$rc"
+          if test "$rc" -ne 0; then
+            grep -E 'SLR_R3_FOLD|residual table-set-list|failed|error' "$RUNNER_TEMP/proto752_stderr.log" | tail -n 55 || true
+            echo "R3_UPSTREAM_FULL_PROTO_STILL_UNSUPPORTED"
+            exit 1
+          fi
+          luac5.4 -p "$RUNNER_TEMP/proto752_recovered.lua"
+          echo "R3_FULL_PROTO_752_STRICT_LUA_SYNTAX_PASS"
+          wc -l "$RUNNER_TEMP/proto752_recovered.lua"
+
+      - name: Run pinned 100-prototype syntax regression with patched compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          exe="$RUNNER_TEMP/unluac-rs/target/release/unluac-cli"
+          if test ! -x "$exe"; then exe="$RUNNER_TEMP/unluac-rs/target/release/unluac"; fi
+          python scripts/Benchmark-SV-Lua54.py --verify-only \
+            --decompiler "$exe" --luac luac5.4 --timeout 30 \
+            --backend-id "unluac-rs v1.4.5 + experimental R3 fresh batch fusion" \
+            --report "$RUNNER_TEMP/r3_backend_results.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          j=json.loads((Path(os.environ["RUNNER_TEMP"])/"r3_backend_results.json").read_text())
+          print("R3_PATCHED_COHORT_STATES",j["states"])
+          assert j["cohort_count"]==100
+          if j["states"].get("LUA_SYNTAX_OK",0)<99:
+              raise SystemExit("R3 patch regressed established 99/100 cohort")
+          target=[x for x in j["cases"] if x["module"]=="main_dynamic" and x["proto_id"]==752]
+          assert len(target)==1
+          print("R3_TARGET_STATUS",target[0]["state"])
+          PY
+
+      - name: Cleanup original derived binary and generated full source
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/proto752.luac" "$RUNNER_TEMP/proto752_recovered.lua" "$RUNNER_TEMP/proto752_stderr.log"
