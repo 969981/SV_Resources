@@ -1,0 +1,66 @@
+name: SLR R3 - native SETLIST nil-hole counterexamples
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-r3-hir-setlist
+    paths:
+      - ".github/workflows/slr-r3-nil-shape.yml"
+      - "tests/fixtures/sv_lua54/r3_nil_shape.lua"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nil-shape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout only pinned native and tests
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Build-SV-Lua54-R2-NativeSlice.py
+            scripts/Emit-SV-Lua54-R2-SafeRegion.py
+            tools/SV.Lua54/src/sv_lua54
+            tests/fixtures/sv_lua54/r3_nil_shape.lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build ephemeral exact-original-opcode and Lua candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Build-SV-Lua54-R2-NativeSlice.py --output "$RUNNER_TEMP/sv-r3-native.luac"
+          python scripts/Emit-SV-Lua54-R2-SafeRegion.py --out-lua "$RUNNER_TEMP/sv-r3-generated.lua"
+      - name: Measure nil-hole and array-length behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -qq -y lua5.4
+          luac5.4 -p "$RUNNER_TEMP/sv-r3-generated.lua"
+          lua5.4 tests/fixtures/sv_lua54/r3_nil_shape.lua \
+            "$RUNNER_TEMP/sv-r3-native.luac" \
+            "$RUNNER_TEMP/sv-r3-generated.lua" \
+            "$RUNNER_TEMP/r3_nil_shape_report.txt"
+          if grep -Eq 'divergences=[1-9]' "$RUNNER_TEMP/r3_nil_shape_report.txt"; then
+            echo "SLR_R3: found native-vs-indexed nil-shape counterexample; automatic AST lowering remains BLOCKED"
+          else
+            echo "SLR_R3: no difference in eight controlled nil-shape masks; proof remains INCOMPLETE"
+          fi
+          rm -f "$RUNNER_TEMP/sv-r3-native.luac" "$RUNNER_TEMP/sv-r3-generated.lua"
+      - name: Upload only test metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R3-nil-shape-metrics
+          path: ${{ runner.temp }}/r3_nil_shape_report.txt
+          if-no-files-found: warn
+          retention-days: 14
