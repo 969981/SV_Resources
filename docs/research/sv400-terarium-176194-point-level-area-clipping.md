@@ -71,3 +71,25 @@ The source-formula sample script and unit tests now report/test min-only, max-on
 2. Report per-location and per-slot reference-match retention/loss/recovery, not only net match count.
 3. Confirm all non-target wild slots and fixed/three Raid SHAs remain unchanged.
 4. If max-only reproduces the raw-both +42 gain with no additional unmatched slots, investigate the original AreaInfo upper bound as a likely overly strict cap; if min-only also matters, retain both as separate hypotheses.
+
+
+## 2026-11-09 独立原始来源样本：176 与 194 分组结果
+
+最新 61+223 源文件对应的原生 PointData 条件样本在 [Actions #42500331084](https://github.com/969981/SV_Resources/actions/runs/42500331084) 和合并后的 [Actions #42538746057](https://github.com/969981/SV_Resources/actions/runs/42538746057) 通过源 SHA 核验。输入来自原生 `SV400_666_wild_point_provenance.csv` 与剩余 115 条案例对账；下表从导出的 `SV400_115_Sourced_PointData_Level_Formula_AB.csv` 按最终 `location_id` 去重分组，不把 CrossFrom 的重复归类算作额外样本。
+
+| 最终地点 ID | 来源案例数 | 原始条件采样 | 仅取消 min 裁剪会改变的采样 | 仅取消 max 裁剪会改变的采样 | 两端至少一处变化 |
+|---|---:|---:|---:|---:|---:|
+| 176 Coastal Biome | 39 | 3,020 | 548 | 616 | 1,164 |
+| 194 Torchlit Labyrinth | 39 | 2,983 | 2,063 | 0 | 2,063 |
+| **合计** | **78** | **6,003** | **2,611** | **616** | **3,227** |
+
+这是一项 **PointData × EncounterCriteria 采样**，不是 3,227 个真实 PKHeX 野生槽位，也不是 3,227 个可以在游戏里遭遇的不同宝可梦。按当前 80 条／案例采样上限，两地都有 39 个样例，不能证明整个 DLC 所有未采样点的等级公式。
+
+从这个分组可以提出两个互不相同的假设：
+
+1. **176 可能同时需要修正区域最低等级和最高等级裁剪**：对所采样的 176 条件记录，548 次 min 改动、616 次 max 改动。
+2. **194 现有采样主要指向最低等级**：2,063 次 min 改动、0 次 max 改动。但是“没有采到 max 改动”不是游戏最大等级绝不会受影响的证明。
+
+更重要的是，全部八条之前已匹配但因 raw-both 模式而损失的模板属于 **Location 186 / CrossFrom 176**；它们 **没有出现在此 115 条来源采样案例中**，因此不能依靠上述采样去判定 186 的具体修复。只有完整的六方案 `.pkl` 原生重建能够检验 `raw-min-only`、`raw-max-only` 对 186 的真实影响，并检验非目标野生及固定、普通 Raid 的 SHA 不变。
+
+CI 障碍修复：PR #67 中 `compile-no-rom` 的稀疏检出曾漏掉 `scripts/Compare-SV-Terarium-176-194-Native-AB.py`，导致匹配保留测试的导入失败；修复后 [Actions #42538490818](https://github.com/969981/SV_Resources/actions/runs/42538490818) 的专项编译／测试通过。合并提交 `909b1291122bdb087dd3db42184a0d0ca4a34547` 已触发真实完整重跑 [Actions #42538746081](https://github.com/969981/SV_Resources/actions/runs/42538746081)。**此处的六方案新结果尚未写入本文，避免将未完成的原生重跑当成验证成功。**
