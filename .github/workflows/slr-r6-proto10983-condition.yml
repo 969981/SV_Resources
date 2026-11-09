@@ -1,0 +1,73 @@
+name: SLR R6 - Proto10983 loop-condition diagnosis
+
+on:
+  push:
+    branches: [codex/sv-main-lua-recovery-20261109]
+    paths:
+      - .github/workflows/slr-r6-proto10983-condition.yml
+      - scripts/Diagnose-SV-Lua54-Proto10983.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/Diagnose-SV-Lua54-Proto10983.py
+            tools/SV.Lua54/src/sv_lua54
+            patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Lift original 93-op Proto10983
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Diagnose-SV-Lua54-Proto10983.py --lift "$RUNNER_TEMP/proto10983.luac"
+      - name: Clone and patch reviewed upstream v1.4.5
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          cd "$RUNNER_TEMP/unluac-rs"
+          test "$(git rev-parse HEAD)" = "76d1452359b207c2a6fdec3c7c894152c7a61374"
+          git apply "$GITHUB_WORKSPACE/patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch"
+          python "$GITHUB_WORKSPACE/scripts/Diagnose-SV-Lua54-Proto10983.py" --instrument "$RUNNER_TEMP/unluac-rs"
+          rustup toolchain install nightly-2026-11-08 --profile minimal
+          sed -i '1i #![feature(if_let_guard)]' src/lib.rs
+          cargo +nightly-2026-11-08 build --release --locked --package unluac-cli
+      - name: Reproduce isolated source failure and log frozen decision
+        shell: bash
+        run: |
+          set -uo pipefail
+          "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$RUNNER_TEMP/proto10983.luac" -D lua5.4 \
+            --generate-mode strict \
+            > "$RUNNER_TEMP/proto10983.lua" 2> "$RUNNER_TEMP/condition-diagnostic.log"
+          status=$?
+          echo "SLR10983_DECOMPILER_EXIT=$status"
+          grep -E 'SV10983_|error:' "$RUNNER_TEMP/condition-diagnostic.log" | tail -n 250 || true
+          grep 'SV10983_FAILURE=' "$RUNNER_TEMP/condition-diagnostic.log" > "$RUNNER_TEMP/summary.txt" || true
+          echo "Return code=$status" >> "$RUNNER_TEMP/summary.txt"
+          exit 0
+      - name: Upload only diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R6-Proto10983-Condition-Diagnostics
+          path: |
+            ${{ runner.temp }}/condition-diagnostic.log
+            ${{ runner.temp }}/summary.txt
+          if-no-files-found: warn
+          retention-days: 14
