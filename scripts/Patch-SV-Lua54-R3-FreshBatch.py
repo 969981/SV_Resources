@@ -48,6 +48,7 @@ IMPL = """    /// Experimental SLR R3: a contiguous fresh LocalDecl table plus e
         let TableBinding::Local(owner) = binding else {
             return false;
         };
+        eprintln!("SLR_R3_FOLD entered index={set_index} owner={owner:?} start={} count={} tail={}", batch.start_index, batch.values.fixed.len(), batch.values.tail.is_some());
         if batch.start_index != 1
             || batch.values.fixed.len() != 3
             || batch.values.tail.is_some()
@@ -59,12 +60,14 @@ IMPL = """    /// Experimental SLR R3: a contiguous fresh LocalDecl table plus e
             return false;
         };
         let Some((seed_binding, ctor_ref)) = constructor_seed(&block.stmts[seed_index]) else {
+            eprintln!("SLR_R3_FOLD failed: no seed four statements earlier");
             return false;
         };
         let mut ctor = ctor_ref.clone();
         let HirStmt::LocalDecl(seed_decl) = &block.stmts[seed_index] else {
             return false;
         };
+        eprintln!("SLR_R3_FOLD seed_binding={seed_binding:?} local={:?} allocation={:?} fields={} debug={} captured={} frame={}", seed_decl.bindings, ctor.allocation, ctor.fields.len(), self.debug_identity_bindings.get(binding).copied().unwrap_or(false), self.reference_captured_bindings.get(binding).copied().unwrap_or(false), self.call_frame_prefix.contains(&owner));
         if seed_binding != binding
             || seed_decl.bindings.as_slice() != [owner]
             || seed_decl.values.fixed.len() != 1
@@ -83,6 +86,7 @@ IMPL = """    /// Experimental SLR R3: a contiguous fresh LocalDecl table plus e
         let mut expressions = Vec::new();
         for offset in 0..3 {
             let HirStmt::LocalDecl(decl) = &block.stmts[seed_index + offset + 1] else {
+                eprintln!("SLR_R3_FOLD producer slot {offset} not LocalDecl");
                 return false;
             };
             let [producer] = decl.bindings.as_slice() else {
@@ -111,9 +115,11 @@ IMPL = """    /// Experimental SLR R3: a contiguous fresh LocalDecl table plus e
             ) {
                 return false;
             }
+            eprintln!("SLR_R3_FOLD producer offset={offset} local={producer:?} expr={:?}", value);
             producers.push(TableBinding::Local(*producer));
             expressions.push(value.clone());
         }
+        eprintln!("SLR_R3_FOLD gathered three locals; checking circular references");
         if expressions.iter().any(|value| expr_uses_binding(value, binding)
             || producers.iter().any(|producer| expr_uses_binding(value, *producer)))
         {
@@ -124,15 +130,18 @@ IMPL = """    /// Experimental SLR R3: a contiguous fresh LocalDecl table plus e
         // be a semantic change. The original owner local itself survives.
         let mut index = BindingIndex::new(self.temp_count, self.next_local_index);
         let ids = producers.iter().map(|x| index.intern(*x)).collect::<Vec<_>>();
+        eprintln!("SLR_R3_FOLD checking later uses after index={set_index}");
         for stmt in &block.stmts[set_index + 1..] {
             let summary = collect_stmt_binding_summary(stmt, &mut index);
             if summary.uses().chain(summary.writes()).any(|id| ids.contains(&id)) {
+                eprintln!("SLR_R3_FOLD rejected: producer local referenced/rewritten later");
                 return false;
             }
         }
         // A Lua 5.4 table constructor evaluates its value expressions in
         // increasing order after allocating the table. It emits raw SETLIST
         // for its final fixed batch, including possible nil array values.
+        eprintln!("SLR_R3_FOLD SUCCESS owner={owner:?} index={set_index} fresh table and three producer expressions");
         ctor.fields.extend(expressions.into_iter().map(HirTableField::Array));
         install_constructor_seed(&mut block.stmts[seed_index], ctor);
         block.stmts.drain(seed_index + 1..=set_index);
