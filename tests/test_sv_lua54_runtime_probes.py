@@ -147,6 +147,30 @@ class RuntimeProbeTests(unittest.TestCase):
         self.assertEqual(origin["returned_object_type"],"UNOBSERVED")
         self.assertFalse(origin["runtime_verified"])
 
+    def test_factory_callable_survives_argument_setup_but_not_clobber(self):
+        constants=[Constant(4,CLASS.encode()),Constant(4,b"new")]
+        p=node(7,0,[
+            abc("GETTABUP",2,0,0),
+            abc("GETFIELD",2,2,1),
+            abc("GETI",3,0,1),
+            abc("CALL",2,2,2),
+            abc("RETURN0"),
+        ], constants=constants)
+        result=runtime_probes.producer_call_origin(p,trace.instructions(p),3)
+        self.assertEqual(result["class_hash"],CLASS)
+        self.assertEqual(result["field_key"],"new")
+        self.assertEqual(result["arg_setup_pcs"],[2])
+        p2=node(7,0,[
+            abc("GETTABUP",2,0,0),
+            abc("GETFIELD",2,2,1),
+            abc("LOADNIL",2,0,0),
+            abc("CALL",2,2,2),
+            abc("RETURN0"),
+        ], constants=constants)
+        self.assertEqual(
+            runtime_probes.producer_call_origin(p2,trace.instructions(p2),3)["kind"],
+            "INDIRECT_OR_UNKNOWN_PRODUCER")
+
     def test_same_block_seti_return_producer_only_candidate(self):
         p = node(7, 0, [
             abc("CALL",2,1,2),
