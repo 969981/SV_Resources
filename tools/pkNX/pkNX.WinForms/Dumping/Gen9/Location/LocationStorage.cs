@@ -165,7 +165,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
                 int source = left.CrossFromLocation == 0 ? 0 : storageLocation;
                 if (EncounterTraceSV.FocusWildMerge(target, source, left.Species))
                     EncounterTraceSV.Write(new {
-                        stage="wild_six_group_absorb", location=target, crossFrom=source,
+                        stage=target == 186 && source == 176 ? "wild_186_causal_absorb" : "wild_six_group_absorb", location=target, crossFrom=source,
                         species=left.Species, form=left.Form, gender=left.Sex,
                         timeMask=left.Time, weatherMask=(byte)left.Weather,
                         leftMin, leftMax, rightMin=right.MinLevel, rightMax=right.MaxLevel,
