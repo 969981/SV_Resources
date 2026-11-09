@@ -1,0 +1,124 @@
+name: SLR R3 - pinned unluac HIR source-site and constructor rejection
+
+on:
+  push:
+    branches: [feature/sv-lua54-r3-hir-ast]
+    paths:
+      - ".github/workflows/slr-r3-hir-pipeline.yml"
+      - "scripts/R3-Instrument-Unluac-SourceSite.py"
+      - "scripts/R3-Export-Proto752.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sv-slr-r3-hir-debug
+  cancel-in-progress: false
+
+jobs:
+  upstream-hir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout own repo (read only)
+        uses: actions/checkout@v4
+        with:
+          path: slr
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/R3-Instrument-Unluac-SourceSite.py
+            scripts/R3-Export-Proto752.py
+            tools/SV.Lua54/src/sv_lua54
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+
+      - name: Checkout exact upstream source (not latest branch)
+        uses: actions/checkout@v4
+        with:
+          repository: x3zvawq/unluac-rs
+          ref: 76d1452359b207c2a6fdec3c7c894152c7a61374
+          path: upstream
+          persist-credentials: false
+
+      - name: Verify upstream SHA and instrument two code sites without behavior changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C upstream rev-parse HEAD)" = "76d1452359b207c2a6fdec3c7c894152c7a61374"
+          python3 slr/scripts/R3-Instrument-Unluac-SourceSite.py upstream
+          python3 slr/scripts/R3-Export-Proto752.py --root slr --output "$RUNNER_TEMP/r3_proto752_native.luac"
+
+      - name: Rust compiler pinned compatible with v1.4.5
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.94.0"
+
+      - name: Build patched upstream decompiler
+        shell: bash
+        working-directory: upstream
+        run: |
+          set -euo pipefail
+          cargo build --locked -p unluac-cli
+          test -x target/debug/unluac
+
+      - name: Audit source-site and rejection decisions, strict baseline expected to fail
+        shell: bash
+        run: |
+          set -euo pipefail
+          BIN="$(pwd)/upstream/target/debug/unluac"
+          SV_R3_TRACE=1 "$BIN" -i "$RUNNER_TEMP/r3_proto752_native.luac" -D lua5.4 \
+            --dump hir --detail verbose --stop-after hir --proto 0 \
+            > "$RUNNER_TEMP/r3_hir.txt" 2> "$RUNNER_TEMP/r3_trace.txt"
+          echo "=== R3 instrumented source-site and bounded owner decisions ==="
+          grep -F "table-set-list" "$RUNNER_TEMP/r3_hir.txt" | tail -n 15
+          grep -E '^SV_R3 (SETLIST|OWNER_SEEDS|PROOFS)' "$RUNNER_TEMP/r3_trace.txt" | tail -n 18 || true
+          echo "=== Nearest seed/region lines ==="
+          grep -En 'local \["l15"\]|assign l15|table-set-list l15' "$RUNNER_TEMP/r3_hir.txt" | tail -n 20 || true
+
+          set +e
+          "$BIN" -i "$RUNNER_TEMP/r3_proto752_native.luac" -D lua5.4 \
+            --generate-mode strict > "$RUNNER_TEMP/r3_strict.out" 2> "$RUNNER_TEMP/r3_strict.err"
+          STATUS=$?
+          set -e
+          echo "Unmodified constructor semantics strict exit: $STATUS"
+          tail -n 10 "$RUNNER_TEMP/r3_strict.err"
+          if test "$STATUS" -eq 0; then
+            echo "Unexpected strict success; investigate before attempting a patch"
+            exit 1
+          fi
+          if ! grep -Eq 'table-set-list|table.set.list' "$RUNNER_TEMP/r3_strict.err"; then
+            echo "Strict failure is no longer the expected residual table-set-list"
+            exit 1
+          fi
+          python3 - "$RUNNER_TEMP/r3_hir.txt" "$RUNNER_TEMP/r3_trace.txt" "$RUNNER_TEMP/r3_diagnostics.json" <<'PY'
+          import sys, json
+          h=open(sys.argv[1],encoding="utf-8").read().splitlines()
+          t=open(sys.argv[2],encoding="utf-8").read().splitlines()
+          hit=[(i,x) for i,x in enumerate(h) if "table-set-list l15" in x]
+          selected=[]
+          for i,line in hit[:3]:
+              selected.append({"line":i+1,"text":line[:400],
+                               "context":h[max(0,i-18):min(len(h),i+9)]})
+          owners=[x[:650] for x in t if x.startswith("SV_R3 ") and
+                  any(tag in x for tag in ("SETLIST","OWNER_SEEDS","PROOFS"))]
+          report={"status":"INSTRUMENTED_HIR_DIAGNOSTIC_ONLY",
+                  "pinned_upstream_commit":"76d1452359b207c2a6fdec3c7c894152c7a61374",
+                  "proto_id":752,"setlist_residual":selected,
+                  "owner_decisions":owners[:25],
+                  "proof":"SOURCE_SITE_NOT_YET_SEMANTIC_EQUIVALENCE"}
+          json.dump(report,open(sys.argv[3],"w",encoding="utf-8"),ensure_ascii=False,indent=2)
+          print("R3 diagnostics:",len(selected),"residuals",len(owners),"owner logs")
+          PY
+          rm -f "$RUNNER_TEMP/r3_proto752_native.luac" "$RUNNER_TEMP/r3_strict.out"
+
+      - name: Upload bounded diagnostics only (never original bytecode/HIR full output)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R3-HIR-source-owner-diagnostics
+          path: ${{ runner.temp }}/r3_diagnostics.json
+          if-no-files-found: warn
+          retention-days: 14
