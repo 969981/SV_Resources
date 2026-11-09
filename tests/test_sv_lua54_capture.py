@@ -67,6 +67,21 @@ class CaptureTests(unittest.TestCase):
         self.assertEqual(slot["same_block_source_pc"], 0)
         self.assertFalse(out["runtime_upvalues_recovered"])
 
+    def test_predecessor_move_chain_stays_candidate_not_runtime_proof(self):
+        chunk, method = sample([
+            abx("LOADK",4,3), abc("MOVE",3,4), sj(0)])
+        out = capture.capture_context(chunk, method)
+        cap = out["capture_slots"][0]
+        self.assertIsNone(cap["same_block_fact"])
+        backward = cap["backward_writers"]
+        self.assertFalse(backward["incomplete"])
+        self.assertEqual(backward["candidate_count"], 1)
+        writer = backward["candidate_writers"][0]
+        self.assertEqual(writer["pc"],0)
+        self.assertEqual(writer["symbol"], F2)
+        self.assertEqual(writer["moves_after"][0]["move_pc"],1)
+        self.assertFalse(writer["value_verified"])
+
     def test_branch_does_not_inherit_linear_prior_register_guess(self):
         # PC0 jumps over the apparent writer; local creation block begins PC2.
         chunk, method = sample([sj(1),abx("LOADK",3,3)])
