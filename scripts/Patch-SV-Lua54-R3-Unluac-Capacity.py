@@ -69,9 +69,10 @@ CALL_NEW = """                && let Some(seed_index) = self.find_local_set_list
                     }),
                 );
                 if values_may_be_nil {
-                    let Some((_, mut seed)) = constructor_seed(&block.stmts[seed_index]) else {
+                    let Some((_, seed_ref)) = constructor_seed(&block.stmts[seed_index]) else {
                         unreachable!("R3 preallocation must have a native seed");
                     };
+                    let mut seed = seed_ref.clone();
                     if !Self::slr_r3_exact_nil_preallocation(&seed, &set_list) {
                         unreachable!("R3 capacity proof must be repeated at commit");
                     }
