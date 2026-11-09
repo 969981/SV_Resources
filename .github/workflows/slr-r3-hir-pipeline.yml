@@ -81,7 +81,7 @@ jobs:
           grep -E '^[[:space:]]*@68[0-6][[:space:]]' "$RUNNER_TEMP/r3_transformer.txt" | tail -n 7
           LOW683="$(grep -E '^[[:space:]]*@683[[:space:]]' "$RUNNER_TEMP/r3_transformer.txt" | head -n 1)"
           echo "instrref 683: $LOW683"
-          if [[ "$LOW683" != *"origin=pc=665"* ]]; then
+          if [[ "$LOW683" != *"origin=pc=[665]"* ]]; then
             echo "The source-site 683 does not map to native PC 665; stop and investigate"
             exit 1
           fi
