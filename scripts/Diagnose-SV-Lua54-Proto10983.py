@@ -163,10 +163,10 @@ def instrument(folder):
                 super::super::super::exprs::expr_for_ssa_value_in_block(
                     self.lowering, consumer.block,
                     crate::structure::SsaValue::Phi(value.phi))
-            && let Some((producer_expr @ HirExpr::Binary(ref binary), _)) =
+            && let Some((producer_expr, _)) =
                 super::super::super::short_circuit::lower_short_circuit_subject(
                     self.lowering, producer.block, producer.predicate)
-            && binary.op == crate::hir::HirBinaryOpKind::Lt
+            && matches!(&producer_expr, HirExpr::Binary(binary) if binary.op == crate::hir::HirBinaryOpKind::Lt)
             && let Some((HirExpr::Call(call), _)) =
                 super::super::super::short_circuit::lower_short_circuit_subject_single_eval(
                     self.lowering, consumer.block, consumer.predicate)
