@@ -12,6 +12,12 @@ pr: "https://github.com/969981/SV_Resources/pull/86"
 > [!warning] 当前验收边界
 > 已实际扫描原生 Violet 4.0.0 ELF、建立 ARM64 字符串引用候选、提供带 ELF 字节核对和硬件断点的 GDB 客户端脚本。GitHub Actions **没有启动 Switch / Ryujinx 中的 SV 游戏进程**，没有连接到 Lua VM，也没有采集 PC7 / 47 / 11 / 32 / 83 或 root PC215522 对应的执行事件。不得将 GDB 客户端自测当作原版游戏运行测试。
 
+## 已完成的持续集成验证
+
+- [Actions #42560195267](https://github.com/969981/SV_Resources/actions/runs/42560195267) 验证通过；共 **11 项合成测试**，其中 4 项 ELF 格式/字节映射、3 项 ARM64 ADRP+ADD/BL 解析、4 项 GDB preflight 门禁与错误地址拒绝。
+- 真实 Violet ELF 原生 SHA、PT_LOAD 映射、静态字符串候选、AArch64 xref 分析均通过。
+- **GDB 调试客户端只进行了纯函数/无目标端测试；没有连接任何 Ryujinx 或 Switch 游戏进程，所有 Lua VM 对象/Upvalue 运行数据仍是 NOT_OBSERVED。**
+
 ## 1. 原生 ELF 来源与硬性版本绑定
 
 - 原始 NSO：4.0.0/0/violet_main；SHA-256：f05bd7fedaf6f0ba1481005cb48b1e43067966aa12c28e6932eab9e7bc5750a4。
