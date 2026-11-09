@@ -50,9 +50,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rustup toolchain install 1.94.0 --profile minimal
+          rustup toolchain install nightly-2026-11-08 --profile minimal
           cd "$RUNNER_TEMP/unluac-rs"
-          cargo +1.94.0 build --release --locked --package unluac-cli
+          # Upstream v1.4.5 uses the experimental if-let guard match syntax.
+          # Enable that feature only in this disposable checkout.
+          sed -i '1i #![feature(if_let_guard)]' src/lib.rs
+          cargo +nightly-2026-11-08 build --release --locked --package unluac-cli
           test -x target/release/unluac-cli
 
       - name: Diagnose upstream HIR→AST rejection on entire lifted Proto 752
