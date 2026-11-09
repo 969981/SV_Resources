@@ -10,6 +10,10 @@ Initial proposed topics (not claims of completion):
 
 Keep evidence statuses visible. Do not present planned work as completed.
 
+## SV 4.0.0 Lua / Haxe 源码还原工程（SLR 1.0）
+
+- [BLUA → 可重编译 Lua / Haxe 的里程碑与任务路线图](sv-lua54-source-reconstruction-roadmap.md) — M0–M6、11 项可复验任务、六个 BLUA 输入、PokeDocs 符号恢复、Lua 5.4 AST/编译与 Haxe PoC；当前 **PLANNED**，跟踪 [EPIC #73](https://github.com/969981/SV_Resources/issues/73)。
+
 ## Lua symbols (SV 4.0.0 / PokeDocs)
 
 - [SV Lua C/E/F/S Hash 空映射恢复](sv-lua-hash-recovery.md) — 48 条 FNV-1a-64 精确 Hash 候选；保留原始文件、独立 merged TXT、可重复脚本和验证工作流。证据等级：`HASH_EXACT_CANDIDATE`，非原生运行时语义确证。
