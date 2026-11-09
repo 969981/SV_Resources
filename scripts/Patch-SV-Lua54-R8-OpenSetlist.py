@@ -27,11 +27,6 @@ METHOD=r"""    /// R8: original PUC open batch with a single scalar closure prod
         binding: TableBinding,
         set_list: &crate::hir::common::HirTableSetList,
     ) -> bool {
-        if set_list.values.tail.is_some() && set_list.values.fixed.len() == 1 {
-            let start = index.saturating_sub(5);
-            eprintln!("SLR_R8_NEARBY index={} binding={:?} start={} stmts={:#?}",
-                index, binding, start, &block.stmts[start..=index]);
-        }
         let Some(seed_i) = index.checked_sub(3) else { return false };
         let TableBinding::Local(owner) = binding else { return false };
         let Some((source, seed)) = constructor_seed(&block.stmts[seed_i]) else {
@@ -116,7 +111,7 @@ METHOD=r"""    /// R8: original PUC open batch with a single scalar closure prod
         let mut remapped = set_list.clone();
         remapped.values.fixed[0] = HirExpr::Call(Box::new(immediate));
         let constructor = constructor_with_set_list(seed, &remapped);
-        if !constructor.matches_indexed_array_capacity(1) { return false; }
+        if !constructor.matches_allocation_capacity(1) { return false; }
 
         // The captured-call result is now evaluated inside the *original*
         // NEWTABLE's initializer, followed by the original open tail call.
@@ -136,9 +131,6 @@ METHOD=r"""    /// R8: original PUC open batch with a single scalar closure prod
     }
 
 """
-# Fail-closed guard diagnostics; emitted only during this R8 test checkout.
-METHOD=METHOD.replace("return false", 'eprintln!("SLR_R8_GUARD_REJECT line={} index={} binding={:?}", line!(), index, binding); return false')
-
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--checkout",type=Path,required=True)
