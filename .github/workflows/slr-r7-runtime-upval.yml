@@ -1,0 +1,80 @@
+name: SLR R7 - verified PC fingerprints and runtime evidence gates
+
+on:
+  push:
+    branches:
+      - master
+      - feature/sv-lua54-r7-live-upval-evidence
+    paths:
+      - ".github/workflows/slr-r7-runtime-upval.yml"
+      - "tools/SV.Lua54/src/sv_lua54/r7.py"
+      - "tests/test_sv_lua54_r7.py"
+      - "scripts/Verify-SV-Lua54-R7-Runtime.py"
+      - "scripts/SV400_Lua_R7_Load_ReadOnly.py"
+      - "scripts/Verify-SV-Lua54-R7-ElfAnchor.py"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/slr-r7-runtime-upval.yml"
+      - "tools/SV.Lua54/src/sv_lua54/r7.py"
+      - "tests/test_sv_lua54_r7.py"
+      - "scripts/Verify-SV-Lua54-R7-Runtime.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-and-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Sparse checkout original BLUA and R7 tools
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            tools/SV.Lua54/src/sv_lua54
+            scripts/Verify-SV-Lua54-R7-Runtime.py
+            scripts/SV400_Lua_R7_Load_ReadOnly.py
+            scripts/Verify-SV-Lua54-R7-ElfAnchor.py
+            tests/test_sv_lua54_r7.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate read-only debugger observer syntax and synthetic rejection gates
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/SV400_Lua_R7_Load_ReadOnly.py scripts/Verify-SV-Lua54-R7-ElfAnchor.py scripts/Verify-SV-Lua54-R7-Runtime.py tools/SV.Lua54/src/sv_lua54/r7.py
+          python -m unittest discover -s tests -p "test_sv_lua54_r7.py" -v
+      - name: Pin original source CLOSURE machine words, do not claim live run
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Verify-SV-Lua54-R7-Runtime.py --report "$RUNNER_TEMP/r7-static-gates.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ["RUNNER_TEMP"])/"r7-static-gates.json").read_text())
+          assert x["status"]=="NOT_OBSERVED"
+          assert x["runtime_mainBody_semantic_parity"]=="NOT_VERIFIED"
+          specs=x["expected_native_pcs"]
+          assert sorted(map(int,specs))==[48,49,50,12242]
+          assert [(specs[str(i)]["proto"],specs[str(i)]["source_reg"]) for i in [48,49,50,12242]] == [
+              (18,13),(19,13),(20,13),(752,16)
+          ]
+          for spec in specs.values():
+              assert len(spec["instruction_word"])==8
+          print("SLR_R7_STATIC_ONLY_OK",json.dumps(specs,sort_keys=True))
+          PY
+      - name: Upload source fingerprints ONLY, never game memory dumps
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R7-static-pc-fingerprints-NOT-LIVE
+          path: ${{ runner.temp }}/r7-static-gates.json
+          retention-days: 14
