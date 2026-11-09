@@ -17,7 +17,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools" / "SV.Lua54" / "src"))
 from sv_lua54.chunk import parse
-from sv_lua54.r1 import decode, direct_cf_methods
+from sv_lua54.r1 import decode, direct_cf_methods, annotate_methods, read_symbols
 from sv_lua54.r5 import reaching_register_writes, sibling_closure_capture_sites
 
 PATH = Path("Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua")
@@ -49,6 +49,12 @@ def run(root: Path) -> dict:
         if instructions[12243].name != "SETTABLE":
             raise ValueError("method registration assignment opcode changed")
     edges, rejects = direct_cf_methods(chunk, "main_dynamic")
+    symbols=read_symbols(
+        root/"tools/PokeDocs/SV/Hashlists/Lua",
+        root/"tools/PokeDocs-Supplement/SV/Hashlists/Lua/recovered.tsv"
+    )
+    annotated_methods=annotate_methods(edges,symbols)
+    annotated_by_proto={x["child_proto_id"]:x for x in annotated_methods}
     matching = [e for e in edges if e["child_proto_id"] == 752]
     if len(matching) != 1:
         raise ValueError(f"expected one registration of child752, got {len(matching)}")
@@ -61,7 +67,20 @@ def run(root: Path) -> dict:
     if child.upvalues != bytes((0,0,0,1,16,0)):
         raise ValueError("Proto752 Upvalue capture descriptor changed")
     analyses = reaching_register_writes(root_proto, 12242, 16)
-    siblings = sibling_closure_capture_sites(root_proto, 16, 12242)
+    siblings = sibling_closure_capture_sites(root_proto, 16, 12242,
+                                             max_sites=1000)
+    r16_capture_method_edges=[]
+    for capture in siblings["site_near_target"]:
+        e=annotated_by_proto.get(capture["child_proto_id"])
+        if e is not None and e["root_pc"]+6 == capture["pc"]:
+            r16_capture_method_edges.append({
+                "closure_root_pc":capture["pc"],"proto_id":capture["child_proto_id"],
+                "class_hash":e["class_hash"],"method_hash":e["method_hash"],
+                "class_name_candidate":e["class_name_candidate"],
+                "method_name_candidate":e["function_name_candidate"],
+                "class_name_evidence":e["class_name_evidence"],
+                "method_name_evidence":e["function_name_evidence"],
+            })
     definite = [
         x for x in analyses["candidate_write_sites_tail"]
         if x.get("pc") is not None and x["op"] == "CLOSURE"
@@ -215,6 +234,9 @@ def run(root: Path) -> dict:
         "capture_lifetime_opcodes_r16_from_producer":possible_closures,
         "lifetime_limit":"STATIC_CLOSE_TBC_ONLY_NOT_REAL_CALLINFO",
         "r16_other_closure_captures": siblings,
+        "r16_captured_by_direct_native_c_to_f_count":len(r16_capture_method_edges),
+        "r16_direct_native_method_capture_examples":r16_capture_method_edges[:30],
+        "r16_direct_native_method_capture_edges_truncated":len(r16_capture_method_edges)>30,
         "root_pc35_54_native_opcodes":root_window,
         "haxe_style_object_metatable": {
             "producer_pc":43,"target_register":13,
@@ -265,6 +287,8 @@ def main() -> None:
         "parent_r16_writes_near_capture":r["near_capture_writes_last_200"],
         "parent_r16_reaching_defs_tail":r["candidate_write_sites_tail"][-12:],
         "other_r16_closure_capture_count":report["r16_other_closure_captures"]["count"],
+        "r16_captured_by_direct_native_c_to_f_count":report["r16_captured_by_direct_native_c_to_f_count"],
+        "r16_direct_native_method_capture_examples":report["r16_direct_native_method_capture_examples"][:9],
         "r16_producer_closure":report["r16_producer_closure"],
         "capture_lifetime_opcodes_r16":report["capture_lifetime_opcodes_r16_from_producer"],
         "root_pc35_54_native_opcodes":report["root_pc35_54_native_opcodes"],
