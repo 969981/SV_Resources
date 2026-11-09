@@ -138,7 +138,7 @@ def encode_json(data) -> bytes:
     return (json.dumps(data, sort_keys=True, ensure_ascii=False, indent=2) + "\n").encode()
 
 
-def bench(cohort: dict, samples: list[bytes], decompiler: Path, luac: str, timeout: int):
+def bench(cohort: dict, samples: list[bytes], decompiler: Path, luac: str, timeout: int, backend_id: str):
     if not decompiler.is_file():
         raise FileNotFoundError(decompiler)
     cases = []
@@ -184,7 +184,7 @@ def bench(cohort: dict, samples: list[bytes], decompiler: Path, luac: str, timeo
             if index % 10 == 9:
                 print(f"Decompiled benchmark {index + 1}/{len(samples)}", flush=True)
     return {
-        "schema_version": 1, "tool": "unluac-rs v1.4.4 strict Lua 5.4 mode",
+        "schema_version": 1, "tool": backend_id,
         "status": "STATIC_DECOMPILER_BENCHMARK_ONLY",
         "cohort_count": len(cases),
         "states": dict(sorted(Counter(x["state"] for x in cases).items())),
@@ -201,6 +201,7 @@ def main():
     ap.add_argument("--decompiler", type=Path)
     ap.add_argument("--luac", default="luac5.4")
     ap.add_argument("--timeout", type=int, default=15)
+    ap.add_argument("--backend-id", default="unluac-rs v1.4.4 strict Lua 5.4 mode")
     ap.add_argument("--report", type=Path, default=REPORT)
     args = ap.parse_args()
     cohort, samples = build(args.root.resolve())
@@ -213,7 +214,7 @@ def main():
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_bytes(binary)
     if args.decompiler:
-        report = bench(cohort, samples, args.decompiler.resolve(), args.luac, args.timeout)
+        report = bench(cohort, samples, args.decompiler.resolve(), args.luac, args.timeout, args.backend_id)
         dst = args.report if args.report.is_absolute() else args.root / args.report
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(encode_json(report))
