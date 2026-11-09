@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/validate-sv-lua54-reconstruction.yml"
       - "scripts/Export-SV-Lua54-Manifest.py"
+      - "scripts/Benchmark-SV-Lua54.py"
       - "tools/SV.Lua54/src/**"
       - "tests/test_sv_lua54_parser.py"
   workflow_dispatch:
@@ -30,6 +31,7 @@ jobs:
           filter: blob:none
           sparse-checkout: |
             scripts/Export-SV-Lua54-Manifest.py
+            scripts/Benchmark-SV-Lua54.py
             tools/SV.Lua54
             tests/test_sv_lua54_parser.py
             .github/workflows/validate-sv-lua54-reconstruction.yml
@@ -46,7 +48,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile scripts/Export-SV-Lua54-Manifest.py tools/SV.Lua54/src/sv_lua54/*.py
+          python -m py_compile scripts/Export-SV-Lua54-Manifest.py scripts/Benchmark-SV-Lua54.py tools/SV.Lua54/src/sv_lua54/*.py
           python -m unittest discover -s tests -p "test_sv_lua54_parser.py" -v
 
       - name: Validate all six original Lua 5.4 chunks and byte-identical roundtrips
@@ -56,12 +58,35 @@ jobs:
           python scripts/Export-SV-Lua54-Manifest.py
           python scripts/Export-SV-Lua54-Manifest.py --verify-only
 
+      - name: Build the deterministic 100-prototype benchmark cohort
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Benchmark-SV-Lua54.py
+          python scripts/Benchmark-SV-Lua54.py --verify-only
+
+      - name: Probe pinned stripped-bytecode decompiler (diagnostics only)
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 https://github.com/x3zvawq/unluac-rs/releases/download/v1.4.4/unluac-1.4.4-linux-x86_64 -o "$RUNNER_TEMP/unluac-cli"
+          echo "45dd5ef946fbd18a2e284267e32c2b14caeabe7dfc76d688f704244c5c3d4baf  $RUNNER_TEMP/unluac-cli" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/unluac-cli"
+          if ! command -v luac5.4 >/dev/null 2>&1; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq lua5.4
+          fi
+          python scripts/Benchmark-SV-Lua54.py --verify-only --decompiler "$RUNNER_TEMP/unluac-cli" --luac luac5.4 --timeout 15
+
       - name: Upload metadata report even if verification fails
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: SLR-native-manifest
-          path: tools/SV.Lua54/fixtures/native_manifest.json
+          name: SLR-native-r0-metadata
+          path: |
+            tools/SV.Lua54/fixtures/native_manifest.json
+            tools/SV.Lua54/fixtures/benchmark_cohort.json
+            tools/SV.Lua54/fixtures/benchmark_backend_report.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -71,10 +96,13 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tools/SV.Lua54/fixtures/native_manifest.json
+          git add tools/SV.Lua54/fixtures/native_manifest.json tools/SV.Lua54/fixtures/benchmark_cohort.json
+          if test -f tools/SV.Lua54/fixtures/benchmark_backend_report.json; then
+            git add tools/SV.Lua54/fixtures/benchmark_backend_report.json
+          fi
           if git diff --cached --quiet; then
             echo "Native manifest already in sync"
           else
-            git commit -m "data(SLR): record validated six-module Lua 5.4 native manifest"
+            git commit -m "data(SLR): record six native Lua modules and benchmark outcomes"
             git push origin HEAD:refs/heads/feature/sv-lua54-ir-r0
           fi
