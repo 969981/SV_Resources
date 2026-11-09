@@ -161,7 +161,7 @@ def run(root: Path) -> dict:
             "string_key_refs":list(dict.fromkeys(keyed)),
             "role_candidate":{
                 42:"_hx_obj_newindex",48:"_hx_a",49:"_hx_e",
-                50:"_hx_o",51:"_hx_new",52:"UNKNOWN_HAXE_HELPER"
+                50:"_hx_o",51:"_hx_new",52:"_hx_field_arr"
             }.get(helper_pc),
             "role_evidence":"HAXE_GENERATED_RUNTIME_STRUCTURAL_ANALOGY_NOT_NATIVE_NAME",
         }
