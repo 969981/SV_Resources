@@ -1,4 +1,4 @@
-name: SLR R11 - patched Java Lua54 recovery of remaining 93
+name: SLR R12 - capture invalid Java goto scope source
 
 on:
   push:
@@ -89,7 +89,7 @@ jobs:
                   if proc.returncode:return {"id":pid,"state":"REJECTED","error":proc.stderr.decode(errors="replace")[-450:]}
                   dest=work/f"proto_{pid}.lua";dest.write_bytes(proc.stdout)
                   ck=subprocess.run(["luac5.4","-p",str(dest)],capture_output=True,timeout=20)
-                  if ck.returncode:return {"id":pid,"state":"SYNTAX_FAIL","error":ck.stderr.decode(errors="replace")[-450:]}
+                  if ck.returncode:return {"id":pid,"state":"SYNTAX_FAIL","error":ck.stderr.decode(errors="replace")[-450:],"failed_source":dest}
                   return {"id":pid,"state":"LUA_SYNTAX_OK","path":dest}
               except Exception as e:return {"id":pid,"state":"ERROR","error":repr(e)}
               finally:src.unlink(missing_ok=True)
@@ -100,6 +100,9 @@ jobs:
           with zipfile.ZipFile(temp/"SV400-main-java-fallback.zip","w",compression=zipfile.ZIP_DEFLATED) as z:
               z.writestr("manifest.json",json.dumps({"original_sha256":hashlib.sha256(raw).hexdigest(),"attempted":93,"valid":len(good),"failed":fail,"warning":"Lua syntax success is not runtime equivalence; recovered child upvalues require parent context."},ensure_ascii=False,indent=2))
               for x in good:z.write(x["path"],f"java_protos/proto_{x['id']}.lua")
+              for x in results:
+                  if x.get("failed_source"):
+                      z.write(x["failed_source"],f"diagnostics/proto_{x['id']}.invalid.lua")
           print(f"SLR_R10_JAVA_SUMMARY valid={len(good)} failed={len(fail)}",flush=True)
           for x in fail[:20]:print("SLR_R10_JAVA_FAILURE",x,flush=True)
           PY
