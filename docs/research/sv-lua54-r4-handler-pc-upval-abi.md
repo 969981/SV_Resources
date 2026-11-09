@@ -53,6 +53,14 @@ Setup Proto17900 Upvalue 描述符：slot0 instack=0,index=0；slot1 instack=1,i
 
 因此需要以 cell 真实地址作为共享单元身份（公开记录中使用会话 HMAC ID），通过 UpVal+0x10 读 TValue*，再从该 TValue 16 字节解析类型。不同 Closure 捕获同一个 UpVal* 才能证明相同 cell，而只是读到相同值不够。
 
+## Actions 原版 ELF 交叉验证（2026-11-09）
+
+- [GitHub Actions #42571695207](https://github.com/969981/SV_Resources/actions/runs/42571695207)：**SUCCESS**。
+- 原始 Violet 4.0.0 ELF SHA 精确匹配；**42 条**专门选择的 savedpc、CALL、CLOSURE、UpVal 查找与 TValue 类型指令字匹配原始 ELF；83 路重定位分派保持通过。
+- 现有 R4 测试矩阵加上本轮新增模拟 Handler/UpVal/GDB 测试，总计 **48 项合成测试**通过；原版 root 1,716,136 字节与 Setup 1,056 字节代码指纹验证通过。
+- 整条 CI 仍保持 **runtime_identity_status=NOT_OBSERVED**、**savedpc_runtime_calibrated=false**、**upvalue_cell_values_runtime_verified=false**。机器码给出可以在真实 Handler 入口校准的公式，不等于已经实际接入游戏观察过一次。
+- CI Artifact 仅上传 JSON 审计和限定机器码反汇编；不上传整个原始游戏 ELF、原始 BLUA、真实玩家内存和游戏源码。
+
 ## R4.2 已提交工具
 
 - scripts/Audit-SV400-Lua54-OpcodeFrames.py：验证真实原始机器指令字，不接受错误 ELF 哈希；
