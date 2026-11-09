@@ -7,6 +7,7 @@ on:
     paths:
       - "tools/SV.Lua54/src/sv_lua54/trace.py"
       - "tests/test_sv_lua54_trace.py"
+      - "scripts/Verify-SV-Lua54-CF-Decompile.py"
       - "tests/test_sv_lua54_dataflow.py"
       - "tests/test_sv_lua54_capture.py"
       - "tests/test_sv_lua54_aliases.py"
@@ -144,6 +145,19 @@ jobs:
             --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
             --decompiler "$RUNNER_TEMP/unluac-cli" --luac luac5.4 \
             --output slr-gem-setting-decompile.json
+          python - <<'PY'
+          import json
+          j=json.load(open("slr-gem-setting-decompile.json"))
+          assert j['decompile_status'] == 'SOURCE_GENERATED', j
+          assert j['luac_5_4_syntax'] == 'PASS', j
+          assert j['recompiled_chunk_status'] == 'PASS', j
+          assert j['recompiled_chunk_roundtrip'] is True, j
+          assert j['semantic_equivalence'] == 'NOT_TESTED', j
+          print('LUA54_RECOMPILE_VERIFIED',
+                'proto', j['proto_id'],
+                'generated_protos', j['recompiled_proto_count'],
+                'generated_instructions', j['recompiled_instruction_count'])
+          PY
       - name: Upload bounded trace metadata (never original BLUA)
         if: always()
         uses: actions/upload-artifact@v4
