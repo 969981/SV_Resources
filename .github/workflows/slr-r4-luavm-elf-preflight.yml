@@ -252,6 +252,20 @@ jobs:
             echo "LUA_VM_SWITCH_DISASM $(basename "$f") lines=$(wc -l < "$f")"
             cat "$f"
           done
+      - name: Disassemble bounded opcode fetch, CALL and CLOSURE native data paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          for row in "41150 4126c entry" "4487c 44ad0 call" "453fc 45554 closure" "41d14 41df0 seti"; do
+            read -r from to label <<< "$row"
+            aarch64-linux-gnu-objdump -d -w --start-address="0x$from" --stop-address="0x$to" "$elf" > "slr-r4-${label}-native.txt"
+            test "$(wc -l < "slr-r4-${label}-native.txt")" -gt 8
+            test "$(wc -c < "slr-r4-${label}-native.txt")" -lt 90000
+            echo "SLR_R4_NATIVE_DISASM_BEGIN ${label}"
+            cat "slr-r4-${label}-native.txt"
+            echo "SLR_R4_NATIVE_DISASM_END ${label}"
+          done
       - name: Probe native 83-entry Lua 5.4 jump table and exact dispatcher instructions
         run: |
           python - <<'PY'
@@ -419,6 +433,10 @@ jobs:
             slr-luavm-symbol-hints.txt
             slr-violet-luavm-static-xrefs.json
             slr-violet-original-frame-identities.json
+            slr-r4-entry-native.txt
+            slr-r4-call-native.txt
+            slr-r4-closure-native.txt
+            slr-r4-seti-native.txt
             slr-violet-luavm-dispatch-shapes.json
             slr-violet-luavm-opcode-table-audit.json
             slr-violet-luavm-table-relocations.json
