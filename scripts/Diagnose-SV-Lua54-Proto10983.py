@@ -130,7 +130,13 @@ def instrument(folder):
                             })
                         } else { false }
                     } else { false };
-                    if replaced == 0 && captured_by_ref && condition.nodes.len() == 2 && producer.id == condition.entry && producer.predicate.index() == 64 && node.predicate.index() == 70 {
+                    if replaced == 0 && captured_by_ref
+                        && condition.nodes.len() == 2
+                        && producer.id == condition.entry
+                        && value.consumer == node.id
+                        && matches!(&replacement, HirExpr::Binary(binary)
+                            if binary.op == crate::hir::HirBinaryOpKind::Lt)
+                    {
                         eprintln!("SV10983_CAPTURE_REFERENCE_RETAINED binding={:?}", binding);
                     } else if replaced != 1 {
                         eprintln!("SV10983_FAILURE=replace_binding count={} producer={:?} consumer={:?} phi={:?} expr={:?} replacement={:?} read={:?}", replaced, producer_id, node.id, value.phi, expr, replacement, read);
@@ -151,17 +157,16 @@ def instrument(folder):
     target='''        let mut prefix = self.lower_condition_prefix(owner, header)?;
         if let [producer, consumer] = condition.nodes.as_slice()
             && producer.id == condition.entry
-            && producer.predicate.index() == 64
-            && consumer.predicate.index() == 70
             && let Some(value) = &producer.materialized_value
             && value.consumer == consumer.id
             && let Some(HirExpr::LocalRef(local_id)) =
                 super::super::super::exprs::expr_for_ssa_value_in_block(
                     self.lowering, consumer.block,
                     crate::structure::SsaValue::Phi(value.phi))
-            && let Some((producer_expr, _)) =
+            && let Some((producer_expr @ HirExpr::Binary(ref binary), _)) =
                 super::super::super::short_circuit::lower_short_circuit_subject(
                     self.lowering, producer.block, producer.predicate)
+            && binary.op == crate::hir::HirBinaryOpKind::Lt
             && let Some((HirExpr::Call(call), _)) =
                 super::super::super::short_circuit::lower_short_circuit_subject_single_eval(
                     self.lowering, consumer.block, consumer.predicate)
