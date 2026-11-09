@@ -69,6 +69,27 @@ jobs:
           grep 'SV10983_FAILURE=' "$RUNNER_TEMP/condition-diagnostic.log" > "$RUNNER_TEMP/summary.txt" || true
           echo "Return code=$status" >> "$RUNNER_TEMP/summary.txt"
           exit 0
+      - name: Attempt full original main.blua strict recovery with bounded capture patch
+        shell: bash
+        run: |
+          set +e
+          timeout 240s "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$GITHUB_WORKSPACE/Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua" \
+            -D lua5.4 --generate-mode strict \
+            > "$RUNNER_TEMP/main.strict.experimental.lua" \
+            2> "$RUNNER_TEMP/full-main-diagnostic.log"
+          code=$?
+          echo "SLR_FULL_MAIN_STRICT_EXIT=$code"
+          if test "$code" -eq 0; then
+            luac5.4 -p "$RUNNER_TEMP/main.strict.experimental.lua"
+            echo "SLR_FULL_MAIN_LUA_SYNTAX_EXIT=$?"
+            wc -c "$RUNNER_TEMP/main.strict.experimental.lua"
+          else
+            rm -f "$RUNNER_TEMP/main.strict.experimental.lua"
+            grep -E 'error:|SV10983_FAILURE=' "$RUNNER_TEMP/full-main-diagnostic.log" | tail -n 12 || true
+          fi
+          exit 0
+
       - name: Upload only diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -78,5 +99,7 @@ jobs:
             ${{ runner.temp }}/condition-diagnostic.log
             ${{ runner.temp }}/summary.txt
             ${{ runner.temp }}/proto10983.lua
+            ${{ runner.temp }}/full-main-diagnostic.log
+            ${{ runner.temp }}/main.strict.experimental.lua
           if-no-files-found: warn
           retention-days: 14
