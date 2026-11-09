@@ -1,4 +1,4 @@
-name: SLR R12 - capture invalid Java goto scope source
+name: SLR R12 - capture invalid Java goto scope source v2
 
 on:
   push:
@@ -96,7 +96,7 @@ jobs:
           with ThreadPoolExecutor(max_workers=3) as pool:
               results=list(pool.map(process,ids))
           good=[x for x in results if x["state"]=="LUA_SYNTAX_OK"]
-          fail=[{k:v for k,v in x.items() if k!="path"} for x in results if x["state"]!="LUA_SYNTAX_OK"]
+          fail=[{k:v for k,v in x.items() if k not in ("path","failed_source")} for x in results if x["state"]!="LUA_SYNTAX_OK"]
           with zipfile.ZipFile(temp/"SV400-main-java-fallback.zip","w",compression=zipfile.ZIP_DEFLATED) as z:
               z.writestr("manifest.json",json.dumps({"original_sha256":hashlib.sha256(raw).hexdigest(),"attempted":93,"valid":len(good),"failed":fail,"warning":"Lua syntax success is not runtime equivalence; recovered child upvalues require parent context."},ensure_ascii=False,indent=2))
               for x in good:z.write(x["path"],f"java_protos/proto_{x['id']}.lua")
