@@ -8,10 +8,118 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from collections import deque
+
+from .trace import string_at
 
 from .chunk import Chunk, parse
 from .trace import basic_blocks, instructions, native_methods
 from .dataflow import environment_slots, transfer, upvalue_lineage
+
+
+def writes_register(op, a, b, c, reg):
+    """Static may-write check for Lua 5.4; a producer is not its runtime value."""
+    single = set("""MOVE LOADI LOADF LOADK LOADKX LOADFALSE LFALSESKIP LOADTRUE
+        GETUPVAL GETTABUP GETTABLE GETI GETFIELD NEWTABLE ADDI ADDK SUBK
+        MULK MODK POWK DIVK IDIVK BANDK BORK BXORK SHRI SHLI ADD SUB
+        MUL MOD POW DIV IDIV BAND BOR BXOR SHL SHR UNM BNOT NOT LEN
+        CONCAT CLOSURE""".split())
+    if op in single:
+        return reg == a
+    if op == "LOADNIL":
+        return a <= reg <= a+b
+    if op == "SELF":
+        return reg in (a, a+1)
+    if op in {"CALL", "TAILCALL"}:
+        return reg >= a if c == 0 else a <= reg < a + max(1, c-1)
+    if op == "TESTSET":
+        return reg == a
+    if op in {"FORLOOP", "FORPREP", "TFORPREP", "TFORLOOP"}:
+        return a <= reg <= a+4
+    if op == "TFORCALL":
+        return reg >= a+4 if c == 0 else a+4 <= reg <= a+3+c
+    if op == "VARARG":
+        return reg >= a if c == 0 else a <= reg < a+max(1, c-1)
+    if op == "VARARGPREP":
+        return True
+    return False
+
+
+def backward_register_writers(parent, code, blocks, closure_pc, target_reg,
+                              max_states=4000, max_candidates=24):
+    """Bounded backward CFG evidence; return candidates, not definite object values.
+
+    Treat each predecessor path independently. MOVE follows its source register.
+    A path with an unknown producer remains unresolved (no fabricated C->F).
+    """
+    index_by_pc = {}
+    predecessor = {i: [] for i in range(len(blocks))}
+    for i, blk in enumerate(blocks):
+        for pc in range(blk["start_pc"], blk["end_pc_exclusive"]):
+            index_by_pc[pc] = i
+        for nextidx in blk["successor_blocks"]:
+            predecessor[nextidx].append(i)
+    start_idx = index_by_pc[closure_pc]
+    queue = deque([(start_idx, closure_pc, target_reg, [])])
+    visited = set()
+    candidates, incomplete = [], False
+    while queue:
+        idx, end, reg, moves = queue.popleft()
+        marker = (idx, end, reg)
+        if marker in visited:
+            incomplete = True  # loop; bounded path exploration is not full proof
+            continue
+        visited.add(marker)
+        if len(visited) > max_states or len(candidates) >= max_candidates:
+            incomplete = True
+            break
+        blk = blocks[idx]
+        found = False
+        for pc in range(min(end, blk["end_pc_exclusive"])-1, blk["start_pc"]-1, -1):
+            op,a,b,c,k,bx,sj = code[pc]
+            if not writes_register(op,a,b,c,reg):
+                continue
+            if op == "MOVE" and a == reg:
+                moves = moves + [{"move_pc": pc, "from_reg": b, "to_reg": a}]
+                reg = b
+                continue
+            item = {"pc": pc, "file_offset": parent.code_offset+4*pc,
+                    "opcode": op, "register": reg, "moves_after": moves,
+                    "value_verified": False, "symbol": None,
+                    "status": "STATIC_POSSIBLE_LAST_WRITER"}
+            if op == "LOADK":
+                item["symbol"] = string_at(parent,bx)
+            elif op in {"GETFIELD", "GETTABUP"}:
+                item["symbol"] = string_at(parent,c)
+                item["source_register_or_upvalue"] = b
+            elif op == "GETTABLE":
+                item["source_table_reg"] = b
+                item["source_key_reg"] = c
+            elif op == "GETUPVAL":
+                item["parent_upvalue_index"] = b
+            elif op == "CALL":
+                item["status"] = "CALL_RESULT_SOURCE_UNKNOWN"
+            elif op in {"VARARG","VARARGPREP","TESTSET"}:
+                item["status"] = "CONDITIONAL_OR_DYNAMIC_WRITE"
+            candidates.append(item)
+            found = True
+            break
+        if found:
+            continue
+        parents = predecessor[idx]
+        if not parents:
+            candidates.append({"status": "NO_WRITER_BEFORE_ROOT_ENTRY",
+                               "register": reg, "moves_after": moves,
+                               "value_verified": False})
+        else:
+            for pid in parents:
+                queue.append((pid, blocks[pid]["end_pc_exclusive"], reg, moves))
+    return {"target_register": target_reg,
+            "candidate_writers": candidates,
+            "candidate_count": len(candidates),
+            "traversed_states": len(visited),
+            "incomplete": incomplete,
+            "interpretation": "Possible reaching writes only; not runtime value proof"}
 
 
 def capture_context(chunk: Chunk, method: dict):
@@ -55,6 +163,7 @@ def capture_context(chunk: Chunk, method: dict):
                 "same_block_source_pc": source_pc.get(reg),
                 "capture_status": "STATIC_SAME_BLOCK_SYMBOL_CANDIDATE" if fact
                                   else "UNRESOLVED_CAPTURE_CONTENTS",
+                "backward_writers": backward_register_writers(parent, code, blocks, closure_pc, reg),
             })
         rows.append(row)
     return {
