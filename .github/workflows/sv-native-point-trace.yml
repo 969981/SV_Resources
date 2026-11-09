@@ -316,6 +316,26 @@ jobs:
           if ($loss186.baseline_reference_matches_lost -ne 8 -or $loss186.new_reference_matches_recovered -ne 0) {
             throw 'The eight baseline-match losses were not localized to Coastal Plaza CrossFrom=176'
           }
+          # Real, independently verified original 61+223 outcome (Actions #42538746081).
+          # Fail closed if native game source or serializer changes these pinned deltas.
+          $max=$result.reference_parity_comparison | Where-Object mode -eq 'terarium-176-194-raw-point-max-only'
+          $min=$result.reference_parity_comparison | Where-Object mode -eq 'terarium-176-194-raw-point-min-only'
+          if ($max.matched_occurrences -ne 439 -or $max.baseline_reference_matches_retained -ne 389 -or $max.baseline_reference_matches_lost -ne 0 -or $max.new_reference_matches_recovered -ne 50 -or $max.match_delta -ne 50) {
+            throw 'Original raw-max-only baseline retention / 50 recovered / zero lost evidence drift'
+          }
+          if ($min.matched_occurrences -ne 385 -or $min.baseline_reference_matches_lost -ne 4 -or $min.new_reference_matches_recovered -ne 0 -or $min.match_delta -ne -4) {
+            throw 'Original raw-min-only four-match regression evidence drift'
+          }
+          foreach ($target in @(@(176,0,25),@(194,176,25),@(186,176,0))) {
+            $loc=$result.reference_match_retention_by_location | Where-Object { $_.mode -eq 'terarium-176-194-raw-point-max-only' -and $_.location_id -eq $target[0] -and $_.cross_from_id -eq $target[1] }
+            if ($null -eq $loc -or $loc.new_reference_matches_recovered -ne $target[2] -or $loc.baseline_reference_matches_lost -ne 0) {
+              throw "Original source-backed raw-max location $($target[0]) <- $($target[1]) parity drift"
+            }
+            if ($target[0] -eq 186 -and ($loc.baseline_matched -ne 32 -or $loc.variant_matched -ne 32)) {
+              throw 'Original Coastal Plaza 186 <- 176 32/32 reference matches not retained'
+            }
+          }
+          "Original six-way level A/B: raw-max-only **439 matched = 389 retained + 50 new, zero lost**; raw-min-only 385 matched (4 lost). No official gameplay legality claimed." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           $result.reference_parity_comparison | Format-Table mode,matched_occurrences,baseline_reference_matches_retained,baseline_reference_matches_lost,new_reference_matches_recovered,match_delta,native_only,reference_only -AutoSize | Out-String | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           $result.reference_match_retention_by_location | Format-Table mode,location_id,cross_from_id,baseline_reference_matches_retained,baseline_reference_matches_lost,new_reference_matches_recovered,match_delta -AutoSize | Out-String | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
 
@@ -330,6 +350,18 @@ jobs:
           python scripts/Compare-SV400-Point5046-AreaFilter-AB.py --baseline "$env:SV_POINT_GENERATED" --manifest "$env:SV_NATIVE_BASELINE/SV400_Native_To_PKHeX_Manifest.json" --tolerance "$p/SV-400-AB-30f" --variant $variant --auditor scripts/Audit-SV-PKHeX-Encounters.py --probe-report "$env:SV_POINT5046_PROBE" --output "$p/SV400-Point5046-AreaFilter-Comparison"
           if ($LASTEXITCODE -ne 0) { throw 'PointData 5046 source-area A/B modified unrelated wild/fixed/raid records or lacked source probes' }
           $result=Get-Content "$p/SV400-Point5046-AreaFilter-Comparison/SV400_Point5046_AreaFilter_AB.json" -Raw | ConvertFrom-Json
+          # The compact seven-criteria probe proves four source-area rejections,
+          # but the single-point A/B must NOT claim to fix final serialized slots.
+          $rejected=@($result.probe_report.probes | Where-Object { $_.storageCandidateAccepted -eq $true -and $_.pointSourceCandidateAccepted -eq $false } | Sort-Object criteriaIndex | ForEach-Object { [int]$_.criteriaIndex })
+          if ($result.probe_report.probeCount -ne 7 -or ($rejected -join ',') -ne '110,111,112,113') {
+            throw 'Actual original PointData 5046 seven-criteria geometry acceptance diverged'
+          }
+          $focus=$result.scopes.location158_or_cross_from158
+          if ($result.changed_slot_rows -ne 0 -or $focus.baseline.matched -ne 1045 -or $focus.variant.matched -ne 1045 -or
+              $focus.baseline_reference_matches_lost -ne 0 -or $focus.new_reference_matches_recovered -ne 0) {
+            throw 'PointData 5046 single-point source-area probe changed serialized .pkl unexpectedly'
+          }
+          "PointData 5046: criteria 110/111/112/113 reject source-area context, 40/41/74 still accepted; zero final Gen9 slot changes." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           $result.scopes | ConvertTo-Json -Depth 8 | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
 
       - uses: actions/upload-artifact@v4
