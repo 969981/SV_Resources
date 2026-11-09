@@ -8,16 +8,16 @@ local function reconstructed_region(a, b, c, d, e, f)
     -- Recovered *candidate*, based on HIR: allocation first, then values,
     -- then one deferred array batch. No method/class/engine state involved.
     local t = {}
-    local v1 = a + d * 3
-    local v2 = b + e * 3 + 20
-    local v3 = c + f * 3
+    local v1 = a + d * 3.0
+    local v2 = b + e * 3.0 + 20.0
+    local v3 = c + f * 3.0
     t[1], t[2], t[3] = v1, v2, v3
     return t
 end
 
 local function equivalent(lhs, rhs)
     for k = 1, 3 do
-        if lhs[k] ~= rhs[k] then return false, k end
+        if lhs[k] ~= rhs[k] or math.type(lhs[k]) ~= math.type(rhs[k]) then return false, k end
     end
     return true
 end
