@@ -1,0 +1,92 @@
+name: SLR R3 - upstream HIR SETLIST proof diagnostics
+
+on:
+  push:
+    branches: [feature/sv-lua54-r3-unluac-lowering]
+    paths:
+      - ".github/workflows/slr-r3-upstream-table-lowering.yml"
+      - "scripts/Build-SV-Lua54-R3-Proto.py"
+      - "scripts/Patch-SV-Lua54-R3-UpstreamProbe.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  upstream-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout original 4.0.0 bytecode and R3 scripts
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Build-SV-Lua54-R3-Proto.py
+            scripts/Patch-SV-Lua54-R3-UpstreamProbe.py
+            tools/SV.Lua54/src/sv_lua54
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main_dynamic/main_dynamic.blua
+          persist-credentials: false
+
+      - name: Python / Rust toolchain
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Clone pinned upstream source and instrument conservative safety gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          python scripts/Patch-SV-Lua54-R3-UpstreamProbe.py --upstream "$RUNNER_TEMP/unluac-rs"
+          python scripts/Build-SV-Lua54-R3-Proto.py --out "$RUNNER_TEMP/sv-proto752.luac"
+          git -C "$RUNNER_TEMP/unluac-rs" diff --stat
+
+      - name: Compile instrumented upstream Rust CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/unluac-rs"
+          cargo build --release -p unluac-cli --locked
+
+      - name: Diagnose the exact Proto752 residual HIR (expected strict failure)
+        shell: bash
+        run: |
+          set -euo pipefail
+          executable="$RUNNER_TEMP/unluac-rs/target/release/unluac-cli"
+          if test ! -x "$executable"; then
+            executable="$RUNNER_TEMP/unluac-rs/target/release/unluac"
+          fi
+          set +e
+          "$executable" -i "$RUNNER_TEMP/sv-proto752.luac" -D lua5.4 \
+            --generate-mode strict >"$RUNNER_TEMP/strict.lua" 2>"$RUNNER_TEMP/diag.log"
+          rc=$?
+          set -e
+          echo "R3_UPSTREAM_STRICT_RC=$rc"
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          p=Path(os.environ["RUNNER_TEMP"])/"diag.log"
+          lines=p.read_text(errors="replace").splitlines()
+          hits=[x for x in lines if "SLR_R3_" in x or "table-set-list" in x]
+          print("R3_UPSTREAM_DIAGNOSTIC_LINES",len(hits))
+          for x in hits[-100:]:
+              print(x[:1200])
+          PY
+          if test "$rc" -eq 0; then
+            echo "Strict decompilation succeeded (unexpected but valid); Lua source kept ephemeral"
+          elif grep -q 'residual table-set-list' "$RUNNER_TEMP/diag.log"; then
+            echo "EXPECTED_REPRO: residual table-set-list still present"
+          else
+            echo "Unexpected error; failing probe"
+            tail -n 35 "$RUNNER_TEMP/diag.log"
+            exit 1
+          fi
+
+      - name: Delete temporary original bytecode and decompiled content
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/sv-proto752.luac" "$RUNNER_TEMP/strict.lua" "$RUNNER_TEMP/diag.log"
