@@ -50,13 +50,21 @@ jobs:
       - name: Reproduce isolated source failure and log frozen decision
         shell: bash
         run: |
-          set -uo pipefail
+          set +e
           "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
             -i "$RUNNER_TEMP/proto10983.luac" -D lua5.4 \
             --generate-mode strict \
             > "$RUNNER_TEMP/proto10983.lua" 2> "$RUNNER_TEMP/condition-diagnostic.log"
           status=$?
           echo "SLR10983_DECOMPILER_EXIT=$status"
+          if test "$status" -eq 0; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq lua5.4
+            luac5.4 -p "$RUNNER_TEMP/proto10983.lua"
+            echo "SLR10983_LUA_SYNTAX_EXIT=$?"
+            wc -c "$RUNNER_TEMP/proto10983.lua"
+            sed -n '1,160p' "$RUNNER_TEMP/proto10983.lua"
+          fi
           grep -E 'SV10983_|error:' "$RUNNER_TEMP/condition-diagnostic.log" | tail -n 250 || true
           grep 'SV10983_FAILURE=' "$RUNNER_TEMP/condition-diagnostic.log" > "$RUNNER_TEMP/summary.txt" || true
           echo "Return code=$status" >> "$RUNNER_TEMP/summary.txt"
@@ -69,5 +77,6 @@ jobs:
           path: |
             ${{ runner.temp }}/condition-diagnostic.log
             ${{ runner.temp }}/summary.txt
+            ${{ runner.temp }}/proto10983.lua
           if-no-files-found: warn
           retention-days: 14
