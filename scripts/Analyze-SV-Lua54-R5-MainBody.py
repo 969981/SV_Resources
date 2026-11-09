@@ -8,6 +8,7 @@ or C API calls are observed by this script.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 from pathlib import Path
