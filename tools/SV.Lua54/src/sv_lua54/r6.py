@@ -41,8 +41,9 @@ def newindex_handler(proto: Proto) -> dict:
         shape = (
             proto.num_params == 3
             and field.b == 0 and ascii_key(proto, field.c) == "__fields__"
-            and write.a == base and write.b == 1 and write.c == 2
-            and write.k == 0
+            and write.a == base and write.b == 1 and write.c == 1
+            and write.k == 1
+            and len(proto.constants) > 1 and proto.constants[1].tag == 17
             and fn.a == base and fn.b == 0
             and ascii_key(proto, fn.c) == "rawset"
             and [(m1.a, m1.b), (m2.a, m2.b), (m3.a, m3.b)]
@@ -54,12 +55,15 @@ def newindex_handler(proto: Proto) -> dict:
         "upvalue_bytes": list(proto.upvalues),
         "instruction_count": len(ops),
         "instructions": [brief(x) for x in ops[:12]],
+        "settable_rhs_constant_tag": (proto.constants[ops[1].c].tag
+            if len(ops) > 1 and ops[1].name == "SETTABLE" and ops[1].k
+            and ops[1].c < len(proto.constants) else None),
         "key_refs": [ascii_key(proto, ops[i].c) for i in (0, 2)]
             if len(ops) > 2 and names[0] == "GETFIELD"
             and names[2] == "GETTABUP" else [],
         "strict_three_argument_handler_shape": shape,
         "semantic_shape_if_executed": (
-            "self.__fields__[key]=value; rawset(self,key,value)"
+            "self.__fields__[key]=true; rawset(self,key,value)"
             if shape else "UNCLASSIFIED"
         ),
         "runtime_invocation": "NOT_OBSERVED",
