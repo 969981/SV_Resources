@@ -35,6 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/Diagnose-SV-Lua54-Proto10983.py --lift "$RUNNER_TEMP/proto10983.luac"
+          python scripts/Diagnose-SV-Lua54-Proto10983.py --lift "$RUNNER_TEMP/proto34363.luac" --proto-id 34363
       - name: Clone and patch reviewed upstream v1.4.5
         shell: bash
         run: |
@@ -69,6 +70,22 @@ jobs:
           grep 'SV10983_FAILURE=' "$RUNNER_TEMP/condition-diagnostic.log" > "$RUNNER_TEMP/summary.txt" || true
           echo "Return code=$status" >> "$RUNNER_TEMP/summary.txt"
           exit 0
+      - name: Strict decompile original Proto34363 with two captured loop conditions
+        shell: bash
+        run: |
+          set +e
+          timeout 90s "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" -i "$RUNNER_TEMP/proto34363.luac" -D lua5.4 --generate-mode strict > "$RUNNER_TEMP/proto34363.lua" 2> "$RUNNER_TEMP/proto34363.diagnostic.log"
+          code=$?
+          echo "SLR34363_DECOMPILER_EXIT=$code"
+          if test "$code" -eq 0; then
+            luac5.4 -p "$RUNNER_TEMP/proto34363.lua"
+            echo "SLR34363_LUA_SYNTAX_EXIT=$?"
+            wc -c "$RUNNER_TEMP/proto34363.lua"
+          else
+            rm -f "$RUNNER_TEMP/proto34363.lua"
+            grep -E 'error:|FAILURE=' "$RUNNER_TEMP/proto34363.diagnostic.log" | tail -n 12 || true
+          fi
+          exit 0
       - name: Attempt full original main.blua strict recovery with bounded capture patch
         shell: bash
         run: |
@@ -99,6 +116,8 @@ jobs:
             ${{ runner.temp }}/condition-diagnostic.log
             ${{ runner.temp }}/summary.txt
             ${{ runner.temp }}/proto10983.lua
+            ${{ runner.temp }}/proto34363.lua
+            ${{ runner.temp }}/proto34363.diagnostic.log
             ${{ runner.temp }}/full-main-diagnostic.log
             ${{ runner.temp }}/main.strict.experimental.lua
           if-no-files-found: warn
