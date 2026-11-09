@@ -13,6 +13,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 ## SV 4.0.0 Lua / Haxe 源码还原工程（SLR 1.0）
 
 - [BLUA → 可重编译 Lua / Haxe 的里程碑与任务路线图](sv-lua54-source-reconstruction-roadmap.md) — M0–M6、11 项可复验任务、六个 BLUA 输入、PokeDocs 符号恢复、Lua 5.4 AST/编译与 Haxe PoC；当前 **IN_PROGRESS**（M0/M1 首轮通过），跟踪 [EPIC #73](https://github.com/969981/SV_Resources/issues/73)。
+- [SLR R4：可审查 Rust 补丁与上游 Lua5.4 真实可执行回归](sv-lua54-r4-upstream-rust-patch-runtime-ab.md) — 标准 git apply 修复、固定 100/100 原生严格编译、10/10 上游 Lua 程序行为 A/B；Proto752 真实 Upvalue 与游戏 C API 仍待验证。
 - [SLR R3：完整 Proto752 的 HIR SETLIST nil 容量恢复](sv-lua54-r3-proto752-hir-nil-preallocation.md) — 原版数组长度反例 4/8 不等价、补足原始容量后 8/8；临时 patched unluac-rs v1.4.5 完整 2,071 指令严格反编译和 luac 编译通过，固定 100/100 语法通过。**完整游戏行为等价仍未验证。**
 - [SLR R2：Proto752 的 NEWTABLE→SETLIST 归属与原始字节码 A/B](sv-lua54-r2-proto752-ownership-ab.md) — PC649–665 的 17 条原生指令已链接到安全限定的 Lua 发射器；生成源码和重编译版本各 163/163 原始字节码 A/B 通过。**不是完整 Proto 752 反编译。**
 - [SLR R1：SETLIST/Upvalue/C→F 原生追踪与最后一个 HIR 缺口](sv-lua54-r1-setlist-upvalue-cf.md) — 24,085 条 C→F 赋值、54,803 条 Upvalue 词法捕获、509 个已映射命名空间候选；unluac-rs v1.4.5 的 100 原型静态严格语法通过率 99/100，最后 residual table-set-list 位于 main_dynamic Proto 752。

@@ -58,4 +58,12 @@ The original module's full runtime/Upvalue/C API semantic equivalence is NOT ver
 
 [Obsidian R3 full report](../../docs/research/sv-lua54-r3-proto752-hir-nil-preallocation.md).
 
+## R4: Reviewable upstream Rust diff and executed regressions
+
+- [Standalone v1.4.5 Rust patch](../../patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch) can be applied with `git apply --check` to a clean upstream checkout. It includes a synthetic upstream Lua5.4 nil-holes test.
+- [Executable selected upstream corpus runner](../../scripts/Validate-SV-Lua54-R4-Upstream-AB.py) compares original compiled Lua bytecode against strict decompile/recompiled output on the same Lua5.4 VM.
+- [CI](../../.github/workflows/slr-r4-reviewed-upstream.yml) validates complete Proto752, 100/100 native syntax and 10/10 independently executed upstream cases.
+- [Runtime prerequisites](../../scripts/Inspect-SV-Lua54-R4-Proto752-Shell.py): 1 parameter; Upvalue0 inherited parent cell, Upvalue1 captured from parent R16. Host ABI and real values still NOT OBSERVED.
+- [R4 Obsidian notebook](../../docs/research/sv-lua54-r4-upstream-rust-patch-runtime-ab.md).
+
 Roadmap: [SV Lua54 source reconstruction](../../docs/research/sv-lua54-source-reconstruction-roadmap.md).

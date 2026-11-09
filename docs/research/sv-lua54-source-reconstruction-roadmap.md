@@ -60,6 +60,16 @@ updated: "2026-11-09"
 
 详见 [[sv-lua54-r3-proto752-hir-nil-preallocation]] 和 [R3 成功 CI](https://github.com/969981/SV_Resources/actions/runs/42569532395)。
 
+## 2026-11-09：R4 Rust Patch + 10 组上游语义回归
+
+- 已把 R3 的文本插桩升级为 [标准 Git Rust patch](../../patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch)，可对未修改的 upstream v1.4.5 git apply --check 后应用，且补丁自带一个 Lua 5.4 nil-hole 元方法回归源码。
+- 全体固定 100 Proto 严格 Lua 语法/编译 PASS；完整 2071 指令 Proto752 源码与 luac 编译 PASS。
+- 新增 10 个固定 upstream Lua5.4 语义用例，原始编译程序与反编译→重新编译后执行 stdout/退出码 **10/10 一致**（[R4 Actions](https://github.com/969981/SV_Resources/actions/runs/42572963041)）。这仍不是所有 Lua 5.4 程序的语义证明。
+- Proto752：**1 参数、2 个 Upvalue**（父 Upvalue0、父寄存器 R16）、2 个子原型；没有真实父闭包及 C API 记录，因此全函数运行 A/B 仍 `NOT_VERIFIED`。
+- 未向 upstream x3zvawq/unluac-rs 合并修复；接下来先完成父 Proto 闭包身份、真实捕获和值的运行时取证，再建立完整实例级差异测试。
+
+技术报告：[[sv-lua54-r4-upstream-rust-patch-runtime-ab]]。
+
 ## 输入与已知基线
 
 相对于 Unpack/4.0.0/romfs/arc/data.trpfs/：
