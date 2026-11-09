@@ -110,6 +110,14 @@ def inspect_paused_opcode(gdb_module,main_base,expected,elf_probe,opcode_helper)
         result["before_closure_parent_R55_R58"]=(
             opcode_helper.snapshot_root_regs_if_confirmed(
                 read,result,regbase,SESSION_SALT))
+    elif scope=="root" and luapc==215523 and result["opcode"]=="SETTABLE":
+        path=os.environ.get("SV400_CLOSURE_CAPTURE_HELPER")
+        if not path:
+            raise ValueError("SV400_CLOSURE_CAPTURE_HELPER is required to inspect R70")
+        capture=_load_source(path,"sv400_pin_setup_capture_completed")
+        result["after_closure_setup_and_upval_cells"]=(
+            capture.inspect_completed_setup_capture(
+                read,result,regbase,nextpc,expected,opcode_helper,SESSION_SALT))
     elif scope=="setup":
         if luapc in (8,48) and result["opcode"]=="SETI":
             slot={8:2,48:4}[luapc]
