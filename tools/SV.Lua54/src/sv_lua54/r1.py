@@ -213,6 +213,34 @@ def upvalue_records(chunk: Chunk) -> tuple[list[dict], list[dict]]:
                             "upvalue_index": i, "instack": instack, "source_index": idx,
                             "kind": kind, "binding": binding,
                             "closure_sites": sites.get(child.id, [])})
+    # Resolve repeated instack=0 links to their lexical origin.  The origin
+    # describes the capture location, NOT the current runtime contents of a cell.
+    by_capture = {(r["proto_id"], r["upvalue_index"]): r for r in records}
+    for record in records:
+        current = record
+        hops = 0
+        while current.get("binding") == "PARENT_UPVALUE_CELL":
+            key = (current["parent_proto_id"], current["source_index"])
+            parent_cell = by_capture.get(key)
+            if parent_cell is None or hops > len(protos):
+                errors.append({"proto_id": record["proto_id"],
+                               "upvalue_index": record["upvalue_index"],
+                               "code": "UNRESOLVED_LEXICAL_UPVALUE_CHAIN"})
+                break
+            current = parent_cell
+            hops += 1
+        if current["binding"] == "ROOT_UPVALUE_HOST_DEPENDENT":
+            record["lexical_origin"] = {
+                "kind": "ROOT_HOST_UPVALUE", "proto_id": current["proto_id"],
+                "upvalue_index": current["upvalue_index"], "hops": hops}
+        elif current["binding"] == "PARENT_REGISTER_AT_CLOSURE":
+            record["lexical_origin"] = {
+                "kind": "ANCESTOR_REGISTER_AT_CLOSURE",
+                "proto_id": current["parent_proto_id"],
+                "register": current["source_index"], "hops": hops}
+        else:
+            record["lexical_origin"] = {
+                "kind": "UNRESOLVED", "hops": hops}
     return records, errors
 
 
@@ -300,7 +328,13 @@ def annotate_methods(edges: list[dict], symbols: dict) -> list[dict]:
     for e in edges:
         c = symbols.get("C", {}).get(e["class_hash"], {"name": None, "evidence": "UNKNOWN"})
         f = symbols.get("F", {}).get(e["method_hash"], {"name": None, "evidence": "UNKNOWN"})
-        enriched.append({**e, "class_name_candidate": c["name"],
+        cname = c["name"]
+        # Human-readable view only; the native C/F runtime string keys remain
+        # unchanged and no module import or Lua execution ordering is inferred.
+        namespace, basename = cname.rsplit(".", 1) if cname and "." in cname else (None, cname)
+        enriched.append({**e, "class_name_candidate": cname,
+                         "class_namespace_candidate": namespace,
+                         "class_basename_candidate": basename,
                          "class_name_evidence": c["evidence"],
                          "function_name_candidate": f["name"],
                          "function_name_evidence": f["evidence"],
