@@ -82,6 +82,8 @@ Upvalue 捕获的是可被其他闭包共享的单元，而不只是固定数值
 - 3 个共享 Upvalue 别名与 SETUPVAL 合成测试。
 - **26 个合成测试全部通过**，实际 main.blua 的方法绑定、捕获和全量别名扫描通过。
 - 固定版 unluac-rs v1.4.4 成功生成目标方法 Lua 源码；luac5.4 -p 为 PASS。
+- **新增实际重新编译验收**：对临时恢复的 Lua 运行 luac5.4 -o，生成的新 chunk 再次经过本仓库 Lua5.4 解析器的 parse→encode 字节一致检查：**PASS**。新 chunk 统计为 **2 个 Proto、393 条指令**；原目标函数 264 条指令。重编译字节及结构不要求与原版相同；源文件/新二进制均不公开提交。
+- 实际重新编译证据：[Actions #42555147284](https://github.com/969981/SV_Resources/actions/runs/42555147284)，对应 artifact 的 slr-gem-setting-decompile.json 中 recompiled_chunk_status=PASS、recompiled_chunk_roundtrip=true、semantic_equivalence=NOT_TESTED。
 - 行为等价始终为 NOT_TESTED。没有上传原始 BLUA 或恢复的游戏源代码。
 
 生成的 metadata 可在该 Actions 的 SLR-R1-GemSettingManager-CF-trace artifact 查询：slr-gem-setting-dataflow.json、slr-gem-setting-captures.json、slr-gem-setting-upvalue-aliases.json。所有原始指令 PC 与捕获描述符均可复查。
