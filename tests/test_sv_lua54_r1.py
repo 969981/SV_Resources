@@ -101,6 +101,23 @@ class NativeR1Tests(unittest.TestCase):
         self.assertEqual(inherited["source_index"], 0)
         self.assertEqual(reg["closure_sites"][0]["pc"], 0)
         self.assertEqual(captures[0]["binding"], "ROOT_UPVALUE_HOST_DEPENDENT")
+        self.assertEqual(inherited["lexical_origin"]["kind"], "ROOT_HOST_UPVALUE")
+
+    def test_transitive_upvalue_origin_to_ancestor_register(self):
+        grand = proto(pid=2, parent=1, code=abc("RETURN0"),
+                      upvalues=b"\x00\x00\x00")
+        middle = proto(pid=1, parent=0,
+                       code=abx("CLOSURE", a=0, bx=0) + abc("RETURN0"),
+                       children=[grand], upvalues=b"\x01\x02\x00")
+        root = proto(code=abx("CLOSURE", a=0, bx=0) + abc("RETURN0"),
+                     children=[middle], upvalues=b"\x01\x00\x00")
+        records, errors = upvalue_records(chunk(root))
+        self.assertEqual(errors, [])
+        leaf = next(x for x in records if x["proto_id"] == 2)
+        self.assertEqual(leaf["lexical_origin"], {
+            "kind": "ANCESTOR_REGISTER_AT_CLOSURE",
+            "proto_id": 0, "register": 2, "hops": 1,
+        })
 
     def test_invalid_capture_not_silently_accepted(self):
         child = proto(pid=1, parent=0, code=abc("RETURN0"), upvalues=b"\x01\xff\x00")
@@ -143,9 +160,9 @@ class NativeR1Tests(unittest.TestCase):
             folder = Path(d)
             for k in "cefs":
                 (folder / f"lua_{k}_hashes.txt").write_text("", encoding="utf-8")
-            known = f"{fnv1a('GemSettingManager'):016X}"
+            known = f"{fnv1a('main.gem.setting_tool.GemSettingManager'):016X}"
             (folder / "lua_c_hashes.txt").write_text(
-                f"0x{known} GemSettingManager\n", encoding="utf-8")
+                f"0x{known} main.gem.setting_tool.GemSettingManager\n", encoding="utf-8")
             unknown = f"{fnv1a('onOffsetPosValueChanged'):016X}"
             (folder / "lua_f_hashes.txt").write_text(f"0x{unknown}\n", encoding="utf-8")
             supplement = folder / "recovered.tsv"
@@ -158,6 +175,7 @@ class NativeR1Tests(unittest.TestCase):
             edges = [{"class_hash": "C"+known, "method_hash": "F"+unknown}]
             a = annotate_methods(edges, mapping)[0]
             self.assertEqual(a["class_name_evidence"], "POKEDOCS_NAMED")
+            self.assertEqual(a["class_namespace_candidate"], "main.gem.setting_tool")
             self.assertEqual(a["function_name_evidence"], "HASH_EXACT_CANDIDATE")
             self.assertEqual(a["method_hash"], "F"+unknown)
             self.assertTrue(a["runtime_key_preserved"])
