@@ -61,6 +61,8 @@ def run(root: Path, method_index: Path | None = None, capture_index: Path | None
     all_captures = []
     class_count = Counter()
     method_count = Counter()
+    namespace_count = Counter()
+    capture_origin_count = Counter()
     types = Counter()
     cf_counts = {}
     for name in sorted(recorded):
@@ -75,6 +77,7 @@ def run(root: Path, method_index: Path | None = None, capture_index: Path | None
             raise ValueError(f"{name} prototype count differs from pinned manifest")
         cap, cap_errors = upvalue_records(chunk)
         all_captures.extend({"module": name, **x} for x in cap)
+        capture_origin_count.update(x["lexical_origin"]["kind"] for x in cap)
         edge, rejected = direct_cf_methods(chunk, name)
         cf_counts[name] = len(edge)
         annotated = annotate_methods(edge, symbols)
@@ -82,6 +85,7 @@ def run(root: Path, method_index: Path | None = None, capture_index: Path | None
         for x in annotated:
             class_count[x["class_name_evidence"]] += 1
             method_count[x["function_name_evidence"]] += 1
+            namespace_count[x["class_namespace_candidate"] or "<unresolved>"] += 1
         p_by_id = {p.id: p for p in protos}
         targeted = []
         for pid in TARGETS.get(name, ()):
@@ -126,7 +130,8 @@ def run(root: Path, method_index: Path | None = None, capture_index: Path | None
             "module": name, "native_sha256": sha, "proto_count": len(protos),
             "capture_entries": len(cap), "capture_errors": cap_errors,
             "capture_classification": dict(sorted(Counter(x["binding"] for x in cap).items())),
-            "closure_sites": sum(len(x["closure_sites"]) for x in cap),
+            "capture_site_links": sum(len(x["closure_sites"]) for x in cap),
+            "capture_origin_counts": dict(sorted(Counter(x["lexical_origin"]["kind"] for x in cap).items())),
             "direct_native_cf_methods": len(edge),
             "native_cf_register_rejections": dict(sorted(rejected.items())),
             "cohort_proto_count": cohort_count,
@@ -165,8 +170,12 @@ def run(root: Path, method_index: Path | None = None, capture_index: Path | None
         "method_edges_by_module": dict(sorted(cf_counts.items())),
         "method_class_naming_counts": dict(sorted(class_count.items())),
         "method_function_naming_counts": dict(sorted(method_count.items())),
+        "method_namespace_distinct": sum(n != "<unresolved>" for n in namespace_count),
+        "method_namespace_top": [{"namespace": n, "method_assignments": k}
+                                  for n, k in namespace_count.most_common(25)],
         "method_index_sha256": cf_digest,
         "capture_entries_total": len(all_captures),
+        "capture_lexical_origin_counts": dict(sorted(capture_origin_count.items())),
         "capture_index_sha256": capture_digest,
         "selected_opcode_counts": dict(sorted(types.items())),
         "failures_in_original_strict_backend": failure_cases,
