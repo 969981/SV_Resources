@@ -25,6 +25,8 @@ jobs:
           sparse-checkout: |
             scripts/Patch-SV-Lua54-R3-FreshBatch.py
             scripts/Build-SV-Lua54-R3-Proto.py
+            scripts/Build-SV-Lua54-R2-NativeSlice.py
+            tests/fixtures/sv_lua54/r3_nil_hole_constructor.lua
             scripts/Benchmark-SV-Lua54.py
             tools/SV.Lua54/src/sv_lua54
             tools/SV.Lua54/fixtures/benchmark_cohort.json
@@ -53,12 +55,21 @@ jobs:
           git diff --check
           cargo build --release --locked -p unluac-cli
 
-      - name: Run full 2071-opcode Proto752 strict AST and compile test
+      - name: Native 17-opcode SETLIST versus fused constructor with nil results
         shell: bash
         run: |
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y -qq lua5.4
+          python scripts/Build-SV-Lua54-R2-NativeSlice.py --output "$RUNNER_TEMP/r3_native_slice.luac"
+          luac5.4 -p tests/fixtures/sv_lua54/r3_nil_hole_constructor.lua
+          lua5.4 tests/fixtures/sv_lua54/r3_nil_hole_constructor.lua "$RUNNER_TEMP/r3_native_slice.luac"
+          rm -f "$RUNNER_TEMP/r3_native_slice.luac"
+
+      - name: Run full 2071-opcode Proto752 strict AST and compile test
+        shell: bash
+        run: |
+          set -euo pipefail
           exe="$RUNNER_TEMP/unluac-rs/target/release/unluac-cli"
           if test ! -x "$exe"; then exe="$RUNNER_TEMP/unluac-rs/target/release/unluac"; fi
           set +e
