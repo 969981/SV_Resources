@@ -239,16 +239,28 @@ def close_causal_evidence(folders, traces, output):
             "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=list(source_deltas[0]))
         w.writeheader();w.writerows(source_deltas)
+    # Pre-aggregate exact source candidate observations ONCE. A naïve
+    # per-point scan of all original candidates is quadratic and can turn an
+    # otherwise small 5-mode source proof into a very slow CI task.
+    def count_per_original_source(table):
+        result = Counter()
+        for (species, criteria, asset, index, collision_area, storage_area,
+             level_min, level_max, time, form, gender), repetitions in table.items():
+            if (asset == SOURCE and collision_area == WORLDEND and
+                storage_area == "a_su0108" and
+                level_min == 7 and level_max == 60 and time == 9):
+                result[(species, criteria, index)] += repetitions
+        return result
+    before_counts = count_per_original_source(before)
+    after_counts = count_per_original_source(after)
     dups = []
     for (sp, crit), ordinals in sorted(points.items()):
         for idx in sorted(ordinals):
             dups.append({"species": sp, "criteria_index": crit, "point_index": idx,
                          "source_asset": SOURCE, "source_collision_area": WORLDEND,
                          "raw_level": "1-99", "candidate_level": "7-60", "time_mask": 9,
-                         "baseline_observations": sum(v for k,v in before.items()
-                             if k[0]==sp and k[1]==crit and k[3]==idx),
-                         "point5046_mode_observations": sum(v for k,v in after.items()
-                             if k[0]==sp and k[1]==crit and k[3]==idx)})
+                         "baseline_observations": before_counts[(sp, crit, idx)],
+                         "point5046_mode_observations": after_counts[(sp, crit, idx)]})
     with (target / "SV400_158_313314_Duplicate_WorldEnd_Source_Points.csv").open(
             "w", newline="", encoding="utf-8-sig") as f:
         w=csv.DictWriter(f, fieldnames=list(dups[0]));w.writeheader();w.writerows(dups)
