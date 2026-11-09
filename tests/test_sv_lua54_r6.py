@@ -28,8 +28,8 @@ def proto(words, *, ident=0, params=0, const=None, captures=b"", children=None):
 
 def handler_words():
     return [
-        op("GETFIELD", 3, 0, 0), op("SETTABLE", 3, 1, 2),
-        op("GETTABUP", 3, 0, 1), op("MOVE", 4, 0),
+        op("GETFIELD", 3, 0, 0), op("SETTABLE", 3, 1, 1, 1),
+        op("GETTABUP", 3, 0, 2), op("MOVE", 4, 0),
         op("MOVE", 5, 1), op("MOVE", 6, 2),
         op("CALL", 3, 4, 1), op("RETURN0"),
     ]
@@ -38,7 +38,7 @@ def handler_words():
 class R6Tests(unittest.TestCase):
     def handler(self, words=None, keys=None):
         return proto(words or handler_words(), ident=17, params=3,
-                     const=keys or [Constant(4, b"__fields__"),
+                     const=keys or [Constant(4, b"__fields__"), Constant(17),
                                     Constant(4, b"rawset")])
 
     def test_strict_three_arg_handler_shape(self):
@@ -46,6 +46,7 @@ class R6Tests(unittest.TestCase):
         self.assertTrue(result["strict_three_argument_handler_shape"])
         self.assertEqual(result["key_refs"], ["__fields__", "rawset"])
         self.assertIn("rawset(self,key,value)", result["semantic_shape_if_executed"])
+        self.assertEqual(result["settable_rhs_constant_tag"],17)
 
     def test_wrong_rawset_argument_not_classified(self):
         words = handler_words()
@@ -56,8 +57,14 @@ class R6Tests(unittest.TestCase):
 
     def test_wrong_rawset_constant_not_classified(self):
         result = newindex_handler(self.handler(
-            keys=[Constant(4, b"__fields__"), Constant(4, b"setmetatable")]
+            keys=[Constant(4, b"__fields__"), Constant(17),
+                  Constant(4, b"setmetatable")]
         ))
+        self.assertFalse(result["strict_three_argument_handler_shape"])
+
+    def test_wrong_field_marker_not_classified(self):
+        result = newindex_handler(self.handler(keys=[
+            Constant(4, b"__fields__"), Constant(1), Constant(4, b"rawset")]))
         self.assertFalse(result["strict_three_argument_handler_shape"])
 
     def test_bad_ascii_key(self):
