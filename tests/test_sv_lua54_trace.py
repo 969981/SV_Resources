@@ -157,5 +157,42 @@ class TestTrace(unittest.TestCase):
                          "UNRESOLVED_DYNAMIC_CALL")
 
 
+    def test_loadk_gettable_f_hash_call(self):
+        p = proto(0, None, [abx("LOADK", 2, 0),
+                            abc("GETTABLE", 1, 0, 2),
+                            abc("CALL", 1, 1, 1),
+                            abc("RETURN0")],
+                  constants=[Constant(4, F_OTHER.encode())])
+        blocks, _, code = trace.basic_blocks(p)
+        result = trace.call_sites(p, blocks, code)[0]
+        self.assertEqual(result["resolution"], "HASH_FIELD_TARGET_UNRESOLVED")
+        self.assertEqual(result["target_field_hash"], F_OTHER)
+
+    def test_self_register_key_and_static_s_field(self):
+        s_hash = "S0123456789ABCDEF"
+        p = proto(0, None, [abx("LOADK", 3, 0),
+                            abc("SELF", 1, 0, 3, 0),
+                            abc("CALL", 1, 2, 1),
+                            abc("GETFIELD", 2, 0, 1),
+                            abc("CALL", 2, 1, 1),
+                            abc("RETURN0")],
+                  constants=[Constant(4, F_OTHER.encode()), Constant(4, s_hash.encode())])
+        blocks, _, code = trace.basic_blocks(p)
+        result = trace.call_sites(p, blocks, code)
+        self.assertEqual([x["target_field_hash"] for x in result], [F_OTHER, s_hash])
+        self.assertEqual(result[1]["target_function_hash"], None)
+
+    def test_overwritten_index_register_not_misread_as_hash(self):
+        p = proto(0, None, [abx("LOADK", 2, 0),
+                            abc("MOVE", 2, 3),
+                            abc("GETTABLE", 1, 0, 2),
+                            abc("CALL", 1, 1, 1),
+                            abc("RETURN0")],
+                  constants=[Constant(4, F_OTHER.encode())])
+        blocks, _, code = trace.basic_blocks(p)
+        self.assertEqual(trace.call_sites(p, blocks, code)[0]["resolution"],
+                         "UNRESOLVED_DYNAMIC_CALL")
+
+
 if __name__ == "__main__":
     unittest.main()
