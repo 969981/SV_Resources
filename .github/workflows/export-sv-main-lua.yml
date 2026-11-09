@@ -1,0 +1,92 @@
+name: SV 4.0.0 - export recovered main.lua
+
+on:
+  push:
+    branches:
+      - codex/sv-main-lua-recovery-20261109
+    paths:
+      - ".github/workflows/export-sv-main-lua.yml"
+      - "scripts/Export-SV-Main-Lua.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  decompile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout only original main BLUA and reconstruction tools
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/Export-SV-Main-Lua.py
+            tools/SV.Lua54/src/sv_lua54
+            patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+
+      - name: Set up Python and Lua 5.4
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify export script and install reference Lua 5.4 compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/Export-SV-Main-Lua.py tools/SV.Lua54/src/sv_lua54/*.py
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          luac5.4 -v
+
+      - name: Build pinned unluac-rs backend with reviewed SETLIST fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          cd "$RUNNER_TEMP/unluac-rs"
+          test "$(git rev-parse HEAD)" = "76d1452359b207c2a6fdec3c7c894152c7a61374"
+          git apply --check "$GITHUB_WORKSPACE/patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch"
+          git apply "$GITHUB_WORKSPACE/patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch"
+          rustup toolchain install nightly-2026-11-08 --profile minimal
+          sed -i '1i #![feature(if_let_guard)]' src/lib.rs
+          cargo +nightly-2026-11-08 build --release --locked --package unluac-cli
+          test -x target/release/unluac-cli
+
+      - name: Decompile full main BLUA and verify Lua 5.4 syntax
+        shell: bash
+        run: |
+          set -uo pipefail
+          python scripts/Export-SV-Main-Lua.py \
+            --backend "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            --out "$RUNNER_TEMP/recovered" \
+            --strict-timeout 1100 \
+            --permissive-timeout 480 \
+            --fallback-samples 120
+          code=$?
+          echo "EXPORT_EXIT_CODE=$code"
+          if test -e "$RUNNER_TEMP/recovered/manifest.json"; then
+            cat "$RUNNER_TEMP/recovered/manifest.json" | head -n 45
+          fi
+          exit 0
+
+      - name: Upload Lua source (only if valid), fallback prototypes and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv400-main-lua-reconstruction
+          path: ${{ runner.temp }}/recovered/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Clear temporary game bytecode and reconstructed source
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/recovered"
+          rm -rf "$RUNNER_TEMP/unluac-rs"
