@@ -78,7 +78,7 @@ jobs:
           set -e
           echo "SLR_R3_PATCHED_STRICT_RC=$rc"
           if test "$rc" -ne 0; then
-            grep -E 'residual table-set-list|failed|error' "$RUNNER_TEMP/proto752_stderr.log" | tail -n 15 || true
+            grep -E 'SLR_R3_FOLD|residual table-set-list|failed|error' "$RUNNER_TEMP/proto752_stderr.log" | tail -n 55 || true
             echo "R3_UPSTREAM_FULL_PROTO_STILL_UNSUPPORTED"
             exit 1
           fi
