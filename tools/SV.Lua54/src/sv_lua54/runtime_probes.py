@@ -34,7 +34,7 @@ def _instruction_view(proto, code, pc):
         if value is not None and (
             (len(value) == 17 and value[0] in "CFS" and
              all(d in "0123456789ABCDEF" for d in value[1:])) or
-            value == "prototype"
+            value in {"prototype", "new", "_new", "Create", "New"}
         ):
             out["symbolic_constant"] = value
     return out
@@ -88,6 +88,26 @@ def receiver_origin(proto, code, call_pc):
     return unknown
 
 
+def producer_call_origin(proto, code, pc):
+    """Class-table call site is a constructor/factory candidate, not returned type."""
+    if pc < 2 or code[pc][0] not in ("CALL", "TAILCALL"):
+        return {"kind": "INDIRECT_OR_UNKNOWN_PRODUCER"}
+    a = code[pc][1]
+    field, env = code[pc-1], code[pc-2]
+    if (field[0] == "GETFIELD" and field[1] == a and field[2] == a
+        and env[0] == "GETTABUP" and env[1] == a and env[2] == 0):
+        member = string_at(proto, field[3])
+        return {
+            "kind": "ENV_CLASS_FIELD_CALL",
+            "class_hash": string_at(proto, env[3], "C"),
+            "field_key": member if member in {"new", "_new", "Create", "New"} else None,
+            "gettabup_pc": pc-2, "getfield_pc": pc-1,
+            "returned_object_type": "UNOBSERVED",
+            "runtime_verified": False,
+        }
+    return {"kind": "INDIRECT_OR_UNKNOWN_PRODUCER", "runtime_verified": False}
+
+
 def build_manifest(chunk: Chunk, class_hash: str, function_hash: str,
                    target_pcs=TARGET_CALL_PCS):
     definitions = [m for m in native_methods(chunk)
@@ -117,6 +137,7 @@ def build_manifest(chunk: Chunk, class_hash: str, function_hash: str,
             if call_source is not None:
                 upstream_calls.append({
                     "producer_call_pc": call_source,
+                    "producer_static_origin": producer_call_origin(proto, code, call_source),
                     "opcode_window": [_instruction_view(proto, code, i) for i in
                                       range(max(0, call_source-7),
                                             min(len(code), call_source+2))],
