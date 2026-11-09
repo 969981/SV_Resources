@@ -13,6 +13,8 @@ on:
       - "tests/test_sv400_gdb_probe.py"
       - "scripts/Scan-SV400-Lua54-DispatchShapes.py"
       - "tests/test_sv400_luavm_dispatch_shapes.py"
+      - "scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py"
+      - "tests/test_sv400_luavm_diagnostic_xrefs.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -44,6 +46,8 @@ jobs:
             tests/test_sv400_gdb_probe.py
             scripts/Scan-SV400-Lua54-DispatchShapes.py
             tests/test_sv400_luavm_dispatch_shapes.py
+            scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py
+            tests/test_sv400_luavm_diagnostic_xrefs.py
             Unpack/4.0.0/exefs/violet_main/violet_main.elf
             Unpack/4.0.0/exefs/violet_main/provenance.json
             Unpack/4.0.0/exefs/subsdk0/subsdk0.elf
@@ -55,11 +59,12 @@ jobs:
           python-version: "3.12"
       - name: Syntax tests
         run: |
-          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py
           python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_probe.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_dispatch_shapes.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_diagnostic_xrefs.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
@@ -147,6 +152,25 @@ jobs:
               | head -45 >> slr-luavm-diagnostic-string-anchors.txt || true
           done
           cat slr-luavm-diagnostic-string-anchors.txt
+      - name: Trace Lua comparison and stack-error diagnostics to actual native xrefs
+        run: |
+          python scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --output slr-violet-luavm-diagnostic-xrefs.json
+          python - <<'PY'
+          import json
+          d=json.load(open("slr-violet-luavm-diagnostic-xrefs.json"))
+          assert d['status']=='STATIC_LUA_DIAGNOSTIC_XREF_EVIDENCE_ONLY'
+          assert d['runtime_vm_dispatch_rva'] is None
+          assert d['runtime_lua_state'] is None
+          msgs={row['message']:row for row in d['anchors']}
+          assert msgs['attempt to compare two %s values']['occurrence_count_bounded']>=1
+          assert msgs['C stack overflow']['occurrence_count_bounded']>=1
+          for name,row in msgs.items():
+              print('LUA_ERROR_SOURCE',name,'anchors',row['occurrence_count_bounded'],
+                    'xrefs',sum(x['candidate_xref_count'] for x in row['anchors']))
+          PY
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
         run: |
@@ -189,6 +213,7 @@ jobs:
             slr-violet-luavm-static-xrefs.json
             slr-violet-luavm-dispatch-shapes.json
             slr-luavm-diagnostic-string-anchors.txt
+            slr-violet-luavm-diagnostic-xrefs.json
             slr-subsdk0-luavm-dispatch-shapes.json
             slr-sdk-luavm-dispatch-shapes.json
             slr-violet-luavm-xref-neighborhood.txt
