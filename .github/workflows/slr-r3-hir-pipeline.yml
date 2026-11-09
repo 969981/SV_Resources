@@ -103,12 +103,14 @@ jobs:
           for i,line in hit[:3]:
               selected.append({"line":i+1,"text":line[:400],
                                "context":h[max(0,i-18):min(len(h),i+9)]})
+          prefix=[x[:550] for x in t if x.startswith("SV_R3 PREFIX")]
           owners=[x[:650] for x in t if x.startswith("SV_R3 ") and
                   any(tag in x for tag in ("SETLIST","OWNER_SEEDS","PROOFS"))]
           report={"status":"INSTRUMENTED_HIR_DIAGNOSTIC_ONLY",
                   "pinned_upstream_commit":"76d1452359b207c2a6fdec3c7c894152c7a61374",
                   "proto_id":752,"setlist_residual":selected,
                   "owner_decisions":owners[:25],
+                  "preceding_hir_statements":prefix[-24:],
                   "proof":"SOURCE_SITE_NOT_YET_SEMANTIC_EQUIVALENCE"}
           json.dump(report,open(sys.argv[3],"w",encoding="utf-8"),ensure_ascii=False,indent=2)
           print("R3 diagnostics:",len(selected),"residuals",len(owners),"owner logs")
