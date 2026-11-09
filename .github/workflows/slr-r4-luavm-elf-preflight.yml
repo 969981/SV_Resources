@@ -11,6 +11,8 @@ on:
       - "tests/test_sv400_luavm_xrefs.py"
       - "scripts/Probe-SV400-LuaVM-GDB.py"
       - "tests/test_sv400_gdb_probe.py"
+      - "scripts/Scan-SV400-Lua54-DispatchShapes.py"
+      - "tests/test_sv400_luavm_dispatch_shapes.py"
       - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
   pull_request:
     paths:
@@ -40,6 +42,8 @@ jobs:
             tests/test_sv400_luavm_xrefs.py
             scripts/Probe-SV400-LuaVM-GDB.py
             tests/test_sv400_gdb_probe.py
+            scripts/Scan-SV400-Lua54-DispatchShapes.py
+            tests/test_sv400_luavm_dispatch_shapes.py
             Unpack/4.0.0/exefs/violet_main/violet_main.elf
             Unpack/4.0.0/exefs/violet_main/provenance.json
       - uses: actions/setup-python@v5
@@ -47,10 +51,11 @@ jobs:
           python-version: "3.12"
       - name: Syntax tests
         run: |
-          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py
           python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
           python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
           python -m unittest discover -s tests -p "test_sv400_gdb_probe.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_dispatch_shapes.py" -v
       - name: Pin exact ELF bytes and extract possible Lua VM markers
         run: |
           python scripts/Audit-SV400-LuaVM-ELF.py \
@@ -87,6 +92,21 @@ jobs:
           assert x["inputs"]["Lua 5.4"]["string_vaddr"] == 0x3b74bee
           print("STATIC_XREF_COUNTS",
                 {k:v["xref_candidate_count_bounded"] for k,v in x["inputs"].items()})
+          PY
+      - name: Scan native 7-bit opcode dispatch shapes without claiming VM identity
+        run: |
+          python scripts/Scan-SV400-Lua54-DispatchShapes.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --output slr-violet-luavm-dispatch-shapes.json
+          python - <<'PY'
+          import json
+          d=json.load(open("slr-violet-luavm-dispatch-shapes.json"))
+          assert d["status"] == "STATIC_DISPATCH_SHAPE_CANDIDATES_NOT_VM_PROOF"
+          assert d["vm_opcode_dispatch_rva"] is None
+          assert d["game_lua_runtime_events"] is False
+          print("DISPATCH_SHAPE_COUNT",len(d["candidates"]),
+                "masked_opcode_shapes", d["summary"].get("mask_total",0))
           PY
       - name: Check actual exported ELF symbol names (not string-guess entrypoints)
         shell: bash
@@ -128,6 +148,7 @@ jobs:
             slr-violet-luavm-elf-preflight.json
             slr-luavm-symbol-hints.txt
             slr-violet-luavm-static-xrefs.json
+            slr-violet-luavm-dispatch-shapes.json
             slr-violet-luavm-xref-neighborhood.txt
             slr-violet-luavm-bl-target-b85bd0.txt
             slr-violet-luavm-bl-target-dfafb0.txt
