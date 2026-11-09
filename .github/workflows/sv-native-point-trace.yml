@@ -461,11 +461,11 @@ jobs:
         shell: pwsh
         run: |
           $root=Join-Path $env:RUNNER_TEMP 'SV400-causal'
-          $args=@()
+          $auditArgs=@()
           foreach ($mode in @('baseline','raw-min-only','raw-max-only','raw-both','point5046-area')) {
-            $args+=@('--build',"$mode=$root/$mode",'--trace',"$mode=$root/$mode/trace.jsonl")
+            $auditArgs+=@('--build',"$mode=$root/$mode",'--trace',"$mode=$root/$mode/trace.jsonl")
           }
-          python scripts/Audit-SV400-186-MinLoss-5046-Duplicate-Trace.py @args --output "$root/audit"
+          python scripts/Audit-SV400-186-MinLoss-5046-Duplicate-Trace.py @auditArgs --output "$root/audit"
           if ($LASTEXITCODE -ne 0) { throw 'Original source-point 186 causal merge or #5046 duplicate PointData evidence did not close' }
           $audit=Get-Content "$root/audit/SV400_186_Min_Loss_5046_Duplicate_Causal_Manifest.json" -Raw | ConvertFrom-Json
           "Actual 186<-176 source-specific loss: min-only $($audit.lost_source_slots.'raw-min-only'.lost); max-only $($audit.lost_source_slots.'raw-max-only'.lost); both $($audit.lost_source_slots.'raw-both'.lost)." | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
