@@ -25,6 +25,8 @@ TARGETS = {
     ),
     "dll_util": (
         ("CB87925D1C1B918F9", "S042B860498E558B2", "dll_util.StrUtil", "Format"),
+        ("CE5FCD7D9D8F34718", "SB859A84B9E933D14", "dll_util.Assert", "IsNull"),
+        ("CED59418C4CAB0EC4", "S05B90B9B5A6DE6BC", "dll_util.MathUtil", "Clamp"),
     ),
 }
 PATTERN = ("GETUPVAL", "LOADK", "GETTABLE", "LOADK", "CLOSURE", "SETTABLE")
@@ -67,6 +69,41 @@ def check_binding(proto, op, pc, class_hash: str, method_hash: str):
         "child_instruction_count": child.instruction_count,
     }
 
+def check_dll_binding(proto, op, pc, class_hash: str, method_hash: str):
+    """Exact 3-op dll_util class static binding:
+    GETTABUP R45 U0 K[class] ; CLOSURE R46 ; SETFIELD R45 K[method] R46.
+    """
+    part=op[pc:pc+3]
+    if len(part)!=3 or tuple(x.name for x in part)!=(
+        "GETTABUP","CLOSURE","SETFIELD"):
+        return None
+    base=part[0].a
+    if not (part[0].b==0 and part[1].a==base+1
+            and part[2].a==base and part[2].c==base+1):
+        return None
+    if (part[0].c>=len(proto.constants) or
+            proto.constants[part[0].c].payload!=class_hash.encode("ascii")):
+        return None
+    if (part[2].b>=len(proto.constants) or
+            proto.constants[part[2].b].payload!=method_hash.encode("ascii")):
+        return None
+    if part[1].bx>=len(proto.children):
+        raise ValueError(f"invalid dll_util child CLOSURE index PC {pc+1}")
+    child=proto.children[part[1].bx]
+    return {
+        "binding_status":"SV400_NATIVE_DLL_STATIC_CLOSURE_LINKED",
+        "parent_proto_id":child.parent_id,"proto_id":child.id,
+        "pc_start":0,"pc_end_exclusive":child.instruction_count,
+        "code_offset":child.code_offset,"root_pc":pc,
+        "class_load_pc":pc,"method_load_pc":None,
+        "closure_pc":pc+1,"assignment_pc":pc+2,
+        "child_index":part[1].bx,
+        "native_root_opcode_words":[f"{x.word:08X}" for x in part],
+        "child_params":child.num_params,
+        "child_upvalues":child.upvalue_count,
+        "child_instruction_count":child.instruction_count
+    }
+
 def read_chunk(root: Path, name: str):
     src = root / SOURCES / name / f"{name}.blua"
     raw = src.read_bytes()
@@ -107,13 +144,22 @@ def run(root: Path):
         for class_hash,method_hash,cls,method in targets:
             candidates=[]
             # Exclude impossible LOADK locations before checking full six-op pattern.
-            for i in range(len(ops)-5):
-                x=ops[i+3]
-                if (x.name=="LOADK" and x.bx<len(parent.constants)
-                    and parent.constants[x.bx].payload==method_hash.encode("ascii")):
-                    proof=check_binding(parent,ops,i,class_hash,method_hash)
-                    if proof is not None:
-                        candidates.append(proof)
+            if module=="dll_util":
+                for i in range(len(ops)-2):
+                    x=ops[i+2]
+                    if (x.name=="SETFIELD" and x.b<len(parent.constants)
+                            and parent.constants[x.b].payload==method_hash.encode("ascii")):
+                        proof=check_dll_binding(parent,ops,i,class_hash,method_hash)
+                        if proof is not None:
+                            candidates.append(proof)
+            else:
+                for i in range(len(ops)-5):
+                    x=ops[i+3]
+                    if (x.name=="LOADK" and x.bx<len(parent.constants)
+                            and parent.constants[x.bx].payload==method_hash.encode("ascii")):
+                        proof=check_binding(parent,ops,i,class_hash,method_hash)
+                        if proof is not None:
+                            candidates.append(proof)
             entry={"module":module,"class_name":cls,"method_name":method,
                    "class_hash":class_hash,"method_hash":method_hash,
                    "source_sha256":meta["sha256"],"source_path":meta["relative_source"],
