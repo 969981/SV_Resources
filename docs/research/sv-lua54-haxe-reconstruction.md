@@ -166,6 +166,18 @@ python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 - 已增加严格的原版 opcode／对象身份 token／同一帧 guest 只读日志**离线验收协议**，但没有连接真实游戏或执行 GDB 观察。即使自报日志内部一致仍不能自动成为真实运行证据；`game_runtime_status=NOT_OBSERVED`。
 - 原有 **83 条原始方法映射／82 个 Haxe 方法体／357 组独立 Lua 输入 A/B** 均不变。本轮只补齐静态取证和原生验收先决条件，**没有**把待证实的对象类型、函数指针或调用签名晋升为完成状态。
 
+## R17：真实双 ELF 类注册回调和 Lua wrapper 静态证据
+
+[完整 Obsidian R17 实验记录](sv400-haxe-r17-native-registration-guest-call.md) · [R17 双版本原版 ELF + .rela.dyn 证据 #42781289828](https://github.com/969981/SV_Resources/actions/runs/42781289828) **Success**。
+
+- 静态原生类名 `cE35B3EB3` 的 `main+0x13FE21C/220` ADRP+ADD 被证实，`main+0x13FE234` 以 X1=类字符串、X2=`main+0x1600050`、W3=1 调用 `main+0xE7D200`。
+- 回调 `main+0x1600050` 在 `main+0x1600088/8C` 读取连续方法指针表 `main+0x44B14E0` 并传给 `main+0xDEB2F0`；表第25项（从零计数）`f558733FC` 对应的原生可执行代码地址是 `main+0x1959E40`。第二张表同名方法对应 `main+0x194E910`，两者不应合并。
+- 两个真实原生包装器出现 `MOV W1,#1`、`MOV W1,#2` 取参数、`BLR` 和返回零的指令模式，符合 `self` 与一个显式参数的候选调用语义。它不同于固定上游 ZAScripts extern 的两个显式 UInt 声明；原版 C API helper 名称和完整 C++ 绑定类型仍 `NOT_RESOLVED`。
+- 原始 `IAction.Setup` Child Proto 12930/Root PC160285、`IAutoAction.Setup` Proto13197/Root PC163143 归属仍在主 `methods.jsonl`，新增 `r17-native-binding-candidates.json` 只记录静态候选及未完成状态，**没有晋升真正运行时对象或 Haxe 方法**。
+- Ghidra 12.2 定点追踪任务 [#42779039230](https://github.com/969981/SV_Resources/actions/runs/42779039230) 独立执行，真实结果需单独验收。离线 guest GDB 只读脚本 `scripts/SV400_Lua_R17_ClassBinding_ReadOnly.py` 已提交，但本轮未连接实际 guest，`child TValue` / `CClosure` / `CFunction`、原生参数和返回值均 `NOT_OBSERVED`。
+
+R17 后全局总量仍是 **83 个原始 Proto/PC 链接、82 个独立 Lua A/B 验收的 Haxe 方法体、357/357 有限输入测试**；跨原生 CALL 仍保留未知堆副作用，不能把静态重定位表视为已经确认的游戏内存 SSA。
+
 ## 上游资料与下一关
 
 [Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) 有 SV `source/main`、`source/dll_util`、`source/dll_stadium`；[Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 提供 Haxe 4.3.1、`HashAbi`、`@:chunk`、`@:abiSlot`、`cppbindings`、Lua 5.4.3 和 build finalizer 的参考实现；[PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 C/S/F/E 哈希与名称；[SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 是旧版 Lua 对照。
