@@ -1,0 +1,339 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 01de9cf4; name: FUN_01de9cf4
+ */
+
+
+void FUN_01de9cf4(undefined1 *param_1,long param_2,undefined8 param_3,undefined8 param_4)
+
+{
+  long *plVar1;
+  long lVar2;
+  char cVar3;
+  long *plVar4;
+  long lVar5;
+  long lVar6;
+  LightEventType *pLVar7;
+  bool bVar8;
+  long lVar9;
+  long local_88;
+  undefined8 uStack_80;
+  undefined1 *local_78;
+  char *pcStack_70;
+  undefined8 local_68;
+  char local_60 [8];
+  long *local_58;
+  undefined1 local_34 [4];
+  
+  local_34[0] = 0;
+  local_60[0] = '\0';
+  plVar1 = (long *)(param_2 + 0x120);
+  lVar5 = nn::os::GetCurrentThread();
+  do {
+    lVar6 = *plVar1;
+    lVar9 = *(long *)(param_2 + 0x128);
+    cVar3 = '\x01';
+    bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+    if (bVar8) {
+      *plVar1 = lVar6;
+      *(long *)(param_2 + 0x128) = lVar9;
+      cVar3 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar3 != '\0');
+  pLVar7 = (LightEventType *)(param_2 + 0x130);
+LAB_01de9d44:
+  while ((plVar4 = local_58, lVar6 != 0 && (lVar5 != lVar6))) {
+    nn::os::WaitLightEvent(pLVar7);
+    do {
+      lVar6 = *plVar1;
+      lVar9 = *(long *)(param_2 + 0x128);
+      cVar3 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar8) {
+        *plVar1 = lVar6;
+        *(long *)(param_2 + 0x128) = lVar9;
+        cVar3 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar3 != '\0');
+  }
+  do {
+    lVar2 = *plVar1;
+    if (lVar2 != lVar6 || *(long *)(param_2 + 0x128) != lVar9) {
+      bVar8 = false;
+      ClearExclusiveLocal();
+      goto LAB_01de9d74;
+    }
+    cVar3 = '\x01';
+    bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+    if (bVar8) {
+      *plVar1 = lVar6;
+      *(long *)(param_2 + 0x124) = lVar9 + 1;
+      cVar3 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar3 != '\0');
+  bVar8 = true;
+LAB_01de9d74:
+  if (!bVar8) {
+    lVar6 = lVar2;
+    lVar9 = *(long *)(param_2 + 0x128);
+    goto LAB_01de9d44;
+  }
+  if (*(long *)(param_2 + 0x118) == 0) {
+    *param_1 = 0;
+    if (local_60[0] != '\0') {
+      local_58 = (long *)0x0;
+      *(long **)(param_1 + 8) = plVar4;
+      *param_1 = 1;
+    }
+    do {
+      lVar5 = *plVar1;
+      lVar6 = *(long *)(param_2 + 0x128);
+      cVar3 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar8) {
+        *plVar1 = lVar5;
+        *(long *)(param_2 + 0x128) = lVar6;
+        cVar3 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar3 != '\0');
+    do {
+      lVar9 = *plVar1;
+      lVar2 = *(long *)(param_2 + 0x128);
+      if (lVar9 != lVar5 || lVar2 != lVar6) {
+        bVar8 = false;
+        ClearExclusiveLocal();
+        goto joined_r0x01de9fbc;
+      }
+      cVar3 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar8) {
+        *plVar1 = lVar5;
+        *(long *)(param_2 + 0x124) = lVar6 + -1;
+        cVar3 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar3 != '\0');
+    bVar8 = true;
+joined_r0x01de9fbc:
+    if (!bVar8) {
+      do {
+        lVar5 = *plVar1;
+        lVar6 = *(long *)(param_2 + 0x128);
+        if (lVar5 != lVar9 || lVar6 != lVar2) {
+          bVar8 = false;
+          ClearExclusiveLocal();
+          lVar9 = lVar5;
+          lVar2 = lVar6;
+          goto joined_r0x01de9fbc;
+        }
+        cVar3 = '\x01';
+        bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+        if (bVar8) {
+          *plVar1 = lVar9;
+          *(long *)(param_2 + 0x124) = lVar2 + -1;
+          cVar3 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar3 != '\0');
+      bVar8 = true;
+      lVar9 = lVar5;
+      lVar2 = lVar6;
+      goto joined_r0x01de9fbc;
+    }
+  }
+  else {
+    do {
+      lVar5 = *plVar1;
+      lVar6 = *(long *)(param_2 + 0x128);
+      cVar3 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar8) {
+        *plVar1 = lVar5;
+        *(long *)(param_2 + 0x128) = lVar6;
+        cVar3 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar3 != '\0');
+    do {
+      lVar9 = *plVar1;
+      lVar2 = *(long *)(param_2 + 0x128);
+      if (lVar9 != lVar5 || lVar2 != lVar6) {
+        bVar8 = false;
+        ClearExclusiveLocal();
+        goto joined_r0x01de9dd8;
+      }
+      cVar3 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar8) {
+        *plVar1 = lVar5;
+        *(long *)(param_2 + 0x124) = lVar6 + -1;
+        cVar3 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar3 != '\0');
+    bVar8 = true;
+joined_r0x01de9dd8:
+    if (!bVar8) {
+      do {
+        lVar5 = *plVar1;
+        lVar6 = *(long *)(param_2 + 0x128);
+        if (lVar5 != lVar9 || lVar6 != lVar2) {
+          bVar8 = false;
+          ClearExclusiveLocal();
+          lVar9 = lVar5;
+          lVar2 = lVar6;
+          goto joined_r0x01de9dd8;
+        }
+        cVar3 = '\x01';
+        bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+        if (bVar8) {
+          *plVar1 = lVar9;
+          *(long *)(param_2 + 0x124) = lVar2 + -1;
+          cVar3 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar3 != '\0');
+      bVar8 = true;
+      lVar9 = lVar5;
+      lVar2 = lVar6;
+      goto joined_r0x01de9dd8;
+    }
+    nn::os::SignalLightEvent(pLVar7);
+    plVar1 = (long *)(param_2 + 0x80);
+    do {
+      lVar5 = *plVar1;
+      cVar3 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar8) {
+        *plVar1 = lVar5;
+        *(undefined8 *)(param_2 + 0x88) = *(undefined8 *)(param_2 + 0x88);
+        cVar3 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar3 != '\0');
+    lVar6 = nn::os::GetCurrentThread();
+    if (lVar6 == lVar5) {
+      bVar8 = true;
+    }
+    else {
+      lVar5 = nn::os::GetCurrentThread();
+      do {
+        lVar6 = *plVar1;
+        lVar9 = *(long *)(param_2 + 0x88);
+        cVar3 = '\x01';
+        bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+        if (bVar8) {
+          *plVar1 = lVar6;
+          *(long *)(param_2 + 0x88) = lVar9;
+          cVar3 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar3 != '\0');
+      do {
+        while ((lVar6 != 0 && (lVar5 != lVar6))) {
+          nn::os::WaitLightEvent((LightEventType *)(param_2 + 0x90));
+          do {
+            lVar6 = *plVar1;
+            lVar9 = *(long *)(param_2 + 0x88);
+            cVar3 = '\x01';
+            bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+            if (bVar8) {
+              *plVar1 = lVar6;
+              *(long *)(param_2 + 0x88) = lVar9;
+              cVar3 = ExclusiveMonitorsStatus();
+            }
+          } while (cVar3 != '\0');
+        }
+        do {
+          lVar2 = *plVar1;
+          if (lVar2 != lVar6 || *(long *)(param_2 + 0x88) != lVar9) {
+            bVar8 = false;
+            ClearExclusiveLocal();
+            goto LAB_01de9e8c;
+          }
+          cVar3 = '\x01';
+          bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+          if (bVar8) {
+            *plVar1 = lVar6;
+            *(long *)(param_2 + 0x84) = lVar9 + 1;
+            cVar3 = ExclusiveMonitorsStatus();
+          }
+        } while (cVar3 != '\0');
+        bVar8 = true;
+LAB_01de9e8c:
+        lVar6 = lVar2;
+        lVar9 = *(long *)(param_2 + 0x88);
+      } while (!bVar8);
+      bVar8 = false;
+    }
+    local_78 = local_34;
+    pcStack_70 = local_60;
+    local_88 = param_2;
+    uStack_80 = param_3;
+    local_68 = param_4;
+    FUN_01dea088(*(undefined8 *)(param_2 + 0x100),&local_88);
+    plVar4 = local_58;
+    *param_1 = 0;
+    if (local_60[0] != '\0') {
+      local_58 = (long *)0x0;
+      *(long **)(param_1 + 8) = plVar4;
+      *param_1 = 1;
+    }
+    if (bVar8) goto LAB_01dea004;
+    do {
+      lVar5 = *plVar1;
+      lVar6 = *(long *)(param_2 + 0x88);
+      cVar3 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar8) {
+        *plVar1 = lVar5;
+        *(long *)(param_2 + 0x88) = lVar6;
+        cVar3 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar3 != '\0');
+    do {
+      lVar9 = *plVar1;
+      lVar2 = *(long *)(param_2 + 0x88);
+      if (lVar9 != lVar5 || lVar2 != lVar6) {
+        bVar8 = false;
+        ClearExclusiveLocal();
+        goto joined_r0x01de9f24;
+      }
+      cVar3 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar8) {
+        *plVar1 = lVar5;
+        *(long *)(param_2 + 0x84) = lVar6 + -1;
+        cVar3 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar3 != '\0');
+    bVar8 = true;
+joined_r0x01de9f24:
+    if (!bVar8) {
+      do {
+        lVar5 = *plVar1;
+        lVar6 = *(long *)(param_2 + 0x88);
+        if (lVar5 != lVar9 || lVar6 != lVar2) {
+          bVar8 = false;
+          ClearExclusiveLocal();
+          lVar9 = lVar5;
+          lVar2 = lVar6;
+          goto joined_r0x01de9f24;
+        }
+        cVar3 = '\x01';
+        bVar8 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+        if (bVar8) {
+          *plVar1 = lVar9;
+          *(long *)(param_2 + 0x84) = lVar2 + -1;
+          cVar3 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar3 != '\0');
+      bVar8 = true;
+      lVar9 = lVar5;
+      lVar2 = lVar6;
+      goto joined_r0x01de9f24;
+    }
+    pLVar7 = (LightEventType *)(param_2 + 0x90);
+  }
+  nn::os::SignalLightEvent(pLVar7);
+LAB_01dea004:
+  if ((local_60[0] != '\0') && (local_58 != (long *)0x0)) {
+    (**(code **)(*local_58 + 0x20))();
+  }
+  return;
+}
+
+
