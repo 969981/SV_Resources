@@ -49,6 +49,43 @@ def main():
     wanted="CB87925D1C1B918F9"
     if any(h["key"]==wanted for h in hashes):
         status="DLL_UTIL_STRUTIL_CLASS_HASH_PRESENT"
+    symbols_by_index={h["constant_index"]:h for h in hashes}
+
+    def describe(op):
+        d={"pc":op.pc,"op":op.name,"a":op.a,"b":op.b,"c":op.c,
+           "bx":op.bx,"word":f"{op.word:08X}"}
+        idx=None
+        if op.name in ("GETTABUP","GETFIELD"):
+            idx=op.c
+        elif op.name in ("SETTABUP","SETFIELD"):
+            idx=op.b
+        elif op.name=="LOADK":
+            idx=op.bx
+        if idx in symbols_by_index:
+            d["abi_key"]=symbols_by_index[idx]["key"]
+            d["resolved_name"]=symbols_by_index[idx]["name"]
+        if op.name=="CLOSURE" and op.bx<len(root.children):
+            d["child_proto_id"]=root.children[op.bx].id
+            d["child_code_offset"]=root.children[op.bx].code_offset
+            d["child_instruction_count"]=root.children[op.bx].instruction_count
+        return d
+
+    targets={
+        "CE5FCD7D9D8F34718":"dll_util.Assert",
+        "SB859A84B9E933D14":"Assert.IsNull",
+        "CED59418C4CAB0EC4":"dll_util.MathUtil",
+        "S05B90B9B5A6DE6BC":"MathUtil.Clamp",
+    }
+    trace={}
+    for key,label in targets.items():
+        sites=[]
+        for i,op in enumerate(ops):
+            d=describe(op)
+            if d.get("abi_key")==key:
+                sites.append({"site":d,
+                    "window":[describe(x) for x in ops[max(0,i-7):min(len(ops),i+8)]]})
+        trace[label]={"key":key,"count":len(sites),"sites":sites[:8]}
+
     report={"module":"dll_util","source_sha256":SHA,
             "root_instructions":root.instruction_count,
             "proto_count":len(protos),
@@ -57,6 +94,7 @@ def main():
             "hash_kind_counts":dict(sorted(Counter(h["kind"] for h in hashes).items())),
             "root_hashed_symbols":hashes,
             "root_hash_load_sites":sites,
+            "target_opcode_trace":trace,
             "strutil_class_status":status,
             "status":"INVENTORY_ONLY_NOT_METHOD_LINKED"}
     print(json.dumps(report,ensure_ascii=False,sort_keys=True))
