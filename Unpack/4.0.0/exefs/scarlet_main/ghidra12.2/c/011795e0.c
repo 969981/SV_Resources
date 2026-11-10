@@ -1,0 +1,114 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 011795e0; name: FUN_011795e0
+ */
+
+
+long * FUN_011795e0(undefined8 param_1,long *param_2,long *param_3,long *param_4)
+
+{
+  undefined *puVar1;
+  int iVar2;
+  long lVar3;
+  long *plVar4;
+  long lVar5;
+  long *plVar6;
+  long lVar7;
+  
+  if (((DAT_04865a38 & 1) == 0) && (iVar2 = __cxa_guard_acquire(&DAT_04865a38), iVar2 != 0)) {
+    FUN_010538c0(&DAT_04865a30,&LAB_028bf190);
+    FUN_00100190(PTR_LAB_047d3900,&DAT_04865a30,&PTR_LOOP_04483000);
+    __cxa_guard_release(&DAT_04865a38);
+  }
+  lVar3 = nn::os::GetTlsValue(DAT_04865a30);
+  if (0xf < *(ulong *)(lVar3 + 0x80)) {
+                    /* WARNING: Subroutine does not return */
+    abort();
+  }
+  *(long **)(lVar3 + *(ulong *)(lVar3 + 0x80) * 8) = param_2;
+  *(long *)(lVar3 + 0x80) = *(long *)(lVar3 + 0x80) + 1;
+  plVar4 = (long *)(**(code **)(*param_2 + 0x10))(param_2,0x140,0x10);
+  puVar1 = PTR_DAT_047d66f8;
+  if (plVar4 == (long *)0x0) {
+    (**(code **)(*param_2 + 0xe8))(param_2);
+                    /* WARNING: Subroutine does not return */
+    nn::diag::detail::AbortImpl
+              ("ptr","Create",
+               "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/object_factory.h"
+               ,0x40);
+  }
+  plVar4[2] = 0;
+  *(undefined4 *)(plVar4 + 3) = 0;
+  *plVar4 = (long)(puVar1 + 0x10);
+  if (((DAT_04865a38 & 1) == 0) && (iVar2 = __cxa_guard_acquire(&DAT_04865a38), iVar2 != 0)) {
+    FUN_010538c0(&DAT_04865a30,&LAB_028bf190);
+    FUN_00100190(PTR_LAB_047d3900,&DAT_04865a30,&PTR_LOOP_04483000);
+    __cxa_guard_release(&DAT_04865a38);
+  }
+  lVar5 = nn::os::GetTlsValue(DAT_04865a30);
+  puVar1 = PTR_DAT_047d8c78;
+  if (lVar5 == 0) {
+    lVar7 = 0;
+  }
+  else {
+    lVar7 = 0;
+    if (*(long *)(lVar5 + 0x80) != 0) {
+      lVar7 = *(long *)(lVar5 + *(long *)(lVar5 + 0x80) * 8 + -8);
+    }
+  }
+  *plVar4 = (long)(PTR_DAT_047d8c78 + 0x10);
+  plVar4[1] = lVar7;
+  plVar4[4] = (long)(puVar1 + 0x88);
+  plVar6 = plVar4 + 5;
+  *plVar6 = (long)(puVar1 + 0xd8);
+  plVar4[7] = 0;
+  plVar4[6] = 0;
+  FUN_00d1a3f4(plVar4 + 6,plVar6);
+  *plVar4 = (long)&PTR_FUN_045a0618;
+  plVar4[4] = (long)&PTR_LAB_045a0690;
+  *plVar6 = (long)&DAT_045a06e0;
+  plVar4[10] = 0;
+  plVar4[0xb] = 0;
+  plVar4[0xc] = 0;
+  plVar4[0xd] = 0;
+  plVar4[0xe] = 0;
+  plVar4[0xf] = 0;
+  plVar4[8] = (long)&PTR_FUN_045a0738;
+  plVar4[9] = 0;
+  plVar6 = (long *)*param_3;
+  plVar4[0x10] = (long)plVar6;
+  if (plVar6 != (long *)0x0) {
+    (**(code **)(*plVar6 + 0x18))();
+  }
+  plVar4[0x11] = param_3[1];
+  plVar4[0x12] = param_3[2];
+  plVar4[0x13] = param_3[3];
+  plVar6 = (long *)param_3[4];
+  plVar4[0x14] = (long)plVar6;
+  if (plVar6 != (long *)0x0) {
+    (**(code **)(*plVar6 + 0x18))();
+  }
+  lVar5 = param_3[5];
+  plVar4[0x18] = 0;
+  *(int *)(plVar4 + 0x15) = (int)lVar5;
+  plVar4[0x16] = 0;
+  plVar4[0x1b] = 0;
+  plVar4[0x19] = 0;
+  plVar4[0x1a] = 0;
+  if ((code *)param_4[2] != (code *)0x0) {
+    (*(code *)param_4[2])(param_4 + 4,plVar4 + 0x1c);
+    lVar5 = param_4[3];
+    plVar4[0x19] = param_4[1];
+    plVar4[0x1b] = lVar5;
+    lVar5 = *param_4;
+    plVar4[0x1a] = param_4[2];
+    plVar4[0x18] = lVar5;
+  }
+  *(undefined4 *)(plVar4 + 3) = 0x100140;
+  plVar4[1] = (long)param_2;
+  plVar4[2] = (long)plVar4;
+  *(long *)(lVar3 + 0x80) = *(long *)(lVar3 + 0x80) + -1;
+  return plVar4;
+}
+
+
