@@ -1,0 +1,26 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 003e6430; name: FUN_003e6430
+ */
+
+
+undefined8 FUN_003e6430(void)
+
+{
+  int iVar1;
+  long lVar2;
+  undefined8 uVar3;
+  
+  iVar1 = FUN_00446030(0x100,0);
+  if (iVar1 == 0) {
+    return 0;
+  }
+  lVar2 = FUN_0049e5d0(&DAT_047f1808);
+  uVar3 = 0;
+  if (lVar2 != 0) {
+    uVar3 = *(undefined8 *)(lVar2 + 8);
+  }
+  return uVar3;
+}
+
+
