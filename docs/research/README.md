@@ -99,3 +99,4 @@ Keep evidence statuses visible. Do not present planned work as completed.
 
 - [SV 4.0.0 Haxe 目录、HashAbi、原生 Proto/PC、验证证据](sv-lua54-haxe-reconstruction.md) — SVScripts/ZAScripts 对照、当前已恢复范围和验收标准。
 - [SV 4.0.0 R8：ZAScripts HashAbi/cppbindings/后处理与原生 Proto → Haxe → Lua 32/32 差异测试](sv400-haxe-zascripts-native-differential.md) — 原生字节码独立行为验收和批量扩展准入门槛。
+- [SV 4.0.0 R9：field/battle/event 3,892 个原生 Proto/PC 候选及三个原生 RETURN0 Haxe 实例方法](sv400-haxe-field-battle-event-promotion.md) — 从原生指令恢复 3 个实例方法并完成 41/41 差异测试。
