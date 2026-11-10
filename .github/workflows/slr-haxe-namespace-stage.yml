@@ -1,0 +1,53 @@
+name: SV400 Haxe field battle event native candidate stage
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/Stage-SV-Haxe-Namespace-Candidates.py"
+      - ".github/workflows/slr-haxe-namespace-stage.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  classify-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Stage-SV-Haxe-Namespace-Candidates.py
+            tools/SV.Lua54/src/sv_lua54
+            tools/PokeDocs/SV/Hashlists/Lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Classify original C-F native Proto-PC, stage named Haxe candidates only
+        run: |
+          python scripts/Stage-SV-Haxe-Namespace-Candidates.py --output "$RUNNER_TEMP/sv400-field-battle-event.jsonl"
+      - name: Ensure source generation is forbidden until bodies are verified
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"sv400-field-battle-event.summary.json"
+          d=json.loads(p.read_text())
+          assert d["source_sha256"]=="c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815"
+          assert d["total_native_c_f_edges"]==18991
+          assert d["haxe_files_generated"]==0
+          assert d["total_named_candidates"]>0
+          assert all(v>0 for v in d["named_prototype_candidates_by_group"].values())
+          print("PASS: native candidate staging only, no invented Haxe method bodies")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sv400-haxe-namespace-native-proto-candidates
+          path: |
+            ${{ runner.temp }}/sv400-field-battle-event.jsonl
+            ${{ runner.temp }}/sv400-field-battle-event.summary.json
+          if-no-files-found: error
+          retention-days: 7
