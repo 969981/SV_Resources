@@ -102,7 +102,7 @@ def verify(root: Path = ROOT) -> dict:
                                     else "SV400_NATIVE_STATIC_CLOSURE_LINKED")
             if r.get("native_binding_status") != expected_link_status:
                 raise ValueError(f"line {n}: missing proven native C-S binding status")
-            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED", "NATIVE_RETURN0_NOOP_IMPLEMENTED", "CFG_HIR_AST_LITERAL_LIFTED"):
+            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED", "NATIVE_RETURN0_NOOP_IMPLEMENTED", "CFG_HIR_AST_LITERAL_LIFTED", "R12_NATIVE_OPERATION_AST"):
                 raise ValueError(f"line {n}: unreviewed Haxe expression status")
             if r["runtime_status"] != "NOT_OBSERVED":
                 raise ValueError(f"line {n}: game runtime remains unobserved")
@@ -117,6 +117,26 @@ def verify(root: Path = ROOT) -> dict:
                         or r.get("za_differential_passed") is not None
                         or r.get("za_differential_run_id") is not None):
                     raise ValueError(f"line {n}: extern without method body must not claim Lua parity")
+            elif r["haxe_body_status"] == "R12_NATIVE_OPERATION_AST":
+                if r.get("promotion_batch") != "R12_GETI_SETI_LT_MOVE":
+                    raise ValueError(f"line {n}: missing R12 native operation batch identity")
+                proof_run = r.get("za_differential_run_id")
+                if (type(proof_run) is not int or proof_run <= 42761612949
+                        or r.get("za_haxe_build_evidence_run_id") != proof_run
+                        or r.get("za_haxe_compile_status") != "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT"
+                        or r["lua_differential_status"] != "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS"
+                        or r.get("za_differential_evidence_url") !=
+                           f"https://github.com/969981/SV_Resources/actions/runs/{proof_run}"):
+                    raise ValueError(f"line {n}: R12 proof run absent or mismatched")
+                kind=r.get("r12_operation_kind")
+                count={"self_slot_get":6,"self_slot_set":6,"min_max_clamp":7}.get(kind)
+                if (count is None or r.get("za_differential_cases") != count
+                        or r.get("za_differential_passed") != count):
+                    raise ValueError(f"line {n}: R12 method type or test count mismatch")
+                required=("TABLE_STATE_AND_METAMETHOD_DIFFERENTIAL_PASS"
+                          if kind=="self_slot_set" else "NOT_APPLICABLE_READ_ONLY")
+                if r.get("r12_write_side_effect_status") != required:
+                    raise ValueError(f"line {n}: R12 write-side-effect status cannot be inferred")
             elif r["haxe_body_status"] == "CFG_HIR_AST_LITERAL_LIFTED":
                 if r["module"] != "main" or mh[0] != "F":
                     raise ValueError(f"line {n}: CFG/HIR/AST literal target must be main C/F instance method")
@@ -279,6 +299,16 @@ def verify(root: Path = ROOT) -> dict:
                     or closure.bx >= len(native_root.children)
                     or native_root.children[closure.bx].id != p.id):
                 raise ValueError(f"line {n}: exact CLOSURE child ownership mismatch")
+            if r["haxe_body_status"] == "R12_NATIVE_OPERATION_AST":
+                from sv_lua54.emit_haxe.side_effects import lift_instance, haxe_method
+                lowered=lift_instance(p)
+                if (r.get("r12_operation_kind")!=lowered.kind
+                        or r.get("r12_slot")!=lowered.slot
+                        or r.get("native_child_opcode_words")!=list(lowered.raw_words)
+                        or r.get("native_child_code_sha256")!=lowered.source_code_sha256):
+                    raise ValueError(f"line {n}: original GETI/SETI/branch AST witness changed")
+                if haxe_method(method,mh,lowered) not in hx:
+                    raise ValueError(f"line {n}: R12 Haxe body not emitted by strict original opcode AST")
             if r["haxe_body_status"] == "CFG_HIR_AST_LITERAL_LIFTED":
                 from sv_lua54.emit_haxe import lift_constant_return
                 lifted=lift_constant_return(p)
@@ -327,6 +357,8 @@ def verify(root: Path = ROOT) -> dict:
             "native_lua_differential_passed_methods":sum(r["lua_differential_status"]=="SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS" for r in records),
             "native_lua_differential_total_cases":sum(r.get("za_differential_passed") or 0 for r in records),
             "cfg_hir_ast_lifted":sum(r.get("haxe_body_status")=="CFG_HIR_AST_LITERAL_LIFTED" for r in records),
+            "r12_read_write_branch_mapped":sum(r.get("haxe_body_status")=="R12_NATIVE_OPERATION_AST" for r in records),
+            "r12_table_writes_state_verified":sum(r.get("r12_write_side_effect_status")=="TABLE_STATE_AND_METAMETHOD_DIFFERENTIAL_PASS" for r in records),
             "game_runtime":"NOT_OBSERVED"}
 
 
