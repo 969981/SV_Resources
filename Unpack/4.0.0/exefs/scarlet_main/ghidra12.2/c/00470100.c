@@ -1,0 +1,45 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 00470100; name: FUN_00470100
+ */
+
+
+undefined8 FUN_00470100(undefined2 *param_1,int param_2,void *param_3,uint param_4)
+
+{
+  int iVar1;
+  int iVar2;
+  int iVar3;
+  char *pcVar4;
+  
+  iVar1 = (param_2 + -0xb) - param_4;
+  if (param_2 + -0xb < (int)param_4) {
+    FUN_004806c0(4,0x6e,0x6e,"external/openssl/crypto/rsa/rsa_ssl.c",0x19);
+  }
+  else {
+    pcVar4 = (char *)(param_1 + 1);
+    *param_1 = 0x200;
+    iVar2 = FUN_00464f80(pcVar4,iVar1);
+    if (0 < iVar2) {
+      if (0 < iVar1) {
+        iVar2 = 0;
+        do {
+          while (*pcVar4 == '\0') {
+            iVar3 = FUN_00464f80(pcVar4,1);
+            if (iVar3 < 1) {
+              return 0;
+            }
+          }
+          iVar2 = iVar2 + 1;
+          pcVar4 = pcVar4 + 1;
+        } while (iVar2 != iVar1);
+      }
+      builtin_strncpy(pcVar4,"\x03\x03\x03\x03\x03\x03\x03\x03",9);
+      memcpy(pcVar4 + 9,param_3,(ulong)param_4);
+      return 1;
+    }
+  }
+  return 0;
+}
+
+
