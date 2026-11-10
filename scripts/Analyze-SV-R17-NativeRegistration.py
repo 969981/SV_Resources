@@ -39,7 +39,7 @@ def analyze(game,path):
         raise ValueError("not contiguous ELF mapped code")
     if raw[offset_of(segs,XREF):offset_of(segs,XREF)+8].hex().upper()!="213801D0212C2F91":
         raise ValueError("xref not original ARM64 ADRP+ADD bytes")
-    if raw[offset_of(segs,LITERAL):offset_of(segs,LITERAL)+10]!=b"cE35B3EB3":
+    if raw[offset_of(segs,LITERAL):offset_of(segs,LITERAL)+len(b"cE35B3EB3")]!=b"cE35B3EB3":
         raise ValueError("class literal not original ELF")
     cs=Cs(CS_ARCH_ARM64,CS_MODE_LITTLE_ENDIAN)
     instructions=[]
@@ -53,10 +53,11 @@ def analyze(game,path):
     # Distinguish relocation-backed data pointers from arbitrary 8-byte values.
     refs=[]
     target_addends={}
+    literals_audit=inspect_elf(path,game,keys=KEYS)["literal_occurrences"]
     with path.open("rb") as src:
         elf=ELFFile(src)
         for key in KEYS:
-            occurrences=[m for m in inspect_elf(path,game,keys=KEYS)["literal_occurrences"] if m["literal"]==key]
+            occurrences=[m for m in literals_audit if m["literal"]==key]
             target_addends[key]={int(loc["rva"],16)
                  for rec in occurrences for hit in rec["exact_ascii_matches_first_16"]
                  for loc in hit["mapped_segments"]}
