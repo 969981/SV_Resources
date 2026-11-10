@@ -236,6 +236,10 @@ def main():
             for k,v in results["scarlet_main"]["native_direct_call_and_callback_code"].items()
        },
        "scarlet_method_pointer_relocation_neighbors":results["scarlet_main"]["native_method_relocation_pointer_neighbors"],
+       "scarlet_f558_candidate_wrapper_disassembly":{
+           k:results["scarlet_main"]["native_direct_call_and_callback_code"][k]["first_80_instructions"][:68]
+           for k in ("f558733FC_other_table_code_candidate","f558733FC_class_table_code_candidate")
+       },
        "scarlet_class_method_table":{
           "source":results["scarlet_main"]["class_callback_relocation_pairs"]["table_first_rva"],
           "via_code":results["scarlet_main"]["class_callback_relocation_pairs"]["table_passed_to_direct_bl_pc"],
