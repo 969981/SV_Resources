@@ -10,7 +10,9 @@ package dll_util;
  * ABI declaration is provided, not a fabricated body.
  */
 @:keep
+@:chunk("dll_util")
 @:hashAbi("CE5FCD7D9D8F34718")
+@:expose("CE5FCD7D9D8F34718")
 @:native("CE5FCD7D9D8F34718")
 extern class Assert {
     @:hashAbi("SB859A84B9E933D14")
