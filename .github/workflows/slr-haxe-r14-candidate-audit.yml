@@ -1,0 +1,36 @@
+name: SV400 R14 original dynamic field and shared table write candidate audit
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/Inspect-SV-Haxe-R14-DynamicAndMultiWrite.py"
+      - ".github/workflows/slr-haxe-r14-candidate-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Inspect-SV-Haxe-R14-DynamicAndMultiWrite.py
+            tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/haxe/4.0.0/methods.jsonl
+            tools/PokeDocs/SV/Hashlists/Lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Read original Proto instructions, enumerate candidate families
+        run: python scripts/Inspect-SV-Haxe-R14-DynamicAndMultiWrite.py --out "$RUNNER_TEMP/sv400-r14-candidates.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sv400-r14-original-registered-cf-dynamic-field-branches
+          path: ${{ runner.temp }}/sv400-r14-candidates.json
+          retention-days: 7
