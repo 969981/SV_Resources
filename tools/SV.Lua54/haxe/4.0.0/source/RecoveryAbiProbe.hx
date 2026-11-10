@@ -1,15 +1,19 @@
+import main.util.CompositionCamera;
+import main.util.StrUtil;
+import dll_util.MathUtil;
+
 /**
- * Stock Haxe→Lua smoke entry point.  Pure reconstructed utilities only.
- * This is not a game loader, full 4.0.0 Haxe source, or native runtime parity.
+ * Stock Haxe→Lua smoke entry point. Pure reconstructed utilities only.
+ * No game loader or native gameplay equivalence is claimed.
  */
 class RecoveryAbiProbe {
     static function main():Void {
-        var angle:Float = main.util.CompositionCamera.CalcXFov(1.0);
-        var text:String = main.util.StrUtil.Format("%s:%d", "SV", 400);
-        var clamped:Float = dll_util.MathUtil.Clamp(1.5, 0.0, 1.0);
+        var angle:Float = CompositionCamera.CalcXFov(1.0);
+        var text:String = StrUtil.Format("%s:%d", "SV", 400);
+        var clamped:Float = MathUtil.Clamp(1.5, 0.0, 1.0);
         trace(angle);
         trace(text);
         trace(clamped);
-        // dll_util.Assert.IsNull is extern-only and deliberately not invoked.
+        // dll_util.Assert.IsNull is extern-only; it is not invoked.
     }
 }
