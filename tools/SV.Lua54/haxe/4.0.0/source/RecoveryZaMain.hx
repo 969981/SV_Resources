@@ -1,3 +1,4 @@
+import main.event.general.ajito.DanRushAfterEvent;
 import main.event.base.IEventScript;
 import main.event.general.shop.Shop;
 import main.event.general.shop.base.BootShopBase;
@@ -114,7 +115,9 @@ class RecoveryZaMain {
         var r11Class42:Class<EventCheckerGo> = EventCheckerGo;
         var r11Class43:Class<EventCheckerMapChange> = EventCheckerMapChange;
         var r11Class44:Class<EventCheckerTalkPartner> = EventCheckerTalkPartner;
+        var r12DanRushClass:Class<DanRushAfterEvent> = DanRushAfterEvent;
         if (untyped __lua__("false")) {
+            trace(r12DanRushClass);
             trace(r11Class0);
             trace(r11Class1);
             trace(r11Class2);
