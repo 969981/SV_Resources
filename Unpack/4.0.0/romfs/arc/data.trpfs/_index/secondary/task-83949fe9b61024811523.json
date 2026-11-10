@@ -2,17 +2,18 @@
   "version": "4.0.0",
   "source": "virtual/_unknown",
   "kind": "all",
-  "completed_utc": "2026-11-08T01:59:34.862215+00:00",
+  "completed_utc": "2026-11-10T05:24:26.205738+00:00",
   "input_sha_policy": "TRPFD_CHECKED_WHEN_PRIOR_NATIVE_MANIFEST_PRESENT_ELSE_LOCAL_ONLY",
-  "source_files_seen": 659,
-  "selection_sha256": "0049637094818a4f1d1dcd7727912539eb4d17f6f0e4e48ddc2927772068be1f",
+  "source_files_seen": 994,
+  "selection_sha256": "14eb3e6fca51220ccbec1c98ef7c9a346acf9e9ef79ee40131d11b197d199d16",
   "index": {
-    "available": 659,
+    "available": 994,
     "native_sha_matches": 0,
     "hash_mismatch": 0,
-    "local_only": 659,
+    "local_only": 994,
     "formats": {
-      "UNKNOWN_BINARY": 659
+      "UNKNOWN_BINARY": 989,
+      "BNTX": 5
     }
   },
   "stages": {
@@ -34,11 +35,11 @@
     },
     "bntx": {
       "kind": "bntx",
-      "processed": 0,
+      "processed": 5,
       "ok": 0,
       "blocked": 0,
       "skipped": 0,
-      "failed": 0
+      "failed": 5
     },
     "models": {
       "counts": {
@@ -57,22 +58,78 @@
       "issues": []
     }
   },
-  "problems": [],
+  "problems": [
+    {
+      "source": "_unknown/14B5166919E97C2D.bin",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "Converter exit or PNG validation failed: Error: The file extension `.\"bin\"` was not recognized as an image format\n"
+    },
+    {
+      "source": "_unknown/1E6CA56CA165A7FA.bin",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "Converter exit or PNG validation failed: Error: The file extension `.\"bin\"` was not recognized as an image format\n"
+    },
+    {
+      "source": "_unknown/26F20A9EA91A00AE.bin",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "Converter exit or PNG validation failed: Error: The file extension `.\"bin\"` was not recognized as an image format\n"
+    },
+    {
+      "source": "_unknown/32F1E0CFCDDE5094.bin",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "Converter exit or PNG validation failed: Error: The file extension `.\"bin\"` was not recognized as an image format\n"
+    },
+    {
+      "source": "_unknown/3E6DE0F94133192D.bin",
+      "stage": "bntx",
+      "status": "FAILED",
+      "error": "Converter exit or PNG validation failed: Error: The file extension `.\"bin\"` was not recognized as an image format\n"
+    }
+  ],
   "inspection": {
     "schema_version": 1,
-    "manifest": "parsed/_unknown/_inspection/2d98688d3baef90f.jsonl",
-    "source_files": 659,
-    "inspection_records": 659,
+    "manifest": "parsed/_unknown/_inspection/4c74352f20d2e3e1.jsonl",
+    "source_files": 994,
+    "inspection_records": 994,
     "by_status": {
-      "INSPECTED_UNPARSED": 659
+      "INSPECTED_UNPARSED": 994
     },
-    "manifest_sha256": "6BE0000F6B987C2BE8EFC24CAB324535E6F59129D84EEAF9DCEE0E42BD7DFDD8"
+    "manifest_sha256": "A9034D3DB13EFE6171CCA3DB1EAC30EFB6C68F67BEAEA2551B29AF848C5FE31C"
   },
   "outputs": [
     {
-      "path": "parsed/_unknown/_inspection/2d98688d3baef90f.jsonl",
-      "bytes": 338857,
-      "sha256": "6BE0000F6B987C2BE8EFC24CAB324535E6F59129D84EEAF9DCEE0E42BD7DFDD8"
+      "path": "parsed/_unknown/_inspection/4c74352f20d2e3e1.jsonl",
+      "bytes": 511470,
+      "sha256": "A9034D3DB13EFE6171CCA3DB1EAC30EFB6C68F67BEAEA2551B29AF848C5FE31C"
+    },
+    {
+      "path": "parsed/_unknown/14B5166919E97C2D.bin.json",
+      "bytes": 261,
+      "sha256": "EF0DDFAAD9E2ABDBFD526A95DD88971A4147B1A21AA7BD63A08C13ACEA909EDA"
+    },
+    {
+      "path": "parsed/_unknown/1E6CA56CA165A7FA.bin.json",
+      "bytes": 261,
+      "sha256": "42507B7AE542120ADE67F749933E75F28053057AD3204945E4603F72DDCAEAA0"
+    },
+    {
+      "path": "parsed/_unknown/26F20A9EA91A00AE.bin.json",
+      "bytes": 261,
+      "sha256": "B0843E481FAC0EA0ED033E109960B036463E37D2EE306F8DA41CCE73E82B7486"
+    },
+    {
+      "path": "parsed/_unknown/32F1E0CFCDDE5094.bin.json",
+      "bytes": 261,
+      "sha256": "B0C09B099DDA59304B9CFB43FE557901E5ACD9BCF14938BC45D684CA324BCB48"
+    },
+    {
+      "path": "parsed/_unknown/3E6DE0F94133192D.bin.json",
+      "bytes": 261,
+      "sha256": "B4FEE3B8DDA57414025978913B07E41E4B2A791EA4907576727EFE83600C1BD0"
     }
   ],
   "deferred_outputs": [],
