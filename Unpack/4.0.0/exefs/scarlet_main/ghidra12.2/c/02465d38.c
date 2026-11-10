@@ -1,0 +1,71 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 02465d38; name: thunk_FUN_02465d3c
+ */
+
+
+ulong thunk_FUN_02465d3c(long param_1,ulong param_2)
+
+{
+  long lVar1;
+  ulong uVar2;
+  
+  uVar2 = FUN_02465bb0();
+  if (uVar2 <= param_2) {
+    return 0;
+  }
+  uVar2 = *(ulong *)(param_1 + 0x30);
+  switch(*(undefined4 *)(param_1 + 0x38)) {
+  case 1:
+  case 3:
+    if (uVar2 != 0) {
+      return (ulong)*(byte *)(uVar2 + (param_2 & 0xffffffff) + 4);
+    }
+    break;
+  case 2:
+    if (uVar2 != 0) {
+      return (long)*(char *)(uVar2 + (param_2 & 0xffffffff) + 4);
+    }
+    break;
+  case 4:
+    if (uVar2 != 0) {
+      return (long)*(short *)(uVar2 + (param_2 & 0xffffffff) * 2 + 4);
+    }
+    break;
+  case 5:
+    if (uVar2 != 0) {
+      return (ulong)*(ushort *)(uVar2 + (param_2 & 0xffffffff) * 2 + 4);
+    }
+    break;
+  case 6:
+  case 7:
+    if (uVar2 != 0) {
+      lVar1 = (param_2 & 0xffffffff) * 4;
+LAB_02465dcc:
+      return (ulong)*(uint *)(uVar2 + lVar1 + 4);
+    }
+    break;
+  case 8:
+  case 9:
+    if (uVar2 != 0) {
+      lVar1 = (param_2 & 0xffffffff) * 8;
+      goto LAB_02465dcc;
+    }
+    break;
+  case 10:
+    if (uVar2 != 0) {
+      return (ulong)(uint)(int)*(float *)(uVar2 + (param_2 & 0xffffffff) * 4 + 4);
+    }
+    break;
+  case 0xb:
+    if (uVar2 != 0) {
+      uVar2 = (ulong)(uint)(int)*(double *)(uVar2 + (param_2 & 0xffffffff) * 8 + 4);
+    }
+    break;
+  default:
+    return 0;
+  }
+  return uVar2;
+}
+
+
