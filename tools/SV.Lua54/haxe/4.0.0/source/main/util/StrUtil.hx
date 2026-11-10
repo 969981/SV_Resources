@@ -10,7 +10,9 @@ package main.util;
  * and original game runtime are NOT verified equivalent.
  */
 @:keep
+@:chunk("main")
 @:hashAbi("C23E5342B132D5323")
+@:expose("C23E5342B132D5323")
 @:native("C23E5342B132D5323")
 class StrUtil {
     @:hashAbi("S042B860498E558B2")
