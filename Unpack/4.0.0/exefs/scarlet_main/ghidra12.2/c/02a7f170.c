@@ -1,0 +1,52 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 02a7f170; name: _INIT_355
+ */
+
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void _INIT_355(void)
+
+{
+  DAT_0483c140 = NEON_fmov(0x3f780000,4);
+  uRam000000000483c198 = DAT_03cab628;
+  _DAT_0483c190 = DAT_03cab620;
+  DAT_0483c150 = 0;
+  DAT_0483c158 = 0;
+  DAT_0483c160 = 0x3f8000003f800000;
+  DAT_0483c168 = 0x3f8000003f800000;
+  DAT_0483c348 = 0;
+  uRam000000000483c1a8 = _UNK_03cabe68;
+  _DAT_0483c1a0 = _DAT_03cabe60;
+  DAT_0483c148 = 0x3f8400003f840000;
+  DAT_0483c170 = 0;
+  DAT_0483c178 = 0x3f800000;
+  DAT_0483c180 = 0;
+  DAT_0483c188 = 0x3f80000000000000;
+  DAT_0483c1c0 = 7;
+  DAT_0483c1c8 = 0x3f;
+  DAT_0483c1d0 = 0x100000000;
+  DAT_0483c1d8 = 0x700000;
+  DAT_0483c1e0 = 0x600000;
+  DAT_0483c1e8 = 0x20000;
+  DAT_0483c1f0 = 0x1e00;
+  DAT_0483c1f8 = 9;
+  DAT_0483c200 = 0x12;
+  DAT_0483c208 = 0x800024;
+  DAT_0483c210 = 0x40000;
+  DAT_0483c218 = 0x20000;
+  DAT_0483c220 = 0x1000;
+  DAT_0483c228 = 0x981861e3f;
+  DAT_0483c230 = 0x1800024;
+  uRam000000000483c1b8 = _UNK_03caa5b8;
+  _DAT_0483c1b0 = _DAT_03caa5b0;
+  FUN_00100190(PTR_FUN_047dca18,&DAT_0483c348,&PTR_LOOP_04483000);
+  DAT_0483c350 = 0x26;
+  DAT_0483c354 = 0x34;
+  DAT_0483c358 = 0x15;
+  DAT_0483c35c = 0x10;
+  return;
+}
+
+
