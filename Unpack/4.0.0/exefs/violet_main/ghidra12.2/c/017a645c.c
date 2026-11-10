@@ -1,0 +1,69 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 017a645c; name: FUN_017a645c
+ */
+
+
+void FUN_017a645c(long *param_1)
+
+{
+  undefined *puVar1;
+  int iVar2;
+  long lVar3;
+  long lVar4;
+  long *plVar5;
+  
+  puVar1 = PTR_DAT_047d66f8;
+  param_1[2] = 0;
+  *(undefined4 *)(param_1 + 3) = 0;
+  *param_1 = (long)(puVar1 + 0x10);
+  if (((DAT_04865a38 & 1) == 0) && (iVar2 = __cxa_guard_acquire(&DAT_04865a38), iVar2 != 0)) {
+    FUN_010538c0(&DAT_04865a30,&LAB_028bf190);
+    FUN_00100190(PTR_LAB_047d3900,&DAT_04865a30,&PTR_LOOP_04483000);
+    __cxa_guard_release(&DAT_04865a38);
+  }
+  lVar3 = nn::os::GetTlsValue(DAT_04865a30);
+  puVar1 = PTR_DAT_047d8c78;
+  if (lVar3 == 0) {
+    lVar4 = 0;
+  }
+  else {
+    lVar4 = 0;
+    if (*(long *)(lVar3 + 0x80) != 0) {
+      lVar4 = *(long *)(lVar3 + *(long *)(lVar3 + 0x80) * 8 + -8);
+    }
+  }
+  *param_1 = (long)(PTR_DAT_047d8c78 + 0x10);
+  param_1[1] = lVar4;
+  param_1[4] = (long)(puVar1 + 0x88);
+  plVar5 = param_1 + 5;
+  *plVar5 = (long)(puVar1 + 0xd8);
+  param_1[7] = 0;
+  param_1[6] = 0;
+  FUN_00d1a3f4(param_1 + 6,plVar5);
+  param_1[8] = 0xab4bce035f3012b;
+  *param_1 = (long)&PTR_LAB_04592d38;
+  param_1[4] = (long)&PTR_LAB_04592db0;
+  *plVar5 = (long)&DAT_04592e00;
+  lVar3 = 0;
+  do {
+    memset((void *)((long)param_1 + lVar3 + 0x50),0,0x158);
+    FUN_017a6624((long)param_1 + lVar3 + 0x1b6);
+    memset((void *)((long)param_1 + lVar3 + 0x48),0,0x180);
+    lVar4 = lVar3 + 0x180;
+    *(undefined1 *)((long)param_1 + lVar3 + 0x1a8) = 5;
+    *(undefined8 *)((long)param_1 + lVar3 + 0x1ac) = 0;
+    *(undefined1 *)((long)param_1 + lVar3 + 0x1b4) = 0;
+    *(undefined2 *)((long)param_1 + lVar3 + 0x1b6) = 10;
+    *(undefined4 *)((long)param_1 + lVar3 + 0x1b8) = 0xa0a0a0a;
+    *(undefined1 *)((long)param_1 + lVar3 + 0x1bc) = 10;
+    *(undefined2 *)((long)param_1 + lVar3 + 0x1c0) = 0;
+    *(undefined1 *)((long)param_1 + lVar3 + 0x1c2) = 0;
+    *(undefined2 *)((long)param_1 + lVar3 + 0x1c4) = 0;
+    lVar3 = lVar4;
+  } while (lVar4 != 0x2580);
+  FUN_013702c0(param_1 + 9);
+  return;
+}
+
+
