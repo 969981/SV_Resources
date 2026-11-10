@@ -1,0 +1,32 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 028f74d0; name: FUN_028f74d0
+ */
+
+
+void FUN_028f74d0(long param_1)
+
+{
+  SemaphoreType *pSVar1;
+  ulong uVar2;
+  long lVar3;
+  long lVar4;
+  
+  pSVar1 = (SemaphoreType *)(param_1 + 0x438);
+  uVar2 = nn::os::TryAcquireSemaphore(pSVar1);
+  if ((uVar2 & 1) == 0) {
+    nn::os::AcquireSemaphore(pSVar1);
+  }
+  lVar4 = *(long *)(param_1 + 0x400);
+  lVar3 = *(long *)(param_1 + 0x408);
+  while (lVar3 != lVar4) {
+    lVar3 = lVar3 + -8;
+    FUN_012c50fc(lVar3);
+  }
+  *(long *)(param_1 + 0x408) = lVar4;
+  FUN_014ec164(param_1);
+  nn::os::ReleaseSemaphore(pSVar1);
+  return;
+}
+
+
