@@ -1,0 +1,26 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 007a5008; name: FUN_007a5008
+ */
+
+
+undefined8 FUN_007a5008(long param_1)
+
+{
+  undefined *puVar1;
+  undefined1 auStack_20 [16];
+  
+  (**(code **)(**(long **)(param_1 + 0x90) + 0x160))();
+  puVar1 = PTR_LAB_047d0b38;
+  if (*(char *)(*(long *)(param_1 + 0x90) + 0x24b) != '\0') {
+    *(undefined1 *)(*(long *)(param_1 + 0x90) + 0x24b) = 0;
+    *(char **)(param_1 + 0x40) = "NetEventJob::WaitConnectionStatusUpdated";
+    *(undefined **)(param_1 + 0x30) = puVar1;
+    *(undefined8 *)(param_1 + 0x38) = 0;
+    FUN_007a521c(auStack_20,*(undefined8 *)(param_1 + 0x88),param_1 + 0x58);
+    FUN_0078cd58(*(undefined8 *)(param_1 + 0x88),1);
+  }
+  return 5;
+}
+
+
