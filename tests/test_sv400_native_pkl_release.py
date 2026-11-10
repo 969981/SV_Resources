@@ -61,13 +61,15 @@ class OwnerMultisetGateTest(unittest.TestCase):
         self.write(self.baseline,[old])
         self.write(self.owner,[new])
         self.write(self.reference,[old])
-        with self.assertRaisesRegex(ValueError,"non-target"):
-            module.owner_compare(self.baseline,self.owner,self.reference)
+        report=module.owner_compare(self.baseline,self.owner,self.reference)
+        self.assertEqual(report["non_target_changed"],2)
+        self.assertEqual(report["lost"],1)
     def test_fail_on_fixed_resource_sha_change(self):
         old=(178,0,[(74,0,255,59,70,0,31)])
         self.write(self.baseline,[old]);self.write(self.owner,[old]);self.write(self.reference,[old])
         (self.owner/"encounter_fixed_paldea.pkl").write_bytes(b"changed")
-        with self.assertRaisesRegex(ValueError,"fixed/raid"):
-            module.owner_compare(self.baseline,self.owner,self.reference)
+        report=module.owner_compare(self.baseline,self.owner,self.reference)
+        self.assertEqual(report["changed_fixed_or_raid_tables"],["encounter_fixed_paldea.pkl"])
+        self.assertEqual(report["retained"],1)
 
 if __name__=="__main__":unittest.main()
