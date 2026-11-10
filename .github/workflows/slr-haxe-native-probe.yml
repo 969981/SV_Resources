@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/Probe-SV-Haxe-Native.py"
       - "scripts/Link-SV-Haxe-Native.py"
+      - "scripts/Inventory-SV-DllUtil-Haxe.py"
       - ".github/workflows/slr-haxe-native-probe.yml"
   workflow_dispatch:
 permissions:
@@ -21,8 +22,10 @@ jobs:
           sparse-checkout: |
             scripts/Probe-SV-Haxe-Native.py
             scripts/Link-SV-Haxe-Native.py
+            scripts/Inventory-SV-DllUtil-Haxe.py
             tools/SV.Lua54/src/sv_lua54
             tools/SV.Lua54/fixtures/native_manifest.json
+            tools/PokeDocs/SV/Hashlists/Lua
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/dll_util/dll_util.blua
           sparse-checkout-cone-mode: false
@@ -33,6 +36,8 @@ jobs:
         run: python scripts/Probe-SV-Haxe-Native.py --output "$RUNNER_TEMP/haxe_native_probe.json"
       - name: Strict native class-method Proto/PC binding and child disassembly
         run: python scripts/Link-SV-Haxe-Native.py --output "$RUNNER_TEMP/haxe_native_link.json"
+      - name: Inspect dll_util root ABI hashes without old-version assumptions
+        run: python scripts/Inventory-SV-DllUtil-Haxe.py
       - uses: actions/upload-artifact@v4
         with:
           name: sv400-haxe-native-probe
