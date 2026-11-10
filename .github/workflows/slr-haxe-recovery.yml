@@ -8,6 +8,7 @@ on:
       - "scripts/Verify-SV-Haxe-Recovery.py"
       - "tests/test_sv_haxe_recovery.py"
       - "tests/test_sv_haxe_emitter.py"
+      - "tests/test_sv_haxe_side_effects.py"
       - "tools/SV.Lua54/src/sv_lua54/emit_haxe/**"
       - ".github/workflows/slr-haxe-recovery.yml"
   pull_request:
@@ -34,6 +35,7 @@ jobs:
             scripts/Verify-SV-Haxe-Recovery.py
             tests/test_sv_haxe_recovery.py
             tests/test_sv_haxe_emitter.py
+            tests/test_sv_haxe_side_effects.py
             tools/SV.Lua54/haxe/4.0.0
             tools/SV.Lua54/fixtures/native_manifest.json
             tools/SV.Lua54/src/sv_lua54
@@ -50,3 +52,4 @@ jobs:
         run: |
           python -m unittest discover -s tests -p "test_sv_haxe_recovery.py" -v
           python -m unittest discover -s tests -p "test_sv_haxe_emitter.py" -v
+          python -m unittest discover -s tests -p "test_sv_haxe_side_effects.py" -v
