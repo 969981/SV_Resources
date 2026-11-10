@@ -77,9 +77,7 @@ jobs:
             tools/SV.Lua54/haxe/4.0.0/compare-native-vs-za.lua \
             "$RUNNER_TEMP/sv400-haxe-native" \
             tools/SV.Lua54/haxe/4.0.0/build/za_main.lua \
-            tools/SV.Lua54/haxe/4.0.0/build/za_dll_util.lua
-            ${{ runner.temp }}/sv400-haxe-native/differential-report.json
-            ${{ runner.temp }}/sv400-haxe-native/fixture-provenance.json \
+            tools/SV.Lua54/haxe/4.0.0/build/za_dll_util.lua \
             "$RUNNER_TEMP/sv400-haxe-native/differential-report.json"
           python3 -c 'import json,os,pathlib;p=pathlib.Path(os.environ["RUNNER_TEMP"])/"sv400-haxe-native/differential-report.json";d=json.loads(p.read_text());assert d["status"]=="PASS" and len(d["methods"])==3 and all(m["cases"]>0 and m["passed"]==m["cases"] for m in d["methods"]);print(json.dumps(d,indent=2))'
       - uses: actions/upload-artifact@v4
@@ -89,5 +87,7 @@ jobs:
           path: |
             tools/SV.Lua54/haxe/4.0.0/build/za_main.lua
             tools/SV.Lua54/haxe/4.0.0/build/za_dll_util.lua
+            ${{ runner.temp }}/sv400-haxe-native/differential-report.json
+            ${{ runner.temp }}/sv400-haxe-native/fixture-provenance.json
           if-no-files-found: ignore
           retention-days: 7
