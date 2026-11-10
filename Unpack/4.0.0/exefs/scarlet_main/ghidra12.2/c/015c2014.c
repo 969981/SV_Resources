@@ -1,0 +1,96 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 015c2014; name: FUN_015c2014
+ */
+
+
+void FUN_015c2014(char *param_1,code *UNRECOVERED_JUMPTABLE_00,ulong param_3,char *param_4)
+
+{
+  long lVar1;
+  short *psVar2;
+  char cVar3;
+  short sVar4;
+  bool bVar5;
+  long *plVar6;
+  long lVar7;
+  short sVar8;
+  long local_18;
+  
+  cVar3 = *param_1;
+  lVar1 = (long)param_3 >> 1;
+  if (cVar3 != '\x01') {
+    if (cVar3 == '\x03') {
+      lVar7 = *(long *)(param_1 + 8);
+      if ((lVar7 != 0) && (*(short *)(lVar7 + 0x1a) != 0)) {
+        psVar2 = (short *)(lVar7 + 0x1a);
+        sVar8 = *(short *)(lVar7 + 0x1a);
+        do {
+          sVar4 = *psVar2;
+          if (sVar4 == sVar8) {
+            cVar3 = '\x01';
+            bVar5 = (bool)ExclusiveMonitorPass(psVar2,0x10);
+            if (bVar5) {
+              *psVar2 = sVar8 + 1;
+              cVar3 = ExclusiveMonitorsStatus();
+            }
+            if (cVar3 != '\0') goto LAB_015c210c;
+            bVar5 = true;
+          }
+          else {
+            ClearExclusiveLocal();
+LAB_015c210c:
+            bVar5 = false;
+          }
+          if (bVar5) {
+            if (*(long *)(lVar7 + 0x10) != 0) {
+              local_18 = *(long *)(lVar7 + 0x10) + -0x28;
+              if ((param_3 & 1) != 0) {
+                UNRECOVERED_JUMPTABLE_00 =
+                     *(code **)(UNRECOVERED_JUMPTABLE_00 + *(long *)(local_18 + lVar1));
+              }
+              (*UNRECOVERED_JUMPTABLE_00)((long *)(local_18 + lVar1),*param_4 != '\0');
+              goto LAB_015c20c0;
+            }
+            break;
+          }
+          sVar8 = sVar4;
+        } while (sVar4 != 0);
+      }
+      local_18 = 0;
+LAB_015c20c0:
+      FUN_01bc2de0(&local_18);
+      return;
+    }
+    if (cVar3 == '\x02') {
+      if ((*(long *)(param_1 + 8) == 0) ||
+         (lVar7 = *(long *)(*(long *)(param_1 + 8) + 0x10), lVar7 == 0)) {
+        return;
+      }
+      plVar6 = (long *)(lVar7 + lVar1 + -0x28);
+      if ((param_3 & 1) != 0) {
+        UNRECOVERED_JUMPTABLE_00 = *(code **)(UNRECOVERED_JUMPTABLE_00 + *plVar6);
+      }
+                    /* WARNING: Could not recover jumptable at 0x015c20a0. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+      (*UNRECOVERED_JUMPTABLE_00)(plVar6,*param_4);
+      return;
+    }
+    if (cVar3 != '\0') {
+      return;
+    }
+  }
+  if (*(long *)(param_1 + 8) == 0) {
+    return;
+  }
+  plVar6 = (long *)(*(long *)(param_1 + 8) + lVar1);
+  if ((param_3 & 1) != 0) {
+    UNRECOVERED_JUMPTABLE_00 = *(code **)(UNRECOVERED_JUMPTABLE_00 + *plVar6);
+  }
+                    /* WARNING: Could not recover jumptable at 0x015c2040. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  (*UNRECOVERED_JUMPTABLE_00)(plVar6,*param_4);
+  return;
+}
+
+
