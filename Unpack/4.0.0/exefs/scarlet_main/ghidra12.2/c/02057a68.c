@@ -1,0 +1,71 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 02057a68; name: FUN_02057a68
+ */
+
+
+void FUN_02057a68(long param_1,long *param_2)
+
+{
+  long lVar1;
+  long lVar2;
+  long lVar3;
+  long local_60 [3];
+  long *local_48;
+  
+  *(undefined1 **)(*param_2 + (ulong)*(uint *)(param_1 + 0xe8)) = &DAT_cbf29ce484222645;
+  *(undefined1 **)(*param_2 + (ulong)*(uint *)(param_1 + 0xec)) = &DAT_cbf29ce484222645;
+  lVar3 = *(long *)(param_1 + 0x88);
+  lVar2 = *(long *)(param_1 + 0x90);
+  if (lVar3 == lVar2) {
+    lVar2 = lVar3;
+  }
+  else {
+    do {
+      FUN_00c98090(local_60,lVar3);
+      lVar1 = local_60[0];
+      if (local_48 != (long *)0x0) {
+        (**(code **)(*local_48 + 0x20))();
+      }
+      if (lVar1 == -0x7b4c63b7f4cc60d2) goto LAB_02057afc;
+      lVar3 = lVar3 + 0x10;
+    } while (lVar2 != lVar3);
+    lVar3 = lVar2;
+LAB_02057afc:
+    lVar2 = *(long *)(param_1 + 0x90);
+  }
+  if ((lVar3 != 0) && (lVar2 != lVar3)) {
+    FUN_00d09648(local_60);
+    lVar3 = local_60[0];
+    if (local_48 != (long *)0x0) {
+      (**(code **)(*local_48 + 0x20))();
+    }
+    *(long *)(*param_2 + (ulong)*(uint *)(param_1 + 0xe8)) = lVar3;
+    lVar2 = *(long *)(param_1 + 0x90);
+  }
+  lVar3 = *(long *)(param_1 + 0x88);
+  if (lVar3 != lVar2) {
+    do {
+      FUN_00c98090(local_60,lVar3);
+      lVar1 = local_60[0];
+      if (local_48 != (long *)0x0) {
+        (**(code **)(*local_48 + 0x20))();
+      }
+      if (lVar1 == -0x7b650097decb337b) goto LAB_02057b80;
+      lVar3 = lVar3 + 0x10;
+    } while (lVar2 != lVar3);
+    lVar3 = lVar2;
+LAB_02057b80:
+    lVar2 = *(long *)(param_1 + 0x90);
+  }
+  if ((lVar3 != 0) && (lVar2 != lVar3)) {
+    FUN_00d09648(local_60,lVar3);
+    if (local_48 != (long *)0x0) {
+      (**(code **)(*local_48 + 0x20))();
+    }
+    *(long *)(*param_2 + (ulong)*(uint *)(param_1 + 0xec)) = local_60[0];
+  }
+  return;
+}
+
+

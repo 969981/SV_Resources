@@ -1,0 +1,178 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 0202221c; name: FUN_0202221c
+ */
+
+
+bool FUN_0202221c(long param_1,long *param_2)
+
+{
+  short *psVar1;
+  int *piVar2;
+  short sVar3;
+  bool bVar4;
+  char cVar5;
+  int iVar6;
+  long lVar7;
+  long *plVar8;
+  bool bVar9;
+  short sVar10;
+  undefined8 *puVar11;
+  float fVar12;
+  float fVar14;
+  float fVar15;
+  undefined1 auVar13 [16];
+  undefined8 *local_40 [2];
+  long *local_18;
+  
+  lVar7 = *param_2;
+  if (*(char *)(lVar7 + (ulong)*(uint *)(param_1 + 0xf8)) == '\0') {
+    return false;
+  }
+  if (*(float *)(lVar7 + (ulong)*(uint *)(param_1 + 0x104)) != 0.0) {
+    return true;
+  }
+  FUN_011f3030(local_40,*(undefined8 *)(lVar7 + (ulong)*(uint *)(param_1 + 8)));
+  if (local_40[0] == (undefined8 *)0x0) {
+    return false;
+  }
+  if (*(short *)((long)local_40[0] + 0x1a) == 0) {
+LAB_0202242c:
+    bVar9 = false;
+    puVar11 = local_40[0];
+    goto LAB_020223dc;
+  }
+  psVar1 = (short *)((long)local_40[0] + 0x1a);
+  sVar10 = *(short *)((long)local_40[0] + 0x1a);
+LAB_020222a8:
+  sVar3 = *psVar1;
+  if (sVar3 == sVar10) {
+    cVar5 = '\x01';
+    bVar9 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+    if (bVar9) {
+      *psVar1 = sVar10 + 1;
+      cVar5 = ExclusiveMonitorsStatus();
+    }
+    if (cVar5 != '\0') goto LAB_020222cc;
+    bVar9 = true;
+  }
+  else {
+    ClearExclusiveLocal();
+LAB_020222cc:
+    bVar9 = false;
+  }
+  if (!bVar9) {
+    sVar10 = sVar3;
+    if (sVar3 == 0) goto code_r0x020222dc;
+    goto LAB_020222a8;
+  }
+  plVar8 = (long *)(local_40[0][2] + -0x28);
+  if (local_40[0][2] == 0) goto LAB_0202242c;
+  FUN_014410c0(&local_18,*(undefined8 *)(*param_2 + (ulong)*(uint *)(param_1 + 8)));
+  if (local_18 == (long *)0x0) {
+    bVar9 = false;
+  }
+  else {
+    auVar13 = FUN_01025bc4(local_18,*param_2 + (ulong)*(uint *)(param_1 + 0xe8));
+    lVar7 = (**(code **)(*plVar8 + 0x68))(plVar8);
+    fVar12 = auVar13._0_4_ - *(float *)(lVar7 + 0x30);
+    fVar14 = auVar13._4_4_ - *(float *)(lVar7 + 0x34);
+    fVar15 = auVar13._8_4_ - *(float *)(lVar7 + 0x38);
+    fVar12 = fVar12 * fVar12;
+    fVar14 = fVar14 * fVar14;
+    fVar15 = fVar15 * fVar15;
+    auVar13._0_4_ = fVar12 + fVar14;
+    auVar13._4_4_ = fVar15 + 0.0;
+    auVar13._8_4_ = fVar12 + fVar14;
+    auVar13._12_4_ = fVar15 + 0.0;
+    auVar13 = NEON_ext(auVar13,auVar13,4,1);
+    fVar12 = auVar13._0_4_ + auVar13._4_4_;
+    if (fVar12 < 0.1) {
+LAB_02022390:
+      bVar9 = true;
+    }
+    else {
+      if (*(float *)(*param_2 + (ulong)*(uint *)(param_1 + 0x100)) < fVar12) goto LAB_02022390;
+      *(float *)((ulong)*(uint *)(param_1 + 0x100) + *param_2) = fVar12;
+      bVar9 = *(float *)(*param_2 + (ulong)*(uint *)(param_1 + 0xf0)) <=
+              *(float *)(*param_2 + (ulong)*(uint *)(param_1 + 0xf4));
+    }
+    if (local_18 != (long *)0x0) {
+      lVar7 = local_18[6];
+      psVar1 = (short *)(lVar7 + 0x1a);
+      do {
+        sVar10 = *psVar1;
+        cVar5 = '\x01';
+        bVar4 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+        if (bVar4) {
+          *psVar1 = sVar10 + -1;
+          cVar5 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar5 != '\0');
+      if (sVar10 == 1) {
+        *(undefined8 *)(lVar7 + 0x10) = 0;
+        (**(code **)(*local_18 + 0x50))();
+      }
+      else if (sVar10 == 0) {
+                    /* WARNING: Subroutine does not return */
+        nn::diag::detail::AbortImpl
+                  ("count != std::numeric_limits<uint16_t>::max()","ReleaseReference",
+                   "C:/jenkins/workspace/sudachi/rom/rom_build/programs/prog/app/packages/trinity_titan.2023.9.1-sudachi2/build//include/gflib3\\core/indexed_handle.h"
+                   ,0x60,"Reference counter underflows.");
+      }
+    }
+  }
+  (**(code **)(*plVar8 + 0x60))(plVar8);
+LAB_020223d4:
+  puVar11 = local_40[0];
+  if (local_40[0] == (undefined8 *)0x0) {
+    return bVar9;
+  }
+LAB_020223dc:
+  psVar1 = (short *)(puVar11 + 3);
+  do {
+    sVar10 = *psVar1;
+    cVar5 = '\x01';
+    bVar4 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+    if (bVar4) {
+      *psVar1 = sVar10 + -1;
+      cVar5 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar5 != '\0');
+  if (sVar10 == 1) {
+    piVar2 = (int *)((long)puVar11 + 0x1c);
+    do {
+      iVar6 = *piVar2;
+      cVar5 = '\x01';
+      bVar4 = (bool)ExclusiveMonitorPass(piVar2,0x10);
+      if (bVar4) {
+        *piVar2 = -1;
+        cVar5 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar5 != '\0');
+    if (iVar6 != -1) {
+      if (((*PTR_DAT_047d3908 & 1) == 0) &&
+         (iVar6 = __cxa_guard_acquire(PTR_DAT_047d3908), iVar6 != 0)) {
+        FUN_00100190(PTR_LAB_047d3de8,PTR_DAT_047d3910,&PTR_LOOP_04483000);
+        __cxa_guard_release(PTR_DAT_047d3908);
+      }
+      lVar7 = *(long *)PTR_DAT_047d3910;
+      *(long *)PTR_DAT_047d3918 = lVar7;
+      local_18 = (long *)*puVar11;
+      FUN_00c44438(lVar7 + 0x8040,&local_18);
+    }
+  }
+  else if (sVar10 == 0) {
+                    /* WARNING: Subroutine does not return */
+    nn::diag::detail::AbortImpl
+              ("count != std::numeric_limits<uint16_t>::max()","ReleaseWeakReference",
+               "C:/jenkins/workspace/sudachi/rom/rom_build/programs/prog/app/packages/trinity_titan.2023.9.1-sudachi2/build//include/gflib3\\core/indexed_handle.h"
+               ,0x33,"Reference counter underflows.");
+  }
+  return bVar9;
+code_r0x020222dc:
+  bVar9 = false;
+  goto LAB_020223d4;
+}
+
+
