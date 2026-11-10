@@ -102,7 +102,7 @@ def verify(root: Path = ROOT) -> dict:
                                     else "SV400_NATIVE_STATIC_CLOSURE_LINKED")
             if r.get("native_binding_status") != expected_link_status:
                 raise ValueError(f"line {n}: missing proven native C-S binding status")
-            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED", "NATIVE_RETURN0_NOOP_IMPLEMENTED", "CFG_HIR_AST_LITERAL_LIFTED", "R12_NATIVE_OPERATION_AST"):
+            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED", "NATIVE_RETURN0_NOOP_IMPLEMENTED", "CFG_HIR_AST_LITERAL_LIFTED", "R12_NATIVE_OPERATION_AST", "R13_NATIVE_FIELD_AST"):
                 raise ValueError(f"line {n}: unreviewed Haxe expression status")
             if r["runtime_status"] != "NOT_OBSERVED":
                 raise ValueError(f"line {n}: game runtime remains unobserved")
@@ -117,6 +117,42 @@ def verify(root: Path = ROOT) -> dict:
                         or r.get("za_differential_passed") is not None
                         or r.get("za_differential_run_id") is not None):
                     raise ValueError(f"line {n}: extern without method body must not claim Lua parity")
+            elif r["haxe_body_status"] == "R13_NATIVE_FIELD_AST":
+                if r.get("promotion_batch") != "R13_NAMED_FIELDS":
+                    raise ValueError(f"line {n}: R13 field method missing promotion identity")
+                proof = r.get("za_differential_run_id")
+                if (type(proof) is not int or proof <= 42763034047
+                        or r.get("za_haxe_build_evidence_run_id") != proof
+                        or r.get("za_haxe_compile_status") !=
+                            "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT"
+                        or r.get("lua_differential_status") !=
+                            "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS"
+                        or r.get("za_differential_evidence_url") !=
+                            f"https://github.com/969981/SV_Resources/actions/runs/{proof}"):
+                    raise ValueError(f"line {n}: R13 Haxe/native A/B proof must match the same run")
+                expected_names = {
+                    "main.event.base.IEventScript.get_CallFromReserve":
+                        (669,24815,"self_field_get",22,"callFromReserve",9),
+                    "main.event.debug.DebugAreaJump.onCreate":
+                        (11176,141665,"self_field_set_true",22,"skipPlayerStuckCheck",10),
+                    "main.battle.BattleResidentEffectManager.GetResidentEffectNum":
+                        (5683,87331,"self_field_get",1,"length",9),
+                }
+                expected = expected_names.get(cls+"."+method)
+                if (expected is None or
+                        (r["proto_id"],r["root_pc"],r.get("r13_operation_kind"),
+                         r.get("r13_slot"),r.get("r13_field_key"),
+                         r.get("za_differential_passed")) != expected
+                        or r.get("za_differential_cases") != expected[-1]):
+                    raise ValueError(f"line {n}: R13 method identity/Proto/field/cases mismatch")
+                if (r.get("r13_read_index_status") !=
+                      ("INDEX_METAMETHOD_EVENT_PARITY_PASS"
+                       if expected[2] == "self_field_get" else "NOT_APPLICABLE")):
+                    raise ValueError(f"line {n}: no proven __index event parity")
+                if (r.get("r13_write_side_effect_status") !=
+                      ("FIELD_TABLE_SNAPSHOT_AND_NEWINDEX_EVENTS_PASS"
+                       if expected[2] == "self_field_set_true" else "NOT_APPLICABLE")):
+                    raise ValueError(f"line {n}: no proven __newindex and snapshot parity")
             elif r["haxe_body_status"] == "R12_NATIVE_OPERATION_AST":
                 if r.get("promotion_batch") != "R12_GETI_SETI_LT_MOVE":
                     raise ValueError(f"line {n}: missing R12 native operation batch identity")
@@ -299,6 +335,23 @@ def verify(root: Path = ROOT) -> dict:
                     or closure.bx >= len(native_root.children)
                     or native_root.children[closure.bx].id != p.id):
                 raise ValueError(f"line {n}: exact CLOSURE child ownership mismatch")
+            if r["haxe_body_status"] == "R13_NATIVE_FIELD_AST":
+                from sv_lua54.emit_haxe.side_effects import lift_instance, haxe_method
+                operation=lift_instance(p)
+                if (operation.kind!=r.get("r13_operation_kind")
+                        or operation.slot!=r.get("r13_slot")
+                        or operation.raw_words!=tuple(r.get("native_child_opcode_words",[]))
+                        or operation.source_code_sha256!=r.get("native_child_code_sha256")
+                        or haxe_method(method,mh,operation) not in hx):
+                    raise ValueError(f"line {n}: R13 original field AST or emitted Haxe differs")
+                field_key=r.get("r13_field_key")
+                if (not isinstance(field_key,str) or
+                        not any(("["+json.dumps(field_key,ensure_ascii=False)+"]") in statement
+                                for statement in operation.statements)):
+                    raise ValueError(f"line {n}: field name differs from original Lua K constant")
+                if operation.has_table_effect != (
+                        operation.kind=="self_field_set_true"):
+                    raise ValueError(f"line {n}: R13 original side-effect kind mismatch")
             if r["haxe_body_status"] == "R12_NATIVE_OPERATION_AST":
                 from sv_lua54.emit_haxe.side_effects import lift_instance, haxe_method
                 lowered=lift_instance(p)
@@ -359,6 +412,9 @@ def verify(root: Path = ROOT) -> dict:
             "cfg_hir_ast_lifted":sum(r.get("haxe_body_status")=="CFG_HIR_AST_LITERAL_LIFTED" for r in records),
             "r12_read_write_branch_mapped":sum(r.get("haxe_body_status")=="R12_NATIVE_OPERATION_AST" for r in records),
             "r12_table_writes_state_verified":sum(r.get("r12_write_side_effect_status")=="TABLE_STATE_AND_METAMETHOD_DIFFERENTIAL_PASS" for r in records),
+            "r13_named_field_mapped":sum(r.get("haxe_body_status")=="R13_NATIVE_FIELD_AST" for r in records),
+            "r13_field_reads_index_verified":sum(r.get("r13_read_index_status")=="INDEX_METAMETHOD_EVENT_PARITY_PASS" for r in records),
+            "r13_field_writes_snapshot_verified":sum(r.get("r13_write_side_effect_status")=="FIELD_TABLE_SNAPSHOT_AND_NEWINDEX_EVENTS_PASS" for r in records),
             "game_runtime":"NOT_OBSERVED"}
 
 
