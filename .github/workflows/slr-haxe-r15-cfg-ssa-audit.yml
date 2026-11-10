@@ -1,0 +1,40 @@
+name: SV400 R15 bounded original CFG SSA and opaque engine call audit
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/Inspect-SV-Haxe-R15-CfgSsa.py"
+      - "tools/SV.Lua54/src/sv_lua54/emit_haxe/cfg_ssa_diagnostic.py"
+      - "tests/test_sv_haxe_cfg_ssa.py"
+      - ".github/workflows/slr-haxe-r15-cfg-ssa-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-cfg:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Inspect-SV-Haxe-R15-CfgSsa.py
+            tests/test_sv_haxe_cfg_ssa.py
+            tools/SV.Lua54/src/sv_lua54
+            tools/PokeDocs/SV/Hashlists/Lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Synthetic CFG join and opaque side effects negative tests
+        run: python3 -m unittest discover -s tests -p "test_sv_haxe_cfg_ssa.py" -v
+      - name: Census original self call test C/F methods and real join PHI candidates
+        run: python3 scripts/Inspect-SV-Haxe-R15-CfgSsa.py --out "$RUNNER_TEMP/sv400-r15-cfg-ssa.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sv400-r15-cfg-ssa-opaque-calls-diagnostic
+          path: ${{ runner.temp }}/sv400-r15-cfg-ssa.json
+          retention-days: 7
