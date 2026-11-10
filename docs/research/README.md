@@ -115,3 +115,4 @@ Keep evidence statuses visible. Do not present planned work as completed.
 - [SV 4.0.0 Haxe R14：动态 SETFIELD、双 SETI 共享引用图、两次 EQI 分支，原版 329/329 A/B](sv400-haxe-r14-dynamic-field-shared-alias-branch.md) — 4 个具 Proto/PC 和 HIR 证据的方法，完整表快照、异常前状态、元方法事件和共享引用对账，游戏 VM 仍 NOT_OBSERVED。
 - [SV 4.0.0 Haxe R15：原版 SELF/CALL/TEST、CFG/SSA 返回合流，357/357 模拟宿主 A/B，以及 886 条有界调用方法的 φ 候选扫描](sv400-haxe-r15-engine-call-cfg-ssa.md) — 两个有实际 Proto/PC 证据的方法已晋升 Haxe；引擎实机状态仍 NOT_OBSERVED，744 个合流只是只读候选。
 - [SV 4.0.0 Haxe R16：双原版 ELF、ZAScripts cppbindings cE35B3EB3 / f558733FC 绑定线索、原始 Lua CALL 参数数量差异与保守 Memory SSA](sv400-haxe-r16-native-cppbindings-memory-effects.md) — 静态交叉验证及 只读 guest 轨迹协议；仍缺实机 CFunction*／TValue* 证据，禁止宣称原生引擎等价。
+- [SV 4.0.0 Haxe R17：cE35B3EB3 原生方法注册表、f558733FC 指针 0x1959E40、Lua 参数 1/2 与离线 GDB](sv400-haxe-r17-native-registration-guest-call.md) — 双 ELF 原始机器码/重定位已通过，Ghidra 定点分析单独验收；真正 CClosure/child 身份与游戏运行时仍未观察。
