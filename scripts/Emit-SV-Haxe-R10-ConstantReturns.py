@@ -128,8 +128,16 @@ def emit(root:Path,out:Path,verify_repo_source:bool=False,native_output:Path|Non
         path.write_text(src,"utf-8")
         if verify_repo_source:
             tracked=root/"tools/SV.Lua54/haxe/4.0.0"/rel
-            if not tracked.is_file() or tracked.read_text("utf-8")!=src:
-                raise ValueError(f"committed Haxe is not deterministic CFG/HIR/AST output: {rel}")
+            if not tracked.is_file():
+                raise ValueError(f"missing committed R10 Haxe source: {rel}")
+            actual=tracked.read_text("utf-8")
+            # An original R10 class may subsequently gain independently proven
+            # R11/R12 members; require its entire R10 deterministic prefix to
+            # remain byte-identical, while permitting append-only class methods.
+            original_prefix=src.rsplit("\n}",1)[0]
+            if not (actual.startswith(original_prefix)
+                    and actual.rstrip().endswith("}")):
+                raise ValueError(f"original R10 method text diverged from native AST: {rel}")
         generated.append(str(rel))
     result={"schema_version":1,"source_sha256":PIN,
             "class_count":len(generated),"method_count":len(details),
