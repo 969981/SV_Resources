@@ -60,7 +60,7 @@ class R15NativeSelfCallSSA(unittest.TestCase):
 
     def test_reject_unregistered_class(self):
         cls="main.field.action.base.IAction.Setup"
-        with self.assertRaisesRegex(LiftFailure,"ownership"):
+        with self.assertRaisesRegex(LiftFailure,"source-owned"):
             lift_setup(fixture(cls),"main.field.action.base.Other.Setup")
 
     def test_reject_drifted_source_k(self):
