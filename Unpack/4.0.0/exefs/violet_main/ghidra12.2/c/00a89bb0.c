@@ -1,0 +1,20 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 00a89bb0; name: _INIT_213
+ */
+
+
+void _INIT_213(void)
+
+{
+  DAT_04837128 = nn::ldn::MakeIpv4Address('\x7f','\0','\0','\x01');
+  DAT_0483712c = nn::ldn::MakeIpv4Address(0xff,0xff,0xff,0xff);
+  DAT_04837130 = nn::ldn::MakeIpv4Address('\0','\0','\0','\0');
+  DAT_0483713c = 0;
+  DAT_04837138 = 0;
+  DAT_04837144 = 0xffff;
+  DAT_04837140 = 0xffffffff;
+  return;
+}
+
+
