@@ -8,7 +8,7 @@ updated: "2026-11-10"
 # R16：原版双 ELF 与 cppbindings、Lua CALL 参数差异、跨调用内存屏障
 
 > [!success] 原件静态审计通过
-> [R16 原版 ELF、Lua 与固定 cppbindings，18 项负例测试 Actions #42776515318](https://github.com/969981/SV_Resources/actions/runs/42776515318) **Success**。这次确实读取 Scarlet/Violet 两份 AArch64 ELF，逐字节校验原件 SHA-256；原始 main.blua 37,743 Proto，两个 R15 Root C/F 所属 Child/PC/操作码；及固定版 ZAScripts 中的 118 份 cppbindings Haxe 源文件。
+> [R16 原版 ELF、Lua 与固定 cppbindings，21 项负例测试 Actions #42777057724](https://github.com/969981/SV_Resources/actions/runs/42777057724) **Success**。这次确实读取 Scarlet/Violet 两份 AArch64 ELF，逐字节校验原件 SHA-256；原始 main.blua 37,743 Proto，两个 R15 Root C/F 所属 Child/PC/操作码；及固定版 ZAScripts 中的 118 份 cppbindings Haxe 源文件。
 
 > [!warning] 游戏运行时事实
 > **本轮没有连接真实 Switch/模拟器进程，没有实际 CFunction、lua_State*、TValue* 或 C++ 对象指针读数。** 所有运行状态保持 `NOT_OBSERVED`，新发现只是可复核的静态关联，不能把 ELF 中的字符串 RVA 当成函数入口，不能把 ZAScripts extern 当作原版《朱／紫》原生 ABI。R15 已恢复方法总数仍是 83 条原版映射 / 82 个已有独立 Lua A/B 的 Haxe 函数体 / 357 组有限输入测试。
@@ -32,7 +32,21 @@ updated: "2026-11-10"
 
 `public function f558733FC(interval:UInt, part_interval:UInt):Void;`
 
-原版 Scarlet/Violet ELF 两个文件**各有一处完全一致的 `cE35B3EB3` 字符串**，以及**各有一处 `f558733FC`**。该方法名在固定上游 118 份 cppbindings 中精确命中 1 次；另有两份 ELF 的 `component` 字符串各 8 次，`updateInterval` 未命中 ELF ASCII 字节，但在 Lua 原始常量表中存在。CLI 产出 ELF 文件偏移和对应 PT_LOAD RVA；**这些地址是文本位置，不是 C++ 代码 RVA**。新增真正读取原始机器码的 AArch64 `ADRP+ADD` 扫描：对 `cE35B3EB3` **Scarlet 和 Violet 均找到 1 处直接字符串引用的可执行地址候选**，对 `f558733FC` 暂未发现这种直接指令对（可能间接引用，不能据零结果否定游戏中使用）。扫描结果连同原生 32 位指令字和字符串 RVA 存在 [R16 静态机器码交叉引用 Actions #42776515318](https://github.com/969981/SV_Resources/actions/runs/42776515318) artifact。该代码引用还不是原生绑定注册函数，更不是已验证的 CFunction 指针。
+原版 Scarlet/Violet ELF 两个文件**各有一处完全一致的 `cE35B3EB3` 字符串**，以及**各有一处 `f558733FC`**。该方法名在固定上游 118 份 cppbindings 中精确命中 1 次；另有两份 ELF 的 `component` 字符串各 8 次，`updateInterval` 未命中 ELF ASCII 字节，但在 Lua 原始常量表中存在。CLI 产出 ELF 文件偏移和对应 PT_LOAD RVA；**这些地址是文本位置，不是 C++ 代码 RVA**。新增真正读取原始机器码的 AArch64 `ADRP+ADD` 扫描：对 `cE35B3EB3` **Scarlet 和 Violet 均找到 1 处直接字符串引用的可执行地址候选**，对 `f558733FC` 暂未发现这种直接指令对（可能间接引用，不能据零结果否定游戏中使用）。扫描结果连同原生 32 位指令字和字符串 RVA 存在 [R16 静态机器码交叉引用 Actions #42777057724](https://github.com/969981/SV_Resources/actions/runs/42777057724) artifact。该代码引用还不是原生绑定注册函数，更不是已验证的 CFunction 指针。
+
+### 双版本原版 AArch64 交叉引用的真实 RVA
+
+[完整 Actions #42777057724](https://github.com/969981/SV_Resources/actions/runs/42777057724) 中，Scarlet 和 Violet 的下列**原版 ELF 机器码**完全相同：
+
+| 项目 | Scarlet / Violet RVA | 原始指令字 |
+|---|---|---|
+| 生成类名字符串高位页基址 | `main+0x13FE21C` | `D0013821`（ADRP） |
+| 加上类名字符串页内地址 | `main+0x13FE220` | `912F2C21`（ADD） |
+| 被引用的 `cE35B3EB3` 文本 | `main+0x3B04BCB` | 原始 PT_LOAD 内 UTF-8 |
+| 对 `f558733FC` 文本的直接 ADRP+ADD | 未匹配 | 不证明不存在其他寻址方式 |
+
+尝试以原版 `.eh_frame_hdr` / FDE 范围识别这段机器码所属函数，结果**两份 ELF 都是 `NO_VALIDATED_FDE`**，原始错误 `FDE overlaps/outside executable .text: 0`。由于没有可信的 FDE 范围，`candidate_function_entry_rva=null`；没有擅自用相近代码推测函数头。应在 Ghidra 12.2 手动审查从 `0x13FE21C` 向前的基本块及数据/字符串引用，并结合真实 ELF relocation 检查是否涉及 native class 注册过程。对应程序 `scripts/Link-SV-R16-Xref-FDE.py` 与 3 项合成负例已提交。
+
 
 R15 已证实的方法如下：
 
@@ -93,8 +107,8 @@ python3 scripts/Verify-SV-Haxe-R16-GuestTrace.py \
 
 - 静态分析和对账入口：`scripts/Analyze-SV-Haxe-R16-EngineAbi.py`。
 - 绑定及内存屏障后端：`tools/SV.Lua54/src/sv_lua54/emit_haxe/r16_engine_bridge.py`。
-- 18 项负例与协议测试：`tests/test_sv_haxe_r16_engine_bridge.py`、`tests/test_sv_haxe_r16_guest_trace.py`。
-- 固定来源与 CI：`.github/workflows/slr-haxe-r16-engine-abi-audit.yml`；运行证据为 [Actions #42776515318](https://github.com/969981/SV_Resources/actions/runs/42776515318)。
+- 21 项负例与协议测试：`tests/test_sv_haxe_r16_engine_bridge.py`、`tests/test_sv_haxe_r16_guest_trace.py`。
+- 固定来源与 CI：`.github/workflows/slr-haxe-r16-engine-abi-audit.yml`；运行证据为 [Actions #42777057724](https://github.com/969981/SV_Resources/actions/runs/42777057724)。
 
 **下一关**：对当前 ELF 中的 `cE35B3EB3/f558733FC` 静态交叉引用定位原生注册表和 `CFunction` 函数指针，实机读取 child 动态对象类型及 `CALL` 前后两份 `TValue`／寄存器实参，解释上游 extern 的多一个显式参数。没有这些证据，游戏的真正 ABI 和跨 native CALL 的完整内存 SSA 仍是 `NOT_RESOLVED / NOT_OBSERVED`。
 
