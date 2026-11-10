@@ -1,0 +1,127 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 01d5fdb0; name: FUN_01d5fdb0
+ */
+
+
+void FUN_01d5fdb0(undefined1 *param_1,char *param_2)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  long lVar4;
+  undefined8 uVar5;
+  int iVar6;
+  long *local_28;
+  long *local_8;
+  
+  uVar5 = DAT_04831030;
+  if (*param_2 == '\x01') {
+    local_28 = *(long **)(param_2 + 8);
+    if (local_28 != (long *)0x0) {
+      plVar1 = local_28 + 5;
+      do {
+        iVar6 = (int)*plVar1;
+        cVar2 = '\x01';
+        bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+        if (bVar3) {
+          *(int *)plVar1 = iVar6 + 1;
+          cVar2 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar2 != '\0');
+LAB_01d5fdfc:
+      if (iVar6 == -1) goto LAB_01d5ff20;
+    }
+  }
+  else if (*param_2 == '\0') {
+    local_28 = *(long **)(param_2 + 8);
+    if (local_28 != (long *)0x0) {
+      plVar1 = local_28 + 5;
+      do {
+        iVar6 = (int)*plVar1;
+        cVar2 = '\x01';
+        bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+        if (bVar3) {
+          *(int *)plVar1 = iVar6 + 1;
+          cVar2 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar2 != '\0');
+      goto LAB_01d5fdfc;
+    }
+  }
+  else {
+    local_28 = (long *)0x0;
+  }
+  FUN_01d604e0(&local_8,uVar5,&local_28);
+  if (local_8 == (long *)0x0) {
+    *param_1 = 1;
+    *(undefined8 *)(param_1 + 8) = 0;
+  }
+  else {
+    plVar1 = local_8 + 5;
+    do {
+      lVar4 = *plVar1;
+      cVar2 = '\x01';
+      bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar3) {
+        *(int *)plVar1 = (int)lVar4 + 1;
+        cVar2 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar2 != '\0');
+    if ((int)lVar4 == -1) {
+LAB_01d5ff20:
+                    /* WARNING: Subroutine does not return */
+      nn::diag::detail::AbortImpl
+                ("count != 0","IncrementReferenceInternal",
+                 "C:/jenkins/workspace/sudachi/rom/rom_build/programs/prog/app/packages/trinity_titan.2023.9.1-sudachi2/build//include/gflib3\\core/reference_object.h"
+                 ,0x53,"Reference counter overflows.");
+    }
+    *param_1 = 1;
+    *(long **)(param_1 + 8) = local_8;
+    if (local_8 != (long *)0x0) {
+      plVar1 = local_8 + 5;
+      do {
+        lVar4 = *plVar1;
+        iVar6 = (int)lVar4 + -1;
+        cVar2 = '\x01';
+        bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+        if (bVar3) {
+          *(int *)plVar1 = iVar6;
+          cVar2 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar2 != '\0');
+      if (iVar6 == 0) {
+        (**(code **)(*local_8 + 0x10))();
+      }
+      else if ((int)lVar4 == 0) goto LAB_01d5fe98;
+    }
+  }
+  if (local_28 != (long *)0x0) {
+    plVar1 = local_28 + 5;
+    do {
+      lVar4 = *plVar1;
+      iVar6 = (int)lVar4 + -1;
+      cVar2 = '\x01';
+      bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar3) {
+        *(int *)plVar1 = iVar6;
+        cVar2 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar2 != '\0');
+    if (iVar6 == 0) {
+      (**(code **)(*local_28 + 0x10))();
+    }
+    else if ((int)lVar4 == 0) {
+LAB_01d5fe98:
+                    /* WARNING: Subroutine does not return */
+      nn::diag::detail::AbortImpl
+                ("count != std::numeric_limits<uint32_t>::max()","DecrementReferenceInternal",
+                 "C:/jenkins/workspace/sudachi/rom/rom_build/programs/prog/app/packages/trinity_titan.2023.9.1-sudachi2/build//include/gflib3\\core/reference_object.h"
+                 ,0x58,"Reference counter underflows.");
+    }
+  }
+  return;
+}
+
+

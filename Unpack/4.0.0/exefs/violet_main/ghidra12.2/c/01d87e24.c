@@ -1,0 +1,68 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 01d87e24; name: FUN_01d87e24
+ */
+
+
+void FUN_01d87e24(char *param_1,undefined8 *param_2)
+
+{
+  undefined8 uVar1;
+  code *pcVar2;
+  undefined8 uVar3;
+  undefined8 uVar4;
+  code *local_128;
+  undefined1 auStack_110 [96];
+  undefined8 local_b0;
+  code *local_a8;
+  code *local_a0;
+  undefined8 uStack_98;
+  undefined1 auStack_90 [96];
+  
+  if ((*param_1 == '\0') || (*param_1 == '\x01')) {
+    uVar4 = *(undefined8 *)(param_1 + 8);
+  }
+  else {
+    uVar4 = 0;
+  }
+  local_128 = (code *)0x0;
+  if ((code *)param_2[2] == (code *)0x0) {
+    local_a0 = (code *)0x0;
+    uStack_98 = 0;
+    local_b0 = 0;
+    local_a8 = (code *)0x0;
+  }
+  else {
+    (*(code *)param_2[2])(param_2 + 4,auStack_110);
+    uVar1 = *param_2;
+    local_128 = (code *)param_2[1];
+    pcVar2 = (code *)param_2[2];
+    uVar3 = param_2[3];
+    local_b0 = 0;
+    local_a8 = (code *)0x0;
+    local_a0 = (code *)0x0;
+    uStack_98 = 0;
+    if (pcVar2 != (code *)0x0) {
+      (*pcVar2)(auStack_110,auStack_90);
+      local_b0 = uVar1;
+      local_a8 = local_128;
+      local_a0 = pcVar2;
+      uStack_98 = uVar3;
+    }
+  }
+  FUN_01d89f18(uVar4,&local_b0);
+  pcVar2 = local_a8;
+  if (local_a8 != (code *)0x0) {
+    local_a0 = (code *)0x0;
+    uStack_98 = 0;
+    local_b0 = 0;
+    local_a8 = (code *)0x0;
+    (*pcVar2)(auStack_90);
+  }
+  if (local_128 != (code *)0x0) {
+    (*local_128)(auStack_110);
+  }
+  return;
+}
+
+
