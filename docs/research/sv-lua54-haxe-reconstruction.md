@@ -132,8 +132,8 @@ python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 
 - [R11 Actions #42761612949](https://github.com/969981/SV_Resources/actions/runs/42761612949)：剩余的 **59/59** 字面量候选在原版 C→F/Proto/PC 与 PokeDocs 严格匹配后，按类合并生成 Haxe，定制 ZAScripts 编译与原版 Child 差异 **177/177 PASS**，加历史 56/56，累计 233/233。
 - [R12 Actions #42762760077](https://github.com/969981/SV_Resources/actions/runs/42762760077)：增加原版 `BattleView.GetGemEnableCount`（GETI）、`SetGemEnableCount`（SETI）、`DanRushAfterEvent.clamp`（LT/JMP/MOVE）。新增 **19/19**，加 233 组回归为 **252/252 PASS**。SETI 要比较表状态、未修改字段、nil 与 `__newindex` 元方法事件，不能仅比较返回值。
-- 当前 **74 条真实原始映射、73 个已独立 Lua 对账的 Haxe 方法体、1 个 extern-only**。未验证游戏原生 Lua VM/C++/UpVal*，`runtime_status=NOT_OBSERVED`。
-- [R13 静态字段取证 #42763034047](https://github.com/969981/SV_Resources/actions/runs/42763034047) 从原版常量表证实 `callFromReserve`、`skipPlayerStuckCheck=true` 和 `length`。`GETFIELD/SETFIELD` 受限 AST 已有合成测试，但尚未完成三方法原生 Lua A/B，不计入上述已恢复数。
+- [R13 静态取证 #42763034047](https://github.com/969981/SV_Resources/actions/runs/42763034047) 从原版 4.0.0 Proto 669／11176／5683 的 K 常量证实 `callFromReserve`、`skipPlayerStuckCheck=true` 和 `length`，不使用臆测字段名。[完整原版字节码与 Haxe A/B #42765308159](https://github.com/969981/SV_Resources/actions/runs/42765308159) **Success**：三条真实字段方法新增 **28/28**，包括两种 `GETFIELD` 的 `__index` 事件 18 组、`SETFIELD` 嵌套表与 `__newindex` 副作用 10 组。
+- **当前：77 条真实原始映射、76 个完成独立 Lua 对账的 Haxe 方法体、1 个 extern-only，累计 280/280**。上述三个方法已从临时 Haxe 工程晋升并提交 `master`。未验证游戏原生 Lua VM/C++/UpVal*，所有 `runtime_status=NOT_OBSERVED`。
 
 ## 上游资料与下一关
 
