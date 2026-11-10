@@ -22,7 +22,10 @@ from sv_lua54.chunk import Chunk, parse
 WORK=ROOT/"tools/SV.Lua54/haxe/4.0.0"
 TARGETS={"main.util.CompositionCamera.CalcXFov":"CalcXFov",
          "main.util.StrUtil.Format":"Format",
-         "dll_util.MathUtil.Clamp":"Clamp"}
+         "dll_util.MathUtil.Clamp":"Clamp",
+         "main.field.action.ActionChair.onBeginSitting":"ActionChairBegin",
+         "main.battle.BattleViewBase.StartIdleCamera":"BattleStartIdle",
+         "main.event.base.BaseBattleTalkEvent.onCreate":"EventOnCreate"}
 
 
 def extract(repo:Path, out:Path)->dict:
@@ -61,6 +64,12 @@ def extract(repo:Path, out:Path)->dict:
         native_words=[f"{w:08X}" for (w,) in struct.iter_unpack("<I",proto.code)]
         if native_words!=row["native_child_opcode_words"]:
             raise ValueError(f"{key}: native instruction word mismatch")
+        if key in ("main.field.action.ActionChair.onBeginSitting",
+                   "main.battle.BattleViewBase.StartIdleCamera",
+                   "main.event.base.BaseBattleTalkEvent.onCreate"):
+            if (proto.instruction_count != 1 or proto.code != bytes.fromhex("c7000100")
+                    or proto.num_params != 1 or proto.upvalue_count != 0):
+                raise ValueError(f"{key}: native one-op RETURN0 proof changed")
         child=copy.deepcopy(proto)
         child.id=0
         child.parent_id=None
