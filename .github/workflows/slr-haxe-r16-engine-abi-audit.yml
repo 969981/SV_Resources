@@ -5,11 +5,13 @@ on:
     paths:
       - ".github/workflows/slr-haxe-r16-engine-abi-audit.yml"
       - "scripts/Analyze-SV-Haxe-R16-EngineAbi.py"
+      - "scripts/Link-SV-R16-Xref-FDE.py"
       - "scripts/Verify-SV-Haxe-R16-GuestTrace.py"
       - "tools/SV.Lua54/src/sv_lua54/emit_haxe/r16_engine_bridge.py"
       - "tools/SV.Lua54/src/sv_lua54/emit_haxe/r16_guest_trace.py"
       - "tests/test_sv_haxe_r16_engine_bridge.py"
       - "tests/test_sv_haxe_r16_guest_trace.py"
+      - "tests/test_sv_haxe_r16_fde_link.py"
   workflow_dispatch:
 permissions:
   contents: read
@@ -29,6 +31,9 @@ jobs:
             scripts/Analyze-SV-Haxe-R16-EngineAbi.py
             tests/test_sv_haxe_r16_engine_bridge.py
             tests/test_sv_haxe_r16_guest_trace.py
+            tests/test_sv_haxe_r16_fde_link.py
+            scripts/Link-SV-R16-Xref-FDE.py
+            tools/ghidra/sv/sv400_fde.py
             tools/SV.Lua54/src/sv_lua54/
             tools/SV.Lua54/haxe/4.0.0/methods.jsonl
             tools/SV.Lua54/haxe/4.0.0/zascripts.lock.json
@@ -43,6 +48,7 @@ jobs:
           set -euo pipefail
           python3 -m unittest discover -s tests -p "test_sv_haxe_r16_engine_bridge.py" -v
           python3 -m unittest discover -s tests -p "test_sv_haxe_r16_guest_trace.py" -v
+          python3 -m unittest discover -s tests -p "test_sv_haxe_r16_fde_link.py" -v
       - name: Checkout EXACT pinned Reisyukaku ZAScripts cppbindings source
         run: |
           set -euo pipefail
@@ -87,10 +93,36 @@ jobs:
                      and len(v["pc_events"])==15 for v in data["r15_callsite_originals"].values())
           print("R16_STATIC_BRIDGE_PASS; no live runtime object or C++ ABI proof")
           PY
+      - name: Find candidate native unwind range containing each verified class-string ADRP reference
+        run: |
+          set -euo pipefail
+          python3 -m pip install -q 'pyelftools==0.32'
+          for game in scarlet_main violet_main; do
+            python3 tools/ghidra/sv/sv400_fde.py \
+              --elf "Unpack/4.0.0/exefs/$game/$game.elf" \
+              --out "$RUNNER_TEMP/sv400-r16-fde/$game"
+          done
+          python3 scripts/Link-SV-R16-Xref-FDE.py \
+            --evidence "$RUNNER_TEMP/sv400-r16-engine-evidence.json" \
+            --fde-root "$RUNNER_TEMP/sv400-r16-fde" \
+            --out "$RUNNER_TEMP/sv400-r16-fde-class-xref.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"sv400-r16-fde-class-xref.json"
+          report=json.loads(p.read_text())
+          assert report["game_runtime_status"]=="NOT_OBSERVED"
+          assert report["no_game_runtime_abi_inferred"] is True
+          assert all(not item["callee_cpp_entry_proven"]
+                     for item in report["results"].values())
+          print("R16_FDE_CLASS_REFERENCE_CANDIDATE_ONLY")
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sv400-r16-engine-abi-static-elf-cppbindings
-          path: ${{ runner.temp }}/sv400-r16-engine-evidence.json
+          path: |
+            ${{ runner.temp }}/sv400-r16-engine-evidence.json
+            ${{ runner.temp }}/sv400-r16-fde-class-xref.json
           if-no-files-found: warn
           retention-days: 14
