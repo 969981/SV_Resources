@@ -62,6 +62,20 @@ jobs:
           "$UPSTREAM/tools/lua-5.4.3/src/luac" -p build/za_main.lua build/za_dll_util.lua
           "$UPSTREAM/tools/lua-5.4.3/src/luac" -s -o build/za_main.blua build/za_main.lua
           "$UPSTREAM/tools/lua-5.4.3/src/luac" -s -o build/za_dll_util.blua build/za_dll_util.lua
+      - name: Verify HashAbi rejects an intentionally corrupted S hash
+        working-directory: tools/SV.Lua54/haxe/4.0.0
+        run: |
+          set -euo pipefail
+          BAD="$RUNNER_TEMP/sv400-hashabi-negative"
+          mkdir -p "$BAD/build"
+          cp -R source "$BAD/source"
+          cp build-za-main.hxml "$BAD/build-za-main.hxml"
+          sed -i 's/@:hashAbi("S042B860498E558B2")/@:hashAbi("S0000000000000000")/' "$BAD/source/main/util/StrUtil.hx"
+          if (cd "$BAD" && "$UPSTREAM/tools/haxe-4.3.1/haxe" build-za-main.hxml > "$BAD/hashabi-error.log" 2>&1); then
+            echo "ERROR: HashAbi accepted a deliberately invalid static method hash"
+            exit 1
+          fi
+          grep -F "Recovered name Format hashes to S042B860498E558B2, expected S0000000000000000" "$BAD/hashabi-error.log"
       - name: Verify C/S symbols and finalizer fingerprints
         run: python3 scripts/Verify-SV-ZA-Haxe-ABI.py
       - name: Build temporary bit-exact original SV400 child Lua54 functions
