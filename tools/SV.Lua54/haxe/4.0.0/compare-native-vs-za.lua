@@ -84,6 +84,31 @@ local functions={
     compiled=generated_instance(main_export,"C2C51A2FB219477E8","FC87C731D11C58354"),
     cases={{{}}, {13}, {"hello"}},
   },
+  DanPartnerType={
+    native=native("R10_14216"),
+    compiled=generated_instance(main_export,"CB32008C74622B08D","FBDA175393973D042"),
+    cases={{{}}, {13}, {"hello"}},
+  },
+  DanPokemonType={
+    native=native("R10_14223"),
+    compiled=generated_instance(main_export,"CF68C37EE92559CB9","FBDA175393973D042"),
+    cases={{{}}, {13}, {"hello"}},
+  },
+  BattleInterval={
+    native=native("R10_6349"),
+    compiled=generated_instance(main_export,"CA5A5606298DDCB29","F1E76EA24E515CC0D"),
+    cases={{{}}, {13}, {"hello"}},
+  },
+  ScenarioCheck={
+    native=native("R10_689"),
+    compiled=generated_instance(main_export,"C916675E6CD711E0A","F9FD376B7D7006716"),
+    cases={{{}}, {13}, {"hello"}},
+  },
+  ScenarioImportant={
+    native=native("R10_699"),
+    compiled=generated_instance(main_export,"C916675E6CD711E0A","FCB3B1A213D375E75"),
+    cases={{{}}, {13}, {"hello"}},
+  },
 }
 local function scalar_equal(a,b)
   if type(a)~=type(b) then return false end
@@ -107,7 +132,7 @@ end
 local function json_escape(s)
   return (s:gsub("\\","\\\\"):gsub('"','\\"'):gsub("\n","\\n"):gsub("\r","\\r"))
 end
-local method_names={"CalcXFov","Format","Clamp","ActionChairBegin","BattleStartIdle","EventOnCreate"}
+local method_names={"CalcXFov","Format","Clamp","ActionChairBegin","BattleStartIdle","EventOnCreate","DanPartnerType","DanPokemonType","BattleInterval","ScenarioCheck","ScenarioImportant"}
 local output,failed={},false
 for _,name in ipairs(method_names) do
   local entry=functions[name]
