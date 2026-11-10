@@ -1,0 +1,63 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 01c3c4b0; name: FUN_01c3c4b0
+ */
+
+
+void FUN_01c3c4b0(long *param_1,undefined8 *param_2)
+
+{
+  long *plVar1;
+  undefined8 *puVar2;
+  long lVar3;
+  undefined4 *puVar4;
+  long lVar5;
+  long lVar6;
+  long local_68;
+  undefined8 *puStack_60;
+  undefined8 *local_58;
+  long local_50;
+  long *plStack_48;
+  
+  plVar1 = param_1 + 3;
+  lVar3 = FUN_01c3c5d8(param_1,(param_1[1] - *param_1 >> 3) + 1);
+  lVar5 = *param_1;
+  lVar6 = param_1[1];
+  local_50 = 0;
+  plStack_48 = plVar1;
+  if (lVar3 == 0) {
+    local_68 = 0;
+  }
+  else {
+    local_68 = (**(code **)(*(long *)*plVar1 + 0x10))((long *)*plVar1,lVar3 << 3,8);
+    if (local_68 == 0) {
+      (**(code **)(*(long *)*plVar1 + 0xe8))();
+    }
+  }
+  puVar2 = (undefined8 *)(local_68 + (lVar6 - lVar5 >> 3) * 8);
+  local_50 = local_68 + lVar3 * 8;
+  lVar6 = *plVar1;
+  puStack_60 = puVar2;
+  local_58 = puVar2;
+  puVar4 = (undefined4 *)FUN_01053840();
+  lVar5 = nn::os::GetTlsValue(*puVar4);
+  if (lVar5 == 0) {
+    *puVar2 = *param_2;
+  }
+  else {
+    if (0xf < *(ulong *)(lVar5 + 0x80)) {
+                    /* WARNING: Subroutine does not return */
+      abort();
+    }
+    *(long *)(lVar5 + *(ulong *)(lVar5 + 0x80) * 8) = lVar6;
+    *(long *)(lVar5 + 0x80) = *(long *)(lVar5 + 0x80) + 1;
+    *puVar2 = *param_2;
+    *(long *)(lVar5 + 0x80) = *(long *)(lVar5 + 0x80) + -1;
+  }
+  local_58 = local_58 + 1;
+  FUN_012afc8c(param_1,&local_68);
+  FUN_012afcf4(&local_68);
+  return;
+}
+
+
