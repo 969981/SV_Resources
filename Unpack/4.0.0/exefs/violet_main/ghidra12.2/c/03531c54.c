@@ -1,0 +1,78 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 03531c54; name: FUN_03531c54
+ */
+
+
+void FUN_03531c54(long *param_1)
+
+{
+  int iVar1;
+  undefined *puVar2;
+  long lVar3;
+  long lVar4;
+  long *plVar5;
+  
+  *(int *)(param_1 + 9) = (int)param_1[9] + 1;
+  puVar2 = PTR_DAT_047e2fd0;
+  lVar4 = param_1[0x10];
+  if (lVar4 != 0) {
+    do {
+      (**(code **)(*param_1 + 0x138))(param_1,lVar4);
+      FUN_0351d5e4(lVar4);
+      if ((long *)param_1[0x10] != (long *)0x0) {
+        lVar3 = *(long *)param_1[0x10];
+        if (lVar3 == 0) {
+          param_1[0xf] = 0;
+          param_1[0x10] = 0;
+        }
+        else {
+          param_1[0x10] = lVar3;
+        }
+      }
+      plVar5 = *(long **)(lVar4 + 0x18);
+      *(undefined8 *)(lVar4 + 0x10) = 0;
+      if (plVar5 != (long *)0x0) {
+        iVar1 = (int)plVar5[9] + -1;
+        *(int *)(plVar5 + 9) = iVar1;
+        if (iVar1 == 0) {
+          if (plVar5[2] == 0) {
+            FUN_03518540(plVar5);
+          }
+          else {
+            FUN_0351c44c(plVar5[2],plVar5);
+            plVar5[2] = 0;
+          }
+          (**(code **)(*plVar5 + 0x50))(plVar5);
+          (**(code **)(puVar2 + 0x30))(0,plVar5);
+        }
+        *(undefined8 *)(lVar4 + 0x18) = 0;
+      }
+      (**(code **)(puVar2 + 0x30))(0,lVar4);
+      lVar4 = param_1[0x10];
+    } while (lVar4 != 0);
+  }
+  *(byte *)((long)param_1 + 0x5a) = *(byte *)((long)param_1 + 0x5a) & 0xf0 | 4;
+  if ((param_1[2] == 0) && (param_1[0xc] != 0)) {
+    FUN_0351e2cc();
+  }
+  iVar1 = (int)param_1[9] + -1;
+  *(int *)(param_1 + 9) = iVar1;
+  if (iVar1 != 0) {
+    return;
+  }
+  if (param_1[2] == 0) {
+    FUN_03518540(param_1);
+  }
+  else {
+    FUN_0351c44c(param_1[2],param_1);
+    param_1[2] = 0;
+  }
+  (**(code **)(*param_1 + 0x50))(param_1);
+                    /* WARNING: Could not recover jumptable at 0x03531dd0. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  (**(code **)(puVar2 + 0x30))(0,param_1);
+  return;
+}
+
+
