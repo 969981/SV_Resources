@@ -1,0 +1,88 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 01690efc; name: FUN_01690efc
+ */
+
+
+undefined8 FUN_01690efc(undefined8 param_1,int param_2)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  int iVar4;
+  long lVar5;
+  ulong uVar6;
+  long *plVar7;
+  undefined8 uVar8;
+  uint uVar9;
+  
+  if (((DAT_04840580 & 1) == 0) && (iVar4 = __cxa_guard_acquire(&DAT_04840580), iVar4 != 0)) {
+    FUN_00100190(&LAB_02ace3a0,&DAT_04840570,&PTR_LOOP_04483000);
+    __cxa_guard_release(&DAT_04840580);
+  }
+  DAT_04840568 = DAT_04840570;
+  plVar7 = *(long **)(DAT_04840570 + 0x28);
+  if (plVar7 != (long *)0x0) {
+    plVar1 = plVar7 + 5;
+    do {
+      lVar5 = *plVar1;
+      cVar2 = '\x01';
+      bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar3) {
+        *(int *)plVar1 = (int)lVar5 + 1;
+        cVar2 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar2 != '\0');
+    if ((int)lVar5 == -1) {
+                    /* WARNING: Subroutine does not return */
+      nn::diag::detail::AbortImpl
+                ("count != 0","IncrementReferenceInternal",
+                 "C:/jenkins/workspace/sudachi/rom/rom_build/programs/prog/app/packages/trinity_titan.2023.9.1-sudachi2/build//include/gflib3\\core/reference_object.h"
+                 ,0x53,"Reference counter overflows.");
+    }
+  }
+  if ((char)plVar7[0x12] != '\0') {
+    uVar9 = 0;
+    do {
+      lVar5 = (**(code **)(*plVar7 + 0x60))(plVar7,uVar9);
+      if (((lVar5 != 0) && (uVar6 = FUN_00cf4cfc(*(undefined8 *)(lVar5 + 0x70)), (uVar6 & 1) != 0))
+         && ((*(ushort *)(*(long *)(*(long *)(lVar5 + 0x70) + 0x10) + 4) >> 2 & 1) == 0)) {
+        iVar4 = FUN_016910b0(lVar5);
+        if (iVar4 - param_2 < 1) {
+          FUN_020e66a0(lVar5,0);
+          uVar8 = 1;
+          goto LAB_01690fac;
+        }
+        FUN_016910cc(lVar5,param_2);
+      }
+      uVar9 = uVar9 + 1;
+    } while (uVar9 < *(byte *)(plVar7 + 0x12));
+  }
+  uVar8 = 0;
+LAB_01690fac:
+  plVar1 = plVar7 + 5;
+  do {
+    lVar5 = *plVar1;
+    iVar4 = (int)lVar5 + -1;
+    cVar2 = '\x01';
+    bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+    if (bVar3) {
+      *(int *)plVar1 = iVar4;
+      cVar2 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar2 != '\0');
+  if (iVar4 == 0) {
+    (**(code **)(*plVar7 + 0x10))(plVar7);
+  }
+  else if ((int)lVar5 == 0) {
+                    /* WARNING: Subroutine does not return */
+    nn::diag::detail::AbortImpl
+              ("count != std::numeric_limits<uint32_t>::max()","DecrementReferenceInternal",
+               "C:/jenkins/workspace/sudachi/rom/rom_build/programs/prog/app/packages/trinity_titan.2023.9.1-sudachi2/build//include/gflib3\\core/reference_object.h"
+               ,0x58,"Reference counter underflows.");
+  }
+  return uVar8;
+}
+
+
