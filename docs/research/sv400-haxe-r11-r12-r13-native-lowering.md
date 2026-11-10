@@ -61,24 +61,46 @@ R12 受限 AST 在 `tools/SV.Lua54/src/sv_lua54/emit_haxe/side_effects.py` 中�
 
 具体过程：[R12 通过 Actions #42762760077](https://github.com/969981/SV_Resources/actions/runs/42762760077)。本轮以后，`methods.jsonl` 合计 **74 条原版方法映射、73 个有 Haxe 函数体、1 条 extern-only**；实机状态 `NOT_OBSERVED`。
 
-## 4. R13：原版命名字段 GETFIELD/SETFIELD 的下一关
+## 4. R13：真实 GETFIELD/SETFIELD 返回、`__index`、`__newindex` 与完整表状态验收
 
-[原生只读字段取证 Actions #42763034047](https://github.com/969981/SV_Resources/actions/runs/42763034047) 已从原始 Proto 的**真实常量表**读取字段名和 SETFIELD 右值。下列内容是静态机器码证据：
+> [!success] R13：三个具名字段方法完成实际源码恢复
+> [原版 4.0.0 字节码 vs 固定 ZAScripts Haxe R13 Actions #42765308159](https://github.com/969981/SV_Resources/actions/runs/42765308159) **Success**。新 3 方法 **28/28**；前置 R12 19/19、R11 177/177、最早 11 方法 56/56 同次回归无退化，累计 **280/280**。GitHub Actions 通过源代码门禁后，已自动提交到 `master`。全部仍为 `runtime_status=NOT_OBSERVED`。
 
-| 原版函数 | Child Proto | 原始字段操作/原生常量 |
-|---|---:|---|
-| `main.event.base.IEventScript.get_CallFromReserve` | 669 | `GETI self[22] → GETFIELD "callFromReserve"` |
-| `main.event.debug.DebugAreaJump.onCreate` | 11176 | `GETI self[22] → SETFIELD "skipPlayerStuckCheck" = true` |
-| `main.battle.BattleResidentEffectManager.GetResidentEffectNum` | 5683 | `GETI self[1] → GETFIELD "length"` |
+[原版字段静态取证 #42763034047](https://github.com/969981/SV_Resources/actions/runs/42763034047) 从实际 `main.blua` 的 4.0.0 Lua 常量表提取精确字段名，已纳入 `tools/SV.Lua54/src/sv_lua54/emit_haxe/side_effects.py` 受限 AST 生成后端：
 
-这些字段名并非依靠 PokeDocs 反推，而是原版 Child Proto 中 `GETFIELD/SETFIELD` 引用的真实字符串 `K` 常量。 `side_effects.py` 已添加**仅允许已确认的 UTF8 常量字段读取和 SETFIELD=true** 的严格发射分支，以及不依赖 ROM 的正负例测试。
+| 原版 Haxe 方法 | 原始 Child Proto | Root 注册 PC | 原版 K 常量/目标 | R13 执行对账 |
+|---|---:|---:|---|---:|
+| `main.event.base.IEventScript.get_CallFromReserve` | 669 | 24815 | `GETI R1,R0,22 → GETFIELD "callFromReserve"` | 9/9 |
+| `main.event.debug.DebugAreaJump.onCreate` | 11176 | 141665 | `GETI R1,R0,22 → SETFIELD "skipPlayerStuckCheck"=true` | 10/10 |
+| `main.battle.BattleResidentEffectManager.GetResidentEffectNum` | 5683 | 87331 | `GETI R1,R0,1 → GETFIELD "length"` | 9/9 |
 
-**R13 尚未给上述三个函数授予 Haxe→Lua 原生差异通过或游戏运行时通过状态**。必须继续给 `GETFIELD` 增加嵌套对象字段、nil、`__index` 读取事件对账；给 `SETFIELD` 增加嵌套对象写后完整表快照、`__newindex` 次序、目标键与未修改字段检查，再让 CI 通过，才能将其源码晋升正式 Haxe 方法。不能把“常量名已知”算成已恢复源码。
+真实生成的 Haxe 分别为 `return untyped this[22]["callFromReserve"];`、`untyped this[22]["skipPlayerStuckCheck"] = true;`、`return untyped this[1]["length"];`。这些是**原版字段表和寄存器支持的已恢复语句**，不意味着恢复了整个类、构造函数、引擎对象或所有调用点。
+
+### A/B 具体比较口径
+
+`tools/SV.Lua54/haxe/4.0.0/compare-r13-named-fields.lua` 分别以独立创建但初态相同的 Lua 表，向原始 Child 和定制 Haxe 编译结果传入 `self`：
+
+- **GETFIELD 两种读取：9+9 组。** 比较返回值类型和值，正负零/整数与浮点区别、外层 `self[index]` 缺失引发的 `__index`、内层字段缺失引发的 `__index`、元方法调用顺序与键名、缺失字段返回 `nil`、异常路径，以及调用前后外层/嵌套表和捕获的辅助对象状态。
+- **SETFIELD 写入：10 组。** 比较调用成功或异常、返回值、原始 `self[22]`、完整嵌套表及未修改字段（使用 raw `next/rawget` 遍历，不触发隐式元方法）、直接覆写字段、首次新增字段、`__newindex` 回调触发、拦截但不真实写入的 `__newindex`、回调抛异常前已经发生的事件、外层 `__index` 返回的别名对象副作用，以及 nil/布尔目标不可写时双方相同的异常状态。
+- Lua5.4.3 的两份方法在可观察事件上必须一致。不同独立 Chunk 的 traceback 行号不作等号比较，因此异常验收要求双方成功/失败类别相同、错误值类型相同、发生异常前表/辅助对象/事件完全一致；**不声称两份异常文本字节级完全一致**。
+- 对于表返回值，递归比较 raw 键值和共享引用对应关系，避免使用可能触发元方法的 `pairs` 或 `__eq`。测试不会把“返回 nil 一样”误判为写表语义等价。
+
+Haxe 生成及验收流程：
+
+1. `scripts/Emit-SV-Haxe-R13-NamedFields.py` 重读固定 SHA 的 `main.blua`；重新按 PokeDocs 全 64 位哈希匹配 C/F 与 Root PC；核对 Child Proto、原始字节码与 K 字符串/SETFIELD 右值为原生 Lua `true`。
+2. 原版 Child `code/constants/upvalues` 原样复制到 Actions 临时目录，独立 Chunk 重新解析编码往返核查；**不提交/不上传原始游戏 Lua .luac**。
+3. 生成新的 `main.event.debug.DebugAreaJump.hx`、`main.battle.BattleResidentEffectManager.hx`，并只向现有 `IEventScript.hx` 追加原型确证的方法。用 `RecoveryZaMain.hx` 保持三个类进入 Haxe 类型检查/HashAbi/后处理。
+4. 单独验收新增 **28/28**、R12 **19/19**（原版 SETI 写表副作用）、R11 **177/177**、R10 及更早 **56/56**，累计 **280/280**。再以 `Verify-SV-Haxe-Recovery.py` 验证 77 条原生 Proto/PC 映射、`haxe_method()` 与原生 opcode 一致，最后运行 Python 无 ROM 单元测试，才允许将源码晋升。
+5. 并发的资源扫描任务可能更新 master：发布时先检查所有被跟踪的 Haxe 输入与原始 `main.blua`、PokeDocs/脚本未变化；仅将通过审核的 Haxe 提交安全 rebase 到**不相关**的资源更新之上，不覆盖其他工作流。
+
+对应 `methods.jsonl` 状态：`promotion_batch=R13_NAMED_FIELDS`、`haxe_body_status=R13_NATIVE_FIELD_AST`、`r13_read_index_status=INDEX_METAMETHOD_EVENT_PARITY_PASS`（两条读方法）、`r13_write_side_effect_status=FIELD_TABLE_SNAPSHOT_AND_NEWINDEX_EVENTS_PASS`（一条写方法）；所有游戏内运行时状态仍是 `NOT_OBSERVED`。
+
+**当前合计：77 个原版 Proto/PC 方法映射、76 个已通过独立 Lua A/B 的 Haxe 方法体、1 个仅 extern 的 `dll_util.Assert.IsNull`；累计 280/280 执行用例。**
 
 ## 5. 下一阶段重点
 
-1. 把 R13 三个方法纳入临时 Haxe 工程，对原始 `GETFIELD/SETFIELD` 子 Proto 执行包含 Metatable/SideData 的写表副作用 A/B。
-2. 扩展 CFG/HIR/AST 对 `MOVE` 的通用 SSA、`GETI/GETFIELD` 动态表键、条件分支合流点的覆盖，维持原始 PC 和 AST source-map。
-3. 原生游戏环境下独立确认 C++/Lua VM UpVal*/TValue 对象和副作用，只有实机/模拟器证据才能将方法 `runtime_status` 改为 `RUNTIME_VERIFIED`。
+1. 将目前精确的三种字段模式扩展到更多原版短 Proto，按真实 CFG/HIR/AST 逐方法支持 `GETFIELD/SETFIELD` 的动态右值、更多 Key 类型及 `MOVE` SSA 合流；测试必须对照 original vs generated 的异常、别名、嵌套表与元方法事件。
+2. 多个写表调用的累积副作用、写入前共享引用的生命周期、`__index` 返回不可写表等情况继续单独扩大用例集，不依据本轮 28 组声称全输入等价。
+3. 引擎 C++/Lua VM/UpVal* 身份和 Switch 实机状态仍需要单独验证；只有实机/模拟器证据才允许将 `runtime_status` 改为 `RUNTIME_VERIFIED`。
 
 关联：[[sv400-haxe-r10-cfg-hir-ast-lowering]] · [[sv400-haxe-field-battle-event-promotion]] · [[sv400-haxe-zascripts-native-differential]]。
