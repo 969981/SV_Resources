@@ -1,0 +1,35 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 0299d574; name: FUN_0299d574
+ */
+
+
+void FUN_0299d574(undefined8 *param_1)
+
+{
+  ulong uVar1;
+  
+  if (*(char *)(param_1 + 0x1c) != '\0') {
+    (**(code **)(*(long *)param_1[8] + 0x28))();
+    *(undefined1 *)(param_1 + 0x1c) = 0;
+  }
+  uVar1 = (**(code **)(*(long *)param_1[0xc] + 0x18))();
+  if ((uVar1 & 1) != 0) {
+    (**(code **)(*(long *)param_1[0xc] + 0x38))();
+  }
+  if (*(char *)((long)param_1 + 0xe2) != '\0') {
+    (**(code **)(*(long *)*param_1 + 0x28))();
+    (*(code *)**(undefined8 **)param_1[0x14])();
+    *(undefined1 *)((long)param_1 + 0xe2) = 0;
+  }
+  uVar1 = (**(code **)(*(long *)param_1[4] + 0x10))();
+  if ((uVar1 & 1) == 0) {
+    return;
+  }
+                    /* WARNING: Could not recover jumptable at 0x0299d618. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  (**(code **)(*(long *)param_1[4] + 0x18))();
+  return;
+}
+
+
