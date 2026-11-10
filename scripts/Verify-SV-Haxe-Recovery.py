@@ -104,9 +104,26 @@ def verify(root: Path = ROOT) -> dict:
                 raise ValueError(f"line {n}: missing proven native C-S binding status")
             if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED_UNCOMPILED", "EXTERN_ONLY_UNRECONSTRUCTED"):
                 raise ValueError(f"line {n}: unreviewed Haxe expression status")
-            if (r["haxe_compile_status"], r["lua_differential_status"],
-                    r["runtime_status"]) != ("NOT_RUN", "NOT_RUN", "NOT_OBSERVED"):
-                raise ValueError(f"line {n}: untested Haxe must not claim compilation/runtime parity")
+            if (r["lua_differential_status"], r["runtime_status"]) != (
+                    "NOT_RUN", "NOT_OBSERVED"):
+                raise ValueError(f"line {n}: stock Haxe smoke does not establish gameplay parity")
+            compile_status = r["haxe_compile_status"]
+            smoke_status = r.get("stock_lua_smoke_status")
+            if compile_status == "NOT_RUN":
+                if r["haxe_body_status"] == "EXTERN_ONLY_UNRECONSTRUCTED":
+                    if smoke_status != "NOT_APPLICABLE_EXTERN_ONLY":
+                        raise ValueError(f"line {n}: extern must not claim standalone execution")
+                elif smoke_status not in ("NOT_RUN", None):
+                    raise ValueError(f"line {n}: uncompiled method has invalid smoke status")
+            elif compile_status == "STOCK_HAXE_4_3_7_LUA_COMPILED":
+                if (r["haxe_body_status"] != "STATIC_OPCODE_EXPRESSION_MATCHED_UNCOMPILED"
+                        or smoke_status != "PASS_WITH_LUA_UTF8_AND_ATAN2_SHIMS"
+                        or type(r.get("stock_haxe_evidence_run_id")) is not int
+                        or r.get("stock_haxe_evidence_url") !=
+                           f"https://github.com/969981/SV_Resources/actions/runs/{r['stock_haxe_evidence_run_id']}"):
+                    raise ValueError(f"line {n}: missing coherent stock Haxe compiler evidence")
+            else:
+                raise ValueError(f"line {n}: unsupported Haxe compilation status")
             if r["ownership_evidence"] != "SV400_NATIVE_CLOSURE_ASSIGNMENT":
                 raise ValueError(f"line {n}: native-mapped method lacks exact ownership evidence")
             src = checked_path(root, r["source_path"])
@@ -196,7 +213,11 @@ def verify(root: Path = ROOT) -> dict:
     return {"validated_records":len(records),
             "native_mapped":sum(r["body_status"]=="SV400_NATIVE_MAPPED" for r in records),
             "reference_only":sum(r["body_status"]=="OLDER_SV_REFERENCE" for r in records),
-            "haxe_compilation":"NOT_RUN","runtime_parity":"NOT_OBSERVED"}
+            "stock_haxe_compiled":sum(r["haxe_compile_status"]=="STOCK_HAXE_4_3_7_LUA_COMPILED" for r in records),
+            "extern_only":sum(r.get("haxe_body_status")=="EXTERN_ONLY_UNRECONSTRUCTED" for r in records),
+            "game_haxe_finalizer_status":"NOT_RUN",
+            "lua_differential_status":"NOT_RUN",
+            "runtime_parity":"NOT_OBSERVED"}
 
 
 if __name__ == "__main__":
