@@ -54,6 +54,18 @@
 - `lua_differential_status=SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS`：逐条保存用例数、通过数、Actions run ID，仅三个方法适用。
 - `runtime_status=NOT_OBSERVED`：**游戏原生 C++ 调用、VM 环境差异、完整脚本副作用、真实 UpVal 指针身份仍不确认**。
 
+## R9：继续推广至 main.field / main.battle / main.event（已验证最小真实方法体）
+
+[Obsidian R9 原生候选与恢复结果](sv400-haxe-field-battle-event-promotion.md)：按 4.0.0 原生 18,991 个 C→F 注册点与 PokeDocs C/F 哈希，得到 3,892 条拥有真实 Proto/PC 的已命名方法候选（field 1710、battle 1330、event 852），另有 260 条已知所属类但 F 方法名未恢复。此计数**不是**完成的 Haxe 代码量。
+
+从中严格挑选原版只包含一条 `RETURN0`、只有 self 一个参数且无 Upvalue 的三个实例函数，恢复有真实方法体证据的 Haxe：
+
+- `main.field.action.ActionChair.onBeginSitting` — Child Proto 12995，Root PC 160939..160946，Child code `000100C7`
+- `main.battle.BattleViewBase.StartIdleCamera` — Child Proto 6073，Root PC 90878..90885，Child code `000100C7`
+- `main.event.base.BaseBattleTalkEvent.onCreate` — Child Proto 2377，Root PC 49646..49653，Child code `000100C7`
+
+使用固定 ZAScripts Haxe 4.3.1 的 `HashAbi` 校验实例 `F` 哈希，原版函数字节码和新编译 Lua 各对账 3 组 self 参数。原三个静态方法 32/32 加三个实例各 3/3，最新 [Actions #42754893614](https://github.com/969981/SV_Resources/actions/runs/42754893614) 为 **6 个方法、41/41 PASS**；`Assert.IsNull` 仍 extern-only，游戏内运行时仍 `NOT_OBSERVED`。其余候选只在 JSONL 中保留证据，**不生成未经恢复的空壳 .hx**。
+
 ## 自动化与推广门槛
 
 [CI 工作流](../../.github/workflows/slr-haxe-zascripts-abi.yml)执行固定上游检出、HashAbi 正例和错误哈希负例、cppbindings 类型解析、LuaOutput 后处理、Lua5.4.3 编译、原版 Child 提取及 32 组差异测试。[原型与状态校验](../../scripts/Verify-SV-Haxe-Recovery.py)负责原始字节码证据门禁。
