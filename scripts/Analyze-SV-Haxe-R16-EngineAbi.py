@@ -19,7 +19,7 @@ from sv_lua54.chunk import parse
 from sv_lua54.r1 import decode
 from sv_lua54.emit_haxe.r16_engine_bridge import (
     EXPECTED_ELF,LUA_K,R15_METHODS,SOURCE_PIN,
-    static_memory_effects,inspect_cppbindings,inspect_elf,
+    static_memory_effects,inspect_cppbindings,inspect_elf,compare_candidate_arity,
 )
 MAIN=Path("Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua")
 MAIN_SHA="c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815"
@@ -65,6 +65,7 @@ def audit(root:Path,bindings:Path,upstream_commit:str)->dict:
         examined[name]=static_memory_effects(p,name)
     binaries={game:inspect_elf(root/path,game) for game,path in EDITION.items()}
     binding=inspect_cppbindings(bindings)
+    arity=compare_candidate_arity(binding)
     if binding["upstream_commit"]!=upstream_commit:
         raise ValueError("checked-out cppbindings commit provenance drift")
     # The following are hypotheses/candidates only, even when a literal is present.
@@ -99,6 +100,7 @@ def audit(root:Path,bindings:Path,upstream_commit:str)->dict:
       "native_binary_literal_evidence":binaries,
       "upstream_cppbindings_literal_evidence":binding,
       "combined_native_callable_status":native_abi,
+      "upstream_cppbindings_vs_original_lua_call_arity":arity,
       "unsupported_inference": [
          "ELF literal bytes alone do not resolve a Lua C function pointer",
          "ZAScripts cppbindings are upstream toolchain reference, not SV400 engine ABI",
@@ -131,6 +133,7 @@ if __name__=="__main__":
        "cppbinding_candidate_occurrences":{
           k:len(v) for k,v in d["upstream_cppbindings_literal_evidence"]["matches"].items()},
        "candidate_binding_lines":d["upstream_cppbindings_literal_evidence"]["matches"]["f558733FC"][:3],
+       "cppbinding_vs_lua_arity":d["upstream_cppbindings_vs_original_lua_call_arity"],
        "literal_in_game_elf": {
           edition:{
             k:sum(len(m["exact_ascii_matches_first_16"]) for m in result["literal_occurrences"]
