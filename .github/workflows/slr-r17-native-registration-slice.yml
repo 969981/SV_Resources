@@ -5,6 +5,8 @@ on:
     paths:
       - ".github/workflows/slr-r17-native-registration-slice.yml"
       - "scripts/Analyze-SV-R17-NativeRegistration.py"
+      - "tools/SV.Lua54/haxe/4.0.0/r17-native-binding-candidates.json"
+      - "tests/test_sv_r17_native_sidecar.py"
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,6 +22,9 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             scripts/Analyze-SV-R17-NativeRegistration.py
+            tests/test_sv_r17_native_sidecar.py
+            tools/SV.Lua54/haxe/4.0.0/r17-native-binding-candidates.json
+            tools/SV.Lua54/haxe/4.0.0/methods.jsonl
             tools/SV.Lua54/src/sv_lua54/
             Unpack/4.0.0/exefs/scarlet_main/scarlet_main.elf
             Unpack/4.0.0/exefs/violet_main/violet_main.elf
@@ -28,6 +33,8 @@ jobs:
           python-version: '3.11'
       - name: Install pinned native ELF and Capstone Python decoders
         run: python3 -m pip install 'pyelftools==0.32' 'capstone==5.0.6'
+      - name: Reject any R17 guest ABI promotion or mismatched original Proto/PC
+        run: python3 -m unittest discover -s tests -p test_sv_r17_native_sidecar.py -v
       - name: Check both original ELF xrefs and nearby BL/BLR/relocation
         run: |
           set -euo pipefail
@@ -46,6 +53,13 @@ jobs:
               assert s["verified_class_literal"]=="0x3b04bcb"
               assert s["near_class_reference"]
               assert s["lua_cclosure_pointer_proven"] is False
+              native=s["class_callback_relocation_pairs"]
+              selfname=native["f558733FC_pair"]
+              assert native["table_first_rva"]=="0x44b14e0"
+              assert selfname["slot"]=="0x44b1670"
+              assert selfname["code_pointer"]=="0x1959e40"
+              assert selfname["code_is_executable_segment"] is True
+              assert s["native_lua_wrapper_arg_pattern"]["class_table_wrapper"]["observed_lua_stack_indices"]==[1,2]
           print("R17_NATIVE_STATIC_SLICE_VERIFIED_NO_LIVE_CPP_ABI")
           PY
       - uses: actions/upload-artifact@v4
