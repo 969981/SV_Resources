@@ -1,0 +1,111 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 02a30384; name: FUN_02a30384
+ */
+
+
+void FUN_02a30384(undefined8 param_1)
+
+{
+  long *plVar1;
+  undefined8 uVar2;
+  int iVar3;
+  undefined2 uVar4;
+  undefined2 uVar5;
+  undefined8 *puVar6;
+  int iVar7;
+  long lVar8;
+  ulong uVar9;
+  long *plVar10;
+  long *plVar11;
+  long *plVar12;
+  long lVar13;
+  long lVar14;
+  undefined1 auStack_70 [8];
+  long *local_68;
+  long *local_48;
+  
+  if (((DAT_0483af60 & 1) == 0) && (iVar7 = __cxa_guard_acquire(&DAT_0483af60), iVar7 != 0)) {
+    FUN_00100190(&LAB_02a319d0,&DAT_0483af50,&PTR_LOOP_04483000);
+    __cxa_guard_release(&DAT_0483af60);
+  }
+  lVar8 = FUN_02a315e4(auStack_70,param_1);
+  puVar6 = DAT_0483af50;
+  if (DAT_0483af50 != (undefined8 *)0x0) {
+    plVar10 = (long *)DAT_0483af50[1];
+    uVar2 = DAT_0483af50[2];
+    uVar4 = *(undefined2 *)(DAT_0483af50 + 3);
+    uVar5 = *(undefined2 *)((long)DAT_0483af50 + 0x1a);
+    DAT_0483af50 = (undefined8 *)lVar8;
+    FUN_00c4e600();
+    FUN_00c4e600();
+    lVar8 = FUN_00c4e600();
+    iVar3 = *(int *)(lVar8 + 0x12c8);
+    iVar7 = iVar3 + 1;
+    *(int *)(lVar8 + 0x12c8) = iVar7;
+    if (*(int *)(lVar8 + 0x12cc) <= iVar3) {
+      *(int *)(lVar8 + 0x12cc) = iVar7;
+    }
+    (**(code **)*puVar6)(puVar6);
+    uVar9 = (**(code **)(*plVar10 + 0xf8))(plVar10);
+    if (((uVar9 & 1) == 0) || (lVar8 = FUN_00c4e600(), *(int *)(lVar8 + 0x12c8) < 1)) {
+      (**(code **)(*plVar10 + 0x18))(plVar10,uVar2,uVar4,uVar5);
+    }
+    else {
+      FUN_00c48fe8(plVar10,uVar2,uVar4,uVar5);
+    }
+    lVar8 = FUN_00c4e600();
+    iVar7 = *(int *)(lVar8 + 0x12c8) + -1;
+    *(int *)(lVar8 + 0x12c8) = iVar7;
+    if (iVar7 == 0) {
+      plVar10 = (long *)FUN_00c4e600();
+      if (plVar10[600] != 0) {
+        local_68 = plVar10 + plVar10[600] * 3;
+        local_48 = plVar10;
+        FUN_00c4ea30(&local_48,&local_68);
+        plVar11 = (long *)*plVar10;
+        plVar1 = plVar10;
+        if (plVar10[600] != 0) {
+          plVar1 = plVar10 + plVar10[600] * 3;
+        }
+        if (plVar1 == plVar10) {
+          lVar14 = 0;
+          lVar13 = 0;
+        }
+        else {
+          lVar13 = 0;
+          lVar14 = 0;
+          plVar12 = plVar10;
+          do {
+            (**(code **)(*(long *)*plVar12 + 0xd0))();
+            if ((long *)*plVar12 != plVar11) {
+              (**(code **)(*plVar11 + 0x100))(plVar11,plVar10 + lVar14 * 3,plVar12);
+              plVar11 = (long *)*plVar12;
+              lVar14 = lVar13;
+            }
+            plVar12 = plVar12 + 3;
+            lVar13 = lVar13 + 1;
+          } while (plVar1 != plVar12);
+        }
+        (**(code **)(*plVar11 + 0x100))(plVar11,plVar10 + lVar14 * 3,plVar10 + lVar13 * 3);
+        plVar10[600] = 0;
+      }
+      *(undefined4 *)(lVar8 + 0x12cc) = 0;
+    }
+    lVar8 = (long)DAT_0483af50;
+  }
+  DAT_0483af50 = (undefined8 *)lVar8;
+  if (0x3ff < DAT_04865a18) {
+                    /* WARNING: Subroutine does not return */
+    FUN_01dace90();
+  }
+  lVar8 = 0;
+  if (DAT_0483af50 != (undefined8 *)0x0) {
+    lVar8 = (long)DAT_0483af50 + 0x20;
+  }
+  *(long *)(&DAT_04863a18 + (ulong)DAT_04865a18 * 8) = lVar8;
+  DAT_04865a18 = DAT_04865a18 + 1;
+  return;
+}
+
+
