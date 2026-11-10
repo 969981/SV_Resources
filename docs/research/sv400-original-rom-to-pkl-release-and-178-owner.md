@@ -110,6 +110,7 @@ updated: 2026-11-10
 - 在 `Add(slot, sourceCollisionArea)` 及 `AddCrossover(slot, otherLocation, sourceCollisionArea)` 之前保留来源；`(owner, GetHash)` 用于来源内去重。
 - 只在蓝莓 `(178,0)`、`(192,178)`、`(180,178)` 三个目标身份的 `LocationStorage` 内，按真实 `sourceCollisionArea` 划分候选池，**池内按原有相邻合并算法不变**，池间不 Absorb，然后对最终完全相同的 slot 去重。其他地点和 fixed/raid 不触碰。
 - `--owner-ab-mode` 必须使用真实原始 61+223 SHA 证据，并禁止与其他 A/B 开关叠加。**默认 CLI 结果与原来完全相同**。
+- 开启原始 JSONL trace 时新增 `wild_owner_178_premerge` / `wild_owner_178_postmerge`，按 targetLocation/crossFrom/collisionOwner 输出每一个候选槽的物种、形态、等级、时间和天气；原始 PointData ordinal 则通过已有 `wild_raw_candidate` 与 `wild_weather_assigned` 的 sourcePointAsset/sourcePointIndex 关联。默认模式不写这些事件。
 - 由于某些不同原始地点可能共享碰撞体、以及原始 `LocationStorage` 的嵌套结构，这只是*技术假设*。此前离线 107/112 可核组恢复 +101 零损失**不能自动转成原生代码验收结论**。
 
 ### 硬验收
