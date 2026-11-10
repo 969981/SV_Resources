@@ -147,6 +147,7 @@ def stage(root:Path,out:Path,run_id:int)->dict:
              f"https://github.com/969981/SV_Resources/actions/runs/{run_id}",
           "runtime_status":"NOT_OBSERVED",
           "r15_kind":ast.kind,
+          "r15_first_slot":ast.first_slot,"r15_second_slot":ast.second_slot,
           "r15_ssa":list(ast.ssa),
           "r15_cfg_edges":[list(e) for e in ast.edges],
           "r15_basic_blocks":list(ast.blocks),
