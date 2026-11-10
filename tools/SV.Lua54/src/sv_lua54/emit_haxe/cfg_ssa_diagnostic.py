@@ -158,6 +158,14 @@ def inspect(proto,max_instructions=64,max_stack=255):
     calls=[{"pc":x.pc,"op":x.name,"a":x.a,"b":x.b,"c":x.c,
             "k":x.k,"note":"CALL_TARGET_HOST_UNKNOWN_UNTIL_RUNTIME"} for x in ops
            if x.pc in reachable and x.name in ("SELF","CALL","TAILCALL")]
+    returns=[{"pc":x.pc,"kind":x.name,"register":x.a if x.name=="RETURN1" else None}
+             for x in ops if x.pc in reachable and x.name in ("RETURN1","RETURN0","RETURN")]
+    synthetic_exit={
+      "kind":"SYNTHETIC_FUNCTION_EXIT_RETURN_PHI_CANDIDATE",
+      "incoming_returns":returns,
+      "not_a_real_bytecode_block":True,
+      "status":"READ_ONLY_NOT_HAXE_VERIFIED",
+    } if len(returns)>=2 else None
     return {
       "kind":"BOUNDED_REGISTER_REACHING_DEFS_NOT_FULL_SSA",
       "proto_id":proto.id,
@@ -167,6 +175,7 @@ def inspect(proto,max_instructions=64,max_stack=255):
       "unreachable_pcs":sorted(set(range(len(ops)))-reachable),
       "basic_blocks":blocks,
       "phi_candidates":phis,
+      "synthetic_exit_return_join":synthetic_exit,
       "call_sites":calls,
       "call_or_unhandled_effect_barriers":barriers,
       "unsupported_register_effect_pcs":unsupported,
