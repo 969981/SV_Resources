@@ -1,0 +1,103 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 0165d758; name: FUN_0165d758
+ */
+
+
+void FUN_0165d758(long param_1)
+
+{
+  if (*(long **)(param_1 + 0x398) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x398) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x378) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x378) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x358) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x358) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x338) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x338) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x318) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x318) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x2f8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x2f8) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x2d8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x2d8) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x2b8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x2b8) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x298) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x298) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x278) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x278) + 0x20))();
+  }
+  if (*(long **)(param_1 + 600) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 600) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x238) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x238) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x218) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x218) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x1f8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x1f8) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x1d8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x1d8) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x1b8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x1b8) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x198) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x198) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x178) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x178) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x158) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x158) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x138) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x138) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x118) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x118) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0xf8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0xf8) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0xd8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0xd8) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0xb8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0xb8) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x98) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x98) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x78) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x78) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x58) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x58) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x38) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 0x38) + 0x20))();
+  }
+  if (*(long **)(param_1 + 0x18) == (long *)0x0) {
+    return;
+  }
+                    /* WARNING: Could not recover jumptable at 0x0165da2c. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  (**(code **)(**(long **)(param_1 + 0x18) + 0x20))();
+  return;
+}
+
+
