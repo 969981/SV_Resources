@@ -63,7 +63,7 @@ def audit(root:Path,bindings:Path,upstream_commit:str)->dict:
                 or row["r15_engine_runtime_status"]!="NOT_OBSERVED"):
             raise ValueError(f"original R15 C/F/Proto/PC/native opcode discrepancy: {name}")
         examined[name]=static_memory_effects(p,name)
-    binaries={game:inspect_elf(root/path,game) for game,path in EDITION.items()}
+    binaries={game:inspect_elf(root/path,game,keys=LUA_K+("cE35B3EB3","CE35B3EB3")) for game,path in EDITION.items()}
     binding=inspect_cppbindings(bindings)
     arity=compare_candidate_arity(binding)
     if binding["upstream_commit"]!=upstream_commit:
@@ -141,6 +141,13 @@ if __name__=="__main__":
             for k in LUA_K
           }
           for edition,result in d["native_binary_literal_evidence"].items()
+       },
+       "upstream_cppbinding_native_class_text_elf_hits":{
+          edition:{
+            x:next((len(rec["exact_ascii_matches_first_16"])
+                    for rec in v["literal_occurrences"] if rec["literal"]==x),0)
+            for x in ("cE35B3EB3","CE35B3EB3")
+          } for edition,v in d["native_binary_literal_evidence"].items()
        },
        "runtime_cpp_entry_resolved":False,
        "runtime_object_identity_observed":False,
