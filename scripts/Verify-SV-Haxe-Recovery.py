@@ -104,9 +104,30 @@ def verify(root: Path = ROOT) -> dict:
                 raise ValueError(f"line {n}: missing proven native C-S binding status")
             if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED"):
                 raise ValueError(f"line {n}: unreviewed Haxe expression status")
-            if (r["lua_differential_status"], r["runtime_status"]) != (
-                    "NOT_RUN", "NOT_OBSERVED"):
-                raise ValueError(f"line {n}: stock Haxe smoke does not establish gameplay parity")
+            if r["runtime_status"] != "NOT_OBSERVED":
+                raise ValueError(f"line {n}: game runtime remains unobserved")
+            upstream=json.loads(checked_path(root, WORK+"/zascripts.lock.json").read_text("utf-8"))
+            if (r.get("za_toolchain_pin") != upstream["upstream_commit"]
+                    or upstream["upstream_commit"] != "c7bc243ac4d28356dff9f06b6723330ea92247d5"):
+                raise ValueError(f"line {n}: unreviewed upstream Haxe toolchain pin")
+            if r["haxe_body_status"] == "EXTERN_ONLY_UNRECONSTRUCTED":
+                if (r["lua_differential_status"] != "NOT_RUN"
+                        or r.get("za_haxe_compile_status") != "NOT_TESTED_EXTERN_ONLY"
+                        or r.get("za_differential_cases") is not None
+                        or r.get("za_differential_passed") is not None
+                        or r.get("za_differential_run_id") is not None):
+                    raise ValueError(f"line {n}: extern without method body must not claim Lua parity")
+            else:
+                expected={"CalcXFov":13,"Format":8,"Clamp":11}.get(r["method_name"])
+                if (expected is None
+                        or r.get("za_haxe_compile_status") != "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT"
+                        or r["lua_differential_status"] != "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS"
+                        or r.get("za_differential_cases") != expected
+                        or r.get("za_differential_passed") != expected
+                        or r.get("za_differential_run_id") != 42752782758
+                        or r.get("za_differential_evidence_url") !=
+                            "https://github.com/969981/SV_Resources/actions/runs/42752782758"):
+                    raise ValueError(f"line {n}: native differential results mismatch the pinned CI record")
             compile_status = r["haxe_compile_status"]
             smoke_status = r.get("stock_lua_smoke_status")
             if compile_status == "NOT_RUN":
@@ -215,9 +236,10 @@ def verify(root: Path = ROOT) -> dict:
             "reference_only":sum(r["body_status"]=="OLDER_SV_REFERENCE" for r in records),
             "stock_haxe_compiled":sum(r["haxe_compile_status"]=="STOCK_HAXE_4_3_7_LUA_COMPILED" for r in records),
             "extern_only":sum(r.get("haxe_body_status")=="EXTERN_ONLY_UNRECONSTRUCTED" for r in records),
-            "game_haxe_finalizer_status":"NOT_RUN",
-            "lua_differential_status":"NOT_RUN",
-            "runtime_parity":"NOT_OBSERVED"}
+            "pinned_za_haxe_compiled":sum(r.get("za_haxe_compile_status")=="PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT" for r in records),
+            "native_lua_differential_passed_methods":sum(r["lua_differential_status"]=="SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS" for r in records),
+            "native_lua_differential_total_cases":sum(r.get("za_differential_passed") or 0 for r in records),
+            "game_runtime":"NOT_OBSERVED"}
 
 
 if __name__ == "__main__":
