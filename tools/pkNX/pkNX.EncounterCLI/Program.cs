@@ -57,6 +57,14 @@ internal static class Program
                  areaFilterABMode != EncounterAreaFilterABSV.Baseline))
                 throw new ArgumentException("Original crossover A/B requires SHA-verified 223 TRCOL and baseline level mode");
             EncounterCrossoverABSV.Configure(crossoverABMode);
+            string ownerMode = parameters.GetValueOrDefault("--owner-ab-mode", EncounterOwnerABSV.Baseline);
+            if (ownerMode != EncounterOwnerABSV.Baseline &&
+                (!parameters.ContainsKey("--verified-trcol-manifest") ||
+                 levelABMode != EncounterLevelABSV.Baseline ||
+                 areaFilterABMode != EncounterAreaFilterABSV.Baseline ||
+                 crossoverABMode != EncounterCrossoverABSV.Baseline))
+                throw new ArgumentException("178 owner A/B requires exact original M2+TRCOL and all other A/B modes off");
+            EncounterOwnerABSV.Configure(ownerMode);
             bool hasTraceTargets = parameters.TryGetValue("--trace-targets", out var targets);
             bool hasTraceOutput = parameters.TryGetValue("--trace-output", out var traceOutput);
             bool hasCausalProfile = parameters.TryGetValue("--trace-causal-profile", out var causalProfile);
@@ -166,7 +174,10 @@ internal static class Program
                         : "GENERATED_FROM_4_0_0_NATIVE_M2_VERIFIED_SOURCES",
                 collisionBlocker,
                 version = "Pokemon SV 4.0.0",
-                algorithm = EncounterCrossoverABSV.Enabled
+                ownerABMode = EncounterOwnerABSV.Mode,
+                algorithm = EncounterOwnerABSV.Enabled
+                    ? "EXPERIMENTAL_TERARIUM178_SOURCE_COLLIDER_OWNER_ISOLATION_NOT_GAME_LEGALITY"
+                    : EncounterCrossoverABSV.Enabled
                     ? "EXPERIMENTAL_ORIGINAL_KITAKAMI_CROSS158_SOURCE_COLLIDER_AB_NOT_GAME_LEGALITY"
                     : EncounterAreaFilterABSV.Enabled
                         ? "EXPERIMENTAL_SINGLE_KITAKAMI_POINT5046_SOURCE_AREA_FILTER_AB_NOT_GAME_LEGALITY"
@@ -247,7 +258,7 @@ internal static class Program
         foreach (var key in new[] { "--virtual-root", "--verified-manifest", "--output" })
             if (!result.ContainsKey(key))
                 throw new ArgumentException($"Missing mandatory {key}");
-        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode" or "--area-filter-ab-mode" or "--crossover-ab-mode" or "--trace-fixed-only" or "--trace-causal-profile" or "--point5046-probe-output")))
+        if (result.Keys.Any(k => k is not ("--virtual-root" or "--verified-manifest" or "--output" or "--verified-trcol-manifest" or "--trace-targets" or "--trace-output" or "--level-ab-mode" or "--area-filter-ab-mode" or "--crossover-ab-mode" or "--owner-ab-mode" or "--trace-fixed-only" or "--trace-causal-profile" or "--point5046-probe-output")))
             throw new ArgumentException("Unsupported option");
         return result;
     }
