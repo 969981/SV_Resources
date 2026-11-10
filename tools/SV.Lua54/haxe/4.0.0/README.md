@@ -1,6 +1,6 @@
 # SV Violet 4.0.0 curated Haxe reconstruction
 
-**Status: 7 native class/method Proto/PC bindings verified (4 C→S + 3 C→F); 6 method bodies compile with pinned ZAScripts Haxe 4.3.1 / Lua 5.4.3 and pass 41/41 isolated native-child differential cases; game runtime remains NOT_OBSERVED.** This is an evidence-tracked source workspace, not a recovered complete game project.
+**Status: 12 original SV400 native method Proto/PC links, 11 reconstructed method bodies independently compiled through pinned ZAScripts Haxe 4.3.1/Lua 5.4.3, and 56/56 isolated original-Child differential cases PASS; one extern-only Assert.IsNull. Switch game runtime still NOT_OBSERVED.** This is a curated, evidence-tracked workspace, not a complete SV source project.
 
 ## Location and files
 
@@ -55,6 +55,18 @@ haxe build.hxml
 
 The pinned ZAScripts custom compiler now executes the real `haxe.macro.HashAbi` ABI checker (including a negative intentionally wrong S-hash test), `LuaOutput` postprocessor and `cppbindings` typechecking. Preserve separate stock-Haxe and ZAScripts build states; do not call these standalone tests game-runtime parity.
 
+## Restricted CFG/HIR/AST → Haxe lowering (R10)
+
+- [R10 Obsidian validation and coverage](../../../../docs/research/sv400-haxe-r10-cfg-hir-ast-lowering.md): **5 genuine nonempty instance methods** added across `main.field`, `main.battle`, and `main.event`; 4 new Haxe class files.
+- `tools/SV.Lua54/src/sv_lua54/emit_haxe/restricted.py` reuses original `sv_lua54.r1.decode` and `syntactic_edges` CFG. It lowers only exact literal `LOADI/LOADF/LOADTRUE/LOADFALSE/LOADNIL → RETURN1 → unreachable RETURN0` to typed HIR and ReturnAst. All other methods fail closed.
+- `scripts/Emit-SV-Haxe-R10-ConstantReturns.py` rereads original pinned 4.0.0 main.blua and PokeDocs C/F, validates Root PC, Child Proto, opcode, AST return literal, and emits deterministic Haxe; CI requires generated source **byte-identical** to four committed .hx files.
+- New methods: `DanPartnerPokemon.GetBehaviourType → 2`, `DanPokemonBehavior.GetBehaviourType → 3`, `BattleView.GetIntervalAddPopup → 300`, `BaseScenarioEvent.checkStartCondition → true`, `BaseScenarioEvent.isImportant → false`.
+- The original Child instruction words/constants/upvalues are copied only into `$RUNNER_TEMP` executable Lua 5.4 fixtures; CI compares native vs regenerated Lua **15/15 new**, **56/56 cumulative** [Actions #42758094283](https://github.com/969981/SV_Resources/actions/runs/42758094283).
+- [Proto/PC & synthetic emitter gate #42758722625](https://github.com/969981/SV_Resources/actions/runs/42758722625): 12/12 method records and 16 Python tests pass; no original game runtime equivalence is claimed.
+- [Named candidate eligibility scan #42758827830](https://github.com/969981/SV_Resources/actions/runs/42758827830): 3,892 named candidate native C→F mappings; **64** meet current restricted AST criteria (field 52 / battle 7 / event 5). Only five of these have been converted and A/B-verified; remaining 59 need their own evidence and review.
+
+**Future scope:** validated short register-copy/read-only functions and simple conditional CFG, then table writes with observable-state comparisons; full unluac-rs HIR/AST integration and engine-owned native calls are not yet implemented.
+
 ## Pinned ZAScripts Haxe 4.3.1 integration (R8)
 
 - Version lock: [zascripts.lock.json](zascripts.lock.json), upstream SHA `c7bc243ac4d28356dff9f06b6723330ea92247d5`.
@@ -77,7 +89,7 @@ The pinned ZAScripts custom compiler now executes the real `haxe.macro.HashAbi` 
 - Other module input hashes are pinned in `tools/SV.Lua54/fixtures/native_manifest.json`; six-module total 46,084 Proto.
 - `dll_util.StrUtil.Format` from older SVScripts is **not** directly matched in native 4.0.0 `dll_util` root constant/pattern scan. Do not invent a Proto/PC for it.
 - Three method bodies: `haxe_compile_status=STOCK_HAXE_4_3_7_LUA_COMPILED` (see Actions #42749582979); `dll_util.Assert.IsNull`: extern only / Haxe method implementation `NOT_RUN`.
-- Native-child-vs-ZAScripts Lua differential: **41/41 PASS** across six implemented methods: `CalcXFov` 13, `Format` 8, `Clamp` 11, and field/battle/event original `RETURN0` instance functions 3 each. Runtime: `NOT_OBSERVED`; `Assert.IsNull` remains EXTERN_ONLY (no differential).
+- Native-child-vs-ZAScripts Lua differential (R9 baseline): **41/41 PASS** across six implemented methods: `CalcXFov` 13, `Format` 8, `Clamp` 11, and field/battle/event original `RETURN0` instance functions 3 each. Runtime: `NOT_OBSERVED`; `Assert.IsNull` remains EXTERN_ONLY (no differential).
 - PokeDocs, SVScripts, ZAScripts and SV-Script-RE are *naming/porting references*, not substitutes for native 4.0.0 bytecode verification.
 
 Read-only native probes: `scripts/Probe-SV-Haxe-Native.py`, `scripts/Link-SV-Haxe-Native.py`, and `scripts/Inventory-SV-DllUtil-Haxe.py`.
