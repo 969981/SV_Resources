@@ -4,7 +4,7 @@
 > `main` 的 `CompositionCamera.CalcXFov`、`StrUtil.Format`，以及 `dll_util` 的 `Assert.IsNull`、`MathUtil.Clamp`，已经从 4.0.0 **原始 Lua 5.4 字节码**获取真实类/成员哈希、Root 注册点、Child Proto、全 PC 范围、原生代码偏移和逐条原始 opcode 指纹。验证器在 CI 重新解析原始 BLUA 并核对，不是根据旧版 Haxe 猜的。
 >
 > [!warning] Haxe 语义验收尚未闭合
-> `SV400_NATIVE_MAPPED` 仅确认 **方法原生所有权与指令对应**；已转写的 3 个方法有独立的 `STOCK_HAXE_4_3_7_LUA_COMPILED` 编译证据；`lua_differential_status=NOT_RUN`、`runtime_status=NOT_OBSERVED` 仍未变化。`Assert.IsNull` 仅归档 `extern` ABI，未伪造函数体。
+> `SV400_NATIVE_MAPPED` 仅确认 **方法原生所有权与指令对应**；三个已恢复方法已通过固定 ZAScripts Haxe 4.3.1 → Lua 5.4.3 编译与原始 4.0.0 Child Proto **32/32 用例差异 PASS**；仅 `runtime_status=NOT_OBSERVED`（游戏内运行时）仍未闭合。`Assert.IsNull` 仅归档 `extern` ABI，未伪造函数体。
 
 ## 仓库位置
 
@@ -60,7 +60,7 @@ return lua.Math.atan2(960.0, 540.0 / lua.Math.tan(fovy / 2.0)) * 2.0;
 
 ### main.util.StrUtil.Format
 
-Child Proto 36271 有 5 个 Lua 入参：`GETTABUP string`、`GETFIELD format`、五条 `MOVE`、`TAILCALL`、`RETURN` / `RETURN0`，原生语义为 `string.format(format, a, b, c, d)`。Haxe 源使用 `lua.NativeStringTools.format`；目标 Lua 是否精确等价尚待编译核查。
+Child Proto 36271 有 5 个 Lua 入参：`GETTABUP string`、`GETFIELD format`、五条 `MOVE`、`TAILCALL`、`RETURN` / `RETURN0`，原生语义为 `string.format(format, a, b, c, d)`。Haxe 使用 `lua.NativeStringTools.format`，经固定 ZAScripts 输出后，8 组原版 Child Proto 差异测试全部通过；未测试所有格式化输入和异常路径。
 
 ### dll_util.MathUtil.Clamp
 
@@ -87,9 +87,16 @@ Child Proto 69（2 参数）仅有 `EQK`、`JMP`、`LOADK`、`RETURN0`。虽然�
 3. 使用明确的最小标准 Lua 测试适配（`package.preload["lua-utf8"]=function() return utf8 end` 以及 `math.atan2=math.atan`）执行三个无引擎纯函数示例；
 4. 输出依次为 `1.5415821821915`、`SV:400`、`1.0`。
 
-这些适配是为了运行在标准 Lua5.4；**不证明 Pokémon 游戏的 Lua VM、ZAScripts 特制编译器/finalizer、引擎 C++ 接口与原生 4.0.0 语义一致**。`Assert.IsNull` 仍是未编译的 extern-only 记录。
+这些适配是为了运行在标准 Lua5.4；**此段仅是旧版标准 Haxe 冒烟；现在已有单独的定制 ZAScripts 编译、HashAbi 宏负例和原生 Child 32/32 差异结果，但仍不证明 Switch 原版引擎 C++ 接口或全脚本行为等价**。`Assert.IsNull` 仍是未编译的 extern-only 记录。
 
-`methods.jsonl` 中这三个方法现有 `haxe_compile_status=STOCK_HAXE_4_3_7_LUA_COMPILED`，并携带实际 Actions run ID；四个方法的 `lua_differential_status` 仍为 `NOT_RUN`、游戏 `runtime_status` 仍为 `NOT_OBSERVED`。
+`methods.jsonl` 中这三个方法现有 `haxe_compile_status=STOCK_HAXE_4_3_7_LUA_COMPILED`，并携带实际 Actions run ID；三个有方法体的方法现已有 `lua_differential_status=SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS`；`Assert.IsNull` 仍是 `NOT_RUN`；四者的游戏 `runtime_status` 都是 `NOT_OBSERVED`。
+
+## R8：固定 ZAScripts HashAbi + 原版 Lua Child 对账（已完成）
+
+- [独立 Obsidian 技术报告：ZAScripts 固定编译器、HashAbi 负例、cppbindings、LuaOutput、原生 Child 差异 32/32](sv400-haxe-zascripts-native-differential.md)
+- 工具链锁定 [ZAScripts commit c7bc243a](https://github.com/Reisyukaku/ZAScripts/commit/c7bc243ac4d28356dff9f06b6723330ea92247d5)，通过 CI 稀疏检出；并未在仓库提交编译器二进制。
+- [Actions #42753120766](https://github.com/969981/SV_Resources/actions/runs/42753120766) 已通过：原生 Lua Child 原始代码保留、Haxe 4.3.1 定制编译、LuaOutput finalizer、HashAbi 故意错误哈希负例（应被拒绝）及 32/32 纯函数对账。
+- 当前仅三方法在独立 Lua 5.4.3 用例集中证明等价；原版 Switch VM/游戏引擎 C++ ABI/完整脚本行为仍 NOT_OBSERVED。Assert.IsNull 只确认原生 Proto，方法体仍 extern。
 
 ## 自动复现与状态规则
 
@@ -109,6 +116,6 @@ python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 
 [Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) 有 SV `source/main`、`source/dll_util`、`source/dll_stadium`；[Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 提供 Haxe 4.3.1、`HashAbi`、`@:chunk`、`@:abiSlot`、`cppbindings`、Lua 5.4.3 和 build finalizer 的参考实现；[PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 C/S/F/E 哈希与名称；[SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 是旧版 Lua 对照。
 
-下一道严格关口是：用固定 Haxe Lua 编译器检查这三段已转写的函数，执行 Lua 5.4 纯函数差异测试（包括 Clamp 边界情况、NaN、格式化参数），然后才考虑 ABI 重命名、真实运行时对账，以及扩展到 `main.field`、`main.battle`、`main.event`。
+本轮已在固定 ZAScripts 4.3.1/5.4.3 上通过三方法 32/32 原版 Lua 差异测试。下一关转为按真实 Proto/PC 与 AST 证据筛选 `main.field`、`main.battle`、`main.event` 的候选并逐步恢复方法体；依赖引擎的部分另行等待实机 VM/Cppbindings/UpVal 验收，不可将哈希名映射当作已完成的 Haxe 源码。
 
 关联 [[sv-lua54-source-reconstruction-roadmap]] · [[sv-lua54-r5-mainbody-haxe-runtime-captures]] · [[sv-lua54-r7-runtime-upval-table-identity]]。
