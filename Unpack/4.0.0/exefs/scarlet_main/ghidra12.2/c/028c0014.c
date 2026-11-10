@@ -1,0 +1,244 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 028c0014; name: FUN_028c0014
+ */
+
+
+void FUN_028c0014(undefined8 *param_1,long *param_2)
+
+{
+  int iVar1;
+  long *plVar2;
+  long *plVar3;
+  long lVar4;
+  undefined8 uVar5;
+  int iVar6;
+  char cVar7;
+  bool bVar8;
+  long lVar9;
+  long *plVar10;
+  ulong uVar11;
+  long lVar12;
+  undefined8 uVar13;
+  long *plVar14;
+  ulong uVar15;
+  long *local_60;
+  long *plStack_58;
+  
+  FUN_00c4e600();
+  FUN_00c4e600();
+  lVar9 = FUN_00c4e600();
+  iVar6 = *(int *)(lVar9 + 0x12c8);
+  iVar1 = iVar6 + 1;
+  *(int *)(lVar9 + 0x12c8) = iVar1;
+  if (*(int *)(lVar9 + 0x12cc) <= iVar6) {
+    *(int *)(lVar9 + 0x12cc) = iVar1;
+  }
+  lVar9 = param_2[0x36];
+  if (lVar9 != 0) {
+    lVar4 = param_2[0x38];
+    plVar10 = (long *)param_2[0x39];
+    param_2[0x37] = lVar9;
+    uVar11 = (**(code **)(*plVar10 + 0xf8))(plVar10);
+    if (((uVar11 & 1) == 0) || (lVar12 = FUN_00c4e600(), *(int *)(lVar12 + 0x12c8) < 1)) {
+      (**(code **)(*plVar10 + 0x18))(plVar10,lVar9,lVar4 - lVar9,8);
+    }
+    else {
+      FUN_00c48fe8(plVar10,lVar9,lVar4 - lVar9,8);
+    }
+  }
+  nn::os::FinalizeLightEvent((LightEventType *)(param_2 + 0x34));
+  lVar9 = param_2[0x2b];
+  if (lVar9 != 0) {
+    lVar4 = param_2[0x2d];
+    plVar10 = (long *)param_2[0x2e];
+    param_2[0x2c] = lVar9;
+    uVar11 = (**(code **)(*plVar10 + 0xf8))(plVar10);
+    if (((uVar11 & 1) == 0) || (lVar12 = FUN_00c4e600(), *(int *)(lVar12 + 0x12c8) < 1)) {
+      (**(code **)(*plVar10 + 0x18))(plVar10,lVar9,lVar4 - lVar9,8);
+    }
+    else {
+      FUN_00c48fe8(plVar10,lVar9,lVar4 - lVar9,8);
+    }
+  }
+  lVar9 = param_2[0x24];
+  if (lVar9 != 0) {
+    lVar4 = param_2[0x26];
+    plVar10 = (long *)param_2[0x27];
+    uVar11 = (**(code **)(*plVar10 + 0xf8))(plVar10);
+    if (((uVar11 & 1) == 0) || (lVar12 = FUN_00c4e600(), *(int *)(lVar12 + 0x12c8) < 1)) {
+      (**(code **)(*plVar10 + 0x18))(plVar10,lVar9,lVar4 << 3,1);
+    }
+    else {
+      FUN_00c48fe8(plVar10,lVar9,lVar4 << 3,1);
+    }
+  }
+  FUN_028c97cc(param_2 + 0x1d);
+  nn::os::FinalizeLightEvent((LightEventType *)(param_2 + 0x1b));
+  lVar9 = param_2[0x12];
+  if (lVar9 != 0) {
+    lVar4 = param_2[0x14];
+    plVar10 = (long *)param_2[0x15];
+    param_2[0x13] = lVar9;
+    uVar11 = (**(code **)(*plVar10 + 0xf8))(plVar10);
+    if (((uVar11 & 1) == 0) || (lVar12 = FUN_00c4e600(), *(int *)(lVar12 + 0x12c8) < 1)) {
+      (**(code **)(*plVar10 + 0x18))(plVar10,lVar9,lVar4 - lVar9,8);
+    }
+    else {
+      FUN_00c48fe8(plVar10,lVar9,lVar4 - lVar9,8);
+    }
+  }
+  lVar9 = param_2[0xb];
+  if (lVar9 != 0) {
+    lVar4 = param_2[0xd];
+    plVar10 = (long *)param_2[0xe];
+    uVar11 = (**(code **)(*plVar10 + 0xf8))(plVar10);
+    if (((uVar11 & 1) == 0) || (lVar12 = FUN_00c4e600(), *(int *)(lVar12 + 0x12c8) < 1)) {
+      (**(code **)(*plVar10 + 0x18))(plVar10,lVar9,lVar4 << 3,1);
+    }
+    else {
+      FUN_00c48fe8(plVar10,lVar9,lVar4 << 3,1);
+    }
+  }
+  FUN_028c9874(param_2 + 4);
+  nn::os::FinalizeLightEvent((LightEventType *)(param_2 + 2));
+  plVar10 = (long *)*param_2;
+  if (plVar10 != (long *)0x0) {
+    plVar3 = plVar10 + 5;
+    do {
+      lVar9 = *plVar3;
+      iVar1 = (int)lVar9 + -1;
+      cVar7 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar3,0x10);
+      if (bVar8) {
+        *(int *)plVar3 = iVar1;
+        cVar7 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar7 != '\0');
+    if (iVar1 == 0) {
+      (**(code **)(*plVar10 + 0x10))();
+    }
+    else if ((int)lVar9 == 0) {
+                    /* WARNING: Subroutine does not return */
+      nn::diag::detail::AbortImpl
+                ("count != std::numeric_limits<uint32_t>::max()","DecrementReferenceInternal",
+                 "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/reference_object.h"
+                 ,0x58,"Reference counter underflows.");
+    }
+  }
+  plVar10 = (long *)*param_1;
+  uVar5 = param_1[1];
+  uVar13 = param_1[2];
+  uVar11 = (**(code **)(*plVar10 + 0xf8))(plVar10);
+  if (((uVar11 & 1) == 0) || (lVar9 = FUN_00c4e600(), *(int *)(lVar9 + 0x12c8) < 1)) {
+    (**(code **)(*plVar10 + 0x18))(plVar10,param_2,uVar5,uVar13);
+  }
+  else {
+    FUN_00c48fe8(plVar10,param_2,uVar5,uVar13);
+  }
+  lVar9 = FUN_00c4e600();
+  iVar1 = *(int *)(lVar9 + 0x12c8) + -1;
+  *(int *)(lVar9 + 0x12c8) = iVar1;
+  if (iVar1 == 0) {
+    plVar10 = (long *)FUN_00c4e600();
+    if (plVar10[600] != 0) {
+      local_60 = plVar10 + plVar10[600] * 3;
+      plStack_58 = plVar10;
+      FUN_00c4ea30(&plStack_58,&local_60);
+      plVar14 = (long *)*plVar10;
+      plVar3 = plVar10;
+      if (plVar10[600] != 0) {
+        plVar3 = plVar10 + plVar10[600] * 3;
+      }
+      if (plVar3 == plVar10) {
+        uVar15 = 0;
+        uVar11 = 0;
+      }
+      else {
+        (**(code **)(*(long *)*plVar10 + 0xd0))();
+        if ((long *)*plVar10 != plVar14) {
+          (**(code **)(*plVar14 + 0x100))(plVar14,plVar10,plVar10);
+          plVar14 = (long *)*plVar10;
+        }
+        plVar2 = plVar10 + 3;
+        if (plVar3 == plVar2) {
+          uVar15 = 0;
+          uVar11 = 1;
+        }
+        else {
+          (**(code **)(*(long *)*plVar2 + 0xd0))();
+          bVar8 = (long *)*plVar2 != plVar14;
+          if (bVar8) {
+            (**(code **)(*plVar14 + 0x100))(plVar14,plVar10,plVar10 + 3);
+            plVar14 = (long *)plVar10[3];
+          }
+          uVar15 = (ulong)bVar8;
+          plVar2 = plVar10 + 6;
+          if (plVar3 == plVar2) {
+            uVar11 = 2;
+          }
+          else {
+            (**(code **)(*(long *)*plVar2 + 0xd0))();
+            if ((long *)*plVar2 != plVar14) {
+              (**(code **)(*plVar14 + 0x100))(plVar14,plVar10 + uVar15 * 3,plVar10 + 6);
+              plVar14 = (long *)plVar10[6];
+              uVar15 = 2;
+            }
+            plVar2 = plVar10 + 9;
+            if (plVar3 == plVar2) {
+              uVar11 = 3;
+            }
+            else {
+              (**(code **)(*(long *)*plVar2 + 0xd0))();
+              if ((long *)*plVar2 != plVar14) {
+                (**(code **)(*plVar14 + 0x100))(plVar14,plVar10 + uVar15 * 3,plVar10 + 9);
+                plVar14 = (long *)plVar10[9];
+                uVar15 = 3;
+              }
+              plVar2 = plVar10 + 0xc;
+              if (plVar3 == plVar2) {
+                uVar11 = 4;
+              }
+              else {
+                (**(code **)(*(long *)*plVar2 + 0xd0))();
+                if ((long *)*plVar2 != plVar14) {
+                  (**(code **)(*plVar14 + 0x100))(plVar14,plVar10 + uVar15 * 3,plVar10 + 0xc);
+                  plVar14 = (long *)plVar10[0xc];
+                  uVar15 = 4;
+                }
+                plVar2 = plVar10 + 0xf;
+                if (plVar3 == plVar2) {
+                  uVar11 = 5;
+                }
+                else {
+                  (**(code **)(*(long *)*plVar2 + 0xd0))();
+                  if ((long *)*plVar2 != plVar14) {
+                    (**(code **)(*plVar14 + 0x100))(plVar14,plVar10 + uVar15 * 3,plVar10 + 0xf);
+                    plVar14 = (long *)plVar10[0xf];
+                    uVar15 = 5;
+                  }
+                  uVar11 = 6;
+                  for (plVar2 = plVar10 + 0x12; plVar3 != plVar2; plVar2 = plVar2 + 3) {
+                    (**(code **)(*(long *)*plVar2 + 0xd0))();
+                    if ((long *)*plVar2 != plVar14) {
+                      (**(code **)(*plVar14 + 0x100))(plVar14,plVar10 + uVar15 * 3,plVar2);
+                      plVar14 = (long *)*plVar2;
+                      uVar15 = uVar11;
+                    }
+                    uVar11 = uVar11 + 1;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      (**(code **)(*plVar14 + 0x100))(plVar14,plVar10 + uVar15 * 3,plVar10 + uVar11 * 3);
+      plVar10[600] = 0;
+    }
+    *(undefined4 *)(lVar9 + 0x12cc) = 0;
+  }
+  return;
+}
+
+
