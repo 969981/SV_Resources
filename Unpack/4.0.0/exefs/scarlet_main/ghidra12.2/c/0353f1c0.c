@@ -1,0 +1,16 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 0353f1c0; name: GetQuaternion
+ */
+
+
+/* WARNING: Unknown calling convention -- yet parameter storage is locked */
+
+void nn::hid::SixAxisSensorState::GetQuaternion(Vector4fType *param_1)
+
+{
+  (*(code *)PTR_GetQuaternion_047cb1d8)();
+  return;
+}
+
+

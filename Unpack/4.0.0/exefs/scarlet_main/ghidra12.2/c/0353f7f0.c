@@ -1,0 +1,14 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 0353f7f0; name: ShowWebPageArg
+ */
+
+
+void __thiscall nn::web::ShowWebPageArg::ShowWebPageArg(ShowWebPageArg *this,char *param_1)
+
+{
+  (*(code *)PTR_ShowWebPageArg_047cb4f0)();
+  return;
+}
+
+
