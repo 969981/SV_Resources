@@ -94,7 +94,7 @@ class R16StaticEngineEvidence(unittest.TestCase):
                          0x100,0x100,0x1000)
         struct.pack_into("<IIQQQQQQ",raw,120,1,4,0x200,0x71001000,0,
                          0x100,0x100,0x1000)
-        struct.pack_into("<II",raw,0x110,0x90000020,0x91005400)
+        struct.pack_into("<II",raw,0x110,0xB0000000,0x91005400)
         raw[0x215:0x21e]=b"f558733FC"
         b=bytes(raw)
         with tempfile.TemporaryDirectory() as tmp:
