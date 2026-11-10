@@ -1,6 +1,6 @@
 # SV Violet 4.0.0 curated Haxe reconstruction
 
-**Status: 74 original SV400 native method Proto/PC links, 73 Haxe method bodies verified against original Child Lua 5.4.3 (252/252 standalone differential cases), and one extern-only Assert.IsNull. Switch game runtime remains NOT_OBSERVED.** This is a curated, evidence-tracked workspace, not a complete SV source project.
+**Status: 77 original SV400 native method Proto/PC links, 76 Haxe method bodies verified against original Child Lua 5.4.3 (280/280 standalone differential cases), and one extern-only Assert.IsNull. Switch game runtime remains NOT_OBSERVED.** This is a curated, evidence-tracked workspace, not a complete SV source project.
 
 ## Location and files
 
@@ -55,12 +55,19 @@ haxe build.hxml
 
 The pinned ZAScripts custom compiler now executes the real `haxe.macro.HashAbi` ABI checker (including a negative intentionally wrong S-hash test), `LuaOutput` postprocessor and `cppbindings` typechecking. Preserve separate stock-Haxe and ZAScripts build states; do not call these standalone tests game-runtime parity.
 
+## R13 promoted named fields and metamethod comparisons
+
+- Source locations: `source/main/event/base/IEventScript.hx`, `source/main/event/debug/DebugAreaJump.hx`, `source/main/battle/BattleResidentEffectManager.hx`.
+- Original Protos: 669 / Root PC 24815, 11176 / Root PC 141665, 5683 / Root PC 87331. Each method carries exact original `GETI/GETFIELD` or `GETI/SETFIELD` K constant and C/F registration fingerprint.
+- `scripts/Emit-SV-Haxe-R13-NamedFields.py` stages only the exact original fields in a scratch Haxe project; `compare-r13-named-fields.lua` rejects any difference in nested raw table state, event order and `__index/__newindex` calls; [CI #42765308159](https://github.com/969981/SV_Resources/actions/runs/42765308159) additionally regresses 252 previous cases and checks all 77 method records before promoting the source.
+- Current totals: **77 mapped / 76 method bodies / 280 of 280 Lua A/B PASS**. `dll_util.Assert.IsNull` remains extern-only, `runtime_status=NOT_OBSERVED` for all methods.
+
 ## R11–R13 verified promotions and side-effect gates
 
 - **R11:** the remaining **59** eligible short literal-return instance methods were fully promoted into the correct `main.field`, `main.battle`, `main.event` class files. The generator `scripts/Emit-SV-Haxe-R11-Batch.py` merged existing classes without discarding reviewed methods; [Actions #42761612949](https://github.com/969981/SV_Resources/actions/runs/42761612949) passed 177/177 new + 56/56 previous cases and committed method provenance to master.
 - **R12:** `main.battle.BattleView.GetGemEnableCount` (GETI Proto 6367), `SetGemEnableCount` (SETI Proto 6366), and `main.event.general.ajito.DanRushAfterEvent.clamp` (LT/JMP/MOVE Proto 2183). The `emit_haxe/side_effects.py` backend requires exact original register/jump patterns; [Actions #42762760077](https://github.com/969981/SV_Resources/actions/runs/42762760077) passed **19/19 new, 252/252 cumulative**.
 - SETI effects are verified by comparing returned value, **full table content including untouched fields, nil deletes and `__newindex` invocation events**. Mere return-value matching is not accepted for writes.
-- **R13 research gate:** original 4.0.0 `GETFIELD/SETFIELD` string constants recovered from Proto 669 `callFromReserve`, Proto 11176 `skipPlayerStuckCheck = true`, Proto 5683 `length` ([Actions #42763034047](https://github.com/969981/SV_Resources/actions/runs/42763034047)). Strict UTF-8 named-field AST branches and synthetic tests exist; these three named-field methods are **not** promoted/claimed as Haxe-native parity yet.
+- **R13 verified native named-field methods:** `IEventScript.get_CallFromReserve` (original Proto 669, GETFIELD `callFromReserve`, 9/9), `BattleResidentEffectManager.GetResidentEffectNum` (Proto 5683, GETFIELD `length`, 9/9), and `DebugAreaJump.onCreate` (Proto 11176, SETFIELD `skipPlayerStuckCheck = true`, 10/10). Original `__index` and `__newindex` event records, nested table raw snapshots, exception-state comparison and 252 prior regressions completed in [R13 Actions #42765308159](https://github.com/969981/SV_Resources/actions/runs/42765308159), **280/280 total**. All three are now committed Haxe source under `source/main/event/` or `source/main/battle/`; actual game VM is not verified.
 - [Obsidian R11/R12/R13 evidence](../../../../docs/research/sv400-haxe-r11-r12-r13-native-lowering.md). The native and rebuilt Lua must share explicit, transparent Lua 5.4.3 compatibility shims; none of this proves game C++ engine or runtime equivalence.
 
 ## Restricted CFG/HIR/AST → Haxe lowering (R10)
