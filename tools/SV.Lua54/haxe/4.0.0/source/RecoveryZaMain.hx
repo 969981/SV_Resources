@@ -1,3 +1,4 @@
+import main.battle.ui.BattleUiTokuseiWindow;
 import main.battle.BattleResidentEffectManager;
 import main.event.debug.DebugAreaJump;
 import main.event.general.ajito.DanRushAfterEvent;
@@ -121,7 +122,9 @@ class RecoveryZaMain {
         var r13Class0:Class<BattleResidentEffectManager> = BattleResidentEffectManager;
         var r13Class1:Class<IEventScript> = IEventScript;
         var r13Class2:Class<DebugAreaJump> = DebugAreaJump;
+        var r14Class:Class<BattleUiTokuseiWindow> = BattleUiTokuseiWindow;
         if (untyped __lua__("false")) {
+            trace(r14Class);
             trace(r13Class0);
             trace(r13Class1);
             trace(r13Class2);

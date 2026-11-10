@@ -31,4 +31,24 @@ class IEventScript {
         return untyped this[22]["callFromReserve"];
     }
 
+    // R14 original Child Proto 670: write_field_return_argument
+    // native child SHA-256: 2d0914043a4535ecab0476d5f819692b8476f19f9a861a9b6f61885689ad6f79
+    // native opcode words: 1600010D 01000112 000200C8 00010147
+    @:hashAbi("FA44A9D9B3415C01C")
+    @:native("FA44A9D9B3415C01C")
+    public function set_CallFromReserve(value:Dynamic):Dynamic {
+        untyped this[22]["callFromReserve"] = value;
+        return value;
+    }
+
+    // R14 original Child Proto 674: write_field_readback
+    // native child SHA-256: 34155c7931b8ff40cab04a5e5839e90737cbd95fa0b32d777698d6c6f9992daa
+    // native opcode words: 1600010D 01000112 1600010D 0002010E 00020148 00010147
+    @:hashAbi("F275008C3DA7BD42B")
+    @:native("F275008C3DA7BD42B")
+    public function set_DisableFieldCamera(value:Dynamic):Dynamic {
+        untyped this[22]["disableFieldCamera"] = value;
+        return untyped this[22]["disableFieldCamera"];
+    }
+
 }

@@ -70,4 +70,14 @@ class BattleViewBase {
         return false;
     }
 
+    // R14 original Child Proto 6088: two_ordered_self_writes
+    // native child SHA-256: 4a3c346a885cc52f4e2d103a4c50f22239bfe3b4c5187a0f147a944fe5b8969b
+    // native opcode words: 01240011 02250011 000101C7
+    @:hashAbi("FB84018749A6E841C")
+    @:native("FB84018749A6E841C")
+    public function SetShowBattleMessageState(first:Dynamic,second:Dynamic):Void {
+        untyped this[36] = first;
+        untyped this[37] = second;
+    }
+
 }
