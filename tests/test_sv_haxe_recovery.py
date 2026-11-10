@@ -51,7 +51,12 @@ class TestHaxeRecovery(unittest.TestCase):
             self.assertEqual((row["proto_id"], row["root_pc"], row["closure_pc"],
                               row["assignment_pc"], row["pc_end_exclusive"]), expected[key])
             self.assertEqual(row["body_status"], "SV400_NATIVE_MAPPED")
-            self.assertEqual(row["haxe_compile_status"], "NOT_RUN")
+            if row["haxe_body_status"] == "EXTERN_ONLY_UNRECONSTRUCTED":
+                self.assertEqual(row["haxe_compile_status"], "NOT_RUN")
+                self.assertEqual(row["stock_lua_smoke_status"], "NOT_APPLICABLE_EXTERN_ONLY")
+            else:
+                self.assertEqual(row["haxe_compile_status"], "STOCK_HAXE_4_3_7_LUA_COMPILED")
+                self.assertEqual(row["stock_haxe_evidence_run_id"], 42749582979)
             self.assertEqual(row["lua_differential_status"], "NOT_RUN")
             self.assertEqual(row["runtime_status"], "NOT_OBSERVED")
 
@@ -65,6 +70,8 @@ class TestHaxeRecovery(unittest.TestCase):
         self.assertEqual(summary["validated_records"], 4)
         self.assertEqual(summary["native_mapped"], 4)
         self.assertEqual(summary["reference_only"], 0)
+        self.assertEqual(summary["stock_haxe_compiled"], 3)
+        self.assertEqual(summary["extern_only"], 1)
 
 
 if __name__ == "__main__":
