@@ -7,7 +7,7 @@ package main.util;
  * Root PC 426666-426671 -> child Proto 36158, child PC 0-15 (16 opcodes).
  *
  * Native expression agrees structurally with prior SV Lua reference.
- * Haxe compilation, emitted Lua parity and game runtime parity are NOT_RUN.
+ * Stock Haxe 4.3.7 smoke compiled/ran with explicit Lua shims; native Lua differential and game-runtime parity are NOT_RUN.
  */
 @:keep
 @:hashAbi("CFEA9C3BFB3FCD429")
