@@ -1,0 +1,45 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 00a37080; name: _INIT_162
+ */
+
+
+void _INIT_162(void)
+
+{
+  DAT_048355f0 = nn::ldn::MakeIpv4Address('\x7f','\0','\0','\x01');
+  DAT_048355f4 = nn::ldn::MakeIpv4Address(0xff,0xff,0xff,0xff);
+  DAT_048355f8 = nn::ldn::MakeIpv4Address('\0','\0','\0','\0');
+  DAT_04835604 = 0;
+  DAT_04835600 = 0;
+  DAT_0483560c = 0xffff;
+  DAT_04835608 = 0xffffffff;
+  DAT_04835610 = 0;
+  DAT_04835618 = 0;
+  DAT_04835620 = 0;
+  DAT_04835628 = 0;
+  FUN_00100190(&LAB_00a3656c,&DAT_04835610,&PTR_LOOP_04483000);
+  DAT_04835690 = 0;
+  DAT_04835698 = 0;
+  DAT_048356a0 = 0;
+  DAT_048356a8 = 0;
+  FUN_00100190(&LAB_00a3658c,&DAT_04835690,&PTR_LOOP_04483000);
+  DAT_04835710 = 0;
+  DAT_04835718 = 0;
+  DAT_04835720 = 0;
+  DAT_04835728 = 0;
+  FUN_00100190(&LAB_00a365ac,&DAT_04835710,&PTR_LOOP_04483000);
+  DAT_04835790 = 0;
+  DAT_04835798 = 0;
+  DAT_048357a0 = 0;
+  DAT_048357a8 = 0;
+  FUN_00100190(&LAB_00a3658c,&DAT_04835790,&PTR_LOOP_04483000);
+  DAT_04835810 = 0;
+  DAT_04835818 = 0;
+  DAT_04835820 = 0;
+  DAT_04835828 = 0;
+  FUN_00100190(&LAB_00a365cc,&DAT_04835810,&PTR_LOOP_04483000);
+  return;
+}
+
+
