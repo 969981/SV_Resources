@@ -90,6 +90,10 @@ Keep evidence statuses visible. Do not present planned work as completed.
 
 - [SV 4.0.0：CrossFrom=158 真正源碰撞区域、0f/30f 容差和六组 Absorb 链](sv400-cross158-original-collider-six-level-merges.md) — 绑定原始 PointData 索引、TRSCN/TRCOL SHA、SourceCollisionArea；分清已核对参考差异与仍待真实 Actions 验证的新增诊断。
 
+## ROM 原始资源→五张 .pkl Release 与 178 碰撞所有权实验
+
+- [SV 4.0.0 从原始 Trinity/61 M2/223 TRCOL 到五张 PKHeX .pkl：完整 FlatBuffers/Havok、8B/20B/24B 格式、固定 SHA、手动发布与 178 的 source-collider A/B 硬验收](sv400-original-rom-to-pkl-release-and-178-owner.md) — 新发布工作流 [sv400-native-pkl-release.yml](../../.github/workflows/sv400-native-pkl-release.yml) 默认只验证基线、发布需显式同意；实验默认关闭，源 ROM/PKHeX 官方数据不变，游戏 PK9 合法性仍待实测。
+
 ## 真实原生 4.0.0 → PKHeX 合法性模板生成
 
 - [朱紫 4.0.0 原生 → PKHeX 遭遇库：野生／固定／Raid 原始算法、独立 .NET 10 CLI、SHA 证明和逐字段对账](sv-pkhex-encounter-native-regeneration.md) — 详细说明 `EncounterSlotDumper9`、`FixedSymbolDumper9`、18 张团体战原始表的生成路径；TRCOL 不齐时仍保留可独立验证的原生 Raid 输出。
