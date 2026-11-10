@@ -1,0 +1,91 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 002da9f0; name: FUN_002da9f0
+ */
+
+
+ulong FUN_002da9f0(long param_1,ulong param_2,int param_3)
+
+{
+  uint uVar1;
+  void *__dest;
+  long lVar2;
+  int iVar3;
+  uint uVar4;
+  long lVar5;
+  uint uVar6;
+  ulong uVar7;
+  
+  if ((int)param_2 != 0) {
+    if (*(char *)(param_1 + 0x48) == '\0') {
+      uVar6 = *(uint *)(param_1 + 0x68);
+      iVar3 = uVar6 + 2;
+      if (iVar3 <= *(int *)(param_1 + 0x6c)) {
+        uVar4 = *(uint *)(param_1 + 0x60);
+        if ((int)uVar4 < iVar3) {
+          uVar6 = 8;
+          if (uVar4 != 0) {
+            uVar6 = uVar4;
+          }
+          do {
+            uVar4 = uVar6;
+            uVar6 = uVar4 << 1;
+          } while ((int)uVar4 < iVar3);
+          __dest = (void *)FUN_0049e770(PTR_FUN_047cba38,
+                                        -(ulong)(uVar4 >> 0x1f) & 0xfffffff800000000 |
+                                        (ulong)uVar4 << 3);
+          if (*(void **)(param_1 + 0x58) != (void *)0x0) {
+            memmove(__dest,*(void **)(param_1 + 0x58),(long)*(int *)(param_1 + 0x68) << 3);
+          }
+          uVar6 = uVar4 - *(int *)(param_1 + 0x68);
+          memset((void *)((long)__dest + (long)*(int *)(param_1 + 0x68) * 8),0,
+                 -(ulong)(uVar6 >> 0x1f) & 0xfffffff800000000 | (ulong)uVar6 << 3);
+          lVar2 = *(long *)(param_1 + 0x58);
+          *(void **)(param_1 + 0x58) = __dest;
+          if (lVar2 != 0) {
+            FUN_0049e790(PTR_LAB_047cba48);
+          }
+          uVar6 = *(uint *)(param_1 + 0x68);
+          iVar3 = uVar6 + 2;
+          *(uint *)(param_1 + 0x60) = uVar4;
+        }
+        *(int *)(param_1 + 0x68) = iVar3;
+        if (-1 < (int)uVar6) {
+          uVar7 = param_2 >> 0x20;
+          FUN_002d0344(*(long *)(param_1 + 0x58) + (ulong)uVar6 * 8,param_3 << 1,
+                       param_2 & 0xffffffff);
+          uVar4 = uVar6 + 1;
+          FUN_002d0344(*(long *)(param_1 + 0x58) + (long)(int)uVar4 * 8,param_3 << 1 | 1,0);
+          if ((int)(param_2 >> 0x20) != 0) {
+            lVar2 = *(long *)(param_1 + 0x58);
+            do {
+              while ((uVar7 & 1) == 0) {
+                lVar5 = (uVar7 >> 1) * 8;
+                uVar1 = *(uint *)(lVar2 + lVar5);
+                uVar7 = (ulong)(uVar1 >> 4);
+                *(uint *)(lVar2 + lVar5) = uVar1 & 8 | uVar4 * 0x10 | uVar1 & 7;
+                if (uVar1 >> 4 == 0) goto LAB_002dab4c;
+              }
+              lVar5 = lVar2 + (uVar7 >> 1) * 8;
+              uVar1 = *(uint *)(lVar5 + 4);
+              uVar7 = (ulong)uVar1;
+              *(uint *)(lVar5 + 4) = uVar4;
+            } while (uVar1 != 0);
+          }
+LAB_002dab4c:
+          uVar7 = (ulong)uVar4 << 0x21;
+          goto LAB_002dab5c;
+        }
+        goto LAB_002dab58;
+      }
+    }
+    *(undefined1 *)(param_1 + 0x48) = 1;
+  }
+LAB_002dab58:
+  uVar7 = 0;
+  uVar6 = 0;
+LAB_002dab5c:
+  return uVar7 | uVar6;
+}
+
+

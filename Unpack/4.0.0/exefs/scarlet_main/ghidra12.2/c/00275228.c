@@ -1,0 +1,68 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 00275228; name: FUN_00275228
+ */
+
+
+void FUN_00275228(ulong *param_1)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  ulong uVar4;
+  long lVar5;
+  ulong *puVar6;
+  undefined8 *puVar7;
+  
+                    /* try { // try from 00275238 to 0027523b has its CatchHandler @ 00275300 */
+  FUN_00343d90(param_1[0x14]);
+  puVar7 = (undefined8 *)param_1[0x13];
+  if (puVar7 == (undefined8 *)0x0) {
+LAB_0027525c:
+    uVar4 = *param_1;
+    if ((uVar4 & 1) == 0) goto LAB_00275264;
+LAB_00275294:
+    puVar6 = (ulong *)param_1[1];
+    if (puVar6 == (ulong *)0x0) {
+      uVar4 = 0;
+      goto LAB_002752ec;
+    }
+  }
+  else {
+    plVar1 = puVar7 + 1;
+    do {
+      lVar5 = *plVar1;
+      cVar2 = '\x01';
+      bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar3) {
+        *plVar1 = lVar5 + -1;
+        cVar2 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar2 != '\0');
+    if (lVar5 + -1 != 0) goto LAB_0027525c;
+    (**(code **)*puVar7)(puVar7);
+    FUN_0049e790(PTR_LAB_047cba48,puVar7);
+    uVar4 = *param_1;
+    if ((uVar4 & 1) != 0) goto LAB_00275294;
+LAB_00275264:
+    puVar6 = param_1 + 1;
+  }
+  puVar6 = puVar6 + (uVar4 >> 1) * 0x12 + -1;
+  lVar5 = (uVar4 >> 1) + 1;
+  while (lVar5 = lVar5 + -1, lVar5 != 0) {
+    uVar4 = *puVar6;
+    puVar6 = puVar6 + -0x12;
+                    /* try { // try from 002752c0 to 002752c3 has its CatchHandler @ 0027531c */
+    FUN_00343d90(uVar4);
+  }
+  if ((*param_1 & 1) == 0) {
+    return;
+  }
+  uVar4 = param_1[1];
+LAB_002752ec:
+  FUN_0049e790(PTR_LAB_047cba48,uVar4);
+  return;
+}
+
+

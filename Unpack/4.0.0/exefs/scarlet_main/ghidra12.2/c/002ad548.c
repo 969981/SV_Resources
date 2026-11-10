@@ -1,0 +1,120 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 002ad548; name: FUN_002ad548
+ */
+
+
+void FUN_002ad548(long *param_1)
+
+{
+  ulong uVar1;
+  undefined1 *puVar2;
+  undefined *puVar3;
+  long lVar4;
+  long lVar5;
+  ulong uVar6;
+  undefined1 *puVar7;
+  byte *pbVar8;
+  byte *pbVar9;
+  byte *pbVar10;
+  undefined8 uVar11;
+  undefined8 uVar12;
+  
+  puVar2 = (undefined1 *)param_1[1];
+  if (puVar2 < (undefined1 *)param_1[2]) {
+    *puVar2 = 6;
+    *(undefined4 *)(puVar2 + 1) = 0x7d2020;
+    param_1[1] = (long)(puVar2 + 0x18);
+  }
+  else {
+    lVar5 = (long)puVar2 - *param_1 >> 3;
+    uVar1 = lVar5 * -0x5555555555555555 + 1;
+    if (0xaaaaaaaaaaaaaaa < uVar1) {
+                    /* WARNING: Subroutine does not return */
+      std::__vector_base_common<true>::__throw_length_error();
+    }
+    lVar4 = param_1[2] - *param_1 >> 3;
+    uVar6 = lVar4 * 0x5555555555555556;
+    if (uVar1 <= uVar6) {
+      uVar1 = uVar6;
+    }
+    if (0x555555555555554 < (ulong)(lVar4 * -0x5555555555555555)) {
+      uVar1 = 0xaaaaaaaaaaaaaaa;
+    }
+    if (uVar1 == 0) {
+      lVar4 = 0;
+    }
+    else {
+      lVar4 = FUN_0049e770(PTR_FUN_047cba38,uVar1 * 0x18);
+    }
+    puVar7 = (undefined1 *)(lVar4 + lVar5 * 8);
+    lVar4 = lVar4 + uVar1 * 0x18;
+    *puVar7 = 6;
+    *(undefined4 *)(puVar7 + 1) = 0x7d2020;
+    puVar2 = puVar7 + 0x18;
+    pbVar9 = (byte *)*param_1;
+    pbVar8 = (byte *)param_1[1];
+    if (pbVar8 == pbVar9) {
+      *param_1 = (long)puVar7;
+      param_1[1] = (long)puVar2;
+      param_1[2] = lVar4;
+    }
+    else {
+      do {
+        uVar12 = *(undefined8 *)(pbVar8 + -0x10);
+        uVar11 = *(undefined8 *)(pbVar8 + -0x18);
+        *(undefined8 *)(puVar7 + -8) = *(undefined8 *)(pbVar8 + -8);
+        *(undefined8 *)(puVar7 + -0x10) = uVar12;
+        *(undefined8 *)(puVar7 + -0x18) = uVar11;
+        pbVar8[-0x18] = 0;
+        pbVar8[-0x17] = 0;
+        pbVar8[-0x16] = 0;
+        pbVar8[-0x15] = 0;
+        pbVar8[-0x14] = 0;
+        pbVar8[-0x13] = 0;
+        pbVar8[-0x12] = 0;
+        pbVar8[-0x11] = 0;
+        pbVar8[-0x10] = 0;
+        pbVar8[-0xf] = 0;
+        pbVar8[-0xe] = 0;
+        pbVar8[-0xd] = 0;
+        pbVar8[-0xc] = 0;
+        pbVar8[-0xb] = 0;
+        pbVar8[-10] = 0;
+        pbVar8[-9] = 0;
+        pbVar8[-8] = 0;
+        pbVar8[-7] = 0;
+        pbVar8[-6] = 0;
+        pbVar8[-5] = 0;
+        pbVar8[-4] = 0;
+        pbVar8[-3] = 0;
+        pbVar8[-2] = 0;
+        pbVar8[-1] = 0;
+        pbVar8 = pbVar8 + -0x18;
+        puVar7 = puVar7 + -0x18;
+      } while (pbVar9 != pbVar8);
+      pbVar9 = (byte *)*param_1;
+      pbVar8 = (byte *)param_1[1];
+      *param_1 = (long)puVar7;
+      param_1[1] = (long)puVar2;
+      param_1[2] = lVar4;
+      puVar3 = PTR_LAB_047cba48;
+      if (pbVar8 != pbVar9) {
+        do {
+          pbVar10 = pbVar8 + -0x18;
+          if ((*pbVar10 & 1) != 0) {
+            FUN_0049e790(puVar3,*(undefined8 *)(pbVar8 + -8));
+          }
+          pbVar8 = pbVar10;
+        } while (pbVar9 != pbVar10);
+      }
+    }
+    if (pbVar9 != (byte *)0x0) {
+      FUN_0049e790(PTR_LAB_047cba48,pbVar9);
+      return;
+    }
+  }
+  return;
+}
+
+
