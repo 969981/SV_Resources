@@ -1,0 +1,63 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 0080a46c; name: FUN_0080a46c
+ */
+
+
+void FUN_0080a46c(long param_1)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  long lVar4;
+  long *plVar5;
+  undefined1 auStack_30 [8];
+  long *local_28;
+  
+  nn::os::LockMutex((MutexType *)(param_1 + 0x18));
+  if (*(long **)(param_1 + 8) != (long *)0x0) {
+    (**(code **)(**(long **)(param_1 + 8) + 0x98))(auStack_30);
+    if (local_28 != (long *)0x0) {
+      plVar5 = local_28 + 1;
+      do {
+        lVar4 = *plVar5;
+        cVar2 = '\x01';
+        bVar3 = (bool)ExclusiveMonitorPass(plVar5,0x10);
+        if (bVar3) {
+          *plVar5 = lVar4 + -1;
+          cVar2 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar2 != '\0');
+      if (lVar4 == 0) {
+        (**(code **)(*local_28 + 0x10))(local_28);
+        std::__shared_weak_count::__release_weak();
+      }
+    }
+    plVar5 = *(long **)(param_1 + 0x10);
+    *(undefined8 *)(param_1 + 8) = 0;
+    *(undefined8 *)(param_1 + 0x10) = 0;
+    if (plVar5 != (long *)0x0) {
+      plVar1 = plVar5 + 1;
+      do {
+        lVar4 = *plVar1;
+        cVar2 = '\x01';
+        bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+        if (bVar3) {
+          *plVar1 = lVar4 + -1;
+          cVar2 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar2 != '\0');
+      if (lVar4 == 0) {
+        (**(code **)(*plVar5 + 0x10))(plVar5);
+        std::__shared_weak_count::__release_weak();
+      }
+    }
+  }
+  *(undefined1 *)(param_1 + 0x49) = 0;
+  FUN_0080a538(param_1);
+  nn::os::UnlockMutex((MutexType *)(param_1 + 0x18));
+  return;
+}
+
+

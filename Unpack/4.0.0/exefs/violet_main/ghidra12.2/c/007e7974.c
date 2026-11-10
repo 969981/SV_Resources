@@ -1,0 +1,135 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 007e7974; name: FUN_007e7974
+ */
+
+
+void FUN_007e7974(long *param_1)
+
+{
+  *param_1 = (long)(PTR_DAT_047d14a0 + 0x10);
+  memset((void *)((long)param_1 + 0x84),0,0x10);
+  memset((void *)((long)param_1 + 0x94),0,0x10);
+  memset((void *)((long)param_1 + 0xa4),0,0x10);
+  memset((void *)((long)param_1 + 0xb4),0,0x10);
+  memset((void *)((long)param_1 + 0xc4),0,0x10);
+  memset((void *)((long)param_1 + 0xd4),0,0x10);
+  memset((void *)((long)param_1 + 0xe4),0,0x10);
+  memset((void *)((long)param_1 + 0xf4),0,0x10);
+  memset((void *)((long)param_1 + 0x104),0,0x10);
+  memset((void *)((long)param_1 + 0x114),0,0x10);
+  memset((void *)((long)param_1 + 0x124),0,0x10);
+  memset((void *)((long)param_1 + 0x134),0,0x10);
+  memset((void *)((long)param_1 + 0x144),0,0x10);
+  memset((void *)((long)param_1 + 0x154),0,0x10);
+  memset((void *)((long)param_1 + 0x164),0,0x10);
+  memset((void *)((long)param_1 + 0x174),0,0x10);
+  memset((void *)((long)param_1 + 0x184),0,0x10);
+  memset((void *)((long)param_1 + 0x194),0,0x10);
+  memset((void *)((long)param_1 + 0x1a4),0,0x10);
+  memset((void *)((long)param_1 + 0x1b4),0,0x10);
+  memset((void *)((long)param_1 + 0x1c4),0,0x10);
+  memset((void *)((long)param_1 + 0x1d4),0,0x10);
+  memset((void *)((long)param_1 + 0x1e4),0,0x10);
+  memset((void *)((long)param_1 + 500),0,0x10);
+  *(undefined2 *)(param_1 + 1) = 0;
+  *(undefined1 *)((long)param_1 + 10) = 0;
+  *(undefined2 *)((long)param_1 + 0x22) = 0;
+  *(undefined2 *)((long)param_1 + 0x52) = 0;
+  memset((void *)((long)param_1 + 0x84),0,0x10);
+  *(undefined1 *)((long)param_1 + 0xb) = 0;
+  *(undefined2 *)((long)param_1 + 0x24) = 0;
+  *(undefined2 *)((long)param_1 + 0x54) = 0;
+  memset((void *)((long)param_1 + 0x94),0,0x10);
+  *(undefined1 *)((long)param_1 + 0xc) = 0;
+  *(undefined2 *)((long)param_1 + 0x26) = 0;
+  *(undefined2 *)((long)param_1 + 0x56) = 0;
+  memset((void *)((long)param_1 + 0xa4),0,0x10);
+  *(undefined1 *)((long)param_1 + 0xd) = 0;
+  *(undefined2 *)(param_1 + 5) = 0;
+  *(undefined2 *)(param_1 + 0xb) = 0;
+  memset((void *)((long)param_1 + 0xb4),0,0x10);
+  *(undefined1 *)((long)param_1 + 0xe) = 0;
+  *(undefined2 *)((long)param_1 + 0x2a) = 0;
+  *(undefined2 *)((long)param_1 + 0x5a) = 0;
+  memset((void *)((long)param_1 + 0xc4),0,0x10);
+  *(undefined1 *)((long)param_1 + 0xf) = 0;
+  *(undefined2 *)((long)param_1 + 0x2c) = 0;
+  *(undefined2 *)((long)param_1 + 0x5c) = 0;
+  memset((void *)((long)param_1 + 0xd4),0,0x10);
+  *(undefined1 *)(param_1 + 2) = 0;
+  *(undefined2 *)((long)param_1 + 0x2e) = 0;
+  *(undefined2 *)((long)param_1 + 0x5e) = 0;
+  memset((void *)((long)param_1 + 0xe4),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x11) = 0;
+  *(undefined2 *)(param_1 + 6) = 0;
+  *(undefined2 *)(param_1 + 0xc) = 0;
+  memset((void *)((long)param_1 + 0xf4),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x12) = 0;
+  *(undefined2 *)((long)param_1 + 0x32) = 0;
+  *(undefined2 *)((long)param_1 + 0x62) = 0;
+  memset((void *)((long)param_1 + 0x104),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x13) = 0;
+  *(undefined2 *)((long)param_1 + 0x34) = 0;
+  *(undefined2 *)((long)param_1 + 100) = 0;
+  memset((void *)((long)param_1 + 0x114),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x14) = 0;
+  *(undefined2 *)((long)param_1 + 0x36) = 0;
+  *(undefined2 *)((long)param_1 + 0x66) = 0;
+  memset((void *)((long)param_1 + 0x124),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x15) = 0;
+  *(undefined2 *)(param_1 + 7) = 0;
+  *(undefined2 *)(param_1 + 0xd) = 0;
+  memset((void *)((long)param_1 + 0x134),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x16) = 0;
+  *(undefined2 *)((long)param_1 + 0x3a) = 0;
+  *(undefined2 *)((long)param_1 + 0x6a) = 0;
+  memset((void *)((long)param_1 + 0x144),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x17) = 0;
+  *(undefined2 *)((long)param_1 + 0x3c) = 0;
+  *(undefined2 *)((long)param_1 + 0x6c) = 0;
+  memset((void *)((long)param_1 + 0x154),0,0x10);
+  *(undefined1 *)(param_1 + 3) = 0;
+  *(undefined2 *)((long)param_1 + 0x3e) = 0;
+  *(undefined2 *)((long)param_1 + 0x6e) = 0;
+  memset((void *)((long)param_1 + 0x164),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x19) = 0;
+  *(undefined2 *)(param_1 + 8) = 0;
+  *(undefined2 *)(param_1 + 0xe) = 0;
+  memset((void *)((long)param_1 + 0x174),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x1a) = 0;
+  *(undefined2 *)((long)param_1 + 0x42) = 0;
+  *(undefined2 *)((long)param_1 + 0x72) = 0;
+  memset((void *)((long)param_1 + 0x184),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x1b) = 0;
+  *(undefined2 *)((long)param_1 + 0x44) = 0;
+  *(undefined2 *)((long)param_1 + 0x74) = 0;
+  memset((void *)((long)param_1 + 0x194),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x1c) = 0;
+  *(undefined2 *)((long)param_1 + 0x46) = 0;
+  *(undefined2 *)((long)param_1 + 0x76) = 0;
+  memset((void *)((long)param_1 + 0x1a4),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x1d) = 0;
+  *(undefined2 *)(param_1 + 9) = 0;
+  *(undefined2 *)(param_1 + 0xf) = 0;
+  memset((void *)((long)param_1 + 0x1b4),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x1e) = 0;
+  *(undefined2 *)((long)param_1 + 0x4a) = 0;
+  *(undefined2 *)((long)param_1 + 0x7a) = 0;
+  memset((void *)((long)param_1 + 0x1c4),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x1f) = 0;
+  *(undefined2 *)((long)param_1 + 0x4c) = 0;
+  *(undefined2 *)((long)param_1 + 0x7c) = 0;
+  memset((void *)((long)param_1 + 0x1d4),0,0x10);
+  *(undefined1 *)(param_1 + 4) = 0;
+  *(undefined2 *)((long)param_1 + 0x4e) = 0;
+  *(undefined2 *)((long)param_1 + 0x7e) = 0;
+  memset((void *)((long)param_1 + 0x1e4),0,0x10);
+  *(undefined1 *)((long)param_1 + 0x21) = 0;
+  *(undefined2 *)(param_1 + 10) = 0;
+  *(undefined2 *)(param_1 + 0x10) = 0;
+  memset((void *)((long)param_1 + 500),0,0x10);
+  return;
+}
+
+
