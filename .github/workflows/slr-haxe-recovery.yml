@@ -10,6 +10,9 @@ on:
       - "tests/test_sv_haxe_emitter.py"
       - "tests/test_sv_haxe_side_effects.py"
       - "tests/test_sv_haxe_r14.py"
+      - "tests/test_sv_haxe_r15.py"
+      - "tests/test_sv_haxe_cfg_ssa.py"
+      - "tests/test_sv_haxe_r14.py"
       - "tools/SV.Lua54/src/sv_lua54/emit_haxe/**"
       - ".github/workflows/slr-haxe-recovery.yml"
   pull_request:
@@ -38,6 +41,9 @@ jobs:
             tests/test_sv_haxe_emitter.py
             tests/test_sv_haxe_side_effects.py
             tests/test_sv_haxe_r14.py
+            tests/test_sv_haxe_r15.py
+            tests/test_sv_haxe_cfg_ssa.py
+            tests/test_sv_haxe_r14.py
             tools/SV.Lua54/haxe/4.0.0
             tools/SV.Lua54/fixtures/native_manifest.json
             tools/SV.Lua54/src/sv_lua54
@@ -55,4 +61,7 @@ jobs:
           python -m unittest discover -s tests -p "test_sv_haxe_recovery.py" -v
           python -m unittest discover -s tests -p "test_sv_haxe_emitter.py" -v
           python -m unittest discover -s tests -p "test_sv_haxe_side_effects.py" -v
+          python -m unittest discover -s tests -p "test_sv_haxe_r14.py" -v
+          python -m unittest discover -s tests -p "test_sv_haxe_r15.py" -v
+          python -m unittest discover -s tests -p "test_sv_haxe_cfg_ssa.py" -v
           python -m unittest discover -s tests -p "test_sv_haxe_r14.py" -v
