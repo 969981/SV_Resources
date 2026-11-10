@@ -1,0 +1,70 @@
+name: SV400 pinned ZAScripts Haxe ABI integration
+on:
+  push:
+    branches: [master]
+    paths:
+      - "tools/SV.Lua54/haxe/4.0.0/**"
+      - "scripts/Verify-SV-ZA-Haxe-ABI.py"
+      - ".github/workflows/slr-haxe-zascripts-abi.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            tools/SV.Lua54/haxe/4.0.0
+            scripts/Verify-SV-ZA-Haxe-ABI.py
+          sparse-checkout-cone-mode: false
+      - name: Checkout exact upstream compiler / HashAbi / cppbindings / finalizer
+        shell: bash
+        run: |
+          set -euo pipefail
+          PIN=$(python3 -c 'import json;print(json.load(open("tools/SV.Lua54/haxe/4.0.0/zascripts.lock.json"))["upstream_commit"])')
+          UPSTREAM="$RUNNER_TEMP/ZAScripts"
+          git init -q "$UPSTREAM"
+          git -C "$UPSTREAM" remote add origin https://github.com/Reisyukaku/ZAScripts.git
+          git -C "$UPSTREAM" -c protocol.version=2 fetch -q --no-tags --depth 1 --filter=blob:none origin "$PIN"
+          git -C "$UPSTREAM" sparse-checkout init --cone
+          git -C "$UPSTREAM" sparse-checkout set tools/haxe-4.3.1 tools/gfl_build tools/lua-5.4.3/src
+          git -C "$UPSTREAM" checkout -q --detach FETCH_HEAD
+          test "$(git -C "$UPSTREAM" rev-parse HEAD)" = "$PIN"
+          test -f "$UPSTREAM/tools/haxe-4.3.1/std/haxe/macro/HashAbi.hx"
+          test -f "$UPSTREAM/tools/haxe-4.3.1/std/haxe/macro/abi/LuaOutput.hx"
+          test -f "$UPSTREAM/tools/gfl_build/build_post_process.py"
+          test -f "$UPSTREAM/tools/haxe-4.3.1/std/cppbindings/C016374C1.hx"
+          test -x "$UPSTREAM/tools/haxe-4.3.1/haxe"
+          echo "UPSTREAM=$UPSTREAM" >> "$GITHUB_ENV"
+          echo "HAXE_STD_PATH=$UPSTREAM/tools/haxe-4.3.1/std" >> "$GITHUB_ENV"
+          echo "Pinned upstream: $PIN"
+      - name: Check Haxe 4.3.1 and build pinned Lua5.4.3 compiler
+        run: |
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" --version
+          make -C "$UPSTREAM/tools/lua-5.4.3/src" linux -j2 >/dev/null
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -v
+      - name: Compile main + dll_util through upstream HashAbi and LuaOutput finalizer
+        working-directory: tools/SV.Lua54/haxe/4.0.0
+        run: |
+          mkdir -p build
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" build-za-main.hxml
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" build-za-dll-util.hxml
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -p build/za_main.lua build/za_dll_util.lua
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -s -o build/za_main.blua build/za_main.lua
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -s -o build/za_dll_util.blua build/za_dll_util.lua
+      - name: Verify C/S symbols and finalizer fingerprints
+        run: python3 scripts/Verify-SV-ZA-Haxe-ABI.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv400-zascripts-abi-lua
+          path: |
+            tools/SV.Lua54/haxe/4.0.0/build/za_main.lua
+            tools/SV.Lua54/haxe/4.0.0/build/za_dll_util.lua
+          if-no-files-found: ignore
+          retention-days: 7
