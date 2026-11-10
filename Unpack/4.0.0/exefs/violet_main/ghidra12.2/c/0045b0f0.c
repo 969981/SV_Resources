@@ -1,0 +1,21 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 0045b0f0; name: FUN_0045b0f0
+ */
+
+
+tm * FUN_0045b0f0(time_t *param_1,tm *param_2)
+
+{
+  tm *ptVar1;
+  tm *ptVar2;
+  
+  ptVar2 = gmtime_r(param_1,param_2);
+  ptVar1 = (tm *)0x0;
+  if (ptVar2 != (tm *)0x0) {
+    ptVar1 = param_2;
+  }
+  return ptVar1;
+}
+
+
