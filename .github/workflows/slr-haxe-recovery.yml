@@ -1,0 +1,44 @@
+name: SV 4.0.0 Haxe ABI provenance
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "tools/SV.Lua54/haxe/4.0.0/**"
+      - "scripts/Verify-SV-Haxe-Recovery.py"
+      - "tests/test_sv_haxe_recovery.py"
+      - ".github/workflows/slr-haxe-recovery.yml"
+  pull_request:
+    paths:
+      - "tools/SV.Lua54/haxe/4.0.0/**"
+      - "scripts/Verify-SV-Haxe-Recovery.py"
+      - "tests/test_sv_haxe_recovery.py"
+      - ".github/workflows/slr-haxe-recovery.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  abi-and-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Verify-SV-Haxe-Recovery.py
+            tests/test_sv_haxe_recovery.py
+            tools/SV.Lua54/haxe/4.0.0
+            tools/SV.Lua54/fixtures/native_manifest.json
+            tools/PokeDocs/SV/Hashlists/Lua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate known hashes, original source SHA and Proto/PC evidence
+        run: python scripts/Verify-SV-Haxe-Recovery.py
+      - name: Run no-ROM Haxe provenance tests
+        run: python -m unittest discover -s tests -p "test_sv_haxe_recovery.py" -v
