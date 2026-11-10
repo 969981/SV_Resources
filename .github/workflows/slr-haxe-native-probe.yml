@@ -4,6 +4,7 @@ on:
     branches: [master]
     paths:
       - "scripts/Probe-SV-Haxe-Native.py"
+      - "scripts/Link-SV-Haxe-Native.py"
       - ".github/workflows/slr-haxe-native-probe.yml"
   workflow_dispatch:
 permissions:
@@ -19,6 +20,7 @@ jobs:
           fetch-depth: 1
           sparse-checkout: |
             scripts/Probe-SV-Haxe-Native.py
+            scripts/Link-SV-Haxe-Native.py
             tools/SV.Lua54/src/sv_lua54
             tools/SV.Lua54/fixtures/native_manifest.json
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
@@ -29,8 +31,13 @@ jobs:
           python-version: "3.11"
       - name: Read-only 4.0.0 class and member opcode lookup
         run: python scripts/Probe-SV-Haxe-Native.py --output "$RUNNER_TEMP/haxe_native_probe.json"
+      - name: Strict native class-method Proto/PC binding and child disassembly
+        run: python scripts/Link-SV-Haxe-Native.py --output "$RUNNER_TEMP/haxe_native_link.json"
       - uses: actions/upload-artifact@v4
         with:
           name: sv400-haxe-native-probe
-          path: "${{ runner.temp }}/haxe_native_probe.json"
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/haxe_native_probe.json
+            ${{ runner.temp }}/haxe_native_link.json
           retention-days: 7
