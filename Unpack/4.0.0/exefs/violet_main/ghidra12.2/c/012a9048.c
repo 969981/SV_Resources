@@ -1,0 +1,113 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 012a9048; name: FUN_012a9048
+ */
+
+
+void FUN_012a9048(long param_1,undefined8 param_2)
+
+{
+  long *plVar1;
+  bool bVar2;
+  char cVar3;
+  int iVar4;
+  long lVar5;
+  ulong uVar6;
+  long *plVar7;
+  bool bVar8;
+  long lVar9;
+  long *plVar10;
+  
+  plVar10 = (long *)(param_1 + 0x7c8);
+  lVar9 = *plVar10;
+  lVar5 = nn::os::GetCurrentThread();
+  if (lVar5 == lVar9) {
+    plVar10 = (long *)0x0;
+    bVar8 = true;
+LAB_012a9094:
+    if (*(char *)(param_1 + 0x7c7) == '\0') {
+      if (*(long *)(param_1 + 0x7e0) == 0) {
+                    /* WARNING: Subroutine does not return */
+        nn::diag::detail::AbortImpl
+                  ("(*onBeforeDestroy)","RemoveOnBeforeDestroy",
+                   "C:/jenkins/workspace/sudachi/rom/rom_build/programs/prog/app/packages/trinity_titan.2023.9.1-sudachi2/build//include/gflib3\\scene/scene_object.h"
+                   ,0x14c);
+      }
+      FUN_012a9308(*(long *)(param_1 + 0x7e0),param_2);
+      uVar6 = FUN_012a91bc(*(undefined8 *)(param_1 + 0x7e0));
+      if ((uVar6 & 1) != 0) {
+        plVar7 = *(long **)(param_1 + 0x7e0);
+        *(undefined8 *)(param_1 + 0x7e0) = 0;
+        if (plVar7 != (long *)0x0) {
+          plVar1 = plVar7 + 5;
+          do {
+            lVar5 = *plVar1;
+            iVar4 = (int)lVar5 + -1;
+            cVar3 = '\x01';
+            bVar2 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+            if (bVar2) {
+              *(int *)plVar1 = iVar4;
+              cVar3 = ExclusiveMonitorsStatus();
+            }
+          } while (cVar3 != '\0');
+          if (iVar4 == 0) {
+            (**(code **)(*plVar7 + 0x10))();
+          }
+          else if ((int)lVar5 == 0) {
+                    /* WARNING: Subroutine does not return */
+            nn::diag::detail::AbortImpl
+                      ("count != std::numeric_limits<uint32_t>::max()","DecrementReferenceInternal",
+                       "C:/jenkins/workspace/sudachi/rom/rom_build/programs/prog/app/packages/trinity_titan.2023.9.1-sudachi2/build//include/gflib3\\core/reference_object.h"
+                       ,0x58,"Reference counter underflows.");
+          }
+        }
+      }
+    }
+    if (bVar8) {
+      return;
+    }
+    *plVar10 = 0;
+    nn::os::SignalLightEvent((LightEventType *)(plVar10 + 1));
+    return;
+  }
+  lVar5 = nn::os::GetCurrentThread();
+  while (*plVar10 == 0) {
+    cVar3 = '\x01';
+    bVar8 = (bool)ExclusiveMonitorPass(plVar10,0x10);
+    if (bVar8) {
+      *plVar10 = lVar5;
+      cVar3 = ExclusiveMonitorsStatus();
+    }
+    if (cVar3 == '\0') goto LAB_012a9090;
+  }
+  ClearExclusiveLocal();
+  nn::os::WaitLightEvent((LightEventType *)(param_1 + 2000));
+  do {
+    if (*plVar10 != 0) {
+      do {
+        ClearExclusiveLocal();
+        nn::os::WaitLightEvent((LightEventType *)(param_1 + 2000));
+        while (*plVar10 == 0) {
+          cVar3 = '\x01';
+          bVar8 = (bool)ExclusiveMonitorPass(plVar10,0x10);
+          if (bVar8) {
+            *plVar10 = lVar5;
+            cVar3 = ExclusiveMonitorsStatus();
+          }
+          if (cVar3 == '\0') goto LAB_012a9090;
+        }
+      } while( true );
+    }
+    cVar3 = '\x01';
+    bVar8 = (bool)ExclusiveMonitorPass(plVar10,0x10);
+    if (bVar8) {
+      *plVar10 = lVar5;
+      cVar3 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar3 != '\0');
+LAB_012a9090:
+  bVar8 = false;
+  goto LAB_012a9094;
+}
+
+
