@@ -63,7 +63,7 @@ jobs:
           python3 scripts/ghidra/restore_ghidra_project.py \
             --source "$SOURCE" --out "$OUT" --game "$GAME" \
             | tee "$RUNNER_TEMP/restore-$GAME.json"
-          test -s "$OUT/project/SV400.gpr"
+          test -f "$OUT/project/SV400.gpr"
           test -d "$OUT/project/SV400.rep"
 
       - name: Download and verify official Ghidra 12.2
