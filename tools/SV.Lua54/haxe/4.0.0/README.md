@@ -1,6 +1,6 @@
 # SV Violet 4.0.0 curated Haxe reconstruction
 
-**Status: 77 original SV400 native method Proto/PC links, 76 Haxe method bodies verified against original Child Lua 5.4.3 (280/280 standalone differential cases), and one extern-only Assert.IsNull. Switch game runtime remains NOT_OBSERVED.** This is a curated, evidence-tracked workspace, not a complete SV source project.
+**Status: 81 original SV400 native method Proto/PC links, 80 Haxe method bodies independently validated against original Child Lua 5.4.3 (329/329 tested inputs), and one extern-only Assert.IsNull. Switch game runtime remains NOT_OBSERVED.** This is a curated, evidence-tracked workspace, not a complete SV source project.
 
 ## Location and files
 
@@ -54,6 +54,14 @@ haxe build.hxml
 ```
 
 The pinned ZAScripts custom compiler now executes the real `haxe.macro.HashAbi` ABI checker (including a negative intentionally wrong S-hash test), `LuaOutput` postprocessor and `cppbindings` typechecking. Preserve separate stock-Haxe and ZAScripts build states; do not call these standalone tests game-runtime parity.
+
+## R14 original dynamic field / ordered table writes / multi-branch source
+
+- [R14 original source / diff / Obsidian report](../../../../docs/research/sv400-haxe-r14-dynamic-field-shared-alias-branch.md) · [Actions #42767473135](https://github.com/969981/SV_Resources/actions/runs/42767473135), **49/49 new tests, 329/329 cumulative**.
+- Original `IEventScript.set_CallFromReserve` (Child Proto 670) and `set_DisableFieldCamera` (Proto 674): dynamic SETFIELD uses the original register R1 and raw UTF-8 K name; the latter performs a second GETI/GETFIELD readback, retaining `__index` events.
+- Original `BattleViewBase.SetShowBattleMessageState` (Proto 6088): two ordered SETI writes `self[36]=R1` then `self[37]=R2`. Differential checks identity-preserving table alias graphs, nested raw state, metamethod event order and partial writes if the second write throws.
+- Original `BattleUiTokuseiWindow.IsEnemy` (Proto 8129): two `EQI/JMP` comparisons recover `value==1 || value==3`, checked with 13 integer/float/NaN/nil/string/bool inputs.
+- `tools/SV.Lua54/src/sv_lua54/emit_haxe/r14_patterns.py` supports **only** four exact source-checked patterns; `scripts/Emit-SV-Haxe-R14-DynamicState.py` stages new classes without tracked ROM modifications; `compare-r14-alias-branches.lua` compares original and regenerated Lua in the same isolated VM. New methods were promoted only when all previous 280 A/B regressions and full Proto/PC validation passed. `runtime_status=NOT_OBSERVED`.
 
 ## R13 promoted named fields and metamethod comparisons
 
