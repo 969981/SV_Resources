@@ -135,6 +135,16 @@ python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 - [R13 静态取证 #42763034047](https://github.com/969981/SV_Resources/actions/runs/42763034047) 从原版 4.0.0 Proto 669／11176／5683 的 K 常量证实 `callFromReserve`、`skipPlayerStuckCheck=true` 和 `length`，不使用臆测字段名。[完整原版字节码与 Haxe A/B #42765308159](https://github.com/969981/SV_Resources/actions/runs/42765308159) **Success**：三条真实字段方法新增 **28/28**，包括两种 `GETFIELD` 的 `__index` 事件 18 组、`SETFIELD` 嵌套表与 `__newindex` 副作用 10 组。
 - **当前：77 条真实原始映射、76 个完成独立 Lua 对账的 Haxe 方法体、1 个 extern-only，累计 280/280**。上述三个方法已从临时 Haxe 工程晋升并提交 `master`。未验证游戏原生 Lua VM/C++/UpVal*，所有 `runtime_status=NOT_OBSERVED`。
 
+## R14：原版动态字段、同一表双写和两次条件判断（已完成）
+
+[Obsidian R14：动态 SETFIELD、引用图、元方法和原版两段 EQI 分支详细验收](sv400-haxe-r14-dynamic-field-shared-alias-branch.md) · [R14 成功 Actions #42767473135](https://github.com/969981/SV_Resources/actions/runs/42767473135)。
+
+在 4.0.0 原始 `main.blua` 中定位并确认四个真实 C→prototype→F 原始方法：`IEventScript.set_CallFromReserve` Proto 670（动态右值 `SETFIELD`）、`IEventScript.set_DisableFieldCamera` Proto 674（写后再读取，同一字符串 K 常量）、`BattleViewBase.SetShowBattleMessageState` Proto 6088（`self[36]` 与 `self[37]` 两次按顺序写入）、`BattleUiTokuseiWindow.IsEnemy` Proto 8129（两次 `EQI/JMP` 整数分支）。四个有证据的 Haxe 方法都已编译、原版 Lua Child 独立执行对账并提交到对应的 `main.event`、`main.battle` 类目录。
+
+新增 **49/49** 用例，包括相同表在多个参数与字段之间的双向引用图、一写成功一写异常、`__newindex` 拦截/顺序/副作用、`__index` 写后读取，以及整数/浮点、NaN、无限大、字符串、布尔、nil 分支；之前 280 组全部回归通过，因此累计 **329/329**。原版 Proto/PC、原始 K 字节、Root 注册哈希、CFG、HIR、Child 原始指令与 Haxe 生成源码均保持独立可复核记录。
+
+**当前汇总：81 条原生方法 Proto/PC 映射、80 个有验证方法体的 Haxe 方法、1 个 `Assert.IsNull` extern-only。** 其余 3,892 个已命名候选中的未恢复部分不能按方法名自动生成占位源码。游戏原生 Lua VM/C++/UpValue 实机状态全部仍是 `NOT_OBSERVED`；有限 Lua 输入对账不是全部可达游戏状态的等价证明。
+
 ## 上游资料与下一关
 
 [Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) 有 SV `source/main`、`source/dll_util`、`source/dll_stadium`；[Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 提供 Haxe 4.3.1、`HashAbi`、`@:chunk`、`@:abiSlot`、`cppbindings`、Lua 5.4.3 和 build finalizer 的参考实现；[PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 C/S/F/E 哈希与名称；[SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 是旧版 Lua 对照。
