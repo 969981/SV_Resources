@@ -1,0 +1,57 @@
+name: SV400 R17 exact native ELF class-registration slice
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/slr-r17-native-registration-slice.yml"
+      - "scripts/Analyze-SV-R17-NativeRegistration.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-two-elf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Analyze-SV-R17-NativeRegistration.py
+            tools/SV.Lua54/src/sv_lua54/
+            Unpack/4.0.0/exefs/scarlet_main/scarlet_main.elf
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned native ELF and Capstone Python decoders
+        run: python3 -m pip install 'pyelftools==0.32' 'capstone==5.0.6'
+      - name: Check both original ELF xrefs and nearby BL/BLR/relocation
+        run: |
+          set -euo pipefail
+          python3 scripts/Analyze-SV-R17-NativeRegistration.py \
+            --out "$RUNNER_TEMP/sv400-r17-registration-slice.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/"sv400-r17-registration-slice.json").read_text())
+          assert x["near_reference_same_machine_assembly_both_games"] is True
+          assert x["guest_runtime_status"]=="NOT_OBSERVED"
+          assert x["native_cpp_binding_proven"] is False
+          for game in ("scarlet_main","violet_main"):
+              s=x["original_elf"][game]
+              assert s["verified_class_xref"]=="0x13fe21c"
+              assert s["verified_class_literal"]=="0x3b04bcb"
+              assert s["near_class_reference"]
+              assert s["lua_cclosure_pointer_proven"] is False
+          print("R17_NATIVE_STATIC_SLICE_VERIFIED_NO_LIVE_CPP_ABI")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv400-r17-native-class-and-method-code-slice
+          path: ${{ runner.temp }}/sv400-r17-registration-slice.json
+          retention-days: 14
+          if-no-files-found: warn
