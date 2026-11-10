@@ -1,0 +1,113 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 00ffbad4; name: FUN_00ffbad4
+ */
+
+
+void FUN_00ffbad4(long param_1,ulong param_2)
+
+{
+  ulong uVar1;
+  unkuint9 Var2;
+  ulong uVar3;
+  ulong uVar4;
+  ulong *puVar5;
+  long lVar6;
+  ulong uVar7;
+  ulong uVar8;
+  ulong uVar9;
+  ulong uVar10;
+  long *plVar11;
+  ulong local_48;
+  
+  if ((param_2 < *(ulong *)(param_1 + 0x40)) &&
+     ((*(ulong *)(*(long *)(param_1 + 0x38) + (param_2 >> 3 & 0x1ffffffffffffff8)) >>
+       (param_2 & 0x3f) & 1) != 0)) {
+    return;
+  }
+  uVar7 = *(long *)(param_1 + 0xa8) - 1;
+  if (uVar7 == param_2) {
+    do {
+      *(ulong *)(param_1 + 0xa8) = uVar7;
+      if ((uVar7 == 0) || (uVar7 = uVar7 - 1, *(ulong *)(param_1 + 0x40) <= uVar7)) break;
+    } while ((*(ulong *)(*(long *)(param_1 + 0x38) + (uVar7 >> 3 & 0x1ffffffffffffff8)) >>
+              (uVar7 & 0x3f) & 1) != 0);
+  }
+  plVar11 = (long *)(param_1 + 0x70);
+  puVar5 = (ulong *)*plVar11;
+  lVar6 = *(long *)(param_1 + 0x78) - (long)puVar5;
+  local_48 = param_2;
+  if (lVar6 != 0) {
+    if (lVar6 != 8) {
+      uVar8 = lVar6 >> 3;
+      uVar7 = uVar8;
+      if (lVar6 == -8) {
+        *(ulong **)(param_1 + 0x78) = puVar5;
+LAB_00ffbc24:
+        uVar10 = (ulong)((float)uVar8 * 0.5);
+        uVar4 = uVar10;
+        uVar9 = uVar8;
+        uVar3 = uVar8 - uVar10;
+        if (puVar5[uVar10] <= param_2) {
+          uVar4 = 0;
+          uVar9 = uVar10;
+          uVar3 = uVar10;
+        }
+        while (uVar10 = uVar4, 2 < uVar3) {
+          Var2 = (unkuint9)uVar3;
+          uVar1 = uVar10 + (long)((float)(unkint9)Var2 * 0.5);
+          uVar4 = uVar1;
+          uVar3 = uVar9 - uVar1;
+          if (puVar5[uVar1] <= param_2) {
+            uVar4 = uVar10;
+            uVar9 = uVar1;
+            uVar3 = (long)((float)(unkint9)Var2 * 0.5);
+          }
+        }
+        if (uVar10 <= uVar9 && uVar9 < uVar8) {
+          while (puVar5[uVar9] <= param_2) {
+            uVar9 = uVar9 - 1;
+            if ((uVar9 < uVar10) || (uVar8 <= uVar9)) goto LAB_00ffbc60;
+          }
+          uVar9 = uVar9 + 1;
+        }
+LAB_00ffbc60:
+        if (uVar9 != uVar8) {
+          if (uVar9 <= uVar8 && uVar10 <= uVar9) {
+            uVar10 = uVar9;
+          }
+          uVar7 = uVar10;
+          if (uVar10 + 1 < uVar8 + 1) {
+            memmove(puVar5 + uVar10 + 1,puVar5 + uVar10,(uVar8 - uVar10) * 8);
+          }
+        }
+      }
+      else {
+        FUN_00c6e61c(plVar11,1);
+        if (2 < uVar8) {
+          puVar5 = (ulong *)*plVar11;
+          goto LAB_00ffbc24;
+        }
+      }
+      *(ulong *)(*plVar11 + uVar7 * 8) = param_2;
+      goto LAB_00ffbb40;
+    }
+    if (*puVar5 <= param_2) {
+      FUN_00c6e61c(plVar11,1);
+      ((undefined8 *)*plVar11)[1] = *(undefined8 *)*plVar11;
+      *(ulong *)*plVar11 = param_2;
+      goto LAB_00ffbb40;
+    }
+  }
+  FUN_00e2bc48(plVar11,&local_48);
+LAB_00ffbb40:
+  if (*(ulong *)(param_1 + 0x40) <= param_2) {
+    FUN_00d7684c((long *)(param_1 + 0x38),param_2 + 1,0);
+  }
+  lVar6 = *(long *)(param_1 + 0x38);
+  uVar7 = param_2 >> 3 & 0x1ffffffffffffff8;
+  *(ulong *)(lVar6 + uVar7) = *(ulong *)(lVar6 + uVar7) | 1L << (param_2 & 0x3f);
+  return;
+}
+
+
