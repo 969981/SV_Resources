@@ -52,7 +52,7 @@ def run(source: Path, output: Path, copy_project: bool = True) -> dict:
         raise ValueError("Restore destination must be empty")
     output.mkdir(parents=True, exist_ok=True)
 
-    sqlite_file = output / "sv400_main_410.sqlite"
+    sqlite_file = output / "sv400_main.sqlite"
     ndjson_file = output / "sv400_ghidra_events.ndjson"
     combine(source / "database", info["sqlite"], sqlite_file)
     combine(source / "ndjson", info["ndjson"], ndjson_file)
