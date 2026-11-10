@@ -1,0 +1,71 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 004d3380; name: FUN_004d3380
+ */
+
+
+void FUN_004d3380(undefined *param_1)
+
+{
+  undefined *puVar1;
+  long *plVar2;
+  byte *pbVar3;
+  
+  puVar1 = PTR_DAT_047cba80;
+  pbVar3 = *(byte **)(param_1 + 0x18);
+  if (pbVar3 == PTR_DAT_047cba80 || pbVar3 == (byte *)0x0) {
+    pbVar3 = *(byte **)(param_1 + 0x20);
+    if (pbVar3 != PTR_DAT_047cba80 && pbVar3 != (byte *)0x0) {
+LAB_004d33fc:
+      if ((*pbVar3 & 1) != 0) {
+        FUN_0049e790(PTR_LAB_047cba48,*(undefined8 *)(pbVar3 + 0x10));
+      }
+      FUN_0049e790(PTR_LAB_047cba48,pbVar3);
+      pbVar3 = *(byte **)(param_1 + 0x28);
+      goto joined_r0x004d33bc;
+    }
+  }
+  else {
+    if ((*pbVar3 & 1) != 0) {
+      FUN_0049e790(PTR_LAB_047cba48,*(undefined8 *)(pbVar3 + 0x10));
+    }
+    FUN_0049e790(PTR_LAB_047cba48,pbVar3);
+    pbVar3 = *(byte **)(param_1 + 0x20);
+    if (pbVar3 != puVar1 && pbVar3 != (byte *)0x0) goto LAB_004d33fc;
+  }
+  pbVar3 = *(byte **)(param_1 + 0x28);
+joined_r0x004d33bc:
+  if ((pbVar3 != puVar1) && (pbVar3 != (byte *)0x0)) {
+    if ((*pbVar3 & 1) != 0) {
+      FUN_0049e790(PTR_LAB_047cba48,*(undefined8 *)(pbVar3 + 0x10));
+    }
+    FUN_0049e790(PTR_LAB_047cba48,pbVar3);
+  }
+  pbVar3 = *(byte **)(param_1 + 0x30);
+  if ((pbVar3 != puVar1) && (pbVar3 != (byte *)0x0)) {
+    if ((*pbVar3 & 1) != 0) {
+      FUN_0049e790(PTR_LAB_047cba48,*(undefined8 *)(pbVar3 + 0x10));
+    }
+    FUN_0049e790(PTR_LAB_047cba48,pbVar3);
+  }
+  pbVar3 = *(byte **)(param_1 + 0x38);
+  if ((pbVar3 != puVar1) && (pbVar3 != (byte *)0x0)) {
+    if ((*pbVar3 & 1) != 0) {
+      FUN_0049e790(PTR_LAB_047cba48,*(undefined8 *)(pbVar3 + 0x10));
+    }
+    FUN_0049e790(PTR_LAB_047cba48,pbVar3);
+  }
+  if ((param_1 == PTR_DAT_047cd850) || (plVar2 = *(long **)(param_1 + 0x40), plVar2 == (long *)0x0))
+  {
+    return;
+  }
+  *plVar2 = (long)(PTR_DAT_047cd868 + 0x10);
+                    /* try { // try from 004d34f8 to 004d34fb has its CatchHandler @ 004d3530 */
+  FUN_004ca714(plVar2 + 1);
+  FUN_004d2ad4(plVar2 + 6);
+  FUN_005212b0(plVar2 + 2);
+  FUN_0049e790(PTR_LAB_047cba48,plVar2);
+  return;
+}
+
+

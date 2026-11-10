@@ -1,0 +1,45 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 004f5b78; name: FUN_004f5b78
+ */
+
+
+undefined1  [16] FUN_004f5b78(long param_1,long param_2,long param_3)
+
+{
+  ulong *puVar1;
+  uint *puVar2;
+  undefined4 extraout_s0;
+  undefined4 extraout_var;
+  undefined8 extraout_var_00;
+  undefined1 auVar3 [16];
+  long local_48;
+  undefined *puStack_40;
+  undefined ***local_38;
+  undefined **local_30;
+  long *plStack_28;
+  
+  puVar1 = *(ulong **)(param_3 + 0x30);
+  if (puVar1 != (ulong *)0x0) {
+    puStack_40 = PTR_LAB_047cd728;
+    local_48 = param_3;
+    if (*puVar1 != 0xffffffffffffffff) {
+      local_30 = &puStack_40;
+      plStack_28 = &local_48;
+      local_38 = &local_30;
+      std::__call_once(puVar1,&local_38,(_func_void_void_ptr *)&LAB_004f9a40);
+    }
+  }
+  if (*(char *)(param_3 + 0x43) == '\0') {
+    puVar2 = (uint *)FUN_004fa238(param_1,param_2,param_3);
+    return ZEXT416(*puVar2);
+  }
+  FUN_0052232c(*(undefined4 *)(param_3 + 0x90),param_2 + (ulong)*(uint *)(param_1 + 0x28),
+               *(undefined4 *)(param_3 + 0x44));
+  auVar3._4_4_ = extraout_var;
+  auVar3._0_4_ = extraout_s0;
+  auVar3._8_8_ = extraout_var_00;
+  return auVar3;
+}
+
+
