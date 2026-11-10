@@ -29,7 +29,10 @@ OPAQUE={"CALL","TAILCALL","SELF","TESTSET","VARARG","VARARGPREP",
 
 def register_writes(ins,stack):
     op=ins.name
-    if op in SINGLE_WRITE:return set(range(ins.a,min(ins.a+1,stack))),None
+    if op in SINGLE_WRITE:
+        effect=("READ_MAY_INVOKE_INDEX_METAMETHOD"
+                if op in ("GETTABUP","GETTABLE","GETI","GETFIELD") else None)
+        return set(range(ins.a,min(ins.a+1,stack))),effect
     if op=="LOADNIL":
         return set(range(ins.a,min(ins.a+ins.b+1,stack))),None
     if op=="SELF":
@@ -42,7 +45,11 @@ def register_writes(ins,stack):
     if op=="VARARG":
         count=stack-ins.a if ins.c==0 else max(0,ins.c-1)
         return set(range(ins.a,min(ins.a+count,stack))),"VARARG_UNKNOWN_TOP"
-    if op in NO_WRITE:return set(),None
+    if op in NO_WRITE:
+        effect=("WRITE_MAY_INVOKE_NEWINDEX_METAMETHOD"
+                if op in ("SETTABUP","SETTABLE","SETI","SETFIELD")
+                else "OPAQUE_TABLE_MUTATION" if op=="SETLIST" else None)
+        return set(),effect
     if op in OPAQUE or op not in NO_WRITE:
         return set(),"UNSUPPORTED_REGISTER_EFFECT"
     return set(),"UNSUPPORTED_REGISTER_EFFECT"
