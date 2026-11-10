@@ -1,0 +1,72 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 00ea7bc0; name: FUN_00ea7bc0
+ */
+
+
+long FUN_00ea7bc0(undefined8 param_1,long *param_2)
+
+{
+  long lVar1;
+  long *plVar2;
+  undefined *puVar3;
+  undefined *puVar4;
+  undefined *puVar5;
+  undefined *puVar6;
+  undefined *puVar7;
+  undefined *puVar8;
+  int iVar9;
+  long *plVar10;
+  ulong uVar11;
+  undefined8 uVar12;
+  long *plVar13;
+  
+  puVar8 = PTR_DAT_047dadf8;
+  puVar7 = PTR_DAT_047dadf0;
+  puVar6 = PTR_DAT_047d8d38;
+  puVar5 = PTR_DAT_047d8d30;
+  puVar4 = PTR_DAT_047d3988;
+  puVar3 = PTR_DAT_047d3980;
+  plVar13 = (long *)*param_2;
+  plVar2 = (long *)param_2[1];
+  if (plVar13 != plVar2) {
+    do {
+      if (*plVar13 != 0) {
+        plVar10 = (long *)(*(code *)**(undefined8 **)(*plVar13 + 8))();
+        if (((*puVar7 & 1) == 0) && (iVar9 = __cxa_guard_acquire(puVar7), iVar9 != 0)) {
+          if (((*puVar5 & 1) == 0) && (iVar9 = __cxa_guard_acquire(puVar5), iVar9 != 0)) {
+            if (((*puVar3 & 1) == 0) && (iVar9 = __cxa_guard_acquire(puVar3), iVar9 != 0)) {
+              uVar12 = FUN_01adab84();
+              *(undefined8 *)puVar4 = uVar12;
+              __cxa_guard_release(puVar3);
+            }
+            *(undefined **)puVar6 = puVar4;
+            __cxa_guard_release(puVar5);
+          }
+          *(undefined **)puVar8 = puVar6;
+          __cxa_guard_release(puVar7);
+        }
+        for (; plVar10 != (long *)0x0; plVar10 = (long *)*plVar10) {
+          if (plVar10 == (long *)puVar8) {
+            uVar11 = (**(code **)(*(long *)*plVar13 + 0xc0))();
+            if ((uVar11 & 1) == 0) goto LAB_00ea7c5c;
+            break;
+          }
+        }
+      }
+      plVar13 = plVar13 + 1;
+    } while (plVar13 != plVar2);
+    plVar13 = plVar2;
+LAB_00ea7c5c:
+    if (plVar13 != (long *)param_2[1]) {
+      lVar1 = 0;
+      if (*plVar13 != 0) {
+        lVar1 = *plVar13 + -0x20;
+      }
+      return lVar1;
+    }
+  }
+  return 0;
+}
+
+
