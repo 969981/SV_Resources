@@ -116,6 +116,16 @@ python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 
 [Obsidian R9 报告：3,892 个原生 Proto/PC 候选与三个单指令 RETURN0 的 Haxe 实例方法](sv400-haxe-field-battle-event-promotion.md)。已证明 `main.field`、`main.battle`、`main.event` 真实 C→F 根注册点可与 PokeDocs/Child Proto/Upvalue 关联；三个从一条 `RETURN0` 直接恢复的 Haxe 实例函数已通过固定 ZAScripts 编译与真实原版 Child Lua 差异试验。旧三静态 32/32 + 新三实例 9/9 = **41/41 PASS**。这些是纯函数独立输入测试，未声称实机行为。
 
+## R10：真实原版 CFG/HIR/AST → Haxe 非空函数的第一次自动发射
+
+[独立 Obsidian R10 验收报告](sv400-haxe-r10-cfg-hir-ast-lowering.md) · [编译与原版方法 A/B #42758094283](https://github.com/969981/SV_Resources/actions/runs/42758094283) · [原始 Proto/PC + 16 项 Python 测试 #42758722625](https://github.com/969981/SV_Resources/actions/runs/42758722625)。
+
+已增加严格使用原始 Lua54 `syntactic_edges` 的类型化 CFG→HIR→ReturnAst→Haxe 受限生成器。**五个非空函数（返回 2、3、300、true、false）**已固定 Proto/PC 与 FNV，发射至 `main.field.behaviour`、`main.battle`、`main.event.base` 目录的四个实际可编辑 `.hx` 类文件；Haxe 4.3.1 编译通过，原始 4.0.0 子 Proto 与新 Lua 各 3 个用例，全新 15/15、累计 56/56 PASS。
+
+**当前总量**：12 条经原版机器码证明的 C/F/S 方法映射，11 个已有 Haxe 方法体并通过有限范围独立 A/B，1 个 `Assert.IsNull` 仅 extern。由 3,892 条已命名候选重新做静态资格扫描，受限字面量后端能接受 **64 条（field 52、battle 7、event 5）**；其余 59 条合格但尚未逐方法完成编译对账，不算已恢复。
+
+注意该路径并非完整导入 unluac-rs 通用 HIR/AST，只是受限且经过字节码验证的 CFG/HIR/AST 后端。完整 Lua 表、条件/循环、Upvalue、游戏 C++ 原生对象和实机 VM 仍需逐项单独验证，`runtime_status=NOT_OBSERVED`。
+
 ## 上游资料与下一关
 
 [Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) 有 SV `source/main`、`source/dll_util`、`source/dll_stadium`；[Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 提供 Haxe 4.3.1、`HashAbi`、`@:chunk`、`@:abiSlot`、`cppbindings`、Lua 5.4.3 和 build finalizer 的参考实现；[PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 C/S/F/E 哈希与名称；[SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 是旧版 Lua 对照。
