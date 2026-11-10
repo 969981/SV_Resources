@@ -209,3 +209,57 @@ def inspect_cppbindings(directory: Path, keys=LUA_K, max_matches=30):
         "original_game_native_entry_mapping": "NOT_RESOLVED",
         "runtime_status": "NOT_OBSERVED",
     }
+
+
+def compare_candidate_arity(cppbindings_report: dict, field: str = "f558733FC"):
+    """Compare source-text Haxe extern count against original Lua CALL B.
+
+    Not proof these signatures refer to the same native implementation.
+    Lua CALL B=3 supplies two Lua arguments, one of which is SELF receiver.
+    """
+    entries=cppbindings_report["matches"].get(field, [])
+    if len(entries)!=1:
+        return {
+            "method_key":field,"source_matches":len(entries),
+            "classification":"NO_UNIQUE_UPSTREAM_DECLARATION",
+            "abi_status":"NOT_RESOLVED",
+        }
+    e=entries[0]
+    m=re.search(
+        r"public\s+function\s+"+re.escape(field)+
+        r"\s*\(([^()]*)\)\s*:\s*([A-Za-z0-9_.<>]+)\s*;",e["snippet"])
+    if not m:
+        return {
+            "method_key":field,"candidate_file":e["file"],"line":e["line"],
+            "classification":"UPSTREAM_DECLARATION_NOT_PARSEABLE",
+            "abi_status":"NOT_RESOLVED",
+        }
+    raw_args=m.group(1).strip()
+    args=[] if not raw_args else [x.strip() for x in raw_args.split(",")]
+    if any(":" not in arg for arg in args):
+        raise ValueError("unrecognized Haxe native extern argument syntax")
+    expected=1
+    return {
+        "method_key":field,
+        "candidate_file":e["file"],"candidate_line":e["line"],
+        "declaring_haxe_native_class": "cE35B3EB3" if e["file"]=="CE35B3EB3.hx" else None,
+        "upstream_declared_arguments":args,
+        "upstream_declared_return_type":m.group(2),
+        "upstream_declared_explicit_argument_count":len(args),
+        "original_lua_call_pc":9,
+        "original_lua_opcode":"CALL A3 B3 C1",
+        "original_lua_total_argument_count_including_self":2,
+        "original_lua_explicit_argument_count_excluding_self":expected,
+        "declared_minus_lua_explicit":len(args)-expected,
+        "classification":(
+          "UPSTREAM_EXTERN_ARITY_DIFFERS_FROM_SV400_LUA_CALL"
+          if len(args)!=expected else "TEXTUAL_ARITY_MATCH_NOT_NATIVE_ABI_PROOF"
+        ),
+        "source_version_warning":"ZAScripts binding does not prove SV400 native class or C++ ABI",
+        "possible_explanations_unverified":[
+            "Different engine version or function signature",
+            "Haxe extern describes default/optional/extra arguments not present in Lua call",
+            "f558733FC string collision or dynamic Lua object different from this extern",
+        ],
+        "abi_status":"NOT_RESOLVED",
+    }
