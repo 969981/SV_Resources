@@ -90,8 +90,22 @@ def verify(root: Path = ROOT) -> dict:
         keys.add(key)
         coords = ["proto_id", "pc_start", "pc_end_exclusive", "code_offset"]
         if r["body_status"] == "SV400_NATIVE_MAPPED":
+            import struct
             if any(type(r[k]) is not int for k in coords):
                 raise ValueError(f"line {n}: native mapping requires Proto+PC+offset")
+            for k in ("root_pc", "class_load_pc", "method_load_pc",
+                      "closure_pc", "assignment_pc", "child_index"):
+                if type(r.get(k)) is not int:
+                    raise ValueError(f"line {n}: missing original root closure {k}")
+            if r.get("native_binding_status") != "SV400_NATIVE_STATIC_CLOSURE_LINKED":
+                raise ValueError(f"line {n}: missing proven native C-S binding status")
+            if r.get("haxe_body_status") != "STATIC_OPCODE_EXPRESSION_MATCHED_UNCOMPILED":
+                raise ValueError(f"line {n}: unreviewed Haxe expression status")
+            if (r["haxe_compile_status"], r["lua_differential_status"],
+                    r["runtime_status"]) != ("NOT_RUN", "NOT_RUN", "NOT_OBSERVED"):
+                raise ValueError(f"line {n}: untested Haxe must not claim compilation/runtime parity")
+            if r["ownership_evidence"] != "SV400_NATIVE_CLOSURE_ASSIGNMENT":
+                raise ValueError(f"line {n}: native-mapped method lacks exact ownership evidence")
             src = checked_path(root, r["source_path"])
             raw = src.read_bytes()
             if hashlib.sha256(raw).hexdigest() != mod["sha256"]:
@@ -99,16 +113,49 @@ def verify(root: Path = ROOT) -> dict:
             if r["module"] not in parsed:
                 sys.path.insert(0, str(root / "tools/SV.Lua54/src"))
                 from sv_lua54.chunk import parse
-                parsed[r["module"]] = list(parse(raw).protos())
-            protos = parsed[r["module"]]
+                from sv_lua54.r1 import decode
+                chunk = parse(raw)
+                parsed[r["module"]] = (list(chunk.protos()), chunk.root, decode(chunk.root))
+            protos, native_root, native_ops = parsed[r["module"]]
             if r["proto_id"] < 0 or r["proto_id"] >= len(protos):
                 raise ValueError(f"line {n}: nonexistent Proto")
             p = protos[r["proto_id"]]
             if (p.parent_id != r["parent_proto_id"] or p.code_offset != r["code_offset"]
                     or not 0 <= r["pc_start"] < r["pc_end_exclusive"] <= p.instruction_count):
                 raise ValueError(f"line {n}: impossible native Proto/PC interval")
-            if r["ownership_evidence"] not in ("SV400_NATIVE_PC_TRACE","SV400_NATIVE_CLOSURE_ASSIGNMENT"):
-                raise ValueError(f"line {n}: missing ownership evidence class")
+            if r["pc_start"] != 0 or r["pc_end_exclusive"] != p.instruction_count:
+                raise ValueError(f"line {n}: expected complete original child Proto range")
+            site = r["root_pc"]
+            if not 0 <= site < len(native_ops)-5:
+                raise ValueError(f"line {n}: root binding PC out of range")
+            orig = native_ops[site:site+6]
+            if [x.name for x in orig] != [
+                "GETUPVAL", "LOADK", "GETTABLE", "LOADK", "CLOSURE", "SETTABLE"
+            ]:
+                raise ValueError(f"line {n}: native root opcode pattern mismatch")
+            a = orig[0].a
+            if not (orig[0].b == 0
+                    and orig[1].a == a+1
+                    and (orig[2].a,orig[2].b,orig[2].c) == (a,a,a+1)
+                    and orig[3].a == a+1 and orig[4].a == a+2
+                    and (orig[5].a,orig[5].b,orig[5].c) == (a,a+1,a+2)):
+                raise ValueError(f"line {n}: root C-S register binding mismatch")
+            if (r["class_load_pc"],r["method_load_pc"],
+                    r["closure_pc"],r["assignment_pc"]) != (
+                    site+1,site+3,site+4,site+5):
+                raise ValueError(f"line {n}: root PC registration offsets disagree")
+            if (native_root.constants[orig[1].bx].payload != ch.encode("ascii")
+                    or native_root.constants[orig[3].bx].payload != mh.encode("ascii")):
+                raise ValueError(f"line {n}: original root class/member hash differs")
+            if (orig[4].bx != r["child_index"]
+                    or orig[4].bx >= len(native_root.children)
+                    or native_root.children[orig[4].bx].id != p.id):
+                raise ValueError(f"line {n}: exact CLOSURE child ownership mismatch")
+            if [f"{x.word:08X}" for x in orig] != r.get("native_root_opcode_words"):
+                raise ValueError(f"line {n}: root instruction byte witness mismatch")
+            child_words = [f"{word:08X}" for (word,) in struct.iter_unpack("<I", p.code)]
+            if child_words != r.get("native_child_opcode_words"):
+                raise ValueError(f"line {n}: original method body raw instruction witness mismatch")
         else:
             if r["body_status"] != "OLDER_SV_REFERENCE":
                 raise ValueError(f"line {n}: unsupported status")
