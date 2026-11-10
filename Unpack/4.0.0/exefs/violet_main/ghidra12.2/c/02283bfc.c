@@ -1,0 +1,48 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 02283bfc; name: FUN_02283bfc
+ */
+
+
+void FUN_02283bfc(undefined8 param_1,undefined8 *param_2,undefined8 *param_3,undefined8 *param_4)
+
+{
+  long *plVar1;
+  long *plVar2;
+  undefined8 uVar3;
+  undefined8 local_60;
+  undefined8 uStack_58;
+  undefined8 local_50;
+  long *plStack_48;
+  undefined8 local_40;
+  undefined8 uStack_38;
+  undefined8 local_30;
+  long *plStack_28;
+  
+  local_40 = *param_3;
+  uStack_38 = param_3[1];
+  uVar3 = *param_2;
+  local_30 = param_3[2];
+  plVar1 = (long *)param_3[3];
+  param_3[3] = 0;
+  local_60 = *param_4;
+  uStack_58 = param_4[1];
+  local_50 = param_4[2];
+  plVar2 = (long *)param_4[3];
+  param_4[3] = 0;
+  plStack_48 = plVar2;
+  plStack_28 = plVar1;
+  FUN_02283048(param_1,uVar3,&local_40,&local_60);
+  if (plVar2 != (long *)0x0) {
+    (**(code **)(*plVar2 + 0x20))(plVar2);
+  }
+  if (plVar1 == (long *)0x0) {
+    return;
+  }
+                    /* WARNING: Could not recover jumptable at 0x02283c90. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  (**(code **)(*plVar1 + 0x20))(plVar1);
+  return;
+}
+
+
