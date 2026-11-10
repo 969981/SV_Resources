@@ -1,0 +1,120 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 005b5010; name: FUN_005b5010
+ */
+
+
+undefined8 FUN_005b5010(long param_1,undefined8 *param_2,char *param_3)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  undefined *puVar4;
+  long *plVar5;
+  ulong uVar6;
+  long lVar7;
+  long lVar8;
+  
+  if (*(char *)(param_1 + 0xb0) != '\0') {
+    lVar7 = *(long *)(param_1 + 0x88);
+    plVar5 = (long *)(lVar7 + 0x18);
+    do {
+      lVar8 = *plVar5;
+      cVar2 = '\x01';
+      bVar3 = (bool)ExclusiveMonitorPass(plVar5,0x10);
+      if (bVar3) {
+        *plVar5 = lVar8 + -1;
+        cVar2 = ExclusiveMonitorsStatus();
+      }
+      puVar4 = PTR_DAT_047cbb08;
+    } while (cVar2 != '\0');
+    if (lVar8 + -1 == 0) {
+      (**(code **)(**(long **)PTR_DAT_047cbb08 + 0x38))
+                (*(long **)PTR_DAT_047cbb08,*(undefined8 *)(lVar7 + 0x10));
+    }
+    *param_2 = *(undefined8 *)(param_1 + 0x78);
+    *param_3 = *(char *)(param_1 + 0x188);
+    plVar5 = *(long **)puVar4;
+    goto LAB_005b51a0;
+  }
+  if ((*(char *)(param_1 + 9) == '\0') || (*(char *)(param_1 + 8) != '\0')) {
+    lVar7 = *(long *)(param_1 + 0x30);
+    if (lVar7 == 0) goto LAB_005b5098;
+LAB_005b50cc:
+    if ((*(char *)(param_1 + 0x38) == '\0') || (*(char *)(param_1 + 0x39) == '\0')) {
+      if (*param_3 == '\0') {
+        *(undefined1 *)(param_1 + 0x39) = 1;
+      }
+    }
+    else {
+      *param_3 = '\0';
+    }
+  }
+  else {
+    (**(code **)(**(long **)PTR_DAT_047cbb08 + 0x58))
+              (*(long **)PTR_DAT_047cbb08,*(undefined8 *)(param_1 + 0x20));
+    *(undefined1 *)(param_1 + 9) = 0;
+    lVar7 = *(long *)(param_1 + 0x30);
+    if (lVar7 != 0) goto LAB_005b50cc;
+LAB_005b5098:
+    if (*(long *)(param_1 + 0x40) != 0) goto LAB_005b50cc;
+  }
+  *(undefined1 *)(param_1 + 0x69) = 0;
+  cVar2 = *param_3;
+  *(undefined2 *)(param_1 + 0xd8) = 1;
+  *(undefined8 *)(param_1 + 0xc0) = 0;
+  *(undefined8 *)(param_1 + 0xc5) = 0;
+  *(char *)(param_1 + 0x188) = cVar2;
+  if (lVar7 == 0) {
+    if (*(long *)(param_1 + 0x40) != 0) {
+      *(undefined1 *)(param_1 + 0xc2) = 1;
+      goto LAB_005b5130;
+    }
+  }
+  else {
+    *(undefined1 *)(param_1 + 0xc2) = 1;
+    if (*(long *)(param_1 + 0x40) != 0) {
+LAB_005b5130:
+      (**(code **)(**(long **)PTR_DAT_047cbb08 + 0xc0))();
+      *(undefined8 *)(param_1 + 0x40) = 0;
+    }
+  }
+  plVar5 = *(long **)(param_1 + 0x128);
+  *(undefined8 *)(param_1 + 0x30) = 0;
+  *(undefined8 *)(param_1 + 0x108) = 0;
+  *(long *)(param_1 + 0x110) = param_1 + 0x39;
+  *(undefined8 *)(param_1 + 0x128) = 0;
+  *(undefined8 *)(param_1 + 0x118) = 0;
+  *(undefined8 *)(param_1 + 0x120) = 0;
+  if (plVar5 == (long *)0x0) {
+LAB_005b5180:
+    uVar6 = FUN_00224e5c(param_1 + 0xb8);
+  }
+  else {
+    plVar1 = plVar5 + 1;
+    do {
+      lVar7 = *plVar1;
+      cVar2 = '\x01';
+      bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar3) {
+        *plVar1 = lVar7 + -1;
+        cVar2 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar2 != '\0');
+    if (lVar7 != 0) goto LAB_005b5180;
+    (**(code **)(*plVar5 + 0x10))(plVar5);
+    std::__shared_weak_count::__release_weak();
+    uVar6 = FUN_00224e5c(param_1 + 0xb8);
+  }
+  if ((uVar6 & 1) == 0) {
+    return 0;
+  }
+  *param_2 = *(undefined8 *)(param_1 + 0x78);
+  plVar5 = *(long **)PTR_DAT_047cbb08;
+LAB_005b51a0:
+  (**(code **)(*plVar5 + 0x120))(plVar5,*(undefined8 *)(param_1 + 0x90));
+  return 1;
+}
+
+
