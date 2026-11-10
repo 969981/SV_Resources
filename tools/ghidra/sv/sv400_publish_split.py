@@ -112,7 +112,7 @@ def untar_project(src: Path, target: Path, parts_dir: Path) -> dict:
             for entry in tar:
                 name = PurePosixPath(entry.name)
                 if (name.is_absolute() or ".." in name.parts or not name.parts
-                        or name.parts[0] not in ("SV4000.gpr", "SV4000.rep")):
+                        or name.parts[0] not in ("SV400.gpr", "SV400.rep")):
                     raise ValueError("Unsafe Ghidra project tar path: " + entry.name)
                 output = target.joinpath(*name.parts)
                 if entry.isdir():
@@ -155,7 +155,7 @@ def untar_project(src: Path, target: Path, parts_dir: Path) -> dict:
                     result["regular_files"] += 1
         if decoder.wait() != 0:
             raise ValueError("zstd native project decoder failed")
-    if not (target / "SV4000.gpr").exists() or not (target / "SV4000.rep").is_dir():
+    if not (target / "SV400.gpr").exists() or not (target / "SV400.rep").is_dir():
         raise ValueError("Native Ghidra .gpr / .rep missing")
     return result
 
@@ -199,10 +199,10 @@ def main() -> None:
     if out.exists() and any(out.iterdir()):
         raise ValueError("Output must be empty to avoid stale files")
     out.mkdir(parents=True, exist_ok=True)
-    project = source(root, "project", "SV4000_ghidra_project.tar.zst")
-    db = source(root, "sqlite", "sv400_main_410.sqlite")
+    project = source(root, "project", "SV400_ghidra_project.tar.zst")
+    db = source(root, "sqlite", "sv400_main.sqlite")
     db_manifest = source(root, "sqlite", "sv400_ghidra_manifest.json")
-    code = source(root, "c", "SV4000_all_decompiled_C.zip")
+    code = source(root, "c", "SV400_all_decompiled_C.zip")
     c_manifest = source(root, "c", "decompiled_manifest.json")
     c_index = source(root, "c", "decompiled_index.csv")
     ndjson = source(root, "ndjson", "sv400_ghidra_events.ndjson.gz")
@@ -245,7 +245,7 @@ def main() -> None:
         raise ValueError("C function coverage CSV inconsistent")
 
     project_info = untar_project(project, out / "project", out / "project_parts")
-    binary = split_binary(db, out / "database", "sv400_main_410.sqlite")
+    binary = split_binary(db, out / "database", "sv400_main.sqlite")
     raw = split_ndjson_gzip(ndjson, out / "ndjson")
     if raw["gzip_source_sha256"] != sha(ndjson):
         raise ValueError("Compressed input NDJSON changed")
@@ -268,14 +268,14 @@ def main() -> None:
     (out / "README.md").write_text(
         "# SV 4.0.0 Ghidra 12.2 — uncompressed / losslessly split\n\n"
         "Source: Actions Run #" + str(RUN) + " (validated outputs), ELF SHA256: " + ELF + "\n\n"
-        "- project/SV4000.gpr and project/SV4000.rep/: editable native Ghidra project;\n"
+        "- project/SV400.gpr and project/SV400.rep/: editable native Ghidra project;\n"
         "- c/: " + str(num_c) + " individual Ghidra pseudocode .c files;\n"
         "- database/: byte-exact raw SQLite pieces, not ZIP/GZ;\n"
         "- ndjson/: plain newline-delimited JSON fragments, each line intact;\n"
-        "- fde_recovery.csv: 25,803 original FDE recovery audit;\n"
+        "- fde_recovery.csv: original FDE recovery audit;\n"
         "- parts_manifest.json: every chunk SHA256 and original full-file SHA256.\n\n"
         "Restore the original SQLite and NDJSON using: "
-        "python tools/ghidra/sv400_restore_split.py "
+        "python tools/ghidra/sv/sv400_restore_split.py "
         "--source Unpack/4.0.0/exefs/" + args.game + "/ghidra12.2 "
         "--out /some/local/directory\n\n"
         "GitHub cannot accept >100 MB ordinary Git blobs; we deliberately use "
@@ -283,8 +283,8 @@ def main() -> None:
         "If project_parts/ is present, restoration also reconstructs any "
         "oversized internal Ghidra project files.\n\n"
         "This is Ghidra-generated C pseudocode, not Nintendo source code. "
-        "All " + str(expected) + " discovered functions have individual decompiler statuses; ",
-        "not all decompilers necessarily succeed. See decompiled_index.csv.\n",
+        "All " + str(expected) + " discovered functions have individual decompiler statuses; "
+        "not all decompilations necessarily succeed. See decompiled_index.csv.\n",
         encoding="utf-8")
     for path in out.rglob("*"):
         if path.is_file() and path.stat().st_size > LIMIT:
