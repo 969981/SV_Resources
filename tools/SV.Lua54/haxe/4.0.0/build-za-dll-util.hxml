@@ -1,0 +1,9 @@
+-cp source
+--macro haxe.macro.HashAbi.enable()
+--macro haxe.macro.abi.LuaOutput.enable()
+--macro haxe.macro.abi.Chunks.select("dll_util")
+-dce full
+-D lua-vanilla
+-D lua-ver=5.4
+-main RecoveryZaDllUtil
+-lua build/za_dll_util.lua
