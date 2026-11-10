@@ -114,8 +114,15 @@ def analyze(game,path):
         h=r["r_addend"]
         executable=any(va<=h<va+end-off and (flags&1)
                        for off,end,va,flags in segs)
+        native_pos=offset_of(segs,h)
         vm_handlers[op]={"opcode":number,"reloc_slot":f"0x{entry:x}",
                           "handler_rva":f"0x{h:x}",
+                          "handler_first_8_raw_bytes":raw[native_pos:native_pos+8].hex().upper(),
+                          "first_12_machine_instructions":[
+                            {"rva":f"0x{x.address:x}","op":x.mnemonic,
+                             "operands":x.op_str,"bytes":x.bytes.hex().upper()}
+                            for x in list(cs.disasm(raw[native_pos:native_pos+0x30],h))[:12]
+                          ],
                           "executable":bool(executable),
                           "status":"ELF_STATIC_RELOCATED_OPCODE_DISPATCH_NOT_GUEST_RUNTIME"}
     # Follow the actual original BL and callback pointer loaded into X2.
