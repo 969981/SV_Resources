@@ -215,6 +215,16 @@ jobs:
           }
           python scripts/Verify-SV400-PKL-Release.py @argsList
           if ($LASTEXITCODE -ne 0) { throw 'Native PKL source SHA or full-multiset zero-loss gate failed' }
+      - name: Preserve 178 native A/B evidence even if loss gate rejects experiment
+        if: ${{ always() && inputs.probe_178_owner }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV400-178-owner-AB-diagnostic-NOT-RELEASE
+          path: |
+            ${{ runner.temp }}/SV400-owner178/native-encounter-build.json
+            ${{ runner.temp }}/SV400-baseline/SV400-PKL-release-proof.json
+          retention-days: 30
+          if-no-files-found: warn
       - name: Upload verified baseline PKLs and proof, never original ROM
         uses: actions/upload-artifact@v4
         with:
