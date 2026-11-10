@@ -6,6 +6,8 @@ on:
       - "tools/SV.Lua54/haxe/4.0.0/**"
       - "scripts/Verify-SV-ZA-Haxe-ABI.py"
       - "scripts/Build-SV-Haxe-Native-FnFixtures.py"
+      - "scripts/Emit-SV-Haxe-R10-ConstantReturns.py"
+      - "tools/SV.Lua54/src/sv_lua54/emit_haxe/**"
       - ".github/workflows/slr-haxe-zascripts-abi.yml"
   workflow_dispatch:
 permissions:
@@ -23,6 +25,8 @@ jobs:
             tools/SV.Lua54/haxe/4.0.0
             scripts/Verify-SV-ZA-Haxe-ABI.py
             scripts/Build-SV-Haxe-Native-FnFixtures.py
+            scripts/Emit-SV-Haxe-R10-ConstantReturns.py
+            tools/PokeDocs/SV/Hashlists/Lua
             tools/SV.Lua54/src/sv_lua54
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
             Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/dll_util/dll_util.blua
@@ -88,6 +92,18 @@ jobs:
             "$RUNNER_TEMP/sv400-haxe-native/ActionChairBegin.luac" \
             "$RUNNER_TEMP/sv400-haxe-native/BattleStartIdle.luac" \
             "$RUNNER_TEMP/sv400-haxe-native/EventOnCreate.luac"
+      - name: Reconstruct original Lua CFG/HIR/AST into deterministic Haxe source
+        run: |
+          python3 scripts/Emit-SV-Haxe-R10-ConstantReturns.py \
+            --output "$RUNNER_TEMP/sv400-r10-generated" \
+            --native-output "$RUNNER_TEMP/sv400-haxe-native" \
+            --verify-repo-source
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -p \
+            "$RUNNER_TEMP/sv400-haxe-native/R10_14216.luac" \
+            "$RUNNER_TEMP/sv400-haxe-native/R10_14223.luac" \
+            "$RUNNER_TEMP/sv400-haxe-native/R10_6349.luac" \
+            "$RUNNER_TEMP/sv400-haxe-native/R10_689.luac" \
+            "$RUNNER_TEMP/sv400-haxe-native/R10_699.luac"
       - name: Native original bytecode vs pinned Haxe generated Lua differential
         run: |
           "$UPSTREAM/tools/lua-5.4.3/src/lua" \
@@ -96,7 +112,7 @@ jobs:
             tools/SV.Lua54/haxe/4.0.0/build/za_main.lua \
             tools/SV.Lua54/haxe/4.0.0/build/za_dll_util.lua \
             "$RUNNER_TEMP/sv400-haxe-native/differential-report.json"
-          python3 -c 'import json,os,pathlib;p=pathlib.Path(os.environ["RUNNER_TEMP"])/"sv400-haxe-native/differential-report.json";d=json.loads(p.read_text());assert d["status"]=="PASS" and len(d["methods"])==6 and sum(m["passed"] for m in d["methods"])==41 and all(m["cases"]>0 and m["passed"]==m["cases"] for m in d["methods"]);print(json.dumps(d,indent=2))'
+          python3 -c 'import json,os,pathlib;p=pathlib.Path(os.environ["RUNNER_TEMP"])/"sv400-haxe-native/differential-report.json";d=json.loads(p.read_text());assert d["status"]=="PASS" and len(d["methods"])==11 and sum(m["passed"] for m in d["methods"])==56 and all(m["cases"]>0 and m["passed"]==m["cases"] for m in d["methods"]);print(json.dumps(d,indent=2))'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -106,5 +122,6 @@ jobs:
             tools/SV.Lua54/haxe/4.0.0/build/za_dll_util.lua
             ${{ runner.temp }}/sv400-haxe-native/differential-report.json
             ${{ runner.temp }}/sv400-haxe-native/fixture-provenance.json
+            ${{ runner.temp }}/sv400-r10-generated/r10-manifest.json
           if-no-files-found: ignore
           retention-days: 7
