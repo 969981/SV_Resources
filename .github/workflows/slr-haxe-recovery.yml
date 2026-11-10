@@ -7,6 +7,8 @@ on:
       - "tools/SV.Lua54/haxe/4.0.0/**"
       - "scripts/Verify-SV-Haxe-Recovery.py"
       - "tests/test_sv_haxe_recovery.py"
+      - "tests/test_sv_haxe_emitter.py"
+      - "tools/SV.Lua54/src/sv_lua54/emit_haxe/**"
       - ".github/workflows/slr-haxe-recovery.yml"
   pull_request:
     paths:
@@ -31,6 +33,7 @@ jobs:
           sparse-checkout: |
             scripts/Verify-SV-Haxe-Recovery.py
             tests/test_sv_haxe_recovery.py
+            tests/test_sv_haxe_emitter.py
             tools/SV.Lua54/haxe/4.0.0
             tools/SV.Lua54/fixtures/native_manifest.json
             tools/SV.Lua54/src/sv_lua54
@@ -44,4 +47,6 @@ jobs:
       - name: Validate known hashes, original source SHA and Proto/PC evidence
         run: python scripts/Verify-SV-Haxe-Recovery.py
       - name: Run no-ROM Haxe provenance tests
-        run: python -m unittest discover -s tests -p "test_sv_haxe_recovery.py" -v
+        run: |
+          python -m unittest discover -s tests -p "test_sv_haxe_recovery.py" -v
+          python -m unittest discover -s tests -p "test_sv_haxe_emitter.py" -v
