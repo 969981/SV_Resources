@@ -61,17 +61,15 @@ def owner_compare(base:Path, owner:Path, reference:Path):
     for key in set(a)|set(b):
         if key[:2] not in {(178,0),(192,178),(180,178)} and a[key]!=b[key]:
             untouched.append(key)
-    for name in EXPECTED:
-        if name=="encounter_wild_paldea.pkl":continue
-        if (base/name).read_bytes()!=(owner/name).read_bytes():
-            raise ValueError("Owner AB modified fixed/raid resource: "+name)
-    if untouched:
-        raise ValueError(f"Owner AB modified {len(untouched)} non-target wild templates")
+    changed_tables=[name for name in EXPECTED
+                    if name!="encounter_wild_paldea.pkl" and
+                    (base/name).read_bytes()!=(owner/name).read_bytes()]
     return {"baseline_reference_matches":sum(original_matches.values()),
             "retained":retained,"lost":lost,"added":added,
             "total_reference_matches":sum(revised_matches.values()),
             "baseline_wild_records":sum(a.values()),"owner_wild_records":sum(b.values()),
-            "non_target_changed":len(untouched)}
+            "non_target_changed":len(untouched),
+            "changed_fixed_or_raid_tables":changed_tables}
 def verify(base:Path,source:Path,collision:Path,owner:Path|None,reference:Path|None,out:Path):
     s=load(source);c=load(collision)
     if s.get("status")!="61_NATIVE_TARGETS_EXTRACTED_SHA256_VERIFIED" or len(s.get("targets",[]))!=61:
@@ -94,7 +92,9 @@ def verify(base:Path,source:Path,collision:Path,owner:Path|None,reference:Path|N
         try:
             result["owner_ab"]=owner_compare(base,owner,reference)
             result["owner_ab"]["source_files"]=experiment
-            if result["owner_ab"]["lost"]!=0 or result["owner_ab"]["retained"]!=26185:
+            if result["owner_ab"]["non_target_changed"] or result["owner_ab"]["changed_fixed_or_raid_tables"]:
+                owner_error="Owner experiment changed non-target wild or fixed/raid resources"
+            elif result["owner_ab"]["lost"]!=0 or result["owner_ab"]["retained"]!=26185:
                 owner_error="Owner experiment lost original PKHeX matches"
             elif result["owner_ab"]["added"]<=0:
                 owner_error="Owner AB recovered no reference occurrence; do not promote"
