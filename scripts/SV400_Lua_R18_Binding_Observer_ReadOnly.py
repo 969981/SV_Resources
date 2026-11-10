@@ -53,7 +53,7 @@ def tvalue(address):
             "address": hex(address),
             "raw16": raw.hex(),
             "word0": hex(struct.unpack("<Q", raw[:8])[0]),
-            "word1": hex(struct.unpack("<Q", raw[8:])[0],
+            "word1": hex(struct.unpack("<Q", raw[8:])[0]),
         }
     except Exception as exc:
         return {"address": hex(address), "raw16": "UNREADABLE:" + str(exc)[:120]}
