@@ -142,6 +142,10 @@ if __name__=="__main__":
           }
           for edition,result in d["native_binary_literal_evidence"].items()
        },
+       "elf_class_native_string_code_xref_sites":{
+          edition:report["literal_direct_adrp_add_xref_candidates"].get("cE35B3EB3",[])[:3]
+          for edition,report in d["native_binary_literal_evidence"].items()
+       },
        "elf_direct_string_adrp_add_candidates":{
           edition:{key:len(hits) for key,hits in report["literal_direct_adrp_add_xref_candidates"].items()}
           for edition,report in d["native_binary_literal_evidence"].items()
