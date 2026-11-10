@@ -157,8 +157,9 @@ jobs:
         with:
           name: sv400-r12-slot-branch-table-state-evidence
           path: |
-            ${{ runner.temp }}/sv400-r11/r11-summary.json
-            ${{ runner.temp }}/sv400-r11/r11-differential.tsv
+            ${{ runner.temp }}/sv400-r12/r12-summary.json
+            ${{ runner.temp }}/sv400-r12/r12-state-report.txt
+            ${{ runner.temp }}/sv400-r12/r11-regression.tsv
             ${{ runner.temp }}/sv400-r12/r10-regression.json
           if-no-files-found: ignore
           retention-days: 7
