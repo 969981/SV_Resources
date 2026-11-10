@@ -22,4 +22,13 @@ class IEventScript {
         return true;
     }
 
+    // R12 original Child Proto 669: self_field_get
+    // Child code SHA-256: 9f76534abc0d64513c1e2f8228acc2349606ecd9cccd8b5cd1b2919be0791eb7
+    // Raw opcode words: 1600008D 0001008E 000200C8 000100C7
+    @:hashAbi("F77BBD39690411500")
+    @:native("F77BBD39690411500")
+    public function get_CallFromReserve():Dynamic {
+        return untyped this[22]["callFromReserve"];
+    }
+
 }

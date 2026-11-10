@@ -1,3 +1,5 @@
+import main.battle.BattleResidentEffectManager;
+import main.event.debug.DebugAreaJump;
 import main.event.general.ajito.DanRushAfterEvent;
 import main.event.base.IEventScript;
 import main.event.general.shop.Shop;
@@ -116,7 +118,13 @@ class RecoveryZaMain {
         var r11Class43:Class<EventCheckerMapChange> = EventCheckerMapChange;
         var r11Class44:Class<EventCheckerTalkPartner> = EventCheckerTalkPartner;
         var r12DanRushClass:Class<DanRushAfterEvent> = DanRushAfterEvent;
+        var r13Class0:Class<BattleResidentEffectManager> = BattleResidentEffectManager;
+        var r13Class1:Class<IEventScript> = IEventScript;
+        var r13Class2:Class<DebugAreaJump> = DebugAreaJump;
         if (untyped __lua__("false")) {
+            trace(r13Class0);
+            trace(r13Class1);
+            trace(r13Class2);
             trace(r12DanRushClass);
             trace(r11Class0);
             trace(r11Class1);
