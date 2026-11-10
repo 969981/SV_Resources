@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha256
+import json
 
 from ..chunk import Proto
 from ..r1 import decode, syntactic_edges
@@ -53,6 +54,46 @@ def lift_instance(proto:Proto)->OperationAst:
         slot=a.b
         sig="(value:Dynamic):Void"
         statements=(f"untyped this[{slot}] = value;",)
+        effect=True
+    elif names==("GETI","GETFIELD","RETURN1","RETURN0"):
+        get,field,ret,dead=op
+        if (proto.num_params!=1 or (get.a,get.b,get.k)!=(1,0,0)
+                or (field.a,field.b,field.k)!=(1,1,0)
+                or ret.a!=1 or field.c>=len(proto.constants)):
+            raise LiftFailure("GETFIELD must read one original self-owned table field")
+        key_const=proto.constants[field.c]
+        if key_const.tag not in (4,20) or not isinstance(key_const.payload,bytes):
+            raise LiftFailure("GETFIELD key must be original Lua string constant")
+        try: key=key_const.payload.decode("utf-8")
+        except UnicodeDecodeError as ex: raise LiftFailure("GETFIELD non-UTF8 key") from ex
+        if len(key)>80 or any(ord(c)<32 for c in key):
+            raise LiftFailure("GETFIELD unsupported key controls/length")
+        kind="self_field_get"
+        slot=get.c
+        sig="():Dynamic"
+        statements=(f"return untyped this[{slot}][{json.dumps(key,ensure_ascii=False)}];",)
+        effect=False
+    elif names==("GETI","SETFIELD","RETURN0"):
+        get,field,dead=op
+        if (proto.num_params!=1 or (get.a,get.b,get.k)!=(1,0,0)
+                or field.a!=1 or field.k!=1
+                or field.b>=len(proto.constants)
+                or field.c>=len(proto.constants)):
+            raise LiftFailure("SETFIELD must target original self-owned table with literal")
+        key_const=proto.constants[field.b]
+        value_const=proto.constants[field.c]
+        if (key_const.tag not in (4,20)
+                or not isinstance(key_const.payload,bytes)
+                or value_const.tag!=17):
+            raise LiftFailure("SETFIELD currently only accepts literal true RHS and UTF8 key")
+        try: key=key_const.payload.decode("utf-8")
+        except UnicodeDecodeError as ex: raise LiftFailure("SETFIELD non-UTF8 key") from ex
+        if len(key)>80 or any(ord(c)<32 for c in key):
+            raise LiftFailure("SETFIELD unsupported key controls/length")
+        kind="self_field_set_true"
+        slot=get.c
+        sig="():Void"
+        statements=(f"untyped this[{slot}][{json.dumps(key,ensure_ascii=False)}] = true;",)
         effect=True
     elif names==("LT","JMP","MOVE","LT","JMP","MOVE","RETURN1","RETURN0"):
         a,j1,m1,b,j2,m2,ret,dead=op
