@@ -130,6 +130,15 @@ if __name__=="__main__":
        "cppbindings_hx_count":d["upstream_cppbindings_literal_evidence"]["files_scanned"],
        "cppbinding_candidate_occurrences":{
           k:len(v) for k,v in d["upstream_cppbindings_literal_evidence"]["matches"].items()},
+       "candidate_binding_lines":d["upstream_cppbindings_literal_evidence"]["matches"]["f558733FC"][:3],
+       "literal_in_game_elf": {
+          edition:{
+            k:sum(len(m["exact_ascii_matches_first_16"]) for m in result["literal_occurrences"]
+                  if m["literal"]==k)
+            for k in LUA_K
+          }
+          for edition,result in d["native_binary_literal_evidence"].items()
+       },
        "runtime_cpp_entry_resolved":False,
        "runtime_object_identity_observed":False,
     },indent=2))
