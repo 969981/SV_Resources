@@ -1,0 +1,246 @@
+name: SV 4.0.0 ROM source to verified Gen9 PKL release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Unique release tag (sv400-pkl-YYYYMMDD[-N])"
+        required: true
+        default: "sv400-pkl-20261110"
+        type: string
+      publish_release:
+        description: "Publish verified baseline PKLs as a GitHub Release"
+        type: boolean
+        default: false
+      probe_178_owner:
+        description: "Run isolated source-collider 178/180/192 A/B and fail on any lost match"
+        type: boolean
+        default: false
+  pull_request:
+    paths:
+      - ".github/workflows/sv400-native-pkl-release.yml"
+      - "scripts/Verify-SV400-PKL-Release.py"
+      - "tools/pkNX/pkNX.WinForms/Dumping/Gen9/Encounter/EncounterOwnerABSV.cs"
+      - "tools/pkNX/pkNX.WinForms/Dumping/Gen9/Location/LocationStorage.cs"
+      - "tools/pkNX/pkNX.EncounterCLI/Program.cs"
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/sv400-native-pkl-release.yml"
+      - "scripts/Verify-SV400-PKL-Release.py"
+      - "tools/pkNX/pkNX.WinForms/Dumping/Gen9/Encounter/EncounterOwnerABSV.cs"
+      - "tools/pkNX/pkNX.WinForms/Dumping/Gen9/Location/LocationStorage.cs"
+      - "tools/pkNX/pkNX.EncounterCLI/Program.cs"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sv400-verified-pkl-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  no-rom-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            tools/pkNX/**
+            scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/Verify-SV400-PKL-Release.py
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile the actual source owner-aware pkNX CLI without game files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/Verify-SV400-PKL-Release.py
+          dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release --nologo
+
+  original-rom-rebuild:
+    needs: no-rom-build
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'
+    runs-on: windows-latest
+    timeout-minutes: 240
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.release_tag }}
+      PUBLISH_RELEASE: ${{ inputs.publish_release }}
+      PROBE_OWNER: ${{ inputs.probe_178_owner }}
+    steps:
+      - name: Validate immutable release intent and sufficient disk
+        shell: pwsh
+        run: |
+          if ($env:RELEASE_TAG -cnotmatch '^sv400-pkl-[0-9]{8}(-[0-9]+)?$') {
+            throw 'Release tag must be sv400-pkl-YYYYMMDD[-N]'
+          }
+          if ((Get-PSDrive D -ErrorAction Stop).Free -lt 36GB) {
+            throw 'Need at least 36GB free on D: for original game source restore'
+          }
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/workflows/sv400-native-pkl-release.yml
+            violet_4.0.0_romfs_transfer_manifest.json
+            4.0.0/1/arc/data.trpfd
+            4.0.0/1/arc/data.trpfs.7z.*
+            scripts/SV-RomFS.Transfer.psm1
+            scripts/Restore-SV-Violet-RomFS.ps1
+            scripts/Prepare-SV-Trinity.ps1
+            scripts/Run-SV-FullExtract.py
+            scripts/sv_m2_parallel.py
+            scripts/Locate-SV-PKHeX-Native-Packs.py
+            scripts/Extract-SV-PKHeX-Native-Packs.py
+            scripts/Resolve-SV-PKHeX-Havok-References.py
+            scripts/Extract-SV-PKHeX-TRCOL-Packs.py
+            scripts/Audit-SV-PKHeX-Encounters.py
+            scripts/Verify-SV400-PKL-Release.py
+            scripts/deps/oo2core_8_win64.dll
+            tools/SV.TrinityDump/**
+            tools/gftool/**
+            tools/HashCaches/SV/**
+            tools/pkNX/**
+            Unpack/4.0.0/romfs/arc/data.trpfd/_index/**
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Resolve exactly 61 canonical original encounter sources
+        shell: pwsh
+        run: |
+          git config core.longpaths true
+          python scripts/Locate-SV-PKHeX-Native-Packs.py
+          if ($LASTEXITCODE -ne 0) { throw 'TRPFD locate failed' }
+          $m=Get-Content Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json -Raw | ConvertFrom-Json
+          if ($m.summary.located -ne 61 -or $m.summary.selected_packs -ne 11 -or
+              $m.summary.missing -ne 0 -or $m.summary.ambiguous -ne 0) {
+            throw 'Cannot prove 61 source paths in 11 native Trinity packages'
+          }
+      - name: Verify 83 original archive volumes and native decoder prerequisites
+        shell: pwsh
+        run: |
+          if (@(Get-ChildItem '4.0.0/1/arc/data.trpfs.7z.*' -File).Count -ne 83) {
+            throw 'Original ROM archive 83 volumes absent'
+          }
+          if (!(Test-Path 'scripts/deps/oo2core_8_win64.dll')) { throw 'Native Oodle dependency absent' }
+          $cache=Get-Content tools/HashCaches/SV/hashcache-report.json -Raw | ConvertFrom-Json
+          if ((Get-FileHash tools/HashCaches/SV/GFPAKHashCache.bin -Algorithm SHA256).Hash -ne $cache.sha256) {
+            throw 'Original GFPAK hash cache SHA mismatch'
+          }
+      - name: Restore full original Trinity source without changing ROM bytes
+        shell: pwsh
+        run: |
+          $root=Join-Path $env:RUNNER_TEMP 'SV400-original-ROM'
+          New-Item -ItemType Directory -Force $root,'tools/_local' | Out-Null
+          Copy-Item tools/HashCaches/SV/GFPAKHashCache.bin tools/_local/GFPAKHashCache.bin
+          & ./scripts/Prepare-SV-Trinity.ps1 -Workspace $root -SkipHashBuild
+          if ($LASTEXITCODE -ne 0 -or -not $?) { throw 'Original Trinity SHA restore failed' }
+          "SV_NATIVE_ROMFS=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Extract exact 61 native files with SHA checks
+        shell: pwsh
+        run: |
+          python scripts/Extract-SV-PKHeX-Native-Packs.py --repo . --workspace $env:SV_NATIVE_ROMFS --selection Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-packs.json --max-packs 32 --max-packed-mib 64
+          if ($LASTEXITCODE -ne 0) { throw 'Original 61 native file extraction failed' }
+      - name: Resolve TRCOL dependencies from actual TRSCN and SHA-extract all 223
+        shell: pwsh
+        run: |
+          python scripts/Resolve-SV-PKHeX-Havok-References.py --repo .
+          if ($LASTEXITCODE -ne 0) { throw 'Original TRSCN Havok references not resolved' }
+          $f='Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-dependencies.json'
+          $m=Get-Content $f -Raw | ConvertFrom-Json
+          if ($m.unresolved_count -ne 0) { throw 'Unresolved original TRCOL path' }
+          python scripts/Extract-SV-PKHeX-TRCOL-Packs.py --repo . --workspace $env:SV_NATIVE_ROMFS --manifest $f --max-packs 256 --max-packed-mib 1024
+          if ($LASTEXITCODE -ne 0) { throw 'Original 223 TRCOL SHA verification failed' }
+      - name: Build baseline from original ROM with unmodified default algorithm
+        shell: pwsh
+        run: |
+          dotnet build tools/pkNX/pkNX.EncounterCLI/pkNX.EncounterCLI.csproj -c Release --nologo
+          if ($LASTEXITCODE -ne 0) { throw 'pkNX generator build failed' }
+          $argsList=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual',
+              '--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json',
+              '--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json',
+              '--owner-ab-mode','baseline',
+              '--output',"$env:RUNNER_TEMP/SV400-baseline")
+          dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @argsList
+          if ($LASTEXITCODE -ne 0) { throw 'Complete native baseline PKL generation failed' }
+      - name: Optional isolated 178 collider ownership native A/B
+        if: ${{ inputs.probe_178_owner }}
+        shell: pwsh
+        run: |
+          $ref=Join-Path $env:RUNNER_TEMP 'PKHeX-pinned'
+          New-Item -Force -ItemType Directory $ref | Out-Null
+          git -C $ref init -q
+          git -C $ref remote add origin https://github.com/kwsch/PKHeX.git
+          git -C $ref sparse-checkout init --no-cone
+          git -C $ref sparse-checkout set '/PKHeX.Core/Resources/legality/wild/Gen9/*'
+          git -C $ref fetch --depth 1 origin 0660d1e1f4924b8478daec73281bb8071a82ad19
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned PKHeX commit unavailable' }
+          git -C $ref checkout --detach FETCH_HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot checkout pinned reference' }
+          "SV400_REFERENCE=$ref/PKHeX.Core/Resources/legality/wild/Gen9" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $argsList=@('--virtual-root','Unpack/4.0.0/romfs/arc/data.trpfs/virtual',
+              '--verified-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json',
+              '--verified-trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json',
+              '--owner-ab-mode','terarium-178-source-collider',
+              '--output',"$env:RUNNER_TEMP/SV400-owner178")
+          dotnet tools/pkNX/pkNX.EncounterCLI/bin/Release/net10.0/pkNX.EncounterCLI.dll @argsList
+          if ($LASTEXITCODE -ne 0) { throw 'Experimental 178 native run blocked' }
+      - name: Certificate — pin five original SHA values and zero-loss A/B
+        shell: pwsh
+        run: |
+          $argsList=@('--baseline',"$env:RUNNER_TEMP/SV400-baseline",
+            '--source-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-native-extraction.json',
+            '--trcol-manifest','Unpack/4.0.0/romfs/arc/data.trpfs/_index/encounter-trcol-extraction.json',
+            '--output',"$env:RUNNER_TEMP/SV400-baseline/SV400-PKL-release-proof.json")
+          if ($env:PROBE_OWNER -eq 'true') {
+            $argsList+=@('--owner',"$env:RUNNER_TEMP/SV400-owner178",'--reference',$env:SV400_REFERENCE)
+          }
+          python scripts/Verify-SV400-PKL-Release.py @argsList
+          if ($LASTEXITCODE -ne 0) { throw 'Native PKL source SHA or full-multiset zero-loss gate failed' }
+      - name: Upload verified baseline PKLs and proof, never original ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV400-five-original-native-PKL-release-candidate
+          path: |
+            ${{ runner.temp }}/SV400-baseline/*.pkl
+            ${{ runner.temp }}/SV400-baseline/native-encounter-build.json
+            ${{ runner.temp }}/SV400-baseline/SV400-PKL-release-proof.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Publish exactly baseline five files, only with explicit opt-in
+        if: ${{ inputs.publish_release }}
+        shell: pwsh
+        run: |
+          gh release view $env:RELEASE_TAG -R $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) { throw 'Existing release tag; refuse overwrite' }
+          $root=Join-Path $env:RUNNER_TEMP 'SV400-baseline'
+          $names=@('encounter_wild_paldea.pkl','encounter_fixed_paldea.pkl',
+            'encounter_gem_paldea.pkl','encounter_gem_kitakami.pkl','encounter_gem_blueberry.pkl')
+          $assets=@($names | ForEach-Object { Join-Path $root $_ })
+          $assets+=Join-Path $root 'native-encounter-build.json'
+          $assets+=Join-Path $root 'SV400-PKL-release-proof.json'
+          $notes=Join-Path $root 'release-notes.md'
+          @'
+          Source-attested SV 4.0.0 (61 original native files + 223 Havok TRCOL).
+          Five PKHeX-format Gen9 encounter tables; not Python pickle.
+          BASELINE ONLY. Experimental 178 owner mode is not distributed.
+          Reference parity is incomplete for wild/fixed and does not prove actual game PK9 legality.
+          Historical BCAT, event distribution and outbreak tables are excluded.
+          '@ | Set-Content -Path $notes -Encoding utf8
+          gh release create $env:RELEASE_TAG @assets --target $env:GITHUB_SHA --title "SV 4.0.0 original native Gen9 PKL" --notes-file $notes --latest=false -R $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub Release publication failed' }
