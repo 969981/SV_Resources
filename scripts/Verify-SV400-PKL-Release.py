@@ -87,17 +87,25 @@ def verify(base:Path,source:Path,collision:Path,owner:Path|None,reference:Path|N
             "baseline_files":baseline,"native_build_sha256":digest((base/"native-encounter-build.json").read_bytes()),
             "owner_ab":"NOT_RUN","pk9_runtime_legality":"NOT_OBSERVED",
             "limits":"Reference parity is not PK9 runtime legality; five files exclude historical BCAT."}
+    owner_error=None
     if owner is not None:
         if reference is None:raise ValueError("Independent PKHeX reference mandatory for owner experiment")
         experiment=audited_build(owner,"terarium-178-source-collider")
-        result["owner_ab"]=owner_compare(base,owner,reference)
-        result["owner_ab"]["source_files"]=experiment
-        if result["owner_ab"]["lost"]!=0 or result["owner_ab"]["retained"]!=26185:
-            raise ValueError("Owner experiment lost original PKHeX matches")
-        if result["owner_ab"]["added"]<=0:
-            raise ValueError("Owner AB recovered no reference occurrence; do not promote")
+        try:
+            result["owner_ab"]=owner_compare(base,owner,reference)
+            result["owner_ab"]["source_files"]=experiment
+            if result["owner_ab"]["lost"]!=0 or result["owner_ab"]["retained"]!=26185:
+                owner_error="Owner experiment lost original PKHeX matches"
+            elif result["owner_ab"]["added"]<=0:
+                owner_error="Owner AB recovered no reference occurrence; do not promote"
+        except ValueError as exc:
+            owner_error=str(exc)
+            result["owner_ab"]={"error":owner_error,"source_files":experiment}
+        result["owner_ab_gate"]="PASS" if owner_error is None else "FAIL"
     out.parent.mkdir(parents=True,exist_ok=True)
     out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n","utf-8")
+    if owner_error:
+        raise ValueError(owner_error+"; inspect persisted evidence JSON")
     return result
 def main():
     p=argparse.ArgumentParser()
