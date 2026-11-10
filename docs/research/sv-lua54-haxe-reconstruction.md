@@ -4,7 +4,7 @@
 > `main` 的 `CompositionCamera.CalcXFov`、`StrUtil.Format`，以及 `dll_util` 的 `Assert.IsNull`、`MathUtil.Clamp`，已经从 4.0.0 **原始 Lua 5.4 字节码**获取真实类/成员哈希、Root 注册点、Child Proto、全 PC 范围、原生代码偏移和逐条原始 opcode 指纹。验证器在 CI 重新解析原始 BLUA 并核对，不是根据旧版 Haxe 猜的。
 >
 > [!warning] Haxe 语义验收尚未闭合
-> `SV400_NATIVE_MAPPED` 仅确认 **方法原生所有权与指令对应**；当前 `haxe_compile_status=NOT_RUN`、`lua_differential_status=NOT_RUN`、`runtime_status=NOT_OBSERVED`。`Assert.IsNull` 仅归档 `extern` ABI，未伪造函数体。
+> `SV400_NATIVE_MAPPED` 仅确认 **方法原生所有权与指令对应**；已转写的 3 个方法有独立的 `STOCK_HAXE_4_3_7_LUA_COMPILED` 编译证据；`lua_differential_status=NOT_RUN`、`runtime_status=NOT_OBSERVED` 仍未变化。`Assert.IsNull` 仅归档 `extern` ABI，未伪造函数体。
 
 ## 仓库位置
 
@@ -34,10 +34,10 @@
 
 | 方法 | C / S 哈希 | Root PC（开始→CLOSURE→赋值） | Child Proto | Child 原始 PC | Code offset | Haxe 方法体 |
 | --- | --- | --- | ---: | --- | ---: | --- |
-| `main.util.CompositionCamera.CalcXFov` | `CFEA9C3BFB3FCD429` / `S424E3EA0446070E7` | 426666 → 426670 → 426671 | 36158 | [0,16) | 12229810 | 原生运算表达式已转写，未重编译 |
-| `main.util.StrUtil.Format` | `C23E5342B132D5323` / `S042B860498E558B2` | 427562 → 427566 → 427567 | 36271 | [0,10) | 12255904 | 原生 `string.format` 转发已转写，未重编译 |
+| `main.util.CompositionCamera.CalcXFov` | `CFEA9C3BFB3FCD429` / `S424E3EA0446070E7` | 426666 → 426670 → 426671 | 36158 | [0,16) | 12229810 | 原生运算表达式已转写，标准 Haxe 已编译，原版行为待验 |
+| `main.util.StrUtil.Format` | `C23E5342B132D5323` / `S042B860498E558B2` | 427562 → 427566 → 427567 | 36271 | [0,10) | 12255904 | 原生 `string.format` 转发已转写，标准 Haxe 已编译，原版行为待验 |
 | `dll_util.Assert.IsNull` | `CE5FCD7D9D8F34718` / `SB859A84B9E933D14` | 243 → 244 → 245 | 69 | [0,4) | 13418 | **extern only**，意图仍待验 |
-| `dll_util.MathUtil.Clamp` | `CED59418C4CAB0EC4` / `S05B90B9B5A6DE6BC` | 270 → 271 → 272 | 76 | [0,8) | 13663 | 条件分支表达式已转写，未重编译 |
+| `dll_util.MathUtil.Clamp` | `CED59418C4CAB0EC4` / `S05B90B9B5A6DE6BC` | 270 → 271 → 272 | 76 | [0,8) | 13663 | 条件分支表达式已转写，标准 Haxe 已编译，原版行为待验 |
 
 两类真实原生注册模式：
 
@@ -78,6 +78,19 @@ Child Proto 69（2 参数）仅有 `EQK`、`JMP`、`LOADK`、`RETURN0`。虽然�
 
 `dll_util.StrUtil.Format`（旧版 SVScripts 中存在）在 4.0.0 的 `dll_util` 根常量/注册模式中没有找到该 C/S 组合。不能把其旧版源码冒充 4.0.0。实际 `dll_util` 根常量中出现 16 个 C 类哈希和 54 个 S 成员哈希；当前已明确发现 `dll_util.Assert`、`dll_util.MathUtil`、多个 `dll_util.miyamoto.*` 类。
 
+## Haxe 4.3.7 → Lua 5.4 独立冒烟测试（已通过）
+
+[Actions #42749582979](https://github.com/969981/SV_Resources/actions/runs/42749582979) 完成：
+
+1. Ubuntu Haxe **4.3.7** 按 `build.hxml` 编译 `CompositionCamera.CalcXFov`、`StrUtil.Format`、`MathUtil.Clamp`；
+2. 生成的 `abi_probe.lua` 使用 Lua **5.4.8** 的 `luac5.4 -p` 通过语法检查；
+3. 使用明确的最小标准 Lua 测试适配（`package.preload["lua-utf8"]=function() return utf8 end` 以及 `math.atan2=math.atan`）执行三个无引擎纯函数示例；
+4. 输出依次为 `1.5415821821915`、`SV:400`、`1.0`。
+
+这些适配是为了运行在标准 Lua5.4；**不证明 Pokémon 游戏的 Lua VM、ZAScripts 特制编译器/finalizer、引擎 C++ 接口与原生 4.0.0 语义一致**。`Assert.IsNull` 仍是未编译的 extern-only 记录。
+
+`methods.jsonl` 中这三个方法现有 `haxe_compile_status=STOCK_HAXE_4_3_7_LUA_COMPILED`，并携带实际 Actions run ID；四个方法的 `lua_differential_status` 仍为 `NOT_RUN`、游戏 `runtime_status` 仍为 `NOT_OBSERVED`。
+
 ## 自动复现与状态规则
 
 ```bash
@@ -85,11 +98,11 @@ python scripts/Verify-SV-Haxe-Recovery.py
 python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 ```
 
-初版 `main` 两方法严格校验 [Actions #42747810335](https://github.com/969981/SV_Resources/actions/runs/42747810335) 通过 6/6；包含 `dll_util` 的后续专项校验在 `slr-haxe-recovery.yml` 持续验收。
+初版 `main` 两方法严格校验 [Actions #42747810335](https://github.com/969981/SV_Resources/actions/runs/42747810335) 通过 6/6；包含 `dll_util` 的四方法原生校验 [Actions #42748839920](https://github.com/969981/SV_Resources/actions/runs/42748839920) 通过 4/4、测试 6/6。
 
 每条记录独立保存：
 - `body_status=SV400_NATIVE_MAPPED`：说明原始 **C/S→Child Proto** 对应已从版本固定的 BLUA 验证。
-- `haxe_body_status=STATIC_OPCODE_EXPRESSION_MATCHED_UNCOMPILED` 或 `EXTERN_ONLY_UNRECONSTRUCTED`：说明目前源代码完成程度。
+- `haxe_body_status=STATIC_OPCODE_EXPRESSION_MATCHED` 或 `EXTERN_ONLY_UNRECONSTRUCTED`：说明目前源代码完成程度。
 - `haxe_compile_status` / `lua_differential_status` / `runtime_status`：全部单独验收，不能拿解析成功冒充游戏行为通过。
 
 ## 上游资料与下一关
