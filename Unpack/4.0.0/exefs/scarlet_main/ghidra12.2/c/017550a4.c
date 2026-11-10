@@ -1,0 +1,71 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 017550a4; name: FUN_017550a4
+ */
+
+
+void FUN_017550a4(long param_1,int param_2,long *param_3)
+
+{
+  int *piVar1;
+  int iVar2;
+  char cVar3;
+  bool bVar4;
+  long *plVar5;
+  long *plVar6;
+  long lVar7;
+  int local_4;
+  
+  if ((param_2 < 5) || (param_2 == 0xff)) {
+    local_4 = param_2;
+    plVar5 = (long *)FUN_01755190(param_1 + 0x30,&local_4);
+    lVar7 = *param_3;
+    if (lVar7 != 0) {
+      piVar1 = (int *)(lVar7 + 0x28);
+      do {
+        iVar2 = *piVar1;
+        cVar3 = '\x01';
+        bVar4 = (bool)ExclusiveMonitorPass(piVar1,0x10);
+        if (bVar4) {
+          *piVar1 = iVar2 + 1;
+          cVar3 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar3 != '\0');
+      if (iVar2 == -1) {
+                    /* WARNING: Subroutine does not return */
+        nn::diag::detail::AbortImpl
+                  ("count != 0","IncrementReferenceInternal",
+                   "C:/jenkins/workspace/sudachi/nuget/nuget_battleLogic_build_s2/battleLogic_titan/prog/../lib/gflib3/include\\core/reference_object.h"
+                   ,0x53,"Reference counter overflows.");
+      }
+    }
+    plVar6 = (long *)*plVar5;
+    *plVar5 = lVar7;
+    if (plVar6 != (long *)0x0) {
+      plVar5 = plVar6 + 5;
+      do {
+        lVar7 = *plVar5;
+        iVar2 = (int)lVar7 + -1;
+        cVar3 = '\x01';
+        bVar4 = (bool)ExclusiveMonitorPass(plVar5,0x10);
+        if (bVar4) {
+          *(int *)plVar5 = iVar2;
+          cVar3 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar3 != '\0');
+      if (iVar2 == 0) {
+        (**(code **)(*plVar6 + 0x10))();
+      }
+      else if ((int)lVar7 == 0) {
+                    /* WARNING: Subroutine does not return */
+        nn::diag::detail::AbortImpl
+                  ("count != std::numeric_limits<uint32_t>::max()","DecrementReferenceInternal",
+                   "C:/jenkins/workspace/sudachi/nuget/nuget_battleLogic_build_s2/battleLogic_titan/prog/../lib/gflib3/include\\core/reference_object.h"
+                   ,0x58,"Reference counter underflows.");
+      }
+    }
+  }
+  return;
+}
+
+
