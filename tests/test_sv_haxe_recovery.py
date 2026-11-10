@@ -57,7 +57,16 @@ class TestHaxeRecovery(unittest.TestCase):
             else:
                 self.assertEqual(row["haxe_compile_status"], "STOCK_HAXE_4_3_7_LUA_COMPILED")
                 self.assertEqual(row["stock_haxe_evidence_run_id"], 42749582979)
-            self.assertEqual(row["lua_differential_status"], "NOT_RUN")
+            if row["haxe_body_status"] == "EXTERN_ONLY_UNRECONSTRUCTED":
+                self.assertEqual(row["lua_differential_status"], "NOT_RUN")
+                self.assertEqual(row["za_haxe_compile_status"], "NOT_TESTED_EXTERN_ONLY")
+            else:
+                self.assertEqual(row["lua_differential_status"],
+                                 "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
+                self.assertEqual(row["za_haxe_compile_status"],
+                                 "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT")
+                self.assertEqual(row["za_differential_run_id"], 42752782758)
+                self.assertEqual(row["za_differential_passed"], row["za_differential_cases"])
             self.assertEqual(row["runtime_status"], "NOT_OBSERVED")
 
     def test_reject_claim_of_runtime_equivalence_without_execution(self):
@@ -72,6 +81,9 @@ class TestHaxeRecovery(unittest.TestCase):
         self.assertEqual(summary["reference_only"], 0)
         self.assertEqual(summary["stock_haxe_compiled"], 3)
         self.assertEqual(summary["extern_only"], 1)
+        self.assertEqual(summary["pinned_za_haxe_compiled"], 3)
+        self.assertEqual(summary["native_lua_differential_passed_methods"], 3)
+        self.assertEqual(summary["native_lua_differential_total_cases"], 32)
 
 
 if __name__ == "__main__":
