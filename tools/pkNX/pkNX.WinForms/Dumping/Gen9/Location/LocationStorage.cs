@@ -15,20 +15,34 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
     public readonly Dictionary<int, LocationStorage> SlotsCrossover = [];
     public readonly List<LocationPointDetail> Local = [];
     public readonly List<LocationPointDetail> Nearby = [];
+    // SOURCE-OWNED candidate pools are ONLY used in explicit 178 A/B mode.
+    private readonly Dictionary<string, List<PaldeaEncounter>> OwnerBuckets = new(StringComparer.Ordinal);
+    private readonly HashSet<(string Owner, UInt128 Slot)> OwnerAdded = [];
 
-    private void Add(PaldeaEncounter slot)
+    private void Add(PaldeaEncounter slot, string sourceCollisionArea)
     {
+        if (EncounterOwnerABSV.IsTarget(fieldIndex, Location, slot.CrossFromLocation))
+        {
+            var owner = EncounterOwnerABSV.RequireOwner(sourceCollisionArea);
+            if (OwnerAdded.Add((owner, slot.GetHash())))
+            {
+                if (!OwnerBuckets.TryGetValue(owner, out var entries))
+                    OwnerBuckets[owner] = entries = [];
+                entries.Add(slot);
+            }
+            return;
+        }
         var key = slot.GetHash();
         if (Added.Add(key))
             Slots.Add(slot);
     }
 
-    private void AddCrossover(PaldeaEncounter slot, int loc)
+    private void AddCrossover(PaldeaEncounter slot, int loc, string sourceCollisionArea)
     {
         // If slots cross over, they are necessarily in the same field
         if (!SlotsCrossover.TryGetValue(loc, out var s))
             SlotsCrossover[loc] = s = new LocationStorage(loc, fieldIndex, AreaName, AreaInfo);
-        s.Add(slot with { CrossFromLocation = (ushort)Location });
+        s.Add(slot with { CrossFromLocation = (ushort)Location }, sourceCollisionArea);
     }
 
     public void Integrate()
@@ -39,7 +53,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             foreach (var slot in point.Slots)
             {
                 TraceIntegrated(point, slot, 0, "local");
-                Add(slot);
+                Add(slot, point.SourceCollisionArea);
             }
         }
         foreach (var point in Nearby)
@@ -48,7 +62,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
             foreach (var slot in point.Slots)
             {
                 TraceIntegrated(point, slot, point.Location, "cross");
-                AddCrossover(slot, point.Location);
+                AddCrossover(slot, point.Location, point.SourceCollisionArea);
             }
         }
     }
@@ -104,11 +118,28 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
     {
         bool strict = inheritedStrict || EncounterLevelABSV.UseStrictOverlap(fieldIndex, Location);
         TraceConsolidation("wild_before_consolidate");
-        var len = -1;
-        while (len != Slots.Count)
+        if (OwnerBuckets.Count != 0)
         {
-            len = Slots.Count;
-            ConsolidateEncounters(Slots, strict, Location);
+            if (Slots.Count != 0)
+                throw new InvalidOperationException("Mixed native and source-owned 178 encounter pools");
+            EncounterOwnerABSV.ConsolidateByOwner(OwnerBuckets, bucket =>
+            {
+                int prev = -1;
+                while (prev != bucket.Count)
+                {
+                    prev = bucket.Count;
+                    ConsolidateEncounters(bucket, strict, Location);
+                }
+            }, Slots);
+        }
+        else
+        {
+            var len = -1;
+            while (len != Slots.Count)
+            {
+                len = Slots.Count;
+                ConsolidateEncounters(Slots, strict, Location);
+            }
         }
         foreach (var loc in SlotsCrossover.Values)
             loc.Consolidate(strict);
