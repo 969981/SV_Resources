@@ -77,6 +77,9 @@ def emit(kind, **values):
 def opcode(word):
     return word & 0x7f
 
+def a_field(word):
+    return (word >> 7) & 0xff
+
 def b_field(word):
     return (word >> 16) & 0xff
 
@@ -111,15 +114,36 @@ class Observer(gdb.Breakpoint):
                 word = reg("x20") & 0xffffffff
                 if opcode(word) != 20 or not bounded_vm_event():
                     return False
-                x23, x24 = reg("x23"), reg("x24")
+                # At +0x42088 the handler has NOT yet assigned X23/X24
+                # for this instruction. Derive source slots from B/C and
+                # the proven VM register base X26 instead.
+                base, dest = reg("x26"), reg("x22")
+                a, b, c = a_field(word), b_field(word), c_field(word)
+                key_is_constant = bool(word & 0x8000)
+                key_base = base
+                if key_is_constant:
+                    try:
+                        key_base = int.from_bytes(mem(sp + 0x20, 8), "little")
+                    except Exception:
+                        key_base = 0
+                object_slot = base + b * 16
+                key_slot = key_base + c * 16 if key_base else 0
                 emit(self.kind, pc=hex(pc), sp=hex(sp),
-                     instruction_word=hex(word), B=b_field(word), C=c_field(word),
+                     instruction_word=hex(word), A=a, B=b, C=c,
+                     K=int(key_is_constant),
+                     vm_register_base=hex(base),
+                     destination_slot=hex(dest),
+                     destination_matches_A=(dest == base + a * 16),
+                     object_slot=hex(object_slot),
+                     object_tvalue=tvalue(object_slot),
+                     key_slot=hex(key_slot) if key_slot else None,
+                     key_tvalue=tvalue(key_slot) if key_slot else None,
+                     key_base=hex(key_base),
                      x19=hex(reg("x19")), x20=hex(word),
-                     x23=hex(x23), x24=hex(x24),
-                     x23_tvalue_candidate=tvalue(x23),
-                     x24_tvalue_candidate=tvalue(x24),
-                     x21=hex(reg("x21")), x22=hex(reg("x22")),
-                     x26=hex(reg("x26")), x27=hex(reg("x27")))
+                     x23_before_handler=hex(reg("x23")),
+                     x24_before_handler=hex(reg("x24")),
+                     x21=hex(reg("x21")), x22=hex(dest),
+                     x26=hex(base), x27=hex(reg("x27")))
             elif self.kind == "CALL_HANDLER":
                 word = reg("x20") & 0xffffffff
                 if opcode(word) != 68 or b_field(word) != 3 or not bounded_vm_event():
@@ -128,9 +152,18 @@ class Observer(gdb.Breakpoint):
                 function_tv = tvalue(function_slot)
                 word0 = function_tv.get("word0", "0")
                 candidate = int(word0, 16) if word0.startswith("0x") else 0
+                tag = int(function_tv.get("word1", "0"), 16) & 0xff
+                masked_tag = tag & 0x3f
+                a = a_field(word)
+                expected_slot = reg("x26") + a * 16
                 call_id = emit(self.kind, pc=hex(pc), sp=hex(sp),
-                               instruction_word=hex(word), B=b_field(word), C=c_field(word),
+                               instruction_word=hex(word), A=a, B=b_field(word), C=c_field(word),
                                lua_state=hex(lua_state), function_slot=hex(function_slot),
+                               expected_function_slot=hex(expected_slot),
+                               function_slot_matches_A=(function_slot == expected_slot),
+                               function_tvalue_tag=hex(tag),
+                               masked_function_tag=hex(masked_tag),
+                               cclosure_f_plus_0x18_raw=safe_mem(candidate + 0x18, 8) if candidate and masked_tag == 0x26 else "NOT_A_CLOSURE_CANDIDATE",
                                function_tvalue=function_tv,
                                next_tvalue=tvalue(function_slot + 16),
                                third_tvalue=tvalue(function_slot + 32),

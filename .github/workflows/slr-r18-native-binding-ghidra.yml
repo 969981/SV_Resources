@@ -1,11 +1,7 @@
 name: SV400 R18 targeted native Lua binding Ghidra 12.2
 on:
-  push:
-    branches: [master, codex/r18-native-binding-ghidra]
-    paths:
-      - ".github/workflows/slr-r18-native-binding-ghidra.yml"
-      - "tools/ghidra/sv/SV400R18BindingTrace.java"
-      - "scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py"
+  # Manual trigger only: a fresh -import otherwise repeats full auto-analysis.
+  # For follow-up, restore the R17 Ghidra project and process targeted functions.
   workflow_dispatch:
 permissions:
   contents: read

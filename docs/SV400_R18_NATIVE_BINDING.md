@@ -75,3 +75,32 @@ Keep pointer-containing logs local until reviewed and sanitized. GitHub Actions 
 - The global slot's relocation/data status is reported without inventing an indirect target.
 - The guest trace must correlate CALL's Lua-state pointer with the native wrapper entry and preserve one call instance across helper returns and BLR.
 - CClosure layout, native parameter types, native return type, and Memory SSA remain unresolved until independently supported by the guest trace and static dataflow.
+
+## R18 Run #2 original-artifact static semantic audit (2026-11-11)
+
+Evidence: [run #42849134281](https://github.com/969981/SV_Resources/actions/runs/42849134281), artifact IDs `13781846670` (Scarlet) and `13781437064` (Violet), inspected as ZIPs rather than inferring success from CI alone. Each `r18.txt` has 2,183 lines. A complete line-by-line comparison shows **only the `GAME=` header differs**.
+
+### Verified by the decompiled original code
+
+- `main+0xB41A10`: receives the Lua state and index 1. Reads the `TValue` for that index, checks tags, and obtains an object-related pointer (including a collectable-object path). Exact higher-level object type remains unconfirmed.
+- `main+0xB92DF0`: receives Lua state, index 2, and nullable conversion-status pointer. Direct integer-tag case loads the scalar value; other cases call `main+0x13FFB0` for conversion. The wrapper saves the lower 32 bits to stack.
+- `main+0x278B0`: original C-function pre-call path. For masked `TValue` tag `0x16` the function pointer is directly in the `TValue`; for `0x26` it is read at `*(TValue.value.pointer + 0x18)`. This is **static evidence for a CClosure function-pointer offset**, not runtime confirmation of the entire CClosure layout.
+- `main+0x1959E40`: after helper 2 it executes `MOV X1,X0`; its direct call path prepares `X0` as the object-related pointer and executes `BLR X8` at `main+0x1959EF8`. The slow path at `main+0x1959FB4` also restores the scalar with `LDR W1,[X3]` prior to its indirect call. Two native argument-register **inputs** are justified by assembly, although C++ `this`, signedness, return type and actual indirect-call target are not yet proven.
+- The native binding wrapper clears `W0` before return, so the Lua C callback reports 0 results. Do not confuse this with the indirect C++ function's return value.
+- The static 64-bit little-endian contents of the slot at `main+0x46DDF30` are `0x00FF4890`. Ghidra reports a READ reference at program address `0x01A59E94`. This is an **initial static target candidate**, not an independently observed guest target.
+
+### Observer correction
+
+At `main+0x42088`, the SELF handler has not yet assigned this instruction's source addresses to `X23/X24`. Previous logs of `tvalue(X23)` and `tvalue(X24)` at that breakpoint were therefore potentially stale and should **not** be considered verified operands. The observer now derives SELF source B from `X26 + B*16`, key C from the VM register/constant-table base depending on K, and checks the destination slot against A. It also logs CALL's A-derived function-slot check and the candidate CClosure `f` pointer bytes at +0x18 without assuming the offset is runtime-validated.
+
+### Workflow limitation and next action
+
+The original run's `headless.log` explicitly reports `ANALYZING all memory and code` after `-import`. Thus the earlier workflow **did in fact perform whole-ELF auto-analysis** even though its post-script extracted only targeted functions. The existing R18 results are valid, but this is not the desired incremental architecture. The workflow is now manual-only to avoid accidental repeated runs on code edits. Future static passes should restore an existing R17 Ghidra project and operate on a bounded target list rather than re-importing and auto-analyzing both ELFs.
+
+### Outstanding evidence gates
+
+1. Decompile/verify the static pointed-to function at the `0x00FF4890` candidate and inspect its incoming X0/W1 use, call graph, and side effects.
+2. Correlate actual guest `CALL` function-slot tag/closure bytes, native wrapper entry, helper returns, slot load and `BLR` in **one** invocation using the local observer.
+3. Verify loader slide, static-slot relocation, actual runtime X8 target, argument signedness/enum and any return-value side effects.
+4. Build per-invocation memory SSA: object provenance, aliases, writes, downstream consumption and cross-call lifetime.
+5. Keep PR Draft, and do not promote unobserved guest claims to verified.
