@@ -1,0 +1,96 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 02191228; name: FUN_02191228
+ */
+
+
+void FUN_02191228(long param_1,long param_2)
+
+{
+  short *psVar1;
+  short sVar2;
+  char cVar3;
+  bool bVar4;
+  int iVar5;
+  undefined8 uVar6;
+  long *plVar7;
+  char *pcVar8;
+  long lVar9;
+  long *local_48;
+  long *local_40;
+  undefined8 local_38;
+  undefined8 local_30;
+  undefined8 local_28;
+  long *local_8;
+  
+  if ((*(long *)(param_1 + 0x10) != 0) && (FUN_01a9aa98(&local_8), local_8 != (long *)0x0)) {
+    pcVar8 = *(char **)(param_2 + 8);
+    local_48 = (long *)0x0;
+    if (*pcVar8 == '\0') {
+      plVar7 = (long *)FUN_00d44228();
+      if (plVar7 != (long *)0x0) {
+        (**(code **)(*plVar7 + 0x18))(plVar7);
+      }
+      local_48 = plVar7;
+    }
+    else {
+      if (((*PTR_DAT_047d4240 & 1) == 0) &&
+         (iVar5 = __cxa_guard_acquire(PTR_DAT_047d4240), iVar5 != 0)) {
+        FUN_00100190(PTR_LAB_047d4510,PTR_DAT_047d4248,&PTR_LOOP_04483000);
+        __cxa_guard_release(PTR_DAT_047d4240);
+      }
+      uVar6 = *(undefined8 *)PTR_DAT_047d4248;
+      *(undefined8 *)PTR_DAT_047d4250 = uVar6;
+      FUN_00cf9884(&local_40,uVar6,pcVar8);
+      plVar7 = local_48;
+      local_48 = (long *)0x0;
+      if (plVar7 != (long *)0x0) {
+        (**(code **)(*plVar7 + 0x20))();
+      }
+      local_48 = local_40;
+    }
+    FUN_0135d26c(&local_40,&local_48);
+    lVar9 = *(long *)(param_1 + 0x20);
+    *(long **)(lVar9 + 0x60) = local_40;
+    *(undefined8 *)(lVar9 + 0x68) = local_38;
+    plVar7 = *(long **)(lVar9 + 0x78);
+    *(undefined8 *)(lVar9 + 0x70) = local_30;
+    *(undefined8 *)(lVar9 + 0x78) = 0;
+    if (plVar7 != (long *)0x0) {
+      (**(code **)(*plVar7 + 0x20))();
+    }
+    uVar6 = local_28;
+    local_28 = 0;
+    *(undefined8 *)(lVar9 + 0x78) = uVar6;
+    if (local_48 != (long *)0x0) {
+      (**(code **)(*local_48 + 0x20))();
+    }
+    if (local_8 != (long *)0x0) {
+      lVar9 = local_8[6];
+      psVar1 = (short *)(lVar9 + 0x1a);
+      do {
+        sVar2 = *psVar1;
+        cVar3 = '\x01';
+        bVar4 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+        if (bVar4) {
+          *psVar1 = sVar2 + -1;
+          cVar3 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar3 != '\0');
+      if (sVar2 == 1) {
+        *(undefined8 *)(lVar9 + 0x10) = 0;
+        (**(code **)(*local_8 + 0x50))();
+      }
+      else if (sVar2 == 0) {
+                    /* WARNING: Subroutine does not return */
+        nn::diag::detail::AbortImpl
+                  ("count != std::numeric_limits<uint16_t>::max()","ReleaseReference",
+                   "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/indexed_handle.h"
+                   ,0x60,"Reference counter underflows.");
+      }
+    }
+  }
+  return;
+}
+
+
