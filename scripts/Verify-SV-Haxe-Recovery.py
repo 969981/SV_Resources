@@ -93,13 +93,16 @@ def verify(root: Path = ROOT) -> dict:
             import struct
             if any(type(r[k]) is not int for k in coords):
                 raise ValueError(f"line {n}: native mapping requires Proto+PC+offset")
-            for k in ("root_pc", "class_load_pc", "method_load_pc",
+            for k in ("root_pc", "class_load_pc",
                       "closure_pc", "assignment_pc", "child_index"):
                 if type(r.get(k)) is not int:
                     raise ValueError(f"line {n}: missing original root closure {k}")
-            if r.get("native_binding_status") != "SV400_NATIVE_STATIC_CLOSURE_LINKED":
+            expected_link_status = ("SV400_NATIVE_DLL_STATIC_CLOSURE_LINKED"
+                                    if r["module"] == "dll_util"
+                                    else "SV400_NATIVE_STATIC_CLOSURE_LINKED")
+            if r.get("native_binding_status") != expected_link_status:
                 raise ValueError(f"line {n}: missing proven native C-S binding status")
-            if r.get("haxe_body_status") != "STATIC_OPCODE_EXPRESSION_MATCHED_UNCOMPILED":
+            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED_UNCOMPILED", "EXTERN_ONLY_UNRECONSTRUCTED"):
                 raise ValueError(f"line {n}: unreviewed Haxe expression status")
             if (r["haxe_compile_status"], r["lua_differential_status"],
                     r["runtime_status"]) != ("NOT_RUN", "NOT_RUN", "NOT_OBSERVED"):
@@ -126,30 +129,51 @@ def verify(root: Path = ROOT) -> dict:
             if r["pc_start"] != 0 or r["pc_end_exclusive"] != p.instruction_count:
                 raise ValueError(f"line {n}: expected complete original child Proto range")
             site = r["root_pc"]
-            if not 0 <= site < len(native_ops)-5:
-                raise ValueError(f"line {n}: root binding PC out of range")
-            orig = native_ops[site:site+6]
-            if [x.name for x in orig] != [
-                "GETUPVAL", "LOADK", "GETTABLE", "LOADK", "CLOSURE", "SETTABLE"
-            ]:
-                raise ValueError(f"line {n}: native root opcode pattern mismatch")
-            a = orig[0].a
-            if not (orig[0].b == 0
-                    and orig[1].a == a+1
-                    and (orig[2].a,orig[2].b,orig[2].c) == (a,a,a+1)
-                    and orig[3].a == a+1 and orig[4].a == a+2
-                    and (orig[5].a,orig[5].b,orig[5].c) == (a,a+1,a+2)):
-                raise ValueError(f"line {n}: root C-S register binding mismatch")
-            if (r["class_load_pc"],r["method_load_pc"],
-                    r["closure_pc"],r["assignment_pc"]) != (
-                    site+1,site+3,site+4,site+5):
-                raise ValueError(f"line {n}: root PC registration offsets disagree")
-            if (native_root.constants[orig[1].bx].payload != ch.encode("ascii")
-                    or native_root.constants[orig[3].bx].payload != mh.encode("ascii")):
-                raise ValueError(f"line {n}: original root class/member hash differs")
-            if (orig[4].bx != r["child_index"]
-                    or orig[4].bx >= len(native_root.children)
-                    or native_root.children[orig[4].bx].id != p.id):
+            if r["module"] == "dll_util":
+                if not 0 <= site < len(native_ops)-2:
+                    raise ValueError(f"line {n}: dll root binding PC out of range")
+                orig = native_ops[site:site+3]
+                if [x.name for x in orig] != ["GETTABUP", "CLOSURE", "SETFIELD"]:
+                    raise ValueError(f"line {n}: dll root binding opcode pattern mismatch")
+                a=orig[0].a
+                if not (orig[0].b==0 and orig[1].a==a+1
+                        and orig[2].a==a and orig[2].c==a+1):
+                    raise ValueError(f"line {n}: dll C-S register binding mismatch")
+                if (r["class_load_pc"],r["method_load_pc"],
+                        r["closure_pc"],r["assignment_pc"]) != (
+                        site,None,site+1,site+2):
+                    raise ValueError(f"line {n}: dll root PC registration offsets disagree")
+                if (native_root.constants[orig[0].c].payload != ch.encode("ascii")
+                        or native_root.constants[orig[2].b].payload != mh.encode("ascii")):
+                    raise ValueError(f"line {n}: original dll class/member hash differs")
+                closure=orig[1]
+            elif r["module"] == "main":
+                if not 0 <= site < len(native_ops)-5:
+                    raise ValueError(f"line {n}: main root binding PC out of range")
+                orig = native_ops[site:site+6]
+                if [x.name for x in orig] != [
+                    "GETUPVAL", "LOADK", "GETTABLE", "LOADK", "CLOSURE", "SETTABLE"
+                ]:
+                    raise ValueError(f"line {n}: main native opcode pattern mismatch")
+                a=orig[0].a
+                if not (orig[0].b==0 and orig[1].a==a+1
+                        and (orig[2].a,orig[2].b,orig[2].c)==(a,a,a+1)
+                        and orig[3].a==a+1 and orig[4].a==a+2
+                        and (orig[5].a,orig[5].b,orig[5].c)==(a,a+1,a+2)):
+                    raise ValueError(f"line {n}: main root C-S register binding mismatch")
+                if (r["class_load_pc"],r["method_load_pc"],
+                        r["closure_pc"],r["assignment_pc"]) != (
+                        site+1,site+3,site+4,site+5):
+                    raise ValueError(f"line {n}: main root PC registration offsets disagree")
+                if (native_root.constants[orig[1].bx].payload != ch.encode("ascii")
+                        or native_root.constants[orig[3].bx].payload != mh.encode("ascii")):
+                    raise ValueError(f"line {n}: original main class/member hash differs")
+                closure=orig[4]
+            else:
+                raise ValueError(f"line {n}: no native binder for {r['module']}")
+            if (closure.bx != r["child_index"]
+                    or closure.bx >= len(native_root.children)
+                    or native_root.children[closure.bx].id != p.id):
                 raise ValueError(f"line {n}: exact CLOSURE child ownership mismatch")
             if [f"{x.word:08X}" for x in orig] != r.get("native_root_opcode_words"):
                 raise ValueError(f"line {n}: root instruction byte witness mismatch")
