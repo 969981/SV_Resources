@@ -75,3 +75,10 @@ The original module's full runtime/Upvalue/C API semantic equivalence is NOT ver
 - [Obsidian R5 report](../../docs/research/sv-lua54-r5-mainbody-haxe-runtime-captures.md). Real game CallInfo/UpVal*/TValue and full-function runtime parity remain NOT_OBSERVED / NOT_VERIFIED.
 
 Roadmap: [SV Lua54 source reconstruction](../../docs/research/sv-lua54-source-reconstruction-roadmap.md).
+
+
+## Curated SV 4.0.0 Haxe code
+
+- [Editable Haxe source + per-method Proto/PC and verification status](haxe/4.0.0/README.md).
+- [Evidence-aware Haxe read-only ABI verifier](../../scripts/Verify-SV-Haxe-Recovery.py).
+- Initial class is a cross-version **older-SV reference**, not proven against the native 4.0.0 bytecode. Bulk generated output is not committed into this curated source tree.
