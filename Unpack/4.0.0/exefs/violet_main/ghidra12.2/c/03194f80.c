@@ -1,0 +1,45 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 03194f80; name: _INIT_1490
+ */
+
+
+void _INIT_1490(void)
+
+{
+  DAT_0487d970 = 0;
+  DAT_0487d920 = &DAT_0487d930;
+  DAT_0487d928 = 0x8000000400000000;
+  DAT_0487d972 = 1;
+  DAT_0487d980 = *(undefined8 *)PTR_DAT_047e3450;
+  DAT_0487d978 = "geo.utils";
+  *(undefined ***)PTR_DAT_047e3450 = &DAT_0487d920;
+  FUN_00100190(PTR_LAB_047d1bf8,&DAT_0487d920,&PTR_LOOP_04483000);
+  DAT_0487d988 = 0x100000000;
+  DAT_0487d990 = 0xffffffff00000002;
+  DAT_0487d998 = 0x200000000;
+  DAT_0487d9a0 = 0xffffffff00000003;
+  DAT_0487d9a8 = 0x600000004;
+  DAT_0487d9b0 = 0xffffffff00000005;
+  DAT_0487d9b8 = 0x700000004;
+  DAT_0487d9c0 = 0xffffffff00000006;
+  DAT_0487d9c8 = 0x400000000;
+  DAT_0487d9d0 = 0xffffffff00000005;
+  DAT_0487d9d8 = 0x500000000;
+  DAT_0487d9e0 = 0xffffffff00000001;
+  DAT_0487d9e8 = 0x600000002;
+  DAT_0487d9f0 = 0xffffffff00000007;
+  DAT_0487d9f8 = 0x700000002;
+  DAT_0487da00 = 0xffffffff00000003;
+  DAT_0487da08 = 0x100000002;
+  DAT_0487da10 = 0xffffffff00000005;
+  DAT_0487da18 = 0x500000002;
+  DAT_0487da20 = 0xffffffff00000006;
+  DAT_0487da28 = 0x300000000;
+  DAT_0487da30 = 0xffffffff00000007;
+  DAT_0487da38 = 0x700000000;
+  DAT_0487da40 = 0xffffffff00000004;
+  return;
+}
+
+
