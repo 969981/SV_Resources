@@ -1,0 +1,138 @@
+name: SLR R8 - Proto34363 open SETLIST and full main recovery
+
+on:
+  push:
+    branches: [codex/sv-main-lua-recovery-20261109]
+    paths:
+      - ".github/workflows/slr-r7-proto34363-setlist-hir.yml"
+      - "scripts/Patch-SV-Lua54-R8-OpenSetlist.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/Diagnose-SV-Lua54-Proto10983.py
+            scripts/Patch-SV-Lua54-R8-OpenSetlist.py
+            tools/SV.Lua54/src/sv_lua54
+            patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Derive exact original 208-instruction Proto34363 chunk
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Diagnose-SV-Lua54-Proto10983.py --lift "$RUNNER_TEMP/proto34363.luac" --proto-id 34363
+      - name: Compile temporary pinned decompiler with capture and R4 patches
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          cd "$RUNNER_TEMP/unluac-rs"
+          test "$(git rev-parse HEAD)" = "76d1452359b207c2a6fdec3c7c894152c7a61374"
+          git apply "$GITHUB_WORKSPACE/patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch"
+          python "$GITHUB_WORKSPACE/scripts/Diagnose-SV-Lua54-Proto10983.py" --instrument "$RUNNER_TEMP/unluac-rs"
+          python "$GITHUB_WORKSPACE/scripts/Patch-SV-Lua54-R8-OpenSetlist.py" --checkout "$RUNNER_TEMP/unluac-rs"
+          rustup toolchain install nightly-2026-11-08 --profile minimal
+          sed -i '1i #![feature(if_let_guard)]' src/lib.rs
+          cargo +nightly-2026-11-08 build --release --locked --package unluac-cli
+      - name: Dump HIR and capture only bounded SETLIST contexts
+        shell: bash
+        run: |
+          set +e
+          "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$RUNNER_TEMP/proto34363.luac" -D lua5.4 \
+            --dump hir --detail verbose --stop-after hir \
+            > "$RUNNER_TEMP/r7-hir.txt" 2> "$RUNNER_TEMP/r7-hir-errors.txt"
+          code=$?
+          echo "SLR_R7_HIR_DUMP_EXIT=$code"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          t=Path(os.environ["RUNNER_TEMP"])
+          lines=(t/"r7-hir.txt").read_text(errors="replace").splitlines()
+          found=[i for i,s in enumerate(lines) if "table-set-list" in s.lower() or "pucbatched" in s.lower()]
+          contexts=[]
+          for i in found[:25]:
+              contexts.append({"line":i+1,"excerpt":[f"{j+1}: {lines[j][:320]}" for j in range(max(0,i-6),min(len(lines),i+7))]})
+          result={"proto_id":34363,"original_instruction_count":208,"hir_lines":len(lines),"hits":len(found),"contexts":contexts}
+          (t/"r7-setlist-hir-diagnostic.json").write_text(json.dumps(result,indent=2,ensure_ascii=False))
+          print("SLR_R7_HIR_SETLIST_HITS",len(found))
+          for c in contexts[:5]:
+              print("\n".join(c["excerpt"]))
+          PY
+          "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$RUNNER_TEMP/proto34363.luac" -D lua5.4 --generate-mode strict \
+            >/dev/null 2>"$RUNNER_TEMP/r7-strict-errors.txt"
+          echo "SLR_R7_STRICT_EXIT=$?"
+          tail -n 15 "$RUNNER_TEMP/r7-strict-errors.txt"
+          exit 0
+      - name: Strict native Proto34363 Lua syntax gate and full main export
+        shell: bash
+        run: |
+          set +e
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          timeout 90s "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$RUNNER_TEMP/proto34363.luac" -D lua5.4 --generate-mode strict \
+            > "$RUNNER_TEMP/proto34363.recovered.lua" 2> "$RUNNER_TEMP/r8-proto34363.errors"
+          result=$?
+          echo "SLR_R8_PROTO34363_STRICT_EXIT=$result"
+          if test "$result" -ne 0; then
+            tail -n 25 "$RUNNER_TEMP/r8-proto34363.errors"
+            rm -f "$RUNNER_TEMP/proto34363.recovered.lua"
+            exit 0
+          fi
+          luac5.4 -p "$RUNNER_TEMP/proto34363.recovered.lua"
+          syntax=$?
+          echo "SLR_R8_PROTO34363_SYNTAX_EXIT=$syntax"
+          if test "$syntax" -ne 0; then
+            mv "$RUNNER_TEMP/proto34363.recovered.lua" "$RUNNER_TEMP/proto34363.syntax-failed.txt"
+            exit 0
+          fi
+          timeout 600s "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$GITHUB_WORKSPACE/Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua" \
+            -D lua5.4 --generate-mode strict \
+            > "$RUNNER_TEMP/main.lua" 2> "$RUNNER_TEMP/r8-full-main.errors"
+          code=$?
+          echo "SLR_R8_FULL_MAIN_STRICT_EXIT=$code"
+          if test "$code" -eq 0; then
+            luac5.4 -p "$RUNNER_TEMP/main.lua"
+            syntax=$?
+            echo "SLR_R8_FULL_MAIN_LUAC_EXIT=$syntax"
+            if test "$syntax" -eq 0; then wc -lc "$RUNNER_TEMP/main.lua"; else mv "$RUNNER_TEMP/main.lua" "$RUNNER_TEMP/main.syntax-failed.txt"; fi
+          else
+            rm -f "$RUNNER_TEMP/main.lua"
+            tail -n 16 "$RUNNER_TEMP/r8-full-main.errors"
+          fi
+          exit 0
+      - name: Upload bounded HIR inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R7-Proto34363-SETLIST-HIR
+          path: |
+            ${{ runner.temp }}/r7-setlist-hir-diagnostic.json
+            ${{ runner.temp }}/r7-hir-errors.txt
+            ${{ runner.temp }}/r7-strict-errors.txt
+            ${{ runner.temp }}/r8-proto34363.errors
+            ${{ runner.temp }}/proto34363.recovered.lua
+            ${{ runner.temp }}/proto34363.syntax-failed.txt
+            ${{ runner.temp }}/r8-full-main.errors
+            ${{ runner.temp }}/main.lua
+            ${{ runner.temp }}/main.syntax-failed.txt
+          if-no-files-found: warn
+          retention-days: 14

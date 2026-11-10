@@ -1,0 +1,76 @@
+name: SLR R9 - recover every direct child in parallel
+
+on:
+  push:
+    branches: [codex/sv-main-lua-recovery-20261109]
+    paths:
+      - ".github/workflows/slr-r9-main-shards.yml"
+      - "scripts/Recover-SV-Main-Sliced.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-shards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - name: Checkout pinned original and decompiler patches
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/Recover-SV-Main-Sliced.py
+            scripts/Diagnose-SV-Lua54-Proto10983.py
+            scripts/Patch-SV-Lua54-R8-OpenSetlist.py
+            tools/SV.Lua54/src/sv_lua54
+            patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Lua5.4 syntax checker
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/Recover-SV-Main-Sliced.py
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+      - name: Compile pinned Rust backend with R4/R6/R8 repairs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          cd "$RUNNER_TEMP/unluac-rs"
+          test "$(git rev-parse HEAD)" = "76d1452359b207c2a6fdec3c7c894152c7a61374"
+          git apply "$GITHUB_WORKSPACE/patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch"
+          python "$GITHUB_WORKSPACE/scripts/Diagnose-SV-Lua54-Proto10983.py" --instrument "$RUNNER_TEMP/unluac-rs"
+          python "$GITHUB_WORKSPACE/scripts/Patch-SV-Lua54-R8-OpenSetlist.py" --checkout "$RUNNER_TEMP/unluac-rs"
+          rustup toolchain install nightly-2026-11-08 --profile minimal
+          sed -i '1i #![feature(if_let_guard)]' src/lib.rs
+          cargo +nightly-2026-11-08 build --release --locked --package unluac-cli
+      - name: Recover one eighth of all root-level functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/Recover-SV-Main-Sliced.py \
+            --backend "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            --shard-index "${{ matrix.shard }}" --shard-count 8 \
+            --workers 2 --timeout 10 \
+            --out "$RUNNER_TEMP/SV400-main-shard-${{ matrix.shard }}.zip"
+      - name: Upload validated source shard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV400-main-child-sources-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/SV400-main-shard-${{ matrix.shard }}.zip
+          retention-days: 14
+          if-no-files-found: warn

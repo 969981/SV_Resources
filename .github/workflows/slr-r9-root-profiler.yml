@@ -1,0 +1,132 @@
+name: SLR R9 - profile root and stubbed children
+
+on:
+  push:
+    branches: [codex/sv-main-lua-recovery-20261109]
+    paths:
+      - ".github/workflows/slr-r9-root-profiler.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/Diagnose-SV-Lua54-Proto10983.py
+            scripts/Patch-SV-Lua54-R8-OpenSetlist.py
+            tools/SV.Lua54/src/sv_lua54
+            patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Create losslessly identified original root with temporary empty child bodies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,sys,struct,os
+          from pathlib import Path
+          root=Path(os.environ["GITHUB_WORKSPACE"])
+          sys.path.insert(0,str(root/"tools/SV.Lua54/src"))
+          from sv_lua54.chunk import parse,Chunk
+          origin=root/"Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua"
+          raw=origin.read_bytes()
+          assert hashlib.sha256(raw).hexdigest()=="c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815"
+          chunk=parse(raw)
+          assert len(chunk.root.children)==30829 and chunk.root.instruction_count==429034
+          for child in chunk.root.children:
+              child.code=struct.pack("<I", ((child.num_params<<7)|81))+struct.pack("<I",71) if child.is_vararg else struct.pack("<I",71)
+              child.constants=[]
+              child.children=[]
+              child.lineinfo=bytes(len(child.code)//4)
+              child.abslineinfo=[]
+              child.locvars=[]
+              child.upvalue_names=[]
+          dest=Path(os.environ["RUNNER_TEMP"])/"sv-root-stubbed.luac"
+          dest.write_bytes(Chunk(chunk.header,chunk.main_upvalues,chunk.root,"").encode())
+          stub=parse(dest.read_bytes())
+          assert len(stub.root.children)==30829 and stub.root.code==chunk.root.code
+          assert stub.encode()==dest.read_bytes()
+          print("ROOT_SHELL_READY",len(dest.read_bytes()),len(stub.root.children),flush=True)
+          PY
+      - name: Compile reviewed backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          git clone --depth 1 --branch v1.4.5 https://github.com/x3zvawq/unluac-rs.git "$RUNNER_TEMP/unluac-rs"
+          cd "$RUNNER_TEMP/unluac-rs"
+          test "$(git rev-parse HEAD)" = "76d1452359b207c2a6fdec3c7c894152c7a61374"
+          git apply "$GITHUB_WORKSPACE/patches/unluac-rs/v1.4.5-puc-fixed-setlist-nil-capacity.patch"
+          python "$GITHUB_WORKSPACE/scripts/Diagnose-SV-Lua54-Proto10983.py" --instrument "$RUNNER_TEMP/unluac-rs"
+          python "$GITHUB_WORKSPACE/scripts/Patch-SV-Lua54-R8-OpenSetlist.py" --checkout "$RUNNER_TEMP/unluac-rs"
+          rustup toolchain install nightly-2026-11-08 --profile minimal
+          sed -i '1i #![feature(if_let_guard)]' src/lib.rs
+          cargo +nightly-2026-11-08 build --release --locked --package unluac-cli
+      - name: Probe full input and root shell at multiple stages
+        shell: bash
+        run: |
+          set +e
+          CLI="$RUNNER_TEMP/unluac-rs/target/release/unluac-cli"
+          ORIG="$GITHUB_WORKSPACE/Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua"
+          STUB="$RUNNER_TEMP/sv-root-stubbed.luac"
+          echo "input_name,stage,return_code,elapsed_seconds,max_rss_kb" > "$RUNNER_TEMP/stage-timing.csv"
+          for input_name in original root-shell; do
+            case "$input_name" in original) INPUT="$ORIG";; root-shell) INPUT="$STUB";; esac
+            for stage in parser transformer structure hir; do
+              /usr/bin/time -f "$input_name,$stage,%x,%e,%M" -o "$RUNNER_TEMP/time.tmp" \
+                timeout 65s "$CLI" -i "$INPUT" -D lua5.4 \
+                --stop-after "$stage" >/dev/null 2>"$RUNNER_TEMP/$input_name.$stage.error"
+              code=$?
+              cat "$RUNNER_TEMP/time.tmp" >> "$RUNNER_TEMP/stage-timing.csv"
+              echo "SLR_STAGE_PROBE input=$input_name stage=$stage exit=$code"
+              tail -c 200 "$RUNNER_TEMP/$input_name.$stage.error" || true
+              if test "$code" = 124; then break; fi
+            done
+          done
+          echo "SLR_STAGE_CSV_BEGIN"
+          cat "$RUNNER_TEMP/stage-timing.csv"
+          echo "SLR_STAGE_CSV_END"
+          exit 0
+      - name: Strict-decompile root shell and syntax-check
+        shell: bash
+        run: |
+          set +e
+          /usr/bin/time -f "SLR_ROOT_SHELL_TIME %e RSS %M" \
+            timeout 300s "$RUNNER_TEMP/unluac-rs/target/release/unluac-cli" \
+            -i "$RUNNER_TEMP/sv-root-stubbed.luac" -D lua5.4 --generate-mode strict \
+            > "$RUNNER_TEMP/root-shell.lua" 2>"$RUNNER_TEMP/root-shell.errors"
+          rc=$?
+          echo "SLR_ROOT_SHELL_DECOMPILE_EXIT=$rc"
+          if test "$rc" = 0; then
+             luac5.4 -p "$RUNNER_TEMP/root-shell.lua"
+             echo "SLR_ROOT_SHELL_SYNTAX_EXIT=$?"
+             wc -lc "$RUNNER_TEMP/root-shell.lua"
+          else
+             tail -n 10 "$RUNNER_TEMP/root-shell.errors" || true
+             rm -f "$RUNNER_TEMP/root-shell.lua"
+          fi
+          exit 0
+      - name: Artifact with root diagnostics or syntactically valid shell
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV400-root-stage-profiler
+          path: |
+            ${{ runner.temp }}/stage-timing.csv
+            ${{ runner.temp }}/root-shell.lua
+            ${{ runner.temp }}/root-shell.errors
+          retention-days: 14
+          if-no-files-found: warn
