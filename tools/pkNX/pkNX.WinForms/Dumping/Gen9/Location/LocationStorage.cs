@@ -111,6 +111,25 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         });
     }
 
+    private void TraceOwnedCandidates(string stage)
+    {
+        if (!EncounterTraceSV.Enabled) return;
+        foreach (var (owner, bucket) in OwnerBuckets)
+            foreach (var slot in bucket)
+            {
+                if (!EncounterTraceSV.Wild(Location, slot.Species) &&
+                    !EncounterTraceSV.Wild(slot.CrossFromLocation, slot.Species))
+                    continue;
+                EncounterTraceSV.Write(new {
+                    stage, targetLocation=Location, crossFrom=slot.CrossFromLocation,
+                    collisionOwner=owner, species=slot.Species, form=slot.Form,
+                    gender=slot.Sex, minLevel=slot.MinLevel, maxLevel=slot.MaxLevel,
+                    timeMask=slot.Time, weatherMask=(byte)slot.Weather,
+                    claim="ORIGINAL_COLLIDER_OWNER_GROUPING_NOT_PK9_GAME_LEGALITY"
+                });
+            }
+    }
+
     /// <summary>
     /// Merges all encounters that overlap level ranges, and de-duplicates for all within the same location ID.
     /// </summary>
@@ -122,6 +141,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
         {
             if (Slots.Count != 0)
                 throw new InvalidOperationException("Mixed native and source-owned 178 encounter pools");
+            TraceOwnedCandidates("wild_owner_178_premerge");
             EncounterOwnerABSV.ConsolidateByOwner(OwnerBuckets, bucket =>
             {
                 int prev = -1;
@@ -131,6 +151,7 @@ public class LocationStorage(int loc, PaldeaFieldIndex fieldIndex, string areaNa
                     ConsolidateEncounters(bucket, strict, Location);
                 }
             }, Slots);
+            TraceOwnedCandidates("wild_owner_178_postmerge");
         }
         else
         {
