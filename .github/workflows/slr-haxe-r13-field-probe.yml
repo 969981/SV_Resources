@@ -1,0 +1,35 @@
+name: SV400 R13 original named GETFIELD SETFIELD operand inspection
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/Inspect-SV-Haxe-R13-FieldOps.py"
+      - ".github/workflows/slr-haxe-r13-field-probe.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/Inspect-SV-Haxe-R13-FieldOps.py
+            tools/SV.Lua54/src/sv_lua54
+            tools/PokeDocs/SV/Hashlists/Lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Original exact register and constant fields, no writes
+        run: python scripts/Inspect-SV-Haxe-R13-FieldOps.py --output "$RUNNER_TEMP/sv400-r13-fields.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sv400-r13-native-field-operand-provenance
+          path: ${{ runner.temp }}/sv400-r13-fields.json
+          retention-days: 7
