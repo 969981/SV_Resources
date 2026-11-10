@@ -1,0 +1,60 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 0088554c; name: FUN_0088554c
+ */
+
+
+long FUN_0088554c(undefined8 param_1)
+
+{
+  long lVar1;
+  long lVar2;
+  long lVar3;
+  undefined8 local_98;
+  undefined8 uStack_90;
+  uint6 local_88 [2];
+  char *pcStack_78;
+  undefined8 local_70;
+  undefined8 uStack_68;
+  undefined8 local_60;
+  uint6 *local_58;
+  undefined8 *local_50;
+  undefined8 uStack_48;
+  undefined8 local_40;
+  undefined8 uStack_38;
+  
+  local_40 = 0;
+  uStack_38 = 0;
+  local_50 = (undefined8 *)0x0;
+  uStack_48 = 0;
+  local_60 = 0;
+  local_58 = (uint6 *)0x0;
+  FUN_008f04e8(&local_60);
+  local_70 = 0;
+  uStack_68 = 0;
+  local_88[0]._0_8_ = 0;
+  local_88[1]._0_8_ = 0;
+  pcStack_78 = (char *)0x0;
+  FUN_008f04cc(local_88);
+  local_88[0] = (uint6)(uint)local_88[0];
+  local_88[1]._0_8_ = 0x180500000000;
+  pcStack_78 = "aVertex";
+  local_98 = 0;
+  uStack_90 = 0;
+  FUN_008f04e0(&local_98);
+  local_98 = CONCAT44(local_98._4_4_,0x1c);
+  local_60 = CONCAT44(local_60._4_4_,0x10001);
+  local_58 = local_88;
+  local_50 = &local_98;
+  lVar1 = FUN_008f216c(&local_60);
+  local_50 = (undefined8 *)0x0;
+  uStack_48 = 0;
+  local_60 = 0;
+  local_58 = (uint6 *)0x0;
+  FUN_00fab560(&local_60);
+  lVar2 = FUN_00fab558(param_1,&local_60);
+  lVar3 = FUN_0088562c(param_1);
+  return (lVar2 + (lVar1 + 7U & 0xfffffffffffffff8) * 6 + 0x7437 & -lVar2) + lVar3;
+}
+
+
