@@ -9,10 +9,9 @@ Run only after attaching GDB to an offline AArch64 guest:
   source scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py
   continue
 
-Software breakpoints modify guest code and timing. The observer does not patch
-the game, but its breakpoints are not timing-neutral. Pointer dumps are local
-debug evidence; do not publish them without reviewing privacy implications.
-It never claims an independent ELF hash attestation or a proven CClosure layout.
+Software breakpoints modify guest code and timing. Pointer dumps are local
+debug evidence; review them before publishing. This observer never claims an
+independent ELF hash attestation or a proven CClosure layout.
 """
 import json
 import struct
@@ -54,7 +53,7 @@ def tvalue(address):
             "address": hex(address),
             "raw16": raw.hex(),
             "word0": hex(struct.unpack("<Q", raw[:8])[0]),
-            "word1": hex(struct.unpack("<Q", raw[8:])[0]),
+            "word1": hex(struct.unpack("<Q", raw[8:])[0],
         }
     except Exception as exc:
         return {"address": hex(address), "raw16": "UNREADABLE:" + str(exc)[:120]}
@@ -107,8 +106,7 @@ class Observer(gdb.Breakpoint):
 
     def stop(self):
         try:
-            pc = reg("pc")
-            sp = reg("sp")
+            pc, sp = reg("pc"), reg("sp")
             if self.kind == "SELF_HANDLER":
                 word = reg("x20") & 0xffffffff
                 if opcode(word) != 20 or not bounded_vm_event():
@@ -118,7 +116,8 @@ class Observer(gdb.Breakpoint):
                      instruction_word=hex(word), B=b_field(word), C=c_field(word),
                      x19=hex(reg("x19")), x20=hex(word),
                      x23=hex(x23), x24=hex(x24),
-                     source_tvalue=tvalue(x23), key_or_receiver_tvalue=tvalue(x24),
+                     x23_tvalue_candidate=tvalue(x23),
+                     x24_tvalue_candidate=tvalue(x24),
                      x21=hex(reg("x21")), x22=hex(reg("x22")),
                      x26=hex(reg("x26")), x27=hex(reg("x27")))
             elif self.kind == "CALL_HANDLER":
@@ -127,7 +126,8 @@ class Observer(gdb.Breakpoint):
                     return False
                 lua_state, function_slot = reg("x21"), reg("x22")
                 function_tv = tvalue(function_slot)
-                candidate = int(function_tv.get("word0", "0"), 16) if function_tv.get("word0", "0").startswith("0x") else 0
+                word0 = function_tv.get("word0", "0")
+                candidate = int(word0, 16) if word0.startswith("0x") else 0
                 call_id = emit(self.kind, pc=hex(pc), sp=hex(sp),
                                instruction_word=hex(word), B=b_field(word), C=c_field(word),
                                lua_state=hex(lua_state), function_slot=hex(function_slot),
@@ -135,20 +135,20 @@ class Observer(gdb.Breakpoint):
                                next_tvalue=tvalue(function_slot + 16),
                                third_tvalue=tvalue(function_slot + 32),
                                candidate_gc_pointer=hex(candidate),
-                               candidate_object_bytes_0x80=safe_mem(candidate, 0x80) if candidate else "NOT_A_POINTER_CLAIM",
+                               candidate_object_bytes_0x80=safe_mem(candidate, 0x80) if candidate else "NOT_AVAILABLE",
                                x20=hex(word), x21=hex(lua_state), x22=hex(function_slot),
                                x23=hex(reg("x23")), x26=hex(reg("x26")), x27=hex(reg("x27")),
                                lr=hex(reg("x30")))
                 LAST_CALL_BY_L[lua_state] = {
                     "seq": call_id,
                     "function_slot": function_slot,
-                    "function_word0": candidate,
+                    "function_word0_candidate": candidate,
                     "function_tvalue": function_tv,
                 }
             elif self.kind == "NATIVE_ENTRY":
                 lua_state = reg("x0")
                 last = LAST_CALL_BY_L.get(lua_state)
-                candidate = last.get("function_word0", 0) if last else 0
+                candidate = last.get("function_word0_candidate", 0) if last else 0
                 emit(self.kind, pc=hex(pc), lua_state=hex(lua_state),
                      matching_recent_call=last,
                      candidate_closure_pointer=hex(candidate) if candidate else None,
@@ -165,36 +165,41 @@ class Observer(gdb.Breakpoint):
             elif self.kind == "HELPER1_RETURN":
                 result = reg("x0")
                 emit(self.kind, pc=hex(pc), result_x0=hex(result),
-                     result_bytes_0x40=safe_mem(result, 0x40) if result else "NULL",
+                     result_bytes_candidate_0x40=safe_mem(result, 0x40) if result else "NULL",
+                     result_pointer_semantics="NOT_PROVEN",
                      lr=hex(reg("x30")), sp=hex(sp))
             elif self.kind == "HELPER2_BEFORE":
                 emit(self.kind, pc=hex(pc), x0=hex(reg("x0")),
                      x1=hex(reg("x1")), x2=hex(reg("x2")),
                      lr=hex(reg("x30")), sp=hex(sp))
             elif self.kind == "HELPER2_RETURN":
-                result = reg("x0")
-                emit(self.kind, pc=hex(pc), result_x0=hex(result),
-                     result_bytes_0x40=safe_mem(result, 0x40) if result else "NOT_READ_AS_POINTER",
+                emit(self.kind, pc=hex(pc), result_x0=hex(reg("x0")),
+                     result_interpretation="RAW_REGISTER_ONLY_NO_DEREFERENCE",
                      lr=hex(reg("x30")), sp=hex(sp))
             elif self.kind == "GLOBAL_SLOT_BEFORE_LOAD":
-                emit(self.kind, pc=hex(pc), x8_slot=hex(reg("x8")),
-                     slot_bytes_0x20=safe_mem(reg("x8"), 0x20),
+                page = reg("x8")
+                slot = page + 0xf30
+                emit(self.kind, pc=hex(pc), x8_page=hex(page),
+                     computed_slot=hex(slot), slot_bytes_0x20=safe_mem(slot, 0x20),
                      lr=hex(reg("x30")), sp=hex(sp))
             elif self.kind == "GLOBAL_POINTER_LOADED":
-                emit(self.kind, pc=hex(pc), x8_target=hex(reg("x8")),
-                     target_bytes_0x20=safe_mem(reg("x8"), 0x20) if reg("x8") else "NULL",
+                target = reg("x8")
+                emit(self.kind, pc=hex(pc), x8_target_candidate=hex(target),
+                     target_bytes_0x20=safe_mem(target, 0x20) if target else "NULL",
+                     pointer_role="INDIRECT_CALL_TARGET_CANDIDATE",
                      lr=hex(reg("x30")), sp=hex(sp))
             elif self.kind == "INDIRECT_CALL":
                 x0, x1, x8 = reg("x0"), reg("x1"), reg("x8")
                 emit(self.kind, pc=hex(pc), x0_arg=hex(x0), x1_arg=hex(x1),
-                     x8_target=hex(x8), target_rva=hex(x8 - BASE) if x8 >= BASE else None,
+                     x8_target_candidate=hex(x8),
+                     target_rva_candidate=hex(x8 - BASE) if x8 >= BASE else None,
                      x0_bytes_0x40=safe_mem(x0, 0x40) if x0 else "NULL",
-                     x1_bytes_0x20=safe_mem(x1, 0x20) if x1 else "NOT_READ_AS_POINTER",
+                     x1_bytes_0x20_candidate=safe_mem(x1, 0x20) if x1 else "NOT_AVAILABLE",
                      lr=hex(reg("x30")), sp=hex(sp))
             elif self.kind == "INDIRECT_RETURN":
                 emit(self.kind, pc=hex(pc), return_x0=hex(reg("x0")),
                      lr=hex(reg("x30")), sp=hex(sp),
-                     note="breakpoint is after BLR and before wrapper clears W0")
+                     note="after BLR and before wrapper clears W0")
         except Exception as exc:
             emit("DIAGNOSTIC", stage=self.kind, error=str(exc)[:220])
         return False
