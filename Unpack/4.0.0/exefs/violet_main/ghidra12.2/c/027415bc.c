@@ -1,0 +1,45 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 027415bc; name: FUN_027415bc
+ */
+
+
+undefined8 * FUN_027415bc(long *param_1,undefined8 *param_2)
+
+{
+  int iVar1;
+  long lVar2;
+  undefined8 *puVar3;
+  
+  if (((DAT_04865a38 & 1) == 0) && (iVar1 = __cxa_guard_acquire(&DAT_04865a38), iVar1 != 0)) {
+    FUN_010538c0(&DAT_04865a30,&LAB_028bf190);
+    FUN_00100190(PTR_LAB_047d3900,&DAT_04865a30,&PTR_LOOP_04483000);
+    __cxa_guard_release(&DAT_04865a38);
+  }
+  lVar2 = nn::os::GetTlsValue(DAT_04865a30);
+  if (0xf < *(ulong *)(lVar2 + 0x80)) {
+                    /* WARNING: Subroutine does not return */
+    abort();
+  }
+  *(long **)(lVar2 + *(ulong *)(lVar2 + 0x80) * 8) = param_1;
+  *(long *)(lVar2 + 0x80) = *(long *)(lVar2 + 0x80) + 1;
+  puVar3 = (undefined8 *)(**(code **)(*param_1 + 0x10))(param_1,0xa0,8);
+  if (puVar3 == (undefined8 *)0x0) {
+    (**(code **)(*param_1 + 0xe8))(param_1);
+                    /* WARNING: Subroutine does not return */
+    nn::diag::detail::AbortImpl
+              ("ptr","Create",
+               "C:/jenkins/workspace/sudachi/nuget/nuget_env_build_s2/env_titan/lib/gflib3/include\\core/object_factory.h"
+               ,0x40);
+  }
+  FUN_00cf38a8(puVar3,*param_2);
+  puVar3[2] = puVar3;
+  *puVar3 = &DAT_045d9a18;
+  puVar3[1] = param_1;
+  puVar3[4] = &PTR_LAB_045d9a58;
+  *(undefined4 *)(puVar3 + 3) = 0x800a0;
+  *(long *)(lVar2 + 0x80) = *(long *)(lVar2 + 0x80) + -1;
+  return puVar3;
+}
+
+
