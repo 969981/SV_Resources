@@ -9,6 +9,7 @@ match against curated committed .hx files before any differential is allowed.
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 from collections import defaultdict
@@ -17,7 +18,7 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"tools/SV.Lua54/src"))
-from sv_lua54.chunk import parse
+from sv_lua54.chunk import Chunk, parse
 from sv_lua54.r1 import annotate_methods, direct_cf_methods, fnv1a, read_symbols
 from sv_lua54.emit_haxe import LiftFailure, lift_constant_return, render_class
 
@@ -34,11 +35,16 @@ TARGETS={
 }
 
 
-def emit(root:Path,out:Path,verify_repo_source:bool=False)->dict:
+def emit(root:Path,out:Path,verify_repo_source:bool=False,native_output:Path|None=None)->dict:
     root=root.resolve()
     out=out.resolve()
     if out.is_relative_to(root):
         raise ValueError("temporary emitted files must not be generated in repository")
+    if native_output is not None:
+        native_output=native_output.resolve()
+        if native_output.is_relative_to(root):
+            raise ValueError("original native fixtures must remain outside repository")
+        native_output.mkdir(parents=True,exist_ok=True)
     raw=(root/REL).read_bytes()
     if hashlib.sha256(raw).hexdigest()!=PIN:
         raise ValueError("original 4.0.0 main.blua SHA mismatch")
@@ -81,6 +87,17 @@ def emit(root:Path,out:Path,verify_repo_source:bool=False)->dict:
         if type(lifted.ast.value.value) is not type(literal) or lifted.ast.value.value!=literal:
             raise ValueError(f"{cls}.{method}: original constant AST differs from reviewed expected")
         grouped[(cls,link["class_hash"])].append((method,link["method_hash"],lifted))
+        if native_output is not None:
+            child=copy.deepcopy(proto)
+            child.id=0
+            child.parent_id=None
+            fixture=Chunk(original.header,child.upvalue_count,child,"").encode()
+            check=parse(fixture)
+            if (check.encode()!=fixture or check.root.code!=proto.code
+                    or check.root.constants!=proto.constants
+                    or check.root.upvalues!=proto.upvalues):
+                raise ValueError("original child payload changed while repacking")
+            (native_output/f"R10_{proto.id}.luac").write_bytes(fixture)
         details.append({
             "class_name":cls,"method_name":method,
             "class_hash":link["class_hash"],"method_hash":link["method_hash"],
@@ -128,8 +145,9 @@ if __name__=="__main__":
     ap.add_argument("--root",type=Path,default=ROOT)
     ap.add_argument("--output",type=Path,required=True)
     ap.add_argument("--verify-repo-source",action="store_true")
+    ap.add_argument("--native-output",type=Path,help="temporary directory for untouched native Child code fixtures")
     opts=ap.parse_args()
-    result=emit(opts.root,opts.output,opts.verify_repo_source)
+    result=emit(opts.root,opts.output,opts.verify_repo_source,opts.native_output)
     print(json.dumps({"status":result["status"],"source_sha256":PIN,
                       "method_count":result["method_count"],"class_count":result["class_count"],
                       "methods":[{"name":r["class_name"]+"."+r["method_name"],
