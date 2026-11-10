@@ -38,7 +38,7 @@ class TestHaxeRecovery(unittest.TestCase):
 
     def test_exact_native_linked_method_ids(self):
         rows = records()
-        self.assertEqual(len(rows), 7)
+        self.assertEqual(len(rows), 12)
         expected = {
             "main.util.CompositionCamera.CalcXFov": (36158, 426666, 426670, 426671, 16),
             "main.util.StrUtil.Format": (36271, 427562, 427566, 427567, 10),
@@ -47,6 +47,11 @@ class TestHaxeRecovery(unittest.TestCase):
             "main.field.action.ActionChair.onBeginSitting": (12995,160939,160945,160946,1),
             "main.battle.BattleViewBase.StartIdleCamera": (6073,90878,90884,90885,1),
             "main.event.base.BaseBattleTalkEvent.onCreate": (2377,49646,49652,49653,1),
+            "main.field.behaviour.DanPartnerPokemon.GetBehaviourType": (14216,173130,173136,173137,3),
+            "main.field.behaviour.DanPokemonBehavior.GetBehaviourType": (14223,173264,173270,173271,3),
+            "main.battle.BattleView.GetIntervalAddPopup": (6349,93938,93944,93945,3),
+            "main.event.base.BaseScenarioEvent.checkStartCondition": (689,25082,25088,25089,3),
+            "main.event.base.BaseScenarioEvent.isImportant": (699,25162,25168,25169,3),
         }
         for row in rows:
             key = row["class_name"] + "." + row["method_name"]
@@ -57,6 +62,10 @@ class TestHaxeRecovery(unittest.TestCase):
             if row["haxe_body_status"] == "EXTERN_ONLY_UNRECONSTRUCTED":
                 self.assertEqual(row["haxe_compile_status"], "NOT_RUN")
                 self.assertEqual(row["stock_lua_smoke_status"], "NOT_APPLICABLE_EXTERN_ONLY")
+            elif row["haxe_body_status"] == "CFG_HIR_AST_LITERAL_LIFTED":
+                self.assertEqual(row["haxe_compile_status"], "NOT_RUN")
+                self.assertEqual(row["stock_lua_smoke_status"], "NOT_RUN")
+                self.assertEqual(row["cfg_edges"], [[0,1,"SEQUENTIAL"]])
             elif row["haxe_body_status"] == "NATIVE_RETURN0_NOOP_IMPLEMENTED":
                 self.assertEqual(row["haxe_compile_status"], "NOT_RUN")
                 self.assertEqual(row["stock_lua_smoke_status"], "NOT_RUN")
@@ -68,6 +77,14 @@ class TestHaxeRecovery(unittest.TestCase):
             if row["haxe_body_status"] == "EXTERN_ONLY_UNRECONSTRUCTED":
                 self.assertEqual(row["lua_differential_status"], "NOT_RUN")
                 self.assertEqual(row["za_haxe_compile_status"], "NOT_TESTED_EXTERN_ONLY")
+            elif row["haxe_body_status"] == "CFG_HIR_AST_LITERAL_LIFTED":
+                self.assertEqual(row["lua_differential_status"],
+                                 "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
+                self.assertEqual(row["za_haxe_compile_status"],
+                                 "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT")
+                self.assertEqual(row["za_differential_cases"], 3)
+                self.assertEqual(row["za_differential_passed"], 3)
+                self.assertEqual(row["za_differential_run_id"], 42758094283)
             elif row["haxe_body_status"] == "NATIVE_RETURN0_NOOP_IMPLEMENTED":
                 self.assertEqual(row["lua_differential_status"],
                                  "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
@@ -92,14 +109,15 @@ class TestHaxeRecovery(unittest.TestCase):
 
     def test_complete_original_bytecode_witness(self):
         summary = mod.verify(ROOT)
-        self.assertEqual(summary["validated_records"], 7)
-        self.assertEqual(summary["native_mapped"], 7)
+        self.assertEqual(summary["validated_records"], 12)
+        self.assertEqual(summary["native_mapped"], 12)
         self.assertEqual(summary["reference_only"], 0)
         self.assertEqual(summary["stock_haxe_compiled"], 3)
         self.assertEqual(summary["extern_only"], 1)
-        self.assertEqual(summary["pinned_za_haxe_compiled"], 6)
-        self.assertEqual(summary["native_lua_differential_passed_methods"], 6)
-        self.assertEqual(summary["native_lua_differential_total_cases"], 41)
+        self.assertEqual(summary["pinned_za_haxe_compiled"], 11)
+        self.assertEqual(summary["native_lua_differential_passed_methods"], 11)
+        self.assertEqual(summary["native_lua_differential_total_cases"], 56)
+        self.assertEqual(summary["cfg_hir_ast_lifted"], 5)
 
 
 if __name__ == "__main__":
