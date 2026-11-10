@@ -5,6 +5,7 @@ on:
     paths:
       - "tools/SV.Lua54/haxe/4.0.0/**"
       - "scripts/Verify-SV-ZA-Haxe-ABI.py"
+      - "scripts/Build-SV-Haxe-Native-FnFixtures.py"
       - ".github/workflows/slr-haxe-zascripts-abi.yml"
   workflow_dispatch:
 permissions:
@@ -21,6 +22,10 @@ jobs:
           sparse-checkout: |
             tools/SV.Lua54/haxe/4.0.0
             scripts/Verify-SV-ZA-Haxe-ABI.py
+            scripts/Build-SV-Haxe-Native-FnFixtures.py
+            tools/SV.Lua54/src/sv_lua54
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/dll_util/dll_util.blua
           sparse-checkout-cone-mode: false
       - name: Checkout exact upstream compiler / HashAbi / cppbindings / finalizer
         shell: bash
@@ -59,6 +64,24 @@ jobs:
           "$UPSTREAM/tools/lua-5.4.3/src/luac" -s -o build/za_dll_util.blua build/za_dll_util.lua
       - name: Verify C/S symbols and finalizer fingerprints
         run: python3 scripts/Verify-SV-ZA-Haxe-ABI.py
+      - name: Build temporary bit-exact original SV400 child Lua54 functions
+        run: |
+          python3 scripts/Build-SV-Haxe-Native-FnFixtures.py --out "$RUNNER_TEMP/sv400-haxe-native"
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -p \
+            "$RUNNER_TEMP/sv400-haxe-native/CalcXFov.luac" \
+            "$RUNNER_TEMP/sv400-haxe-native/Format.luac" \
+            "$RUNNER_TEMP/sv400-haxe-native/Clamp.luac"
+      - name: Native original bytecode vs pinned Haxe generated Lua differential
+        run: |
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" \
+            tools/SV.Lua54/haxe/4.0.0/compare-native-vs-za.lua \
+            "$RUNNER_TEMP/sv400-haxe-native" \
+            tools/SV.Lua54/haxe/4.0.0/build/za_main.lua \
+            tools/SV.Lua54/haxe/4.0.0/build/za_dll_util.lua
+            ${{ runner.temp }}/sv400-haxe-native/differential-report.json
+            ${{ runner.temp }}/sv400-haxe-native/fixture-provenance.json \
+            "$RUNNER_TEMP/sv400-haxe-native/differential-report.json"
+          python3 -c 'import json,os,pathlib;p=pathlib.Path(os.environ["RUNNER_TEMP"])/"sv400-haxe-native/differential-report.json";d=json.loads(p.read_text());assert d["status"]=="PASS" and len(d["methods"])==3 and all(m["cases"]>0 and m["passed"]==m["cases"] for m in d["methods"]);print(json.dumps(d,indent=2))'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
