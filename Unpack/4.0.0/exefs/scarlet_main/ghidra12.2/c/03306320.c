@@ -1,0 +1,158 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 03306320; name: FUN_03306320
+ */
+
+
+void FUN_03306320(undefined8 *param_1)
+
+{
+  DAT_0488c6d8 = 1;
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshCutterSavedConnectivi_0476aa78);
+  (**(code **)*param_1)(param_1,&DAT_0476abc0);
+  (**(code **)*param_1)(param_1,&DAT_0476ac28);
+  (**(code **)*param_1)(param_1,&DAT_0476ac90);
+  (**(code **)*param_1)(param_1,&DAT_0476ad18);
+  (**(code **)*param_1)(param_1,&DAT_0476ad80);
+  (**(code **)*param_1)(param_1,&DAT_0476ade8);
+  (**(code **)*param_1)(param_1,&DAT_0476ae70);
+  (**(code **)*param_1)(param_1,&DAT_0476af48);
+  (**(code **)*param_1)(param_1,&DAT_0476b050);
+  (**(code **)*param_1)(param_1,&DAT_0476b0c8);
+  (**(code **)*param_1)(param_1,&DAT_0476b160);
+  (**(code **)*param_1)(param_1,&DAT_0476b218);
+  (**(code **)*param_1)(param_1,&DAT_0476b2a0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshGenerationSettings_0476b308);
+  (**(code **)*param_1)(param_1,&DAT_0476b360);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMesh_0476b3c8);
+  (**(code **)*param_1)(param_1,&DAT_0476b480);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderSilhouette_0476b538);
+  (**(code **)*param_1)(param_1,&DAT_0476b5b0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiOverlapManagerSection_0476b6c8);
+  (**(code **)*param_1)(param_1,&DAT_0476b790);
+  (**(code **)*param_1)(param_1,&DAT_0476b828);
+  (**(code **)*param_1)(param_1,&DAT_0476b890);
+  (**(code **)*param_1)(param_1,&DAT_0476b928);
+  (**(code **)*param_1)(param_1,&DAT_0476b9e0);
+  (**(code **)*param_1)(param_1,&DAT_0476ba88);
+  (**(code **)*param_1)(param_1,&DAT_0476bb10);
+  (**(code **)*param_1)(param_1,&DAT_0476bbd8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiGateFollowingBehavior_0476bc40);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiIntervalPartitionLibraryPart_0476bc78);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiTraversalAnnotationLibraryAn_0476bcb0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiTraversalAnalysisOutputSecti_0476bce8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiTraversalAnalysisInputSectio_0476bd20);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderGraphUnloa_0476bd58);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderGraphLoade_0476bd90);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderVolumeUnlo_0476bdc8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderVolumeLoad_0476be00);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderSilhouette_0476be38);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderInstanceUn_0476be70);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderInstanceLo_0476bea8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderWorldConne_0476bee0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteRecorderReplayEven_0476bf18);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavVolumeGenerationSettingsM_0476bf50);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavVolumeGenerationSettingsC_0476bf88);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavVolumeGenerationSettingsM_0476bfc0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshSimplificationUtilsSe_0476bff8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshSimplificationUtilsEx_0476c030);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshGenerationSettingsWal_0476c068);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshGenerationSettingsReg_0476c0a0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshGenerationSettingsReg_0476c0d8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshGenerationSettingsOve_0476c110);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshGenerationSettingsMat_0476c148);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiEdgeGeometryFace_0476c180);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiEdgeGeometryEdge_0476c1b8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiWorldCharacterStepSerializab_0476c1f0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiVolumePathfindingUtilFindPat_0476c228);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiVolumePathfindingUtilFindPat_0476c260);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiPathfindingUtilFindGraphPath_0476c298);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiPathfindingUtilFindPathOutpu_0476c2d0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiPathfindingUtilFindPathInput_0476c308);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSplitGenerationUtilsSettings_0476c340);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiOverlappingTrianglesSettings_0476c378);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiLineOfSightUtilLineOfSightOu_0476c3b0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiLineOfSightUtilDirectPathInp_0476c3e8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiLineOfSightUtilLineOfSightIn_0476c420);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiLineOfSightUtilInputBase_0476c458);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiHierarchyUtilsClusterSetting_0476c490);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavVolumeInstanceCellInstanc_0476c4c8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavVolumeEdge_0476c500);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavVolumeCell_0476c538);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshEdge_0476c570);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshFace_0476c5a8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiUserEdgeUtilsUserEdgePair_0476c5e0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiUserEdgeUtilsUserEdgeSetup_0476c618);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiUserEdgeUtilsObb_0476c650);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiStreamingSetVolumeConnection_0476c688);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiStreamingSetGraphConnection_0476c6c0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiStreamingSetNavMeshConnectio_0476c6f8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshClearanceCacheManager_0476c730);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshClearanceCacheManager_0476c768);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshClearanceCacheMcpData_0476c7a0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiDirectedGraphInstanceFreeBlo_0476c7d8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiDirectedGraphExplicitCostEdg_0476c810);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiDirectedGraphExplicitCostNod_0476c848);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiOverlapManagerSection_0476c880);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshEdgeZipperBaseEdgeOve_0476c8b8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshEdgeZipperBaseEdge_0476c8f0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshEdgeZipperZipEdgesSet_0476c928);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshEdgeZipperZippedInter_0476c960);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavMeshEdgeZipperInterval_0476c998);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiPathPathPoint_0476c9d0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiAvoidanceSolverBoundaryObsta_0476ca08);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiAvoidanceSolverSphereObstacl_0476ca40);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiAvoidancePairPropertiesPairD_0476ca78);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiEdgePathTraversalState_0476cab0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiEdgePathEdge_0476cae8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiEdgePathFollowingCornerInfo_0476cb20);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSingleCharacterBehaviorReque_0476cb58);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiEdgeFollowingBehaviorCornerP_0476cb90);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiGatePathUtilExponentialSched_0476cbc8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiGatePathUtilGate_0476cc00);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiGatePathPathGate_0476cc38);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiGatePathSmoothOptions_0476cc70);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiGatePathTraversalState_0476cca8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSearchParametersSearchBuffer_0476cce0);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSearchParametersBufferSizes_0476cd18);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiNavVolume_0476cda0);
+  (**(code **)*param_1)(param_1,&DAT_0476cdf8);
+  (**(code **)*param_1)(param_1,&DAT_0476ce50);
+  (**(code **)*param_1)(param_1,&DAT_0476cf28);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiVolumePathfindingUtil_FindP_0476cf80);
+  (**(code **)*param_1)(param_1,&DAT_0476cfe8);
+  (**(code **)*param_1)(param_1,&DAT_0476d070);
+  (**(code **)*param_1)(param_1,&DAT_0476d118);
+  (**(code **)*param_1)(param_1,&DAT_0476d190);
+  (**(code **)*param_1)(param_1,&DAT_0476d218);
+  (**(code **)*param_1)(param_1,&DAT_0476d290);
+  (**(code **)*param_1)(param_1,&DAT_0476d2c8);
+  (**(code **)*param_1)(param_1,&DAT_0476d340);
+  (**(code **)*param_1)(param_1,&DAT_0476d3f8);
+  (**(code **)*param_1)(param_1,&DAT_0476d430);
+  (**(code **)*param_1)(param_1,&DAT_0476d4c8);
+  (**(code **)*param_1)(param_1,&DAT_0476d520);
+  (**(code **)*param_1)(param_1,&DAT_0476d5a8);
+  (**(code **)*param_1)(param_1,&DAT_0476d610);
+  (**(code **)*param_1)(param_1,&DAT_0476d678);
+  (**(code **)*param_1)(param_1,&DAT_0476d6e0);
+  (**(code **)*param_1)(param_1,&DAT_0476d748);
+  (**(code **)*param_1)(param_1,&DAT_0476d800);
+  (**(code **)*param_1)(param_1,&DAT_0476d858);
+  (**(code **)*param_1)(param_1,&DAT_0476d920);
+  (**(code **)*param_1)(param_1,&DAT_0476da08);
+  (**(code **)*param_1)(param_1,&DAT_0476da70);
+  (**(code **)*param_1)(param_1,&DAT_0476dad8);
+  (**(code **)*param_1)(param_1,&DAT_0476db60);
+  (**(code **)*param_1)(param_1,&DAT_0476dbd8);
+  (**(code **)*param_1)(param_1,&DAT_0476dc50);
+  (**(code **)*param_1)(param_1,&DAT_0476dcc8);
+  (**(code **)*param_1)(param_1,&PTR_s_hkaiSilhouetteGenerator_0476dd40);
+  (**(code **)*param_1)(param_1,&DAT_0476ddb8);
+                    /* WARNING: Could not recover jumptable at 0x0330708c. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  (**(code **)*param_1)(param_1,0x476de30);
+  return;
+}
+
+

@@ -1,0 +1,29 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 032297c0; name: _INIT_1675
+ */
+
+
+void _INIT_1675(void)
+
+{
+  DAT_04885470 = 0;
+  DAT_04885420 = &DAT_04885430;
+  DAT_04885428 = 0x8000000400000000;
+  DAT_04885472 = 1;
+  DAT_04885480 = *(undefined8 *)PTR_DAT_047e3450;
+  DAT_04885478 = "sys.io.filesys";
+  *(undefined ***)PTR_DAT_047e3450 = &DAT_04885420;
+  FUN_00100190(PTR_LAB_047d1bf8,&DAT_04885420,&PTR_LOOP_04483000);
+  DAT_04885488 = 0;
+  FUN_00100190(&LAB_03229568,&DAT_04885488,&PTR_LOOP_04483000);
+  DAT_04885490 = "$hkFileSystem";
+  DAT_04885498 = &LAB_03229570;
+  DAT_048854a0 = &LAB_03229650;
+  DAT_048854a8 = &DAT_04885488;
+  DAT_048854b0 = *(undefined8 *)PTR_DAT_047e3f18;
+  *(char ***)PTR_DAT_047e3f18 = &DAT_04885490;
+  return;
+}
+
+

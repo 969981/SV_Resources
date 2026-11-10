@@ -1,0 +1,21 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 0327c7e0; name: _INIT_1903
+ */
+
+
+void _INIT_1903(void)
+
+{
+  DAT_0488ab50 = FUN_0327c598;
+  DAT_0488ab58 = 0;
+  DAT_0488ab40 = DAT_04883288;
+  DAT_0488ab48 = "Patches::V201420r1::Physics";
+  DAT_0488ab70 = 0;
+  DAT_0488ab60 = 0;
+  DAT_0488ab68 = PTR_DAT_047e6230;
+  DAT_04883288 = &DAT_0488ab40;
+  return;
+}
+
+
