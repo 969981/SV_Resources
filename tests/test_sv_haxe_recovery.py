@@ -107,17 +107,6 @@ class TestHaxeRecovery(unittest.TestCase):
                 self.assertEqual(row["haxe_compile_status"],"NOT_RUN")
                 self.assertEqual(row["stock_lua_smoke_status"],"NOT_RUN")
                 self.assertEqual(row["native_binding_status"],"SV400_NATIVE_INSTANCE_CLOSURE_LINKED")
-            elif row["haxe_body_status"] == "R15_NATIVE_SELF_CALL_SSA":
-                self.assertEqual(row["lua_differential_status"],
-                                 "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
-                self.assertEqual(row["za_haxe_compile_status"],
-                                 "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT")
-                self.assertEqual(row["za_differential_passed"],14)
-                self.assertEqual(row["za_differential_cases"],14)
-                self.assertGreater(row["za_differential_run_id"],42767997155)
-                self.assertEqual(row["r15_mocked_host_status"],
-                                 "MOCK_HOST_CALL_EVENT_ALIAS_AND_PARTIAL_WRITE_PASS")
-                self.assertEqual(row["r15_engine_runtime_status"],"NOT_OBSERVED")
             elif row["haxe_body_status"] == "R14_NATIVE_DYNAMIC_BRANCH_AST":
                 self.assertEqual(row["haxe_compile_status"],"NOT_RUN")
                 self.assertEqual(row["stock_lua_smoke_status"],"NOT_RUN")
@@ -144,6 +133,17 @@ class TestHaxeRecovery(unittest.TestCase):
             if row["haxe_body_status"] == "EXTERN_ONLY_UNRECONSTRUCTED":
                 self.assertEqual(row["lua_differential_status"], "NOT_RUN")
                 self.assertEqual(row["za_haxe_compile_status"], "NOT_TESTED_EXTERN_ONLY")
+            elif row["haxe_body_status"] == "R15_NATIVE_SELF_CALL_SSA":
+                self.assertEqual(row["lua_differential_status"],
+                                 "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
+                self.assertEqual(row["za_haxe_compile_status"],
+                                 "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT")
+                self.assertEqual(row["za_differential_passed"],14)
+                self.assertEqual(row["za_differential_cases"],14)
+                self.assertGreater(row["za_differential_run_id"],42767997155)
+                self.assertEqual(row["r15_mocked_host_status"],
+                                 "MOCK_HOST_CALL_EVENT_ALIAS_AND_PARTIAL_WRITE_PASS")
+                self.assertEqual(row["r15_engine_runtime_status"],"NOT_OBSERVED")
             elif row["haxe_body_status"] == "R14_NATIVE_DYNAMIC_BRANCH_AST":
                 self.assertEqual(row["lua_differential_status"],
                                  "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
