@@ -102,7 +102,7 @@ def verify(root: Path = ROOT) -> dict:
                                     else "SV400_NATIVE_STATIC_CLOSURE_LINKED")
             if r.get("native_binding_status") != expected_link_status:
                 raise ValueError(f"line {n}: missing proven native C-S binding status")
-            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED", "NATIVE_RETURN0_NOOP_IMPLEMENTED", "CFG_HIR_AST_LITERAL_LIFTED", "R12_NATIVE_OPERATION_AST", "R13_NATIVE_FIELD_AST"):
+            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED", "NATIVE_RETURN0_NOOP_IMPLEMENTED", "CFG_HIR_AST_LITERAL_LIFTED", "R12_NATIVE_OPERATION_AST", "R13_NATIVE_FIELD_AST", "R14_NATIVE_DYNAMIC_BRANCH_AST"):
                 raise ValueError(f"line {n}: unreviewed Haxe expression status")
             if r["runtime_status"] != "NOT_OBSERVED":
                 raise ValueError(f"line {n}: game runtime remains unobserved")
@@ -117,6 +117,43 @@ def verify(root: Path = ROOT) -> dict:
                         or r.get("za_differential_passed") is not None
                         or r.get("za_differential_run_id") is not None):
                     raise ValueError(f"line {n}: extern without method body must not claim Lua parity")
+            elif r["haxe_body_status"] == "R14_NATIVE_DYNAMIC_BRANCH_AST":
+                if r.get("promotion_batch") != "R14_DYNAMIC_MULTIWRITE_BRANCH":
+                    raise ValueError(f"line {n}: R14 original method missing batch marker")
+                proof=r.get("za_differential_run_id")
+                if (type(proof) is not int or proof <= 42766130866
+                        or r.get("za_haxe_build_evidence_run_id") != proof
+                        or r.get("za_haxe_compile_status") !=
+                            "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT"
+                        or r.get("lua_differential_status") !=
+                            "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS"
+                        or r.get("za_differential_evidence_url") !=
+                            f"https://github.com/969981/SV_Resources/actions/runs/{proof}"):
+                    raise ValueError(f"line {n}: R14 compilation / A/B proof mismatch")
+                allowed={
+                  "main.event.base.IEventScript.set_CallFromReserve":
+                    (670,24823,"write_field_return_argument",1,12),
+                  "main.event.base.IEventScript.set_DisableFieldCamera":
+                    (674,24855,"write_field_readback",1,12),
+                  "main.battle.BattleViewBase.SetShowBattleMessageState":
+                    (6088,90998,"two_ordered_self_writes",2,12),
+                  "main.battle.ui.BattleUiTokuseiWindow.IsEnemy":
+                    (8129,115070,"integer_or_two_branches",0,13),
+                }
+                expected=allowed.get(cls+"."+method)
+                if (expected is None or
+                        (r["proto_id"],r["root_pc"],r.get("r14_kind"),
+                         r.get("r14_write_count"),r.get("za_differential_cases"))!=expected
+                        or r.get("za_differential_passed")!=expected[-1]):
+                    raise ValueError(f"line {n}: R14 method scope/Child Proto/branch/cases mismatch")
+                if r.get("r14_effect_parity_status")!=(
+                      "ALIAS_GRAPH_TABLE_SNAPSHOT_AND_METAMETHOD_EVENTS_PASS"
+                      if expected[-2] else "NOT_APPLICABLE_READ_ONLY"):
+                    raise ValueError(f"line {n}: R14 table alias and metamethod evidence missing")
+                if r.get("r14_branch_parity_status")!=(
+                      "ORIGINAL_TWO_EQI_BRANCH_CASES_PASS"
+                      if expected[2]=="integer_or_two_branches" else "NOT_APPLICABLE"):
+                    raise ValueError(f"line {n}: R14 original EQI branch parity missing")
             elif r["haxe_body_status"] == "R13_NATIVE_FIELD_AST":
                 if r.get("promotion_batch") != "R13_NAMED_FIELDS":
                     raise ValueError(f"line {n}: R13 field method missing promotion identity")
@@ -335,6 +372,17 @@ def verify(root: Path = ROOT) -> dict:
                     or closure.bx >= len(native_root.children)
                     or native_root.children[closure.bx].id != p.id):
                 raise ValueError(f"line {n}: exact CLOSURE child ownership mismatch")
+            if r["haxe_body_status"] == "R14_NATIVE_DYNAMIC_BRANCH_AST":
+                from sv_lua54.emit_haxe.r14_patterns import lift, emit
+                lifted=lift(p)
+                if (lifted.kind!=r.get("r14_kind")
+                        or lifted.write_count!=r.get("r14_write_count")
+                        or list(lifted.raw_words)!=r.get("native_child_opcode_words")
+                        or lifted.code_sha256!=r.get("native_child_code_sha256")
+                        or list(lifted.hir)!=r.get("r14_hir")
+                        or [list(e) for e in lifted.cfg_edges]!=r.get("r14_cfg_edges")
+                        or emit(method,mh,lifted) not in hx):
+                    raise ValueError(f"line {n}: R14 original CFG/HIR/AST or emitted Haxe mismatch")
             if r["haxe_body_status"] == "R13_NATIVE_FIELD_AST":
                 from sv_lua54.emit_haxe.side_effects import lift_instance, haxe_method
                 operation=lift_instance(p)
@@ -415,6 +463,9 @@ def verify(root: Path = ROOT) -> dict:
             "r13_named_field_mapped":sum(r.get("haxe_body_status")=="R13_NATIVE_FIELD_AST" for r in records),
             "r13_field_reads_index_verified":sum(r.get("r13_read_index_status")=="INDEX_METAMETHOD_EVENT_PARITY_PASS" for r in records),
             "r13_field_writes_snapshot_verified":sum(r.get("r13_write_side_effect_status")=="FIELD_TABLE_SNAPSHOT_AND_NEWINDEX_EVENTS_PASS" for r in records),
+            "r14_original_native_mapped":sum(r.get("haxe_body_status")=="R14_NATIVE_DYNAMIC_BRANCH_AST" for r in records),
+            "r14_alias_graph_table_writes_verified":sum(r.get("r14_effect_parity_status")=="ALIAS_GRAPH_TABLE_SNAPSHOT_AND_METAMETHOD_EVENTS_PASS" for r in records),
+            "r14_native_branch_verified":sum(r.get("r14_branch_parity_status")=="ORIGINAL_TWO_EQI_BRANCH_CASES_PASS" for r in records),
             "game_runtime":"NOT_OBSERVED"}
 
 
