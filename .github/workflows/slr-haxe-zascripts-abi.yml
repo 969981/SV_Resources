@@ -84,7 +84,10 @@ jobs:
           "$UPSTREAM/tools/lua-5.4.3/src/luac" -p \
             "$RUNNER_TEMP/sv400-haxe-native/CalcXFov.luac" \
             "$RUNNER_TEMP/sv400-haxe-native/Format.luac" \
-            "$RUNNER_TEMP/sv400-haxe-native/Clamp.luac"
+            "$RUNNER_TEMP/sv400-haxe-native/Clamp.luac" \
+            "$RUNNER_TEMP/sv400-haxe-native/ActionChairBegin.luac" \
+            "$RUNNER_TEMP/sv400-haxe-native/BattleStartIdle.luac" \
+            "$RUNNER_TEMP/sv400-haxe-native/EventOnCreate.luac"
       - name: Native original bytecode vs pinned Haxe generated Lua differential
         run: |
           "$UPSTREAM/tools/lua-5.4.3/src/lua" \
@@ -93,7 +96,7 @@ jobs:
             tools/SV.Lua54/haxe/4.0.0/build/za_main.lua \
             tools/SV.Lua54/haxe/4.0.0/build/za_dll_util.lua \
             "$RUNNER_TEMP/sv400-haxe-native/differential-report.json"
-          python3 -c 'import json,os,pathlib;p=pathlib.Path(os.environ["RUNNER_TEMP"])/"sv400-haxe-native/differential-report.json";d=json.loads(p.read_text());assert d["status"]=="PASS" and len(d["methods"])==3 and all(m["cases"]>0 and m["passed"]==m["cases"] for m in d["methods"]);print(json.dumps(d,indent=2))'
+          python3 -c 'import json,os,pathlib;p=pathlib.Path(os.environ["RUNNER_TEMP"])/"sv400-haxe-native/differential-report.json";d=json.loads(p.read_text());assert d["status"]=="PASS" and len(d["methods"])==6 and sum(m["passed"] for m in d["methods"])==41 and all(m["cases"]>0 and m["passed"]==m["cases"] for m in d["methods"]);print(json.dumps(d,indent=2))'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
