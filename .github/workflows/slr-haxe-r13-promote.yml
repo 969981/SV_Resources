@@ -1,0 +1,196 @@
+name: SV400 R13 GETFIELD SETFIELD original Lua metamethod and table-state differential
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/Emit-SV-Haxe-R13-NamedFields.py"
+      - "tools/SV.Lua54/src/sv_lua54/emit_haxe/side_effects.py"
+      - "tools/SV.Lua54/haxe/4.0.0/compare-r13-named-fields.lua"
+      - ".github/workflows/slr-haxe-r13-promote.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: sv400-r13-field-gated-promotion
+  cancel-in-progress: false
+jobs:
+  verify-and-promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/Stage-SV-Haxe-Namespace-Candidates.py
+            scripts/Emit-SV-Haxe-R13-NamedFields.py
+            scripts/Emit-SV-Haxe-R10-ConstantReturns.py
+            scripts/Build-SV-Haxe-Native-FnFixtures.py
+            scripts/Verify-SV-Haxe-Recovery.py
+            tests/test_sv_haxe_recovery.py
+            tests/test_sv_haxe_emitter.py
+            tests/test_sv_haxe_side_effects.py
+            tools/SV.Lua54/haxe/4.0.0
+            tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/fixtures/native_manifest.json
+            tools/PokeDocs/SV/Hashlists/Lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/dll_util/dll_util.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Pin exact original ZAScripts Haxe HashAbi/cppbindings/finalizer
+        run: |
+          set -euo pipefail
+          PIN=$(python3 -c 'import json;print(json.load(open("tools/SV.Lua54/haxe/4.0.0/zascripts.lock.json"))["upstream_commit"])')
+          UPSTREAM="$RUNNER_TEMP/ZAScripts"
+          git init -q "$UPSTREAM"
+          git -C "$UPSTREAM" remote add origin https://github.com/Reisyukaku/ZAScripts.git
+          git -C "$UPSTREAM" -c protocol.version=2 fetch -q --no-tags --depth 1 --filter=blob:none origin "$PIN"
+          git -C "$UPSTREAM" sparse-checkout init --cone
+          git -C "$UPSTREAM" sparse-checkout set tools/haxe-4.3.1 tools/gfl_build tools/lua-5.4.3/src
+          git -C "$UPSTREAM" checkout -q --detach FETCH_HEAD
+          test "$(git -C "$UPSTREAM" rev-parse HEAD)" = "$PIN"
+          test -f "$UPSTREAM/tools/haxe-4.3.1/std/haxe/macro/HashAbi.hx"
+          test -f "$UPSTREAM/tools/haxe-4.3.1/std/cppbindings/C016374C1.hx"
+          test -f "$UPSTREAM/tools/gfl_build/build_post_process.py"
+          echo "UPSTREAM=$UPSTREAM" >> "$GITHUB_ENV"
+          echo "HAXE_STD_PATH=$UPSTREAM/tools/haxe-4.3.1/std" >> "$GITHUB_ENV"
+          make -C "$UPSTREAM/tools/lua-5.4.3/src" linux MYLDFLAGS=-no-pie -j2 >/dev/null
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" --version
+      - name: Stage original R13 GETFIELD and SETFIELD child methods with exact K constants
+        run: |
+          python3 scripts/Emit-SV-Haxe-R13-NamedFields.py --out "$RUNNER_TEMP/sv400-r13" --run-id "$GITHUB_RUN_ID"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"sv400-r13/r13-summary.json").read_text())
+          assert d["new_methods"]==3 and d["total_mappings"]==77
+          assert d["implemented_bodies"]==76 and d["new_cases"]==28
+          assert d["cumulative_cases"]==280 and d["proto_ids"]==[669,5683,11176]
+          assert d["game_runtime_status"]=="NOT_OBSERVED"
+          print("PASS R13 stage: 3 native C/F methods, no fictitious field keys or bytecode")
+          PY
+      - name: Compile all 76 verified bodies via pinned HashAbi LuaOutput cppbindings
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/sv400-r13/project"
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" build-za-main.hxml
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" build-za-dll-util.hxml
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -p build/za_main.lua build/za_dll_util.lua
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -s -o build/za_main.blua build/za_main.lua
+      - name: Compare original GETFIELD __index and SETFIELD __newindex with complete nested snapshots
+        run: |
+          set -euo pipefail
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" tools/SV.Lua54/haxe/4.0.0/compare-r13-named-fields.lua \
+            "$RUNNER_TEMP/sv400-r13/native" "$RUNNER_TEMP/sv400-r13/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r13/r13-state-report.txt"
+          grep -Fx 'GETFIELD_callFromReserve=9/9' "$RUNNER_TEMP/sv400-r13/r13-state-report.txt"
+          grep -Fx 'GETFIELD_length=9/9' "$RUNNER_TEMP/sv400-r13/r13-state-report.txt"
+          grep -Fx 'SETFIELD_skipPlayerStuckCheck_STATE_AND_NEWINDEX=10/10' "$RUNNER_TEMP/sv400-r13/r13-state-report.txt"
+          grep -Fx 'R13_TOTAL=28/28' "$RUNNER_TEMP/sv400-r13/r13-state-report.txt"
+      - name: Regress R12 SETI side effects, GETI and LT MOVE against original bytecode
+        run: |
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" tools/SV.Lua54/haxe/4.0.0/compare-r12-state.lua \
+            "$RUNNER_TEMP/sv400-r13/native" "$RUNNER_TEMP/sv400-r13/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r13/r12-regression.txt"
+          grep -Fx 'GETI=6/6' "$RUNNER_TEMP/sv400-r13/r12-regression.txt"
+          grep -Fx 'SETI_SIDE_EFFECT=6/6' "$RUNNER_TEMP/sv400-r13/r12-regression.txt"
+          grep -Fx 'LT_MOVE=7/7' "$RUNNER_TEMP/sv400-r13/r12-regression.txt"
+      - name: Regress R11 literal Haxe methods 177 of 177
+        run: |
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" "$RUNNER_TEMP/sv400-r13/compare-r11-regression.lua" \
+            "$RUNNER_TEMP/sv400-r13/native" "$RUNNER_TEMP/sv400-r13/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r13/r11-regression.tsv"
+          python3 - <<'PY'
+          import csv,os
+          from pathlib import Path
+          data=list(csv.DictReader((Path(os.environ["RUNNER_TEMP"])/"sv400-r13/r11-regression.tsv").open(),delimiter="\t"))
+          assert len(data)==59 and all(x["passed"]=="3" and x["cases"]=="3" for x in data)
+          print("PASS: 59 R11 methods, 177/177 original native Child comparisons")
+          PY
+      - name: Regress eleven earliest native Haxe functions 56 of 56
+        run: |
+          python3 scripts/Build-SV-Haxe-Native-FnFixtures.py --out "$RUNNER_TEMP/sv400-r13/native"
+          python3 scripts/Emit-SV-Haxe-R10-ConstantReturns.py \
+            --output "$RUNNER_TEMP/sv400-r13/r10" \
+            --native-output "$RUNNER_TEMP/sv400-r13/native" \
+            --verify-repo-source
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" tools/SV.Lua54/haxe/4.0.0/compare-native-vs-za.lua \
+            "$RUNNER_TEMP/sv400-r13/native" "$RUNNER_TEMP/sv400-r13/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r13/project/build/za_dll_util.lua" \
+            "$RUNNER_TEMP/sv400-r13/r10-regression.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"sv400-r13/r10-regression.json").read_text())
+          assert d["status"]=="PASS" and len(d["methods"])==11
+          assert sum(m["passed"] for m in d["methods"])==56
+          print("PASS: 11 prior methods, 56/56 original Lua54 Child comparison")
+          PY
+      - name: Install staged Haxe and verify 77 original Proto PC references before publish
+        run: |
+          python3 - <<'PY'
+          import json,os,shutil
+          from pathlib import Path
+          root=Path("tools/SV.Lua54/haxe/4.0.0")
+          stage=Path(os.environ["RUNNER_TEMP"])/"sv400-r13"
+          result=json.loads((stage/"r13-summary.json").read_text())
+          for rel in result["source_paths"]:
+              assert rel.startswith("source/") and rel.endswith(".hx")
+              dest=root/rel
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copyfile(stage/"project"/rel,dest)
+          shutil.copyfile(stage/"methods.jsonl",root/"methods.jsonl")
+          PY
+          python3 scripts/Verify-SV-Haxe-Recovery.py
+          python3 -m unittest discover -s tests -p "test_sv_haxe_recovery.py" -v
+          python3 -m unittest discover -s tests -p "test_sv_haxe_emitter.py" -v
+          python3 -m unittest discover -s tests -p "test_sv_haxe_side_effects.py" -v
+      - name: Publish only after 280 original Lua A/B and __index/__newindex parity pass
+        if: github.ref == 'refs/heads/master'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- tools/SV.Lua54/haxe/4.0.0/source tools/SV.Lua54/haxe/4.0.0/methods.jsonl
+          git diff --cached --quiet && { echo "Nothing staged; no source promotion performed"; exit 1; }
+          git commit -m "R13: promote three original GETFIELD SETFIELD methods after 280 native Lua differential cases"
+          for attempt in 1 2 3; do
+            git fetch --no-tags origin master
+            CHANGED="$(git diff --name-only "$GITHUB_SHA" FETCH_HEAD -- \
+              tools/SV.Lua54/haxe/4.0.0 \
+              tools/SV.Lua54/src/sv_lua54 \
+              scripts/Stage-SV-Haxe-Namespace-Candidates.py \
+              scripts/Emit-SV-Haxe-R13-NamedFields.py \
+              scripts/Verify-SV-Haxe-Recovery.py \
+              tools/PokeDocs/SV/Hashlists/Lua \
+              Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua)"
+            if test -n "$CHANGED"; then
+              echo "R13 compiler/ABI/provenance source changed mid-run; publication refused"
+              echo "$CHANGED"
+              exit 1
+            fi
+            git rebase FETCH_HEAD
+            if git push origin HEAD:master; then
+              echo "Published R13 verified GETFIELD/SETFIELD Haxe source on master"
+              exit 0
+            fi
+          done
+          echo "Could not safely publish after three guarded rebase attempts"
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv400-r13-index-newindex-native-abytes
+          path: |
+            ${{ runner.temp }}/sv400-r13/r13-summary.json
+            ${{ runner.temp }}/sv400-r13/r13-state-report.txt
+            ${{ runner.temp }}/sv400-r13/r12-regression.txt
+            ${{ runner.temp }}/sv400-r13/r11-regression.tsv
+            ${{ runner.temp }}/sv400-r13/r10-regression.json
+          if-no-files-found: ignore
+          retention-days: 7
