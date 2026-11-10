@@ -10,7 +10,9 @@ package main.util;
  * Stock Haxe 4.3.7 smoke compiled/ran with explicit Lua shims; native Lua differential and game-runtime parity are NOT_RUN.
  */
 @:keep
+@:chunk("main")
 @:hashAbi("CFEA9C3BFB3FCD429")
+@:expose("CFEA9C3BFB3FCD429")
 @:native("CFEA9C3BFB3FCD429")
 class CompositionCamera {
     @:hashAbi("S424E3EA0446070E7")
