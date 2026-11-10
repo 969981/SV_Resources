@@ -1,0 +1,81 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 02463560; name: FUN_02463560
+ */
+
+
+ulong FUN_02463560(int *param_1,ushort param_2,undefined4 param_3)
+
+{
+  ulong uVar1;
+  
+  switch(param_3) {
+  case 1:
+  case 3:
+    if ((param_2 < *(ushort *)((long)param_1 - (long)*param_1)) &&
+       (uVar1 = (ulong)*(ushort *)(((long)param_1 - (long)*param_1) + (ulong)param_2), uVar1 != 0))
+    {
+      return (ulong)*(byte *)((long)param_1 + uVar1);
+    }
+    break;
+  case 2:
+    if ((param_2 < *(ushort *)((long)param_1 - (long)*param_1)) &&
+       (uVar1 = (ulong)*(ushort *)(((long)param_1 - (long)*param_1) + (ulong)param_2), uVar1 != 0))
+    {
+      return (long)*(char *)((long)param_1 + uVar1);
+    }
+    break;
+  case 4:
+    if ((param_2 < *(ushort *)((long)param_1 - (long)*param_1)) &&
+       (uVar1 = (ulong)*(ushort *)(((long)param_1 - (long)*param_1) + (ulong)param_2), uVar1 != 0))
+    {
+      return (long)*(short *)((long)param_1 + uVar1);
+    }
+    break;
+  case 5:
+    if ((param_2 < *(ushort *)((long)param_1 - (long)*param_1)) &&
+       (uVar1 = (ulong)*(ushort *)(((long)param_1 - (long)*param_1) + (ulong)param_2), uVar1 != 0))
+    {
+      return (ulong)*(ushort *)((long)param_1 + uVar1);
+    }
+    break;
+  case 6:
+    if ((param_2 < *(ushort *)((long)param_1 - (long)*param_1)) &&
+       (uVar1 = (ulong)*(ushort *)(((long)param_1 - (long)*param_1) + (ulong)param_2), uVar1 != 0))
+    {
+      return (long)*(int *)((long)param_1 + uVar1);
+    }
+    break;
+  case 7:
+    if ((param_2 < *(ushort *)((long)param_1 - (long)*param_1)) &&
+       (uVar1 = (ulong)*(ushort *)(((long)param_1 - (long)*param_1) + (ulong)param_2), uVar1 != 0))
+    {
+      return (ulong)*(uint *)((long)param_1 + uVar1);
+    }
+    break;
+  case 8:
+  case 9:
+    if ((param_2 < *(ushort *)((long)param_1 - (long)*param_1)) &&
+       (uVar1 = (ulong)*(ushort *)(((long)param_1 - (long)*param_1) + (ulong)param_2), uVar1 != 0))
+    {
+      return *(ulong *)((long)param_1 + uVar1);
+    }
+    break;
+  case 10:
+    if ((param_2 < *(ushort *)((long)param_1 - (long)*param_1)) &&
+       (uVar1 = (ulong)*(ushort *)(((long)param_1 - (long)*param_1) + (ulong)param_2), uVar1 != 0))
+    {
+      return (long)*(float *)((long)param_1 + uVar1);
+    }
+    break;
+  case 0xb:
+    if ((param_2 < *(ushort *)((long)param_1 - (long)*param_1)) &&
+       (uVar1 = (ulong)*(ushort *)(((long)param_1 - (long)*param_1) + (ulong)param_2), uVar1 != 0))
+    {
+      return (long)*(double *)((long)param_1 + uVar1);
+    }
+  }
+  return 0;
+}
+
+
