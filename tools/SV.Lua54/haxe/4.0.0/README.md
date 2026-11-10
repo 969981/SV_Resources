@@ -1,6 +1,6 @@
 # SV Violet 4.0.0 curated Haxe reconstruction
 
-**Status: 4 native C→S static-method bindings verified against original 4.0.0 bytecode; three method bodies compile with stock Haxe 4.3.7, but game-runtime parity remains NOT_OBSERVED.** This is an evidence-tracked source workspace, not a recovered complete game project.
+**Status: 4 native C→S static-method Proto/PC bindings verified; 3 method bodies now compile using the pinned ZAScripts Haxe 4.3.1 / Lua 5.4.3 toolchain and pass 32/32 independent native-child differential cases; actual Switch game runtime remains NOT_OBSERVED.** This is an evidence-tracked source workspace, not a recovered complete game project.
 
 ## Location and files
 
@@ -46,7 +46,20 @@ mkdir -p build
 haxe build.hxml
 ```
 
-The reference `@:hashAbi` metadata is enforced by the Python verifier; implementing automatic Haxe compiler-time ABI renaming requires a compatible, pinned custom `HashAbi` Haxe macro/finalizer and Lua-native externs. Do not label a smoke build as game-compatible.
+The pinned ZAScripts custom compiler now executes the real `haxe.macro.HashAbi` ABI checker (including a negative intentionally wrong S-hash test), `LuaOutput` postprocessor and `cppbindings` typechecking. Preserve separate stock-Haxe and ZAScripts build states; do not call these standalone tests game-runtime parity.
+
+## Pinned ZAScripts Haxe 4.3.1 integration (R8)
+
+- Version lock: [zascripts.lock.json](zascripts.lock.json), upstream SHA `c7bc243ac4d28356dff9f06b6723330ea92247d5`.
+- [build-za-main.hxml](build-za-main.hxml) and [build-za-dll-util.hxml](build-za-dll-util.hxml) build independently with `HashAbi.enable()`, `LuaOutput.enable()`, `Chunks.select(...)`, `@:native`, `@:expose`, `@:chunk` and pinned `cppbindings`.
+- CI locks upstream compiler/macro/finalizer/source to that commit using sparse checkout instead of committing upstream binary or its entire stdlib.
+- `scripts/Verify-SV-ZA-Haxe-ABI.py` checks finalizer fingerprints and emitted C/S symbols.
+- `scripts/Build-SV-Haxe-Native-FnFixtures.py` copies actual 4.0.0 Child Proto instructions/constants/upvalues into ephemeral standalone Lua 5.4 chunks without modifying original ROM data.
+- [compare-native-vs-za.lua](compare-native-vs-za.lua) runs the native original and regenerated Lua with identical inputs, recording per-function differences. Raw native `.luac` fixtures stay under `$RUNNER_TEMP` and are **not** included in artifacts.
+- [CI #42753120766](https://github.com/969981/SV_Resources/actions/runs/42753120766): positive compile plus deliberate bad-HashAbi negative test succeeded, and three native child comparisons gave 13/13, 8/8, 11/11.
+- [Obsidian R8 report](../../../../docs/research/sv400-haxe-zascripts-native-differential.md) explains evidence scope, VM shims and the future `main.field/battle/event` promotion gates.
+
+**Not yet established:** game-side C++ ABI parity, byte-identical game module recompilation, broad semantic coverage of arbitrary inputs, runtime UpVal identity, or whole-game behavior.
 
 ## Inputs, provenance and unverified gaps
 
@@ -55,7 +68,7 @@ The reference `@:hashAbi` metadata is enforced by the Python verifier; implement
 - Other module input hashes are pinned in `tools/SV.Lua54/fixtures/native_manifest.json`; six-module total 46,084 Proto.
 - `dll_util.StrUtil.Format` from older SVScripts is **not** directly matched in native 4.0.0 `dll_util` root constant/pattern scan. Do not invent a Proto/PC for it.
 - Three method bodies: `haxe_compile_status=STOCK_HAXE_4_3_7_LUA_COMPILED` (see Actions #42749582979); `dll_util.Assert.IsNull`: extern only / Haxe method implementation `NOT_RUN`.
-- Source-vs-recompiled Lua differential: `NOT_RUN`. Game runtime: `NOT_OBSERVED`. Game-specific compiler/finalizer: `NOT_RUN`.
+- Native-child-vs-ZAScripts recompiled Lua differential: **32/32 PASS** in isolated Lua 5.4.3 for `CalcXFov` 13, `Format` 8, `Clamp` 11. Game runtime: `NOT_OBSERVED`. `Assert.IsNull` remains EXTERN_ONLY (no differential).
 - PokeDocs, SVScripts, ZAScripts and SV-Script-RE are *naming/porting references*, not substitutes for native 4.0.0 bytecode verification.
 
 Read-only native probes: `scripts/Probe-SV-Haxe-Native.py`, `scripts/Link-SV-Haxe-Native.py`, and `scripts/Inventory-SV-DllUtil-Haxe.py`.
