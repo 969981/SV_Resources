@@ -1,0 +1,165 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 024b12a0; name: FUN_024b12a0
+ */
+
+
+void FUN_024b12a0(long *param_1,undefined4 param_2)
+
+{
+  undefined *puVar1;
+  undefined4 *puVar2;
+  long lVar3;
+  long lVar4;
+  
+  param_1[2] = 0;
+  puVar1 = PTR_DAT_047d66f8;
+  *(undefined4 *)(param_1 + 3) = 0;
+  *param_1 = (long)(puVar1 + 0x10);
+  puVar2 = (undefined4 *)FUN_01053840();
+  lVar3 = nn::os::GetTlsValue(*puVar2);
+  lVar4 = 0;
+  if ((lVar3 != 0) && (lVar4 = 0, *(long *)(lVar3 + 0x80) != 0)) {
+    lVar4 = *(long *)(lVar3 + *(long *)(lVar3 + 0x80) * 8 + -8);
+  }
+  *(undefined4 *)(param_1 + 5) = 0;
+  *param_1 = (long)&PTR_LAB_045bc620;
+  param_1[1] = lVar4;
+  param_1[4] = (long)&PTR_LAB_045bc658;
+  param_1[6] = 0;
+  *(undefined4 *)((long)param_1 + 0x44) = 1;
+  nn::os::InitializeLightEvent(param_1 + 7,0,1);
+  FUN_024b1688(param_1 + 9,param_2);
+  *(undefined2 *)(param_1 + 0x25) = 0;
+  *(undefined1 *)((long)param_1 + 0x12a) = 0;
+  param_1[0x26] = 0;
+  *(undefined4 *)((long)param_1 + 0x144) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x27,0,1);
+  *(undefined2 *)(param_1 + 0x29) = 0;
+  *(undefined1 *)((long)param_1 + 0x14a) = 0;
+  param_1[0x2a] = 0;
+  *(undefined4 *)((long)param_1 + 0x164) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x2b,0,1);
+  *(undefined2 *)(param_1 + 0x2d) = 0;
+  *(undefined1 *)((long)param_1 + 0x16a) = 0;
+  param_1[0x2e] = 0;
+  *(undefined4 *)((long)param_1 + 0x184) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x2f,0,1);
+  *(undefined2 *)(param_1 + 0x31) = 0;
+  *(undefined1 *)((long)param_1 + 0x18a) = 0;
+  param_1[0x32] = 0;
+  *(undefined4 *)((long)param_1 + 0x1a4) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x33,0,1);
+  *(undefined2 *)(param_1 + 0x35) = 0;
+  *(undefined1 *)((long)param_1 + 0x1aa) = 0;
+  param_1[0x36] = 0;
+  *(undefined4 *)((long)param_1 + 0x1c4) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x37,0,1);
+  *(undefined2 *)(param_1 + 0x39) = 0;
+  *(undefined1 *)((long)param_1 + 0x1ca) = 0;
+  param_1[0x3a] = 0;
+  *(undefined4 *)((long)param_1 + 0x1e4) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x3b,0,1);
+  *(undefined2 *)(param_1 + 0x3d) = 0;
+  *(undefined1 *)((long)param_1 + 0x1ea) = 0;
+  param_1[0x3e] = 0;
+  *(undefined4 *)((long)param_1 + 0x204) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x3f,0,1);
+  *(undefined2 *)(param_1 + 0x41) = 0;
+  *(undefined1 *)((long)param_1 + 0x20a) = 0;
+  param_1[0x42] = 0;
+  *(undefined4 *)((long)param_1 + 0x224) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x43,0,1);
+  *(undefined2 *)(param_1 + 0x45) = 0;
+  *(undefined1 *)((long)param_1 + 0x22a) = 0;
+  param_1[0x46] = 0;
+  *(undefined4 *)((long)param_1 + 0x244) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x47,0,1);
+  *(undefined2 *)(param_1 + 0x49) = 0;
+  *(undefined1 *)((long)param_1 + 0x24a) = 0;
+  param_1[0x4a] = 0;
+  *(undefined4 *)((long)param_1 + 0x264) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x4b,0,1);
+  *(undefined2 *)(param_1 + 0x4d) = 0;
+  *(undefined1 *)((long)param_1 + 0x26a) = 0;
+  param_1[0x4e] = 0;
+  *(undefined4 *)((long)param_1 + 0x284) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x4f,0,1);
+  *(undefined2 *)(param_1 + 0x51) = 0;
+  *(undefined1 *)((long)param_1 + 0x28a) = 0;
+  param_1[0x52] = 0;
+  *(undefined4 *)((long)param_1 + 0x2a4) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x53,0,1);
+  *(undefined2 *)(param_1 + 0x55) = 0;
+  *(undefined1 *)((long)param_1 + 0x2aa) = 0;
+  param_1[0x56] = 0;
+  *(undefined4 *)((long)param_1 + 0x2c4) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x57,0,1);
+  *(undefined2 *)(param_1 + 0x59) = 0;
+  *(undefined1 *)((long)param_1 + 0x2ca) = 0;
+  param_1[0x5a] = 0;
+  *(undefined4 *)((long)param_1 + 0x2e4) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x5b,0,1);
+  *(undefined2 *)(param_1 + 0x5d) = 0;
+  *(undefined1 *)((long)param_1 + 0x2ea) = 0;
+  param_1[0x5e] = 0;
+  *(undefined4 *)((long)param_1 + 0x304) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x5f,0,1);
+  *(undefined2 *)(param_1 + 0x61) = 0;
+  *(undefined1 *)((long)param_1 + 0x30a) = 0;
+  param_1[0x62] = 0;
+  *(undefined4 *)((long)param_1 + 0x324) = 1;
+  nn::os::InitializeLightEvent(param_1 + 99,0,1);
+  *(undefined2 *)(param_1 + 0x65) = 0;
+  *(undefined1 *)((long)param_1 + 0x32a) = 0;
+  param_1[0x66] = 0;
+  *(undefined4 *)((long)param_1 + 0x344) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x67,0,1);
+  *(undefined2 *)(param_1 + 0x69) = 0;
+  *(undefined1 *)((long)param_1 + 0x34a) = 0;
+  param_1[0x6a] = 0;
+  *(undefined4 *)((long)param_1 + 0x364) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x6b,0,1);
+  *(undefined2 *)(param_1 + 0x6d) = 0;
+  *(undefined1 *)((long)param_1 + 0x36a) = 0;
+  param_1[0x6e] = 0;
+  *(undefined4 *)((long)param_1 + 900) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x6f,0,1);
+  *(undefined2 *)(param_1 + 0x71) = 0;
+  *(undefined1 *)((long)param_1 + 0x38a) = 0;
+  param_1[0x72] = 0;
+  *(undefined4 *)((long)param_1 + 0x3a4) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x73,0,1);
+  *(undefined2 *)(param_1 + 0x75) = 0;
+  *(undefined1 *)((long)param_1 + 0x3aa) = 0;
+  param_1[0x76] = 0;
+  *(undefined4 *)((long)param_1 + 0x3c4) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x77,0,1);
+  *(undefined2 *)(param_1 + 0x79) = 0;
+  *(undefined1 *)((long)param_1 + 0x3ca) = 0;
+  param_1[0x7a] = 0;
+  *(undefined4 *)((long)param_1 + 0x3e4) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x7b,0,1);
+  *(undefined2 *)(param_1 + 0x7d) = 0;
+  *(undefined1 *)((long)param_1 + 0x3ea) = 0;
+  param_1[0x7e] = 0;
+  *(undefined4 *)((long)param_1 + 0x404) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x7f,0,1);
+  *(undefined2 *)(param_1 + 0x81) = 0;
+  *(undefined1 *)((long)param_1 + 0x40a) = 0;
+  param_1[0x82] = 0;
+  *(undefined4 *)((long)param_1 + 0x424) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x83,0,1);
+  param_1[0x86] = 0;
+  param_1[0x85] = 0;
+  *(undefined4 *)((long)param_1 + 0x444) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x87,0,1);
+  param_1[0x8a] = 0;
+  param_1[0x89] = 0;
+  *(undefined4 *)((long)param_1 + 0x464) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x8b,0,1);
+  FUN_024b1ac4(param_1);
+  return;
+}
+
+
