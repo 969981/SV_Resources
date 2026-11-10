@@ -120,15 +120,21 @@ def verify(root: Path = ROOT) -> dict:
             elif r["haxe_body_status"] == "CFG_HIR_AST_LITERAL_LIFTED":
                 if r["module"] != "main" or mh[0] != "F":
                     raise ValueError(f"line {n}: CFG/HIR/AST literal target must be main C/F instance method")
+                proof_run = (r.get("za_differential_run_id")
+                             if r.get("promotion_batch") == "R11_59"
+                             else 42758094283)
+                if r.get("promotion_batch") == "R11_59" and (
+                        type(proof_run) is not int or proof_run <= 42758827830):
+                    raise ValueError(f"line {n}: R11 batch evidence run must be a new Actions run")
                 if (r.get("za_haxe_compile_status") != "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT"
-                        or r.get("za_haxe_build_evidence_run_id") != 42758094283
+                        or r.get("za_haxe_build_evidence_run_id") != proof_run
                         or r["lua_differential_status"] != "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS"
                         or r.get("za_differential_passed") != 3
                         or r.get("za_differential_cases") != 3
-                        or r.get("za_differential_run_id") != 42758094283
+                        or r.get("za_differential_run_id") != proof_run
                         or r.get("za_differential_evidence_url") !=
-                            "https://github.com/969981/SV_Resources/actions/runs/42758094283"):
-                    raise ValueError(f"line {n}: missing pinned R10 compilation/differential evidence")
+                           f"https://github.com/969981/SV_Resources/actions/runs/{proof_run}"):
+                    raise ValueError(f"line {n}: missing matching R10/R11 AST compilation/differential evidence")
                 if (r.get("hir_status") != "RESTRICTED_SINGLE_BLOCK_LITERAL_LIFTED"
                         or r.get("ast_status") != "RETURN_LITERAL"
                         or r.get("cfg_edges") != [[0,1,"SEQUENTIAL"]]):
