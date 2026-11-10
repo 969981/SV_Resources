@@ -97,6 +97,27 @@ def analyze(game,path):
            "machine_word_matches":actual==expected,
            "status":"CURRENT_ORIGINAL_ELF_BYTE_CHECK_NOT_LIVE_GUEST"
         })
+    # Native Lua 5.4 dispatch in R7 had a different ELF SHA. Nine
+    # original machine-code words matched this version above, but actual
+    # opcode handlers must also be validated via ELF RELA table, not guessed.
+    vm_table=0x4383398
+    opnames={"GETI":13,"GETFIELD":14,"SETFIELD":18,
+             "SELF":20,"TEST":66,"CALL":68,"CLOSURE":79}
+    vm_handlers={}
+    for op,number in opnames.items():
+        entry=vm_table+number*8
+        r=next((r for r in all_relocations if r["r_offset"]==entry),None)
+        if r is None or r["r_info_type"]!=1027:
+            vm_handlers[op]={"opcode":number,"reloc_slot":f"0x{entry:x}",
+                             "status":"NO_ORIGINAL_ELF_RELATIVE_RELOCATION_HANDLER"}
+            continue
+        h=r["r_addend"]
+        executable=any(va<=h<va+end-off and (flags&1)
+                       for off,end,va,flags in segs)
+        vm_handlers[op]={"opcode":number,"reloc_slot":f"0x{entry:x}",
+                          "handler_rva":f"0x{h:x}",
+                          "executable":bool(executable),
+                          "status":"ELF_STATIC_RELOCATED_OPCODE_DISPATCH_NOT_GUEST_RUNTIME"}
     # Follow the actual original BL and callback pointer loaded into X2.
     # Validated source: X1="cE35B3EB3", X2=main+0x1600050,
     # W3=1, BL main+0xE7D200, then tail branch to main+0xB5DB00.
@@ -258,6 +279,7 @@ def analyze(game,path):
         "class_callback_relocation_pairs":class_table_trace,
         "native_lua_wrapper_arg_pattern":wrapper_evidence,
         "old_r7_vm_offsets_revalidated_against_this_elf":historical_dispatch_probes,
+        "original_lua_vm_dispatch_relocation_handlers":vm_handlers,
         "static_cpp_call_target_proven":False,
         "lua_cclosure_pointer_proven":False,
         "runtime_status":"NOT_OBSERVED",
@@ -298,6 +320,7 @@ def main():
        },
        "scarlet_verified_native_wrapper_arguments":results["scarlet_main"]["native_lua_wrapper_arg_pattern"],
        "old_r7_native_dispatch_elf_word_checks":results["scarlet_main"]["old_r7_vm_offsets_revalidated_against_this_elf"],
+       "scarlet_native_lua_vm_opcode_dispatch_handlers":results["scarlet_main"]["original_lua_vm_dispatch_relocation_handlers"],
        "scarlet_class_method_table":{
           "source":results["scarlet_main"]["class_callback_relocation_pairs"]["table_first_rva"],
           "via_code":results["scarlet_main"]["class_callback_relocation_pairs"]["table_passed_to_direct_bl_pc"],
