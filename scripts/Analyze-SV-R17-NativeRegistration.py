@@ -87,6 +87,8 @@ def analyze(game,path):
         ("class_register_callee_candidate",0xE7D200),
         ("class_registration_x2_callback_candidate",0x1600050),
         ("tail_branch",0xB5DB00),
+        ("f558733FC_other_table_code_candidate",0x194E910),
+        ("f558733FC_class_table_code_candidate",0x1959E40),
     ):
         pos=offset_of(segs,target)
         flags=next((flag for off,end,va,flag in segs if va<=target<va+end-off),0)
@@ -130,6 +132,52 @@ def analyze(game,path):
             "relocation_entries_within_0x60":adjacent,
             "status":"DATA_STRUCTURE_CANDIDATE_NOT_CONFIRMED_CPP_CALLABLE",
         }
+    # Native callback +0x1600050 builds X1=+0x44B14E0 at PC+0x88,
+    # calls +0xDEB2F0 at PC+0x98. Decode consecutive relocation pairs
+    # as a possible registration array; each pair MUST be validated and
+    # never elevated to a live CClosure or true native C++ signature.
+    table=0x44B14E0
+    if raw[offset_of(segs,0x1600088):offset_of(segs,0x1600088)+8].hex().upper()!="817501B021801391":
+        raise ValueError("original class callback does not load 0x44B14E0")
+    byreloc={r["r_offset"]:r for r in all_relocations}
+    entries=[]
+    for i in range(0,0x260,16):
+        addr=table+i
+        nr,fr=byreloc.get(addr),byreloc.get(addr+8)
+        if nr is None or fr is None:
+            entries.append({"index":i//16,"slot":f"0x{addr:x}",
+                "status":"INCOMPLETE_PAIR_NOT_A_CONFIRMED_NATIVE_BINDING"})
+            continue
+        name_rva=nr["r_addend"]
+        code_rva=fr["r_addend"]
+        try:
+            name_pos=offset_of(segs,name_rva)
+            literal=raw[name_pos:name_pos+80].split(b"\0",1)[0].decode("utf-8")
+            executable=any(va<=code_rva<va+end-off and (flags&1)
+                           for off,end,va,flags in segs)
+        except (ValueError,UnicodeDecodeError):
+            literal=None;executable=False
+        entries.append({
+           "index":i//16,"slot":f"0x{addr:x}",
+           "name_pointer":f"0x{name_rva:x}",
+           "name_utf8":literal,
+           "code_pointer":f"0x{code_rva:x}",
+           "code_is_executable_segment":bool(executable),
+           "status":"ELF_RELATIVE_POINTER_PAIR_NOT_RUNTIME_CFUNCTION_PROOF",
+        })
+    method_pairs=[e for e in entries if e.get("name_utf8")=="f558733FC"]
+    if len(method_pairs)!=1 or method_pairs[0]["slot"]!="0x44b1670" or method_pairs[0]["code_pointer"]!="0x1959e40":
+        raise ValueError("original class-array native method name/pointer pair drift")
+    class_table_trace={
+       "x2_callback_rva":"0x1600050",
+       "table_loaded_at":"0x1600088 / 0x160008c",
+       "table_first_rva":"0x44b14e0",
+       "table_passed_to_direct_bl_pc":"0x1600098",
+       "table_consumer_direct_bl_target":"0xdeb2f0",
+       "relocation_pairs":entries,
+       "f558733FC_pair":method_pairs[0],
+       "status":"STATIC_CLASS_CALLBACK_TABLE_CANDIDATE_NOT_RUNTIME_BINDING_PROOF",
+    }
     literals={}
     for key in KEYS:
         rv=sorted(target_addends[key])
@@ -153,6 +201,7 @@ def analyze(game,path):
         "literal_data_context":literals,
         "native_direct_call_and_callback_code":traced_targets,
         "native_method_relocation_pointer_neighbors":relocation_neighbors,
+        "class_callback_relocation_pairs":class_table_trace,
         "static_cpp_call_target_proven":False,
         "lua_cclosure_pointer_proven":False,
         "runtime_status":"NOT_OBSERVED",
@@ -187,6 +236,13 @@ def main():
             for k,v in results["scarlet_main"]["native_direct_call_and_callback_code"].items()
        },
        "scarlet_method_pointer_relocation_neighbors":results["scarlet_main"]["native_method_relocation_pointer_neighbors"],
+       "scarlet_class_method_table":{
+          "source":results["scarlet_main"]["class_callback_relocation_pairs"]["table_first_rva"],
+          "via_code":results["scarlet_main"]["class_callback_relocation_pairs"]["table_passed_to_direct_bl_pc"],
+          "consumer":results["scarlet_main"]["class_callback_relocation_pairs"]["table_consumer_direct_bl_target"],
+          "f558733FC":results["scarlet_main"]["class_callback_relocation_pairs"]["f558733FC_pair"],
+          "entries":results["scarlet_main"]["class_callback_relocation_pairs"]["relocation_pairs"][:34],
+       },
        "cpp_abi_status":"NOT_RESOLVED","guest_runtime":"NOT_OBSERVED",
     },indent=2))
     if not equal:raise ValueError("Scarlet/Violet code near class literal differs; keep separate evidence")
