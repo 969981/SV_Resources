@@ -102,7 +102,7 @@ def verify(root: Path = ROOT) -> dict:
                                     else "SV400_NATIVE_STATIC_CLOSURE_LINKED")
             if r.get("native_binding_status") != expected_link_status:
                 raise ValueError(f"line {n}: missing proven native C-S binding status")
-            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED", "NATIVE_RETURN0_NOOP_IMPLEMENTED", "CFG_HIR_AST_LITERAL_LIFTED", "R12_NATIVE_OPERATION_AST", "R13_NATIVE_FIELD_AST", "R14_NATIVE_DYNAMIC_BRANCH_AST"):
+            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED", "NATIVE_RETURN0_NOOP_IMPLEMENTED", "CFG_HIR_AST_LITERAL_LIFTED", "R12_NATIVE_OPERATION_AST", "R13_NATIVE_FIELD_AST", "R14_NATIVE_DYNAMIC_BRANCH_AST", "R15_NATIVE_SELF_CALL_SSA"):
                 raise ValueError(f"line {n}: unreviewed Haxe expression status")
             if r["runtime_status"] != "NOT_OBSERVED":
                 raise ValueError(f"line {n}: game runtime remains unobserved")
@@ -117,6 +117,34 @@ def verify(root: Path = ROOT) -> dict:
                         or r.get("za_differential_passed") is not None
                         or r.get("za_differential_run_id") is not None):
                     raise ValueError(f"line {n}: extern without method body must not claim Lua parity")
+            elif r["haxe_body_status"] == "R15_NATIVE_SELF_CALL_SSA":
+                if r.get("promotion_batch") != "R15_MOCKED_SELF_CALL_SSA":
+                    raise ValueError(f"line {n}: R15 is mock-only original source, not engine runtime")
+                evidence=r.get("za_differential_run_id")
+                if (type(evidence) is not int or evidence <= 42767997155
+                        or r.get("za_haxe_build_evidence_run_id")!=evidence
+                        or r.get("za_haxe_compile_status")!=
+                            "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT"
+                        or r.get("lua_differential_status")!=
+                            "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS"
+                        or r.get("za_differential_evidence_url")!=
+                           f"https://github.com/969981/SV_Resources/actions/runs/{evidence}"):
+                    raise ValueError(f"line {n}: R15 original Child and mocked call ABI evidence missing")
+                original={
+                  "main.field.action.base.IAction.Setup":(12930,160285,10,12),
+                  "main.field.action.base.IAutoAction.Setup":(13197,163143,2,4),
+                }
+                expected=original.get(cls+"."+method)
+                if (expected is None or
+                        (r["proto_id"],r["root_pc"],
+                         r.get("r15_first_slot"),r.get("r15_second_slot"))!=expected
+                        or r.get("za_differential_cases")!=14
+                        or r.get("za_differential_passed")!=14
+                        or r.get("r15_kind")!="SELF_CALL_TEST_CFG_SSA_RETURN_PHI"
+                        or r.get("r15_mocked_host_status")!=
+                            "MOCK_HOST_CALL_EVENT_ALIAS_AND_PARTIAL_WRITE_PASS"
+                        or r.get("r15_engine_runtime_status")!="NOT_OBSERVED"):
+                    raise ValueError(f"line {n}: R15 native Root/Child/SSA or mock-only status invalid")
             elif r["haxe_body_status"] == "R14_NATIVE_DYNAMIC_BRANCH_AST":
                 if r.get("promotion_batch") != "R14_DYNAMIC_MULTIWRITE_BRANCH":
                     raise ValueError(f"line {n}: R14 original method missing batch marker")
@@ -372,6 +400,21 @@ def verify(root: Path = ROOT) -> dict:
                     or closure.bx >= len(native_root.children)
                     or native_root.children[closure.bx].id != p.id):
                 raise ValueError(f"line {n}: exact CLOSURE child ownership mismatch")
+            if r["haxe_body_status"] == "R15_NATIVE_SELF_CALL_SSA":
+                from sv_lua54.emit_haxe.r15_calls_ssa import lift_setup, emit_setup, CALL_SITES, RETURN_PHI
+                ast=lift_setup(p,cls+"."+method)
+                if (ast.kind!=r.get("r15_kind")
+                        or ast.sha!=r.get("native_child_code_sha256")
+                        or list(ast.words)!=r.get("native_child_opcode_words")
+                        or [list(e) for e in ast.edges]!=r.get("r15_cfg_edges")
+                        or list(ast.ssa)!=r.get("r15_ssa")
+                        or list(ast.blocks)!=r.get("r15_basic_blocks")
+                        or r.get("r15_call_sites")!=CALL_SITES
+                        or r.get("r15_return_phi")!=RETURN_PHI
+                        or (ast.first_slot,ast.second_slot)!=
+                           (r.get("r15_first_slot"),r.get("r15_second_slot"))
+                        or emit_setup(method,mh,ast) not in hx):
+                    raise ValueError(f"line {n}: R15 original SSA/CFG/opaque-CALL trace or Haxe source drift")
             if r["haxe_body_status"] == "R14_NATIVE_DYNAMIC_BRANCH_AST":
                 from sv_lua54.emit_haxe.r14_patterns import lift, emit
                 lifted=lift(p)
@@ -466,6 +509,8 @@ def verify(root: Path = ROOT) -> dict:
             "r14_original_native_mapped":sum(r.get("haxe_body_status")=="R14_NATIVE_DYNAMIC_BRANCH_AST" for r in records),
             "r14_alias_graph_table_writes_verified":sum(r.get("r14_effect_parity_status")=="ALIAS_GRAPH_TABLE_SNAPSHOT_AND_METAMETHOD_EVENTS_PASS" for r in records),
             "r14_native_branch_verified":sum(r.get("r14_branch_parity_status")=="ORIGINAL_TWO_EQI_BRANCH_CASES_PASS" for r in records),
+            "r15_original_call_ssa_mapped":sum(r.get("haxe_body_status")=="R15_NATIVE_SELF_CALL_SSA" for r in records),
+            "r15_mocked_call_trace_verified":sum(r.get("r15_mocked_host_status")=="MOCK_HOST_CALL_EVENT_ALIAS_AND_PARTIAL_WRITE_PASS" for r in records),
             "game_runtime":"NOT_OBSERVED"}
 
 
