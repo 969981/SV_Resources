@@ -1,0 +1,297 @@
+{
+  "provenance": {
+    "game": "SV 4.0.0",
+    "source_bundle": "SV400_4.0.0_original_native_five_PKL_baseline.zip",
+    "evidence_bundle": "sv400-t30-baseline-diff.zip",
+    "pkhex_commit": "0660d1e1f4924b8478daec73281bb8071a82ad19",
+    "pkhex_master_verified_same_five_git_blob_sha": "2026-11-10 (see README)",
+    "method": "Actual native binaries decoded; independent archived original-PKHeX T30 exact record-level CSV and native-comparison.json with matching SHA256; PKHeX reference .pkl bytes not embedded",
+    "source_validation": {
+      "status": "ORIGINAL_4_0_0_SOURCE_61_PLUS_223_SHA_VERIFIED_FROM_MANIFESTS",
+      "original_source_entries": 61,
+      "original_collision_entries": 223,
+      "consumed_input_files": 276,
+      "native_build_manifest_sha256": "5218F0F285517650DCF81B7D43083AD5AD83A2A04C3EEEB23E0A75946157B3A3",
+      "original_source_manifest_sha256": "907C78DCF62F86E9F61A97BEC21A10CB40D2A81FEA1EB4415643710E06E943E5",
+      "original_collision_manifest_sha256": "1A209C263DA2F6D65B6488F8FFD97890F19DBB8F1526C7D4571E03592B4BDD4F",
+      "source_provenance_scope": "Verified SHA/size of files consumed in prior genuine native unpack; source .bin/.trcol must be present for rerunning pkNX"
+    },
+    "source_proof_archive": "sv400-676-203-provenance.zip",
+    "verification": "All 5 native PKL SHA + T30 comparison report agree; the 189 exact remove158 + 14 residual records reproduce all 203 deltas; the 666 level pairs + 10 residual reproduce all 676 PKHeX-only wild entries"
+  },
+  "tables": {
+    "wild": {
+      "native_records": 29840,
+      "pkhex_reference_records": 26861,
+      "identical_records": 26185,
+      "native_only": 3655,
+      "pkhex_only": 676,
+      "native_sha256": "01F78F4F8DE93176642B1837A5FEC65483003424DE80A20115E72E8C3187C187",
+      "pkhex_sha256": "66F765E1249FD0AC8CBAF97BE90905347F6FF4581368CF65AD5B8CD81C2AA831",
+      "byte_exact": false,
+      "native_bytes": 242056,
+      "reference_bytes": 218096,
+      "binary_equal": false,
+      "pkhex_match_fraction": 0.974833
+    },
+    "fixed": {
+      "native_records": 977,
+      "pkhex_reference_records": 977,
+      "identical_records": 774,
+      "native_only": 203,
+      "pkhex_only": 203,
+      "native_sha256": "F902A1955042E031B494FD52028B79241B98D61925ADDCC30A75856017CDD6C8",
+      "pkhex_sha256": "AB94F889B346E5DD4B6278846C8502D9B48AFDC23DC7AAACDF57C6A42A93C45E",
+      "byte_exact": false,
+      "native_bytes": 19540,
+      "reference_bytes": 19540,
+      "binary_equal": false,
+      "pkhex_match_fraction": 0.792221
+    },
+    "raid_paldea": {
+      "native_records": 454,
+      "pkhex_reference_records": 454,
+      "identical_records": 454,
+      "native_only": 0,
+      "pkhex_only": 0,
+      "native_sha256": "B24C54559D8B5D676B8EB77DFBDC36ED82DFD1AD2D3E3125DAFDCF048C804552",
+      "pkhex_sha256": "B24C54559D8B5D676B8EB77DFBDC36ED82DFD1AD2D3E3125DAFDCF048C804552",
+      "byte_exact": true,
+      "native_bytes": 10896,
+      "reference_bytes": 10896,
+      "binary_equal": true,
+      "pkhex_match_fraction": 1.0
+    },
+    "raid_kitakami": {
+      "native_records": 133,
+      "pkhex_reference_records": 133,
+      "identical_records": 133,
+      "native_only": 0,
+      "pkhex_only": 0,
+      "native_sha256": "14F376DDDD53A02C41E782FB634BFF44DF50D88253F99924669CEC3734E4BC18",
+      "pkhex_sha256": "14F376DDDD53A02C41E782FB634BFF44DF50D88253F99924669CEC3734E4BC18",
+      "byte_exact": true,
+      "native_bytes": 3192,
+      "reference_bytes": 3192,
+      "binary_equal": true,
+      "pkhex_match_fraction": 1.0
+    },
+    "raid_blueberry": {
+      "native_records": 113,
+      "pkhex_reference_records": 113,
+      "identical_records": 113,
+      "native_only": 0,
+      "pkhex_only": 0,
+      "native_sha256": "DE925A11509B6DB1FD0F40D1102277A2A248AE7BEECBD2DF0A410EDF50AE9B51",
+      "pkhex_sha256": "DE925A11509B6DB1FD0F40D1102277A2A248AE7BEECBD2DF0A410EDF50AE9B51",
+      "byte_exact": true,
+      "native_bytes": 2712,
+      "reference_bytes": 2712,
+      "binary_equal": true,
+      "pkhex_match_fraction": 1.0
+    }
+  },
+  "analysis": {
+    "wild": {
+      "different_area_location_cross_groups": 70,
+      "top_regions": [
+        {
+          "location_id": 158,
+          "cross_from_id": 0,
+          "native_only": 553,
+          "pkhex_only": 124,
+          "total_difference": 677
+        },
+        {
+          "location_id": 164,
+          "cross_from_id": 158,
+          "native_only": 388,
+          "pkhex_only": 6,
+          "total_difference": 394
+        },
+        {
+          "location_id": 144,
+          "cross_from_id": 158,
+          "native_only": 308,
+          "pkhex_only": 16,
+          "total_difference": 324
+        },
+        {
+          "location_id": 166,
+          "cross_from_id": 158,
+          "native_only": 308,
+          "pkhex_only": 0,
+          "total_difference": 308
+        },
+        {
+          "location_id": 156,
+          "cross_from_id": 158,
+          "native_only": 236,
+          "pkhex_only": 26,
+          "total_difference": 262
+        },
+        {
+          "location_id": 162,
+          "cross_from_id": 158,
+          "native_only": 174,
+          "pkhex_only": 22,
+          "total_difference": 196
+        },
+        {
+          "location_id": 140,
+          "cross_from_id": 158,
+          "native_only": 111,
+          "pkhex_only": 50,
+          "total_difference": 161
+        },
+        {
+          "location_id": 136,
+          "cross_from_id": 158,
+          "native_only": 128,
+          "pkhex_only": 0,
+          "total_difference": 128
+        },
+        {
+          "location_id": 160,
+          "cross_from_id": 158,
+          "native_only": 118,
+          "pkhex_only": 6,
+          "total_difference": 124
+        },
+        {
+          "location_id": 178,
+          "cross_from_id": 0,
+          "native_only": 57,
+          "pkhex_only": 57,
+          "total_difference": 114
+        },
+        {
+          "location_id": 192,
+          "cross_from_id": 178,
+          "native_only": 57,
+          "pkhex_only": 57,
+          "total_difference": 114
+        },
+        {
+          "location_id": 132,
+          "cross_from_id": 158,
+          "native_only": 97,
+          "pkhex_only": 13,
+          "total_difference": 110
+        },
+        {
+          "location_id": 142,
+          "cross_from_id": 158,
+          "native_only": 94,
+          "pkhex_only": 0,
+          "total_difference": 94
+        },
+        {
+          "location_id": 176,
+          "cross_from_id": 194,
+          "native_only": 48,
+          "pkhex_only": 46,
+          "total_difference": 94
+        },
+        {
+          "location_id": 194,
+          "cross_from_id": 0,
+          "native_only": 48,
+          "pkhex_only": 46,
+          "total_difference": 94
+        },
+        {
+          "location_id": 168,
+          "cross_from_id": 158,
+          "native_only": 72,
+          "pkhex_only": 16,
+          "total_difference": 88
+        },
+        {
+          "location_id": 152,
+          "cross_from_id": 158,
+          "native_only": 64,
+          "pkhex_only": 0,
+          "total_difference": 64
+        },
+        {
+          "location_id": 148,
+          "cross_from_id": 158,
+          "native_only": 62,
+          "pkhex_only": 0,
+          "total_difference": 62
+        },
+        {
+          "location_id": 158,
+          "cross_from_id": 158,
+          "native_only": 50,
+          "pkhex_only": 6,
+          "total_difference": 56
+        },
+        {
+          "location_id": 180,
+          "cross_from_id": 178,
+          "native_only": 28,
+          "pkhex_only": 28,
+          "total_difference": 56
+        }
+      ],
+      "wild_178_focus": [
+        {
+          "location_id": 178,
+          "cross_from_id": 0,
+          "native_only": 57,
+          "pkhex_only": 57,
+          "total_difference": 114,
+          "identity": "178<-0"
+        },
+        {
+          "location_id": 192,
+          "cross_from_id": 178,
+          "native_only": 57,
+          "pkhex_only": 57,
+          "total_difference": 114,
+          "identity": "192<-178"
+        },
+        {
+          "location_id": 180,
+          "cross_from_id": 178,
+          "native_only": 28,
+          "pkhex_only": 28,
+          "total_difference": 56,
+          "identity": "180<-178"
+        }
+      ],
+      "native_areas": 416,
+      "pkhex_areas": 400,
+      "unambiguous_comparison_changed_fields": {
+        "level_max": 107,
+        "level_min": 86
+      },
+      "nearest_identity_level_pairs": 666,
+      "unmatched_reference_only_under_strict_non_level_identity": 10,
+      "paired_level_change_categories": {
+        "max_only": 373,
+        "min_only": 219,
+        "both": 74
+      },
+      "source_verified_666_level_pairs": 666,
+      "source_verified_10_unexplained_by_level_only": 10,
+      "level_range_fields_666_classification": {
+        "max_only": 373,
+        "min_only": 219,
+        "both": 74
+      },
+      "native_only_cross_from_158": 2337,
+      "native_only_location_156_cross_from_158": 236
+    },
+    "fixed": {
+      "source_verified_pairs_fixed158_only": 189,
+      "remaining_native_only_after_exact_remove158": 14,
+      "remaining_pkhex_only_after_exact_remove158": 14,
+      "native_only_rows_containing_158": 191,
+      "already_matched_templates_containing_158": 114,
+      "source_level_proof": "Exact 189 fixed 158-only pairs reconstructed and verified against full T30 native-only / PKHeX-only row multisets; 14/14 residual rows account for the rest"
+    }
+  }
+}

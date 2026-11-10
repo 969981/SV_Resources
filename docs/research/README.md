@@ -94,6 +94,12 @@ Keep evidence statuses visible. Do not present planned work as completed.
 
 - [SV 4.0.0 从原始 Trinity/61 M2/223 TRCOL 到五张 PKHeX .pkl：完整 FlatBuffers/Havok、8B/20B/24B 格式、固定 SHA、手动发布与 178 的 source-collider A/B 硬验收](sv400-original-rom-to-pkl-release-and-178-owner.md) — 新发布工作流 [sv400-native-pkl-release.yml](../../.github/workflows/sv400-native-pkl-release.yml) 默认只验证基线、发布需显式同意；实验默认关闭，源 ROM/PKHeX 官方数据不变，游戏 PK9 合法性仍待实测。
 
+
+## SV 4.0.0 原生 PKL 与 PKHeX 完整差异（2026-11-10）
+
+- [原生 5 张 .pkl 对照固定 PKHeX 的完整 Obsidian 报告](sv400-native-vs-pkhex-full-comparison-20261110.md)：Wild 29,840 / 26,861，严格相同 26,185，原生独有 3,655、参考独有 676；Fixed 977 / 977，完全一致 774，差异 203 / 203；三地区 700 个普通 Raid 字节完全一致。
+- [完整 14 份 CSV、逐文件 SHA256、比较汇总 JSON](data/sv400-native-vs-pkhex-20261110/README_对比报告.md)：666 条野生等级范围配对、10 条残差、Location 178 的 142 组重点，以及 Fixed 189 条仅多地点158配对和 14 条残差。均为历史原始 ROM 生成和固定 PKHeX 参考的静态对账，**不是游戏运行时合法性证明**。
+
 ## 真实原生 4.0.0 → PKHeX 合法性模板生成
 
 - [朱紫 4.0.0 原生 → PKHeX 遭遇库：野生／固定／Raid 原始算法、独立 .NET 10 CLI、SHA 证明和逐字段对账](sv-pkhex-encounter-native-regeneration.md) — 详细说明 `EncounterSlotDumper9`、`FixedSymbolDumper9`、18 张团体战原始表的生成路径；TRCOL 不齐时仍保留可独立验证的原生 Raid 输出。
