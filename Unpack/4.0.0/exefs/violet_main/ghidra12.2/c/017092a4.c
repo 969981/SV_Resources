@@ -1,0 +1,134 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 017092a4; name: FUN_017092a4
+ */
+
+
+void FUN_017092a4(undefined8 *param_1)
+
+{
+  FUN_01709500();
+  *param_1 = &DAT_04584d40;
+  param_1[0xe] = 0;
+  *(undefined4 *)(param_1 + 0xf) = 0;
+  param_1[4] = &PTR_LAB_04584da0;
+  *(undefined1 *)(param_1 + 0x10) = 0;
+  param_1[0x11] = 0;
+  *(undefined4 *)(param_1 + 0x12) = 0;
+  param_1[0x16] = PTR_DAT_047dcd38 + 0x10;
+  param_1[0x17] = 0xf4b17a579f18960;
+  *(undefined1 *)(param_1 + 0x13) = 0;
+  param_1[0x1e] = 0;
+  param_1[0x28] = 0;
+  *(undefined4 *)(param_1 + 0x29) = 0;
+  param_1[0x2a] = 0;
+  *(undefined4 *)(param_1 + 0x2b) = 0;
+  param_1[0x2c] = 0;
+  *(undefined4 *)(param_1 + 0x2d) = 0;
+  param_1[0x2e] = 0;
+  *(undefined4 *)(param_1 + 0x2f) = 0;
+  param_1[0x30] = 0;
+  *(undefined4 *)(param_1 + 0x31) = 0;
+  param_1[0x32] = 0;
+  *(undefined4 *)(param_1 + 0x33) = 0;
+  param_1[0x34] = 0;
+  *(undefined4 *)(param_1 + 0x35) = 0;
+  param_1[0x36] = 0;
+  *(undefined4 *)(param_1 + 0x37) = 0;
+  param_1[0x38] = 0;
+  *(undefined4 *)(param_1 + 0x39) = 0;
+  param_1[0x3a] = 0;
+  *(undefined4 *)(param_1 + 0x3b) = 0;
+  param_1[0x3c] = 0;
+  *(undefined4 *)(param_1 + 0x3d) = 0;
+  param_1[0x3e] = 0;
+  *(undefined4 *)(param_1 + 0x3f) = 0;
+  param_1[0x46] = 0;
+  *(undefined4 *)(param_1 + 0x47) = 0;
+  param_1[0x48] = 0;
+  *(undefined4 *)(param_1 + 0x49) = 0;
+  param_1[0x4a] = 0;
+  *(undefined4 *)(param_1 + 0x4b) = 0;
+  param_1[0x4c] = 0;
+  *(undefined4 *)(param_1 + 0x4d) = 0;
+  param_1[0x4e] = 0;
+  *(undefined4 *)(param_1 + 0x4f) = 0;
+  param_1[0x50] = 0;
+  *(undefined4 *)(param_1 + 0x51) = 0;
+  param_1[0x52] = 0;
+  *(undefined4 *)(param_1 + 0x53) = 0;
+  param_1[0x54] = 0;
+  *(undefined4 *)(param_1 + 0x55) = 0;
+  param_1[0x56] = 0;
+  *(undefined4 *)(param_1 + 0x57) = 0;
+  param_1[0x58] = 0;
+  *(undefined4 *)(param_1 + 0x59) = 0;
+  param_1[0x5a] = 0;
+  *(undefined4 *)(param_1 + 0x5b) = 0;
+  *(undefined4 *)((long)param_1 + 0x31c) = 0;
+  *(undefined2 *)(param_1 + 100) = 0;
+  param_1[0x18] = 0x82a2b175229d6a5b;
+  param_1[0x19] = 0;
+  param_1[0x1a] = 0;
+  param_1[0x1b] = 0;
+  param_1[0x1c] = 0;
+  param_1[0x1d] = 0;
+  *(undefined8 *)((long)param_1 + 0x33c) = 0;
+  *(undefined8 *)((long)param_1 + 0x334) = 0;
+  *(undefined8 *)((long)param_1 + 0x32c) = 0;
+  *(undefined8 *)((long)param_1 + 0x324) = 0;
+  param_1[0x44] = 0;
+  *(undefined4 *)(param_1 + 0x45) = 0;
+  *(undefined4 *)(param_1 + 0x69) = 5;
+  param_1[0x6a] = 0;
+  param_1[0x6b] = 0;
+  param_1[0x6c] = 0x500000005;
+  *(undefined2 *)((long)param_1 + 0x39a) = 0;
+  *(undefined1 *)((long)param_1 + 0x39c) = 0;
+  *(undefined2 *)((long)param_1 + 0x37c) = 0;
+  *(undefined2 *)((long)param_1 + 0x382) = 0;
+  *(undefined4 *)(param_1 + 0x71) = 0;
+  *(undefined2 *)((long)param_1 + 0x394) = 0;
+  param_1[0x6d] = 0x500000005;
+  *(undefined1 *)((long)param_1 + 0x37e) = 0;
+  *(undefined1 *)((long)param_1 + 900) = 0;
+  *(undefined2 *)((long)param_1 + 0x38c) = 0;
+  *(undefined1 *)((long)param_1 + 0x396) = 0;
+  param_1[0x6e] = 0x500000005;
+  *(undefined2 *)((long)param_1 + 0x37f) = 0;
+  *(undefined2 *)((long)param_1 + 0x385) = 0;
+  *(undefined4 *)((long)param_1 + 0x38e) = 0;
+  *(undefined2 *)((long)param_1 + 0x397) = 0;
+  *(undefined4 *)(param_1 + 0x6f) = 5;
+  *(undefined1 *)((long)param_1 + 0x381) = 0;
+  *(undefined1 *)((long)param_1 + 0x387) = 0;
+  *(undefined2 *)((long)param_1 + 0x392) = 0;
+  *(undefined1 *)((long)param_1 + 0x399) = 0;
+  param_1[0x7a] = 0;
+  param_1[0x78] = 0;
+  *(undefined4 *)((long)param_1 + 0x3c7) = 0;
+  *(undefined2 *)((long)param_1 + 0x214) = 0;
+  *(byte *)((long)param_1 + 300) = *(byte *)((long)param_1 + 300) & 0xfc;
+  param_1[0x76] = 0;
+  param_1[0x77] = 0;
+  param_1[9] = 0;
+  *(undefined1 *)(param_1 + 0x42) = 0;
+  param_1[0x43] = 0;
+  *(undefined1 *)((long)param_1 + 0x12e) = 0;
+  param_1[0x41] = 0;
+  *(undefined4 *)(param_1 + 0x40) = 0;
+  *(undefined2 *)((long)param_1 + 0x204) = 0;
+  *(undefined4 *)(param_1 + 0x7c) = 0;
+  *(undefined1 *)((long)param_1 + 0x122) = 0;
+  *(undefined4 *)((long)param_1 + 0x11c) = 0;
+  *(undefined1 *)((long)param_1 + 0x12d) = 0;
+  param_1[0x15] = 0;
+  *(undefined1 *)(param_1 + 0x24) = 0;
+  *(undefined1 *)((long)param_1 + 0x3ad) = 1;
+  *(undefined1 *)(param_1 + 0x74) = 0;
+  *(undefined1 *)((long)param_1 + 0x3ac) = 0;
+  *(undefined8 *)((long)param_1 + 0x3a4) = 0;
+  return;
+}
+
+
