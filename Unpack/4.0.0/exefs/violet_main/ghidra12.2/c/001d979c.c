@@ -1,0 +1,15 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 001d979c; name: FUN_001d979c
+ */
+
+
+undefined8
+FUN_001d979c(undefined8 param_1,undefined8 param_2,undefined8 param_3,undefined8 *param_4)
+
+{
+  FUN_001db818(*param_4,"http2 error: %.*s\n",param_3,param_2);
+  return 0;
+}
+
+
