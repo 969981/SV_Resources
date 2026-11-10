@@ -1,0 +1,15 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 01f7b660; name: FUN_01f7b660
+ */
+
+
+ulong FUN_01f7b660(ushort *param_1)
+
+{
+  return (ulong)(uint)(*(int *)(param_1 + 4) << 0x18) | (ulong)*param_1 |
+         (ulong)(uint)(*(int *)(param_1 + 2) << 0x10) & 0xff0000 | (ulong)(byte)param_1[6] << 0x20 |
+         (ulong)(byte)param_1[8] << 0x28 | (ulong)(byte)param_1[10] << 0x30;
+}
+
+
