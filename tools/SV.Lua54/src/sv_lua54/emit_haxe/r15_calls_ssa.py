@@ -25,7 +25,7 @@ CHECKS={0:("SELF",1,0,0,1),1:("CALL",1,2,2,0),
  7:("SELF",3,2,2,1),8:("GETFIELD",5,1,3,0),
  9:("CALL",3,3,1,0),10:("LOADTRUE",3,0,0,0),
  11:("RETURN1",3,2,0,0),12:("LOADFALSE",1,0,0,0),
- 13:("RETURN1",1,2,0,0),14:("RETURN0",0,1,0,0)}
+ 13:("RETURN1",1,2,0,0),14:("RETURN0",1,1,0,0)}
 RETURN_PHI={"kind":"SYNTHETIC_FUNCTION_EXIT_RETURN_PHI","inputs":[
  {"from_pc":11,"value":"R3@10","literal":True},
  {"from_pc":13,"value":"R1@12","literal":False}]}
