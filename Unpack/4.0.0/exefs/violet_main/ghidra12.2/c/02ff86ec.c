@@ -1,0 +1,61 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 02ff86ec; name: FUN_02ff86ec
+ */
+
+
+void FUN_02ff86ec(long *param_1)
+
+{
+  undefined *puVar1;
+  
+  *param_1 = (long)&PTR_LAB_04612838;
+  param_1[4] = (long)&PTR_LAB_04612878;
+  *(undefined4 *)(param_1 + 0x2d1) = 0;
+  if ((-1 < (int)*(uint *)((long)param_1 + 0x168c)) && (param_1[0x2d0] != 0)) {
+    (**(code **)(*(long *)PTR_PTR_047d1a50 + 0x20))
+              (PTR_PTR_047d1a50,param_1[0x2d0],(ulong)*(uint *)((long)param_1 + 0x168c) << 6);
+  }
+  param_1[0x2d0] = 0;
+  *(undefined4 *)((long)param_1 + 0x168c) = 0x80000000;
+  *(undefined4 *)(param_1 + 0x247) = 0;
+  if ((-1 < (int)*(uint *)((long)param_1 + 0x123c)) && (param_1[0x246] != 0)) {
+    (**(code **)(*(long *)PTR_PTR_047d1a50 + 0x20))
+              (PTR_PTR_047d1a50,param_1[0x246],(ulong)*(uint *)((long)param_1 + 0x123c) << 6);
+  }
+  param_1[0x246] = 0;
+  *(undefined4 *)((long)param_1 + 0x123c) = 0x80000000;
+  *(undefined4 *)(param_1 + 0x1b5) = 0;
+  if ((-1 < (int)*(uint *)((long)param_1 + 0xdac)) && (param_1[0x1b4] != 0)) {
+    (**(code **)(*(long *)PTR_PTR_047d1a50 + 0x20))
+              (PTR_PTR_047d1a50,param_1[0x1b4],(ulong)*(uint *)((long)param_1 + 0xdac) << 6);
+  }
+  param_1[0x1b4] = 0;
+  *(undefined4 *)((long)param_1 + 0xdac) = 0x80000000;
+  *(undefined4 *)(param_1 + 299) = 0;
+  if ((-1 < (int)*(uint *)((long)param_1 + 0x95c)) && (param_1[0x12a] != 0)) {
+    (**(code **)(*(long *)PTR_PTR_047d1a50 + 0x20))
+              (PTR_PTR_047d1a50,param_1[0x12a],(ulong)*(uint *)((long)param_1 + 0x95c) << 6);
+  }
+  param_1[0x12a] = 0;
+  *(undefined4 *)((long)param_1 + 0x95c) = 0x80000000;
+  *(undefined4 *)(param_1 + 0x99) = 0;
+  if ((-1 < (int)*(uint *)((long)param_1 + 0x4cc)) && (param_1[0x98] != 0)) {
+    (**(code **)(*(long *)PTR_PTR_047d1a50 + 0x20))
+              (PTR_PTR_047d1a50,param_1[0x98],(ulong)*(uint *)((long)param_1 + 0x4cc) << 6);
+  }
+  param_1[0x98] = 0;
+  *(undefined4 *)((long)param_1 + 0x4cc) = 0x80000000;
+  *(undefined4 *)(param_1 + 0xf) = 0;
+  if ((-1 < (int)*(uint *)((long)param_1 + 0x7c)) && (param_1[0xe] != 0)) {
+    (**(code **)(*(long *)PTR_PTR_047d1a50 + 0x20))
+              (PTR_PTR_047d1a50,param_1[0xe],(ulong)*(uint *)((long)param_1 + 0x7c) << 6);
+  }
+  param_1[0xe] = 0;
+  puVar1 = PTR_DAT_047d1a00;
+  *(undefined4 *)((long)param_1 + 0x7c) = 0x80000000;
+  *param_1 = (long)(puVar1 + 0x10);
+  return;
+}
+
+
