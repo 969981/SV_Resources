@@ -20,10 +20,14 @@ class TestHaxeRecovery(unittest.TestCase):
     def test_fnv_class(self):
         self.assertEqual(mod.fnv1a64("main.util.CompositionCamera"), "FEA9C3BFB3FCD429")
         self.assertEqual(mod.fnv1a64("main.util.StrUtil"), "23E5342B132D5323")
+        self.assertEqual(mod.fnv1a64("dll_util.Assert"), "E5FCD7D9D8F34718")
+        self.assertEqual(mod.fnv1a64("dll_util.MathUtil"), "ED59418C4CAB0EC4")
 
     def test_fnv_static(self):
         self.assertEqual(mod.fnv1a64("CalcXFov"), "424E3EA0446070E7")
         self.assertEqual(mod.fnv1a64("Format"), "042B860498E558B2")
+        self.assertEqual(mod.fnv1a64("IsNull"), "B859A84B9E933D14")
+        self.assertEqual(mod.fnv1a64("Clamp"), "05B90B9B5A6DE6BC")
 
     def test_native_provenance(self):
         data = json.loads((ROOT / "tools/SV.Lua54/fixtures/native_manifest.json").read_text())
@@ -34,10 +38,12 @@ class TestHaxeRecovery(unittest.TestCase):
 
     def test_exact_native_linked_method_ids(self):
         rows = records()
-        self.assertEqual(len(rows), 2)
+        self.assertEqual(len(rows), 4)
         expected = {
             "main.util.CompositionCamera.CalcXFov": (36158, 426666, 426670, 426671, 16),
             "main.util.StrUtil.Format": (36271, 427562, 427566, 427567, 10),
+            "dll_util.Assert.IsNull": (69, 243, 244, 245, 4),
+            "dll_util.MathUtil.Clamp": (76, 270, 271, 272, 8),
         }
         for row in rows:
             key = row["class_name"] + "." + row["method_name"]
@@ -56,8 +62,8 @@ class TestHaxeRecovery(unittest.TestCase):
 
     def test_complete_original_bytecode_witness(self):
         summary = mod.verify(ROOT)
-        self.assertEqual(summary["validated_records"], 2)
-        self.assertEqual(summary["native_mapped"], 2)
+        self.assertEqual(summary["validated_records"], 4)
+        self.assertEqual(summary["native_mapped"], 4)
         self.assertEqual(summary["reference_only"], 0)
 
 
