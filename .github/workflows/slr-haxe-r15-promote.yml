@@ -1,0 +1,212 @@
+name: SV400 R15 mocked host SELF CALL TEST CFG SSA and native Lua parity
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/Emit-SV-Haxe-R15-EngineCalls.py"
+      - "tools/SV.Lua54/src/sv_lua54/emit_haxe/r15_calls_ssa.py"
+      - "tools/SV.Lua54/src/sv_lua54/emit_haxe/r15_calls_ssa.py"
+      - "tools/SV.Lua54/haxe/4.0.0/compare-r15-mocked-calls.lua"
+      - ".github/workflows/slr-haxe-r15-promote.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: sv400-r15-hostmock-ssa-gated-promotion
+  cancel-in-progress: false
+jobs:
+  verify-and-promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/Stage-SV-Haxe-Namespace-Candidates.py
+            scripts/Emit-SV-Haxe-R15-EngineCalls.py
+            scripts/Emit-SV-Haxe-R10-ConstantReturns.py
+            scripts/Build-SV-Haxe-Native-FnFixtures.py
+            scripts/Verify-SV-Haxe-Recovery.py
+            tests/test_sv_haxe_recovery.py
+            tests/test_sv_haxe_emitter.py
+            tests/test_sv_haxe_side_effects.py
+            tests/test_sv_haxe_r14.py
+            tests/test_sv_haxe_r15.py
+            tools/SV.Lua54/haxe/4.0.0
+            tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/fixtures/native_manifest.json
+            tools/PokeDocs/SV/Hashlists/Lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/dll_util/dll_util.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Pin exact original ZAScripts Haxe HashAbi/cppbindings/finalizer
+        run: |
+          set -euo pipefail
+          PIN=$(python3 -c 'import json;print(json.load(open("tools/SV.Lua54/haxe/4.0.0/zascripts.lock.json"))["upstream_commit"])')
+          UPSTREAM="$RUNNER_TEMP/ZAScripts"
+          git init -q "$UPSTREAM"
+          git -C "$UPSTREAM" remote add origin https://github.com/Reisyukaku/ZAScripts.git
+          git -C "$UPSTREAM" -c protocol.version=2 fetch -q --no-tags --depth 1 --filter=blob:none origin "$PIN"
+          git -C "$UPSTREAM" sparse-checkout init --cone
+          git -C "$UPSTREAM" sparse-checkout set tools/haxe-4.3.1 tools/gfl_build tools/lua-5.4.3/src
+          git -C "$UPSTREAM" checkout -q --detach FETCH_HEAD
+          test "$(git -C "$UPSTREAM" rev-parse HEAD)" = "$PIN"
+          test -f "$UPSTREAM/tools/haxe-4.3.1/std/haxe/macro/HashAbi.hx"
+          test -f "$UPSTREAM/tools/haxe-4.3.1/std/cppbindings/C016374C1.hx"
+          test -f "$UPSTREAM/tools/gfl_build/build_post_process.py"
+          echo "UPSTREAM=$UPSTREAM" >> "$GITHUB_ENV"
+          echo "HAXE_STD_PATH=$UPSTREAM/tools/haxe-4.3.1/std" >> "$GITHUB_ENV"
+          make -C "$UPSTREAM/tools/lua-5.4.3/src" linux MYLDFLAGS=-no-pie -j2 >/dev/null
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" --version
+      - name: Stage two original SELF CALL TEST methods from 4.0.0 Proto/PC
+        run: |
+          python3 scripts/Emit-SV-Haxe-R15-EngineCalls.py --out "$RUNNER_TEMP/sv400-r15" --run-id "$GITHUB_RUN_ID"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"sv400-r15/r15-summary.json").read_text())
+          assert d["new_methods"]==2 and d["mapped_total"]==83
+          assert d["body_total"]==82 and d["new_cases"]==28
+          assert d["case_total"]==357 and d["method_protos"]==[12930,13197]
+          assert d["runtime_status"]=="NOT_OBSERVED"
+          print("PASS: original SELF/CALL/TEST source ownership and CFG/SSA staging")
+          PY
+      - name: Compile original two methods with pinned Haxe HashAbi and LuaOutput
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/sv400-r15/project"
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" build-za-main.hxml
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" build-za-dll-util.hxml
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -p build/za_main.lua build/za_dll_util.lua
+      - name: Compare original Lua child SELF CALL TEST to mock host Haxe callbacks, effects and SSA return
+        run: |
+          set -euo pipefail
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" tools/SV.Lua54/haxe/4.0.0/compare-r15-mocked-calls.lua \
+            "$RUNNER_TEMP/sv400-r15/native" "$RUNNER_TEMP/sv400-r15/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r15/r15-mock-report.txt"
+          grep -Fx 'R15_IACTION_SETUP=14/14' "$RUNNER_TEMP/sv400-r15/r15-mock-report.txt"
+          grep -Fx 'R15_IAUTOACTION_SETUP=14/14' "$RUNNER_TEMP/sv400-r15/r15-mock-report.txt"
+          grep -Fx 'R15_MOCKED_CALL_TOTAL=28/28' "$RUNNER_TEMP/sv400-r15/r15-mock-report.txt"
+      - name: Regress R14 49 native dynamic field, alias graph and EQI comparisons
+        run: |
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" tools/SV.Lua54/haxe/4.0.0/compare-r14-alias-branches.lua \
+            "$RUNNER_TEMP/sv400-r15/native" "$RUNNER_TEMP/sv400-r15/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r15/r14-regression.txt"
+          grep -Fx 'R14_NEW_TOTAL=49/49' "$RUNNER_TEMP/sv400-r15/r14-regression.txt"
+      - name: Regress R13 GETFIELD and SETFIELD index newindex full state
+        run: |
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" tools/SV.Lua54/haxe/4.0.0/compare-r13-named-fields.lua \
+            "$RUNNER_TEMP/sv400-r15/native" "$RUNNER_TEMP/sv400-r15/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r15/r13-regression.txt"
+          grep -Fx 'R13_TOTAL=28/28' "$RUNNER_TEMP/sv400-r15/r13-regression.txt"
+      - name: Regress R12 GETI SETI table state and LT MOVE
+        run: |
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" tools/SV.Lua54/haxe/4.0.0/compare-r12-state.lua \
+            "$RUNNER_TEMP/sv400-r15/native" "$RUNNER_TEMP/sv400-r15/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r15/r12-regression.txt"
+          grep -Fx 'GETI=6/6' "$RUNNER_TEMP/sv400-r15/r12-regression.txt"
+          grep -Fx 'SETI_SIDE_EFFECT=6/6' "$RUNNER_TEMP/sv400-r15/r12-regression.txt"
+          grep -Fx 'LT_MOVE=7/7' "$RUNNER_TEMP/sv400-r15/r12-regression.txt"
+      - name: Regress R11 all 59 original literal-return methods
+        run: |
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" "$RUNNER_TEMP/sv400-r15/compare-r11-regression.lua" \
+            "$RUNNER_TEMP/sv400-r15/native" "$RUNNER_TEMP/sv400-r15/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r15/r11-regression.tsv"
+          python3 - <<'PY'
+          import csv,os
+          from pathlib import Path
+          v=list(csv.DictReader((Path(os.environ["RUNNER_TEMP"])/"sv400-r15/r11-regression.tsv").open(),delimiter="\t"))
+          assert len(v)==59 and all(x["passed"]=="3" and x["cases"]=="3" for x in v)
+          print("PASS R11 177/177")
+          PY
+      - name: Regress original 11 R8-R10 methods
+        run: |
+          python3 scripts/Build-SV-Haxe-Native-FnFixtures.py --out "$RUNNER_TEMP/sv400-r15/native"
+          python3 scripts/Emit-SV-Haxe-R10-ConstantReturns.py \
+            --output "$RUNNER_TEMP/sv400-r15/r10" --native-output "$RUNNER_TEMP/sv400-r15/native" \
+            --verify-repo-source
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" tools/SV.Lua54/haxe/4.0.0/compare-native-vs-za.lua \
+            "$RUNNER_TEMP/sv400-r15/native" "$RUNNER_TEMP/sv400-r15/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r15/project/build/za_dll_util.lua" \
+            "$RUNNER_TEMP/sv400-r15/r10-regression.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"sv400-r15/r10-regression.json").read_text())
+          assert d["status"]=="PASS" and len(d["methods"])==11
+          assert sum(x["passed"] for x in d["methods"])==56
+          print("PASS original R8-R10 56/56; total R15+history=357/357")
+          PY
+      - name: Install only staged Setup methods and verify all 83 original sources and SSA
+        run: |
+          python3 - <<'PY'
+          import os,json,shutil
+          from pathlib import Path
+          root=Path("tools/SV.Lua54/haxe/4.0.0")
+          staged=Path(os.environ["RUNNER_TEMP"])/"sv400-r15"
+          report=json.loads((staged/"r15-summary.json").read_text())
+          for rel in report["promoted_source_paths"]:
+              assert rel.startswith("source/") and rel.endswith(".hx")
+              dst=root/rel
+              dst.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copyfile(staged/"project"/rel,dst)
+          shutil.copyfile(staged/"methods.jsonl",root/"methods.jsonl")
+          PY
+          python3 scripts/Verify-SV-Haxe-Recovery.py
+          python3 -m unittest discover -s tests -p "test_sv_haxe_recovery.py" -v
+          python3 -m unittest discover -s tests -p "test_sv_haxe_emitter.py" -v
+          python3 -m unittest discover -s tests -p "test_sv_haxe_side_effects.py" -v
+          python3 -m unittest discover -s tests -p "test_sv_haxe_r14.py" -v
+          python3 -m unittest discover -s tests -p "test_sv_haxe_r15.py" -v
+      - name: Promote ONLY after 357 standalone A/B and mock call/SSA tests pass
+        if: github.ref == 'refs/heads/master'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- tools/SV.Lua54/haxe/4.0.0/source tools/SV.Lua54/haxe/4.0.0/methods.jsonl
+          git diff --cached --quiet && { echo "No generated changes to publish"; exit 1; }
+          git commit -m "R15: promote two original SELF CALL TEST CFG SSA Haxe methods after 357 isolated Lua A/B"
+          for attempt in 1 2 3; do
+            git fetch --no-tags origin master
+            CHANGED="$(git diff --name-only "$GITHUB_SHA" FETCH_HEAD -- \
+              tools/SV.Lua54/haxe/4.0.0 \
+              tools/SV.Lua54/src/sv_lua54 \
+              scripts/Stage-SV-Haxe-Namespace-Candidates.py \
+              scripts/Emit-SV-Haxe-R15-EngineCalls.py \
+              scripts/Verify-SV-Haxe-Recovery.py \
+              tools/PokeDocs/SV/Hashlists/Lua \
+              Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua)"
+            if test -n "$CHANGED"; then
+              echo "R15 native/SSA input modified during analysis: refuse promotion"
+              echo "$CHANGED"
+              exit 1
+            fi
+            git rebase FETCH_HEAD
+            if git push origin HEAD:master; then
+              echo "Published R15 CFG/SSA and mock-host-parity verified Haxe methods"
+              exit 0
+            fi
+          done
+          echo "Could not safely promote after 3 guarded rebases"
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv400-r15-native-call-ssa-mock-evidence
+          path: |
+            ${{ runner.temp }}/sv400-r15/r15-summary.json
+            ${{ runner.temp }}/sv400-r15/r15-mock-report.txt
+            ${{ runner.temp }}/sv400-r15/r14-regression.txt
+            ${{ runner.temp }}/sv400-r15/r13-regression.txt
+            ${{ runner.temp }}/sv400-r15/r12-regression.txt
+            ${{ runner.temp }}/sv400-r15/r11-regression.tsv
+            ${{ runner.temp }}/sv400-r15/r10-regression.json
+          if-no-files-found: ignore
+          retention-days: 7
