@@ -1,0 +1,66 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 016591e8; name: FUN_016591e8
+ */
+
+
+void FUN_016591e8(void)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  long lVar4;
+  int iVar5;
+  long lVar6;
+  
+  if (((DAT_04837608 & 1) == 0) && (iVar5 = __cxa_guard_acquire(&DAT_04837608), iVar5 != 0)) {
+    FUN_00100190(&LAB_00a92af8,&DAT_048375f8,&PTR_LOOP_04483000);
+    __cxa_guard_release(&DAT_04837608);
+  }
+  lVar4 = DAT_048375f8;
+  DAT_04837610 = DAT_048375f8;
+  plVar1 = (long *)(DAT_048375f8 + 0x2d8);
+  lVar6 = nn::os::GetCurrentThread();
+  while (*plVar1 == 0) {
+    cVar2 = '\x01';
+    bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+    if (bVar3) {
+      *plVar1 = lVar6;
+      cVar2 = ExclusiveMonitorsStatus();
+    }
+    if (cVar2 == '\0') goto LAB_01659284;
+  }
+  ClearExclusiveLocal();
+  nn::os::WaitLightEvent((LightEventType *)(lVar4 + 0x2e0));
+  do {
+    if (*plVar1 != 0) {
+      do {
+        ClearExclusiveLocal();
+        nn::os::WaitLightEvent((LightEventType *)(lVar4 + 0x2e0));
+        while (*plVar1 == 0) {
+          cVar2 = '\x01';
+          bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+          if (bVar3) {
+            *plVar1 = lVar6;
+            cVar2 = ExclusiveMonitorsStatus();
+          }
+          if (cVar2 == '\0') goto LAB_01659284;
+        }
+      } while( true );
+    }
+    cVar2 = '\x01';
+    bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+    if (bVar3) {
+      *plVar1 = lVar6;
+      cVar2 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar2 != '\0');
+LAB_01659284:
+  FUN_00c7f26c(lVar4 + 0x298,*(undefined8 *)(lVar4 + 0x298));
+  *(undefined8 *)(lVar4 + 0x2d8) = 0;
+  nn::os::SignalLightEvent((LightEventType *)(lVar4 + 0x2e0));
+  return;
+}
+
+
