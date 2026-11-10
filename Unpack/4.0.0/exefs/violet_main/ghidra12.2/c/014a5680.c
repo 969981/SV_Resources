@@ -1,0 +1,171 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 014a5680; name: FUN_014a5680
+ */
+
+
+void FUN_014a5680(long *param_1,int param_2)
+
+{
+  long *plVar1;
+  long local_a8;
+  char acStack_a0 [128];
+  
+  memset(param_1,0,0x98);
+  memset(acStack_a0,0,0x80);
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)*param_1;
+  *param_1 = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  *param_1 = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/P_icon_poke_00",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[1];
+  param_1[1] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[1] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/P_icon_poke_shadow",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[2];
+  param_1[2] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[2] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/N_icon_poke_state_00",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[3];
+  param_1[3] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[3] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/P_icon_bsetting_base_00",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[4];
+  param_1[4] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[4] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/P_icon_lock",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[5];
+  param_1[5] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[5] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/P_icon_lock_live_01",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[6];
+  param_1[6] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[6] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/P_check",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[7];
+  param_1[7] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[7] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/lift_default",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[8];
+  param_1[8] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[8] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/release_default",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[9];
+  param_1[9] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[9] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/disable",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[10];
+  param_1[10] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[10] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/black",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[0xb];
+  param_1[0xb] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[0xb] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/disable",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[0xc];
+  param_1[0xc] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[0xc] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/active",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[0xd];
+  param_1[0xd] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[0xd] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/default",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[0xe];
+  param_1[0xe] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[0xe] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/byebye",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[0xf];
+  param_1[0xf] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[0xf] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/trade_offer",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[0x10];
+  param_1[0x10] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[0x10] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/trade_reset",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[0x11];
+  param_1[0x11] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[0x11] = local_a8;
+  snprintf(acStack_a0,0x80,"L_icon_box_%02d/btl_team",param_2);
+  FUN_014a5c20(&local_a8,acStack_a0);
+  plVar1 = (long *)param_1[0x12];
+  param_1[0x12] = 0;
+  if (plVar1 != (long *)0x0) {
+    (**(code **)(*plVar1 + 0x20))();
+  }
+  param_1[0x12] = local_a8;
+  return;
+}
+
+
