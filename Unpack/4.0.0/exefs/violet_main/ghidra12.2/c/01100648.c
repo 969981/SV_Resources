@@ -1,0 +1,230 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 01100648; name: FUN_01100648
+ */
+
+
+void FUN_01100648(long *param_1,long *param_2)
+
+{
+  short *psVar1;
+  undefined *puVar2;
+  int *piVar3;
+  long *plVar4;
+  int iVar5;
+  short sVar6;
+  char cVar7;
+  bool bVar8;
+  long *plVar9;
+  char *pcVar10;
+  undefined8 uVar11;
+  char *pcVar12;
+  char *pcVar13;
+  char *pcVar14;
+  long lVar15;
+  long lVar16;
+  long local_18;
+  
+  FUN_00d1a240(param_1,0x800a8080);
+  *param_1 = (long)&DAT_04595498;
+  param_1[4] = (long)&PTR_LAB_04595618;
+  param_1[5] = (long)&DAT_04595740;
+  param_1[0x24] = (long)&PTR_LAB_045957f8;
+  param_1[6] = (long)&PTR_LAB_04595798;
+  param_1[7] = (long)&PTR_LAB_045957c0;
+  lVar15 = *param_2;
+  param_1[0x26] = lVar15;
+  if (lVar15 == 0) goto LAB_011006d4;
+  lVar15 = *(long *)(lVar15 + 0x30);
+  if (*(long *)(lVar15 + 0x10) == 0) goto LAB_01100990;
+  psVar1 = (short *)(lVar15 + 0x1a);
+  do {
+    sVar6 = *psVar1;
+    cVar7 = '\x01';
+    bVar8 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+    if (bVar8) {
+      *psVar1 = sVar6 + 1;
+      cVar7 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar7 != '\0');
+  if (sVar6 != 0) {
+    if (sVar6 != -1) goto LAB_011006d4;
+LAB_011009b0:
+    pcVar10 = "count != 0";
+    pcVar12 = "AddReference";
+    pcVar13 = 
+    "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/indexed_handle.h"
+    ;
+    pcVar14 = "Reference counter overflows.";
+LAB_011009d0:
+                    /* WARNING: Subroutine does not return */
+    nn::diag::detail::AbortImpl(pcVar10,pcVar12,pcVar13,0x58,pcVar14);
+  }
+  uVar11 = (**(code **)**(undefined8 **)(lVar15 + 0x10))();
+  *(undefined8 *)(lVar15 + 8) = uVar11;
+  *(undefined4 *)(lVar15 + 0x1c) = 0xfffffffe;
+LAB_011006d4:
+  param_1[0x2d] = 0;
+  param_1[0x2e] = 0;
+  param_1[0x2b] = 0;
+  param_1[0x2c] = 0;
+  param_1[0x29] = 0;
+  param_1[0x2a] = 0;
+  puVar2 = PTR_DAT_047d94a8 + 0x10;
+  param_1[0x38] = 0;
+  *(undefined1 *)(param_1 + 0x39) = 0;
+  *(undefined1 *)(param_1 + 0x37) = 0;
+  param_1[0x27] = (long)puVar2;
+  param_1[0x28] = 0;
+  param_1[0x2f] = (long)&DAT_cbf29ce484222645;
+  param_1[0x30] = (long)&DAT_03c886bc;
+  param_1[0x33] = (long)&DAT_cbf29ce484222645;
+  param_1[0x34] = (long)&DAT_03c886bc;
+  param_1[0x31] = 0;
+  param_1[0x32] = 0;
+  param_1[0x35] = 0;
+  param_1[0x36] = 0;
+  *(undefined4 *)((long)param_1 + 0x1c9) = 1;
+  param_1[0x42] = param_1[1];
+  param_1[0x3f] = 0;
+  *(undefined4 *)(param_1 + 0x40) = 0;
+  param_1[0x41] = 0;
+  param_1[0x43] = 0xfffffffffffffff;
+  param_1[0x44] = 0;
+  *(undefined4 *)(param_1 + 0x45) = 0;
+  param_1[0x46] = 0;
+  *(undefined2 *)(param_1 + 0x48) = 0;
+  *(undefined1 *)((long)param_1 + 0x242) = 0;
+  param_1[0x49] = 0;
+  param_1[0x3d] = param_1[1];
+  param_1[0x3e] = 0xfffffffffffffff;
+  *(undefined4 *)(param_1 + 0x47) = 0x3f800000;
+  param_1[0x3b] = 0;
+  param_1[0x3c] = 0;
+  *(undefined4 *)((long)param_1 + 0x25c) = 1;
+  nn::os::InitializeLightEvent(param_1 + 0x4a,0,1);
+  param_1[0x4c] = 0;
+  *(undefined4 *)(param_1 + 0x4d) = 0x10100;
+  *(undefined2 *)((long)param_1 + 0x26c) = 0;
+  param_1[0x4e] = 0;
+  param_1[0x4f] = 0;
+  param_1[0x50] = 0;
+  param_1[0x51] = 0;
+  *(undefined1 *)(param_1 + 0x52) = 1;
+  *(undefined2 *)(param_1 + 0x53) = 0x101;
+  *(undefined1 *)((long)param_1 + 0x29a) = 0;
+  param_1[0x54] = 0;
+  param_1[0x55] = 0;
+  FUN_01100b28(param_1 + 0x56);
+  *(undefined2 *)(param_1 + 0x5b) = 0x101;
+  *(undefined8 *)((long)param_1 + 0x2dc) = 0x3f80000000000000;
+  *(undefined1 *)((long)param_1 + 0x2e4) = 1;
+  lVar15 = FUN_01100a00(param_1[1]);
+  if (lVar15 != 0) {
+    lVar16 = *(long *)(lVar15 + 0x30);
+    if (*(long *)(lVar16 + 0x10) == 0) {
+LAB_01100990:
+                    /* WARNING: Subroutine does not return */
+      nn::diag::detail::AbortImpl
+                ("m_object != nullptr","AddReference",
+                 "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/indexed_handle.h"
+                 ,0x3d);
+    }
+    psVar1 = (short *)(lVar16 + 0x1a);
+    do {
+      sVar6 = *psVar1;
+      cVar7 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+      if (bVar8) {
+        *psVar1 = sVar6 + 1;
+        cVar7 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar7 != '\0');
+    if (sVar6 == 0) {
+      uVar11 = (**(code **)**(undefined8 **)(lVar16 + 0x10))();
+      *(undefined8 *)(lVar16 + 8) = uVar11;
+      *(undefined4 *)(lVar16 + 0x1c) = 0xfffffffe;
+    }
+    else if (sVar6 == -1) goto LAB_011009b0;
+  }
+  plVar9 = (long *)param_1[0x38];
+  param_1[0x38] = 0;
+  if (plVar9 != (long *)0x0) {
+    lVar16 = plVar9[6];
+    psVar1 = (short *)(lVar16 + 0x1a);
+    do {
+      sVar6 = *psVar1;
+      cVar7 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+      if (bVar8) {
+        *psVar1 = sVar6 + -1;
+        cVar7 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar7 != '\0');
+    if (sVar6 == 1) {
+      *(undefined8 *)(lVar16 + 0x10) = 0;
+      (**(code **)(*plVar9 + 0x50))();
+    }
+    else if (sVar6 == 0) {
+                    /* WARNING: Subroutine does not return */
+      nn::diag::detail::AbortImpl
+                ("count != std::numeric_limits<uint16_t>::max()","ReleaseReference",
+                 "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/indexed_handle.h"
+                 ,0x60,"Reference counter underflows.");
+    }
+  }
+  param_1[0x38] = lVar15;
+  local_18 = lVar15;
+  lVar15 = FUN_01100db8(param_1[1],&local_18);
+  if (lVar15 != 0) {
+    piVar3 = (int *)(lVar15 + 0x28);
+    do {
+      iVar5 = *piVar3;
+      cVar7 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(piVar3,0x10);
+      if (bVar8) {
+        *piVar3 = iVar5 + 1;
+        cVar7 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar7 != '\0');
+    if (iVar5 == -1) {
+                    /* WARNING: Subroutine does not return */
+      nn::diag::detail::AbortImpl
+                ("count != 0","IncrementReferenceInternal",
+                 "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/reference_object.h"
+                 ,0x53,"Reference counter overflows.");
+    }
+  }
+  plVar9 = (long *)param_1[0x4c];
+  param_1[0x4c] = 0;
+  if (plVar9 != (long *)0x0) {
+    plVar4 = plVar9 + 5;
+    do {
+      lVar16 = *plVar4;
+      iVar5 = (int)lVar16 + -1;
+      cVar7 = '\x01';
+      bVar8 = (bool)ExclusiveMonitorPass(plVar4,0x10);
+      if (bVar8) {
+        *(int *)plVar4 = iVar5;
+        cVar7 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar7 != '\0');
+    if (iVar5 == 0) {
+      (**(code **)(*plVar9 + 0x10))();
+    }
+    else if ((int)lVar16 == 0) {
+      pcVar10 = "count != std::numeric_limits<uint32_t>::max()";
+      pcVar12 = "DecrementReferenceInternal";
+      pcVar13 = 
+      "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/reference_object.h"
+      ;
+      pcVar14 = "Reference counter underflows.";
+      goto LAB_011009d0;
+    }
+  }
+  param_1[0x4c] = lVar15;
+  (**(code **)(*param_1 + 0x70))(param_1,0);
+  return;
+}
+
+

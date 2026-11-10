@@ -1,0 +1,158 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 010c3f58; name: FUN_010c3f58
+ */
+
+
+void FUN_010c3f58(long param_1,long *param_2)
+
+{
+  short *psVar1;
+  short sVar2;
+  char cVar3;
+  bool bVar4;
+  long *plVar5;
+  undefined8 uVar6;
+  long *plVar7;
+  long *plVar8;
+  long *plVar9;
+  long lVar10;
+  long *plVar11;
+  
+  plVar5 = *(long **)(param_1 + 0x40);
+  plVar9 = *(long **)(param_1 + 0x48);
+  if (plVar5 == plVar9) {
+    plVar9 = plVar5;
+  }
+  else {
+    do {
+      plVar7 = (long *)*plVar5;
+      if (plVar7 == (long *)0x0) {
+        if (*param_2 == 0) goto LAB_010c3ff0;
+      }
+      else {
+        lVar10 = plVar7[6];
+        if (*(long *)(lVar10 + 0x10) == 0) {
+                    /* WARNING: Subroutine does not return */
+          nn::diag::detail::AbortImpl
+                    ("m_object != nullptr","AddReference",
+                     "C:/jenkins/workspace/sudachi/nuget/nuget_battleLogic_build_s2/battleLogic_titan/prog/../lib/gflib3/include\\core/indexed_handle.h"
+                     ,0x3d);
+        }
+        psVar1 = (short *)(lVar10 + 0x1a);
+        do {
+          sVar2 = *psVar1;
+          cVar3 = '\x01';
+          bVar4 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+          if (bVar4) {
+            *psVar1 = sVar2 + 1;
+            cVar3 = ExclusiveMonitorsStatus();
+          }
+        } while (cVar3 != '\0');
+        if (sVar2 == 0) {
+          uVar6 = (**(code **)**(undefined8 **)(lVar10 + 0x10))();
+          *(undefined8 *)(lVar10 + 8) = uVar6;
+          *(undefined4 *)(lVar10 + 0x1c) = 0xfffffffe;
+        }
+        else if (sVar2 == -1) {
+                    /* WARNING: Subroutine does not return */
+          nn::diag::detail::AbortImpl
+                    ("count != 0","AddReference",
+                     "C:/jenkins/workspace/sudachi/nuget/nuget_battleLogic_build_s2/battleLogic_titan/prog/../lib/gflib3/include\\core/indexed_handle.h"
+                     ,0x58,"Reference counter overflows.");
+        }
+        lVar10 = plVar7[6];
+        psVar1 = (short *)(lVar10 + 0x1a);
+        plVar11 = (long *)*param_2;
+        do {
+          sVar2 = *psVar1;
+          cVar3 = '\x01';
+          bVar4 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+          if (bVar4) {
+            *psVar1 = sVar2 + -1;
+            cVar3 = ExclusiveMonitorsStatus();
+          }
+        } while (cVar3 != '\0');
+        if (sVar2 == 1) {
+          *(undefined8 *)(lVar10 + 0x10) = 0;
+          (**(code **)(*plVar7 + 0x50))(plVar7);
+        }
+        else if (sVar2 == 0) goto LAB_010c4118;
+        if (plVar11 == plVar7) goto LAB_010c3ff0;
+      }
+      plVar5 = plVar5 + 1;
+    } while (plVar5 != plVar9);
+    plVar5 = plVar9;
+LAB_010c3ff0:
+    plVar9 = *(long **)(param_1 + 0x48);
+  }
+  if (plVar9 != plVar5) {
+    plVar7 = plVar5;
+    plVar11 = plVar5 + 1;
+    if (plVar5 + 1 == plVar9) goto LAB_010c4164;
+    do {
+      plVar5 = (long *)*plVar7;
+      *plVar7 = 0;
+      if (plVar5 != (long *)0x0) {
+        lVar10 = plVar5[6];
+        psVar1 = (short *)(lVar10 + 0x1a);
+        do {
+          sVar2 = *psVar1;
+          cVar3 = '\x01';
+          bVar4 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+          if (bVar4) {
+            *psVar1 = sVar2 + -1;
+            cVar3 = ExclusiveMonitorsStatus();
+          }
+        } while (cVar3 != '\0');
+        if (sVar2 == 1) {
+          *(undefined8 *)(lVar10 + 0x10) = 0;
+          (**(code **)(*plVar5 + 0x50))();
+        }
+        else if (sVar2 == 0) goto LAB_010c4118;
+      }
+      lVar10 = *plVar11;
+      plVar8 = plVar11 + 1;
+      *plVar11 = 0;
+      plVar5 = plVar7 + 1;
+      *plVar7 = lVar10;
+      plVar7 = plVar5;
+      plVar11 = plVar8;
+    } while (plVar8 != plVar9);
+    plVar9 = *(long **)(param_1 + 0x48);
+    while (plVar9 != plVar5) {
+LAB_010c4164:
+      plVar9 = plVar9 + -1;
+      plVar7 = (long *)*plVar9;
+      if (plVar7 != (long *)0x0) {
+        lVar10 = plVar7[6];
+        psVar1 = (short *)(lVar10 + 0x1a);
+        do {
+          sVar2 = *psVar1;
+          cVar3 = '\x01';
+          bVar4 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+          if (bVar4) {
+            *psVar1 = sVar2 + -1;
+            cVar3 = ExclusiveMonitorsStatus();
+          }
+        } while (cVar3 != '\0');
+        if (sVar2 == 1) {
+          *(undefined8 *)(lVar10 + 0x10) = 0;
+          (**(code **)(*plVar7 + 0x50))();
+        }
+        else if (sVar2 == 0) {
+LAB_010c4118:
+                    /* WARNING: Subroutine does not return */
+          nn::diag::detail::AbortImpl
+                    ("count != std::numeric_limits<uint16_t>::max()","ReleaseReference",
+                     "C:/jenkins/workspace/sudachi/nuget/nuget_battleLogic_build_s2/battleLogic_titan/prog/../lib/gflib3/include\\core/indexed_handle.h"
+                     ,0x60,"Reference counter underflows.");
+        }
+      }
+    }
+    *(long **)(param_1 + 0x48) = plVar5;
+  }
+  return;
+}
+
+
