@@ -1,0 +1,51 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 0192c95c; name: FUN_0192c95c
+ */
+
+
+undefined8
+FUN_0192c95c(byte *param_1,code *UNRECOVERED_JUMPTABLE_00,ulong param_3,undefined8 param_4,
+            undefined4 *param_5,undefined4 *param_6)
+
+{
+  undefined8 uVar1;
+  long *plVar2;
+  long lVar3;
+  
+  if (*param_1 < 4) {
+    switch(*param_1) {
+    default:
+      if (*(long *)(param_1 + 8) != 0) {
+        plVar2 = (long *)(*(long *)(param_1 + 8) + ((long)param_3 >> 1));
+        if ((param_3 & 1) != 0) {
+          UNRECOVERED_JUMPTABLE_00 = *(code **)(UNRECOVERED_JUMPTABLE_00 + *plVar2);
+        }
+                    /* WARNING: Could not recover jumptable at 0x0192c9b4. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+        uVar1 = (*UNRECOVERED_JUMPTABLE_00)(*param_5,plVar2,param_4,*param_6);
+        return uVar1;
+      }
+      break;
+    case 2:
+      if ((*(long *)(param_1 + 8) == 0) ||
+         (lVar3 = *(long *)(*(long *)(param_1 + 8) + 0x10), lVar3 == 0)) {
+        return 0;
+      }
+      plVar2 = (long *)(lVar3 + ((long)param_3 >> 1) + -0x28);
+      if ((param_3 & 1) != 0) {
+        UNRECOVERED_JUMPTABLE_00 = *(code **)(UNRECOVERED_JUMPTABLE_00 + *plVar2);
+      }
+                    /* WARNING: Could not recover jumptable at 0x0192ca00. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+      uVar1 = (*UNRECOVERED_JUMPTABLE_00)(*param_5,plVar2,param_4,*param_6);
+      return uVar1;
+    case 3:
+      uVar1 = FUN_0253e400(param_1 + 8,UNRECOVERED_JUMPTABLE_00);
+      return uVar1;
+    }
+  }
+  return 0;
+}
+
+
