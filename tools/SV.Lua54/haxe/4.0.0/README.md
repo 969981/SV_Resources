@@ -1,6 +1,6 @@
 # SV Violet 4.0.0 curated Haxe reconstruction
 
-**Status: 4 native C→S static-method bindings verified against original 4.0.0 bytecode; Haxe compiler/runtime parity not verified.** This is an evidence-tracked source workspace, not a recovered complete game project.
+**Status: 4 native C→S static-method bindings verified against original 4.0.0 bytecode; three method bodies compile with stock Haxe 4.3.7, but game-runtime parity remains NOT_OBSERVED.** This is an evidence-tracked source workspace, not a recovered complete game project.
 
 ## Location and files
 
@@ -29,7 +29,7 @@ The verifier checks register structure, hashed class/member constants, child ind
 
 The `dll_util.MathUtil.Clamp` child applies min and max bounds in 8 opcodes. `dll_util.Assert.IsNull` has a 4-opcode native body (EQK/JMP/LOADK/RETURN0), but its intended high-level assertion semantics remain unresolved; the Haxe file is intentionally `extern` only.
 
-The `CalcXFov` original child executes `math.atan2(960,540/math.tan(fovy/2))*2`; `Format` forwards 5 args to `string.format` with `TAILCALL`. This supports static Haxe expression reconstruction, **not yet a successful Haxe→Lua compile or behavior A/B**.
+The `CalcXFov` original child executes `math.atan2(960,540/math.tan(fovy/2))*2`; `Format` forwards 5 args to `string.format` with `TAILCALL`. This supports static Haxe expression reconstruction. [The stock Haxe 4.3.7 smoke build](https://github.com/969981/SV_Resources/actions/runs/42749582979) successfully emitted Lua 5.4 and executed three pure examples with explicit compatibility shims; no original-game behavior A/B has been run.
 
 ## Reproduce
 
@@ -46,7 +46,7 @@ mkdir -p build
 haxe build.hxml
 ```
 
-The reference `@:hashAbi` metadata is enforced by the Python verifier; implementing automatic ABI renaming requires a compatible, pinned custom `HashAbi` Haxe macro/finalizer and Lua-native externs. Do not label a smoke build as game-compatible.
+The reference `@:hashAbi` metadata is enforced by the Python verifier; implementing automatic Haxe compiler-time ABI renaming requires a compatible, pinned custom `HashAbi` Haxe macro/finalizer and Lua-native externs. Do not label a smoke build as game-compatible.
 
 ## Inputs, provenance and unverified gaps
 
@@ -54,7 +54,8 @@ The reference `@:hashAbi` metadata is enforced by the Python verifier; implement
 - SV 4.0.0 main.blua original, SHA-256 `c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815`, 37,743 Proto.
 - Other module input hashes are pinned in `tools/SV.Lua54/fixtures/native_manifest.json`; six-module total 46,084 Proto.
 - `dll_util.StrUtil.Format` from older SVScripts is **not** directly matched in native 4.0.0 `dll_util` root constant/pattern scan. Do not invent a Proto/PC for it.
-- Haxe compilation: `NOT_RUN`. Differential Lua execution: `NOT_RUN`. Game runtime: `NOT_OBSERVED`.
+- Three method bodies: `haxe_compile_status=STOCK_HAXE_4_3_7_LUA_COMPILED` (see Actions #42749582979); `dll_util.Assert.IsNull`: extern only / Haxe method implementation `NOT_RUN`.
+- Source-vs-recompiled Lua differential: `NOT_RUN`. Game runtime: `NOT_OBSERVED`. Game-specific compiler/finalizer: `NOT_RUN`.
 - PokeDocs, SVScripts, ZAScripts and SV-Script-RE are *naming/porting references*, not substitutes for native 4.0.0 bytecode verification.
 
 Read-only native probes: `scripts/Probe-SV-Haxe-Native.py`, `scripts/Link-SV-Haxe-Native.py`, and `scripts/Inventory-SV-DllUtil-Haxe.py`.
