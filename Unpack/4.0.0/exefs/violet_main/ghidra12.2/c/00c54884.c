@@ -1,0 +1,95 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 00c54884; name: FUN_00c54884
+ */
+
+
+void FUN_00c54884(long *param_1)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  int iVar4;
+  ulong uVar5;
+  long lVar6;
+  long lVar7;
+  long *plVar8;
+  long lVar9;
+  
+  lVar7 = param_1[1];
+  lVar9 = param_1[2];
+  do {
+    if (lVar9 == lVar7) {
+      lVar7 = *param_1;
+      if (lVar7 == 0) {
+        return;
+      }
+      lVar9 = param_1[3];
+      plVar8 = *(long **)param_1[4];
+      uVar5 = (**(code **)(*plVar8 + 0xf8))(plVar8);
+      if (((uVar5 & 1) == 0) || (lVar6 = FUN_00c4e600(), *(int *)(lVar6 + 0x12c8) < 1)) {
+                    /* WARNING: Could not recover jumptable at 0x00c5499c. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+        (**(code **)(*plVar8 + 0x18))(plVar8,lVar7,lVar9 - lVar7,8);
+        return;
+      }
+      FUN_00c48fe8(plVar8,lVar7,lVar9 - lVar7,8);
+      return;
+    }
+    param_1[2] = lVar9 + -0x20;
+    if (*(long **)(lVar9 + -0x18) != (long *)0x0) {
+      (**(code **)(**(long **)(lVar9 + -0x18) + 0x38))();
+      plVar8 = *(long **)(lVar9 + -0x18);
+      *(undefined8 *)(lVar9 + -0x20) = 0;
+      *(undefined8 *)(lVar9 + -0x18) = 0;
+      if (plVar8 != (long *)0x0) {
+        plVar1 = plVar8 + 5;
+        do {
+          lVar6 = *plVar1;
+          iVar4 = (int)lVar6 + -1;
+          cVar2 = '\x01';
+          bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+          if (bVar3) {
+            *(int *)plVar1 = iVar4;
+            cVar2 = ExclusiveMonitorsStatus();
+          }
+        } while (cVar2 != '\0');
+        if (iVar4 == 0) {
+          (**(code **)(*plVar8 + 0x10))();
+        }
+        else if ((int)lVar6 == 0) goto LAB_00c549c8;
+      }
+      plVar8 = *(long **)(lVar9 + -0x18);
+      *(undefined8 *)(lVar9 + -0x10) = 0xffffffffffffffff;
+      *(undefined8 *)(lVar9 + -8) = 0;
+      if (plVar8 != (long *)0x0) {
+        plVar1 = plVar8 + 5;
+        do {
+          lVar9 = *plVar1;
+          iVar4 = (int)lVar9 + -1;
+          cVar2 = '\x01';
+          bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+          if (bVar3) {
+            *(int *)plVar1 = iVar4;
+            cVar2 = ExclusiveMonitorsStatus();
+          }
+        } while (cVar2 != '\0');
+        if (iVar4 == 0) {
+          (**(code **)(*plVar8 + 0x10))();
+        }
+        else if ((int)lVar9 == 0) {
+LAB_00c549c8:
+                    /* WARNING: Subroutine does not return */
+          nn::diag::detail::AbortImpl
+                    ("count != std::numeric_limits<uint32_t>::max()","DecrementReferenceInternal",
+                     "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/reference_object.h"
+                     ,0x58,"Reference counter underflows.");
+        }
+      }
+    }
+    lVar9 = param_1[2];
+  } while( true );
+}
+
+
