@@ -1,0 +1,15 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 003adb40; name: FUN_003adb40
+ */
+
+
+void FUN_003adb40(void)
+
+{
+  DAT_0449bcb0 = FUN_00444480(5,0,"SSL for verify callback",0,0,0);
+  DAT_047f1644 = ~DAT_0449bcb0 >> 0x1f;
+  return;
+}
+
+
