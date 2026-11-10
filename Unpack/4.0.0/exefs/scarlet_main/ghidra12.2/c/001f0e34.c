@@ -1,0 +1,38 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 001f0e34; name: FUN_001f0e34
+ */
+
+
+undefined8 FUN_001f0e34(long param_1,long param_2)
+
+{
+  uint uVar1;
+  int iVar2;
+  undefined8 uVar3;
+  char *pcVar4;
+  
+  if (*(int *)(param_2 + 8) == 0) {
+    uVar1 = *(uint *)(param_2 + 0x10);
+    if ((((int)uVar1 < 1) || ((uVar1 & 1) == (uint)(*(char *)(param_1 + 0x9aa) == '\0'))) &&
+       ((int)uVar1 <= *(int *)(param_1 + 0x948))) {
+      *(byte *)(param_1 + 0x9ab) = *(byte *)(param_1 + 0x9ab) | 8;
+      *(undefined4 *)(param_1 + 0x948) = *(undefined4 *)(param_2 + 0x10);
+      if ((*(code **)(param_1 + 0x7e8) == (code *)0x0) ||
+         (iVar2 = (**(code **)(param_1 + 0x7e8))(param_1,param_2,*(undefined8 *)(param_1 + 0x8b8)),
+         iVar2 == 0)) {
+        uVar3 = FUN_001f0f04(param_1,*(undefined4 *)(param_2 + 0x10),0);
+        return uVar3;
+      }
+      return 0xfffffc7a;
+    }
+    pcVar4 = "GOAWAY: invalid last_stream_id";
+  }
+  else {
+    pcVar4 = "GOAWAY: stream_id != 0";
+  }
+  uVar3 = FUN_001f0268(param_1,param_2,0xfffffe07,pcVar4);
+  return uVar3;
+}
+
+

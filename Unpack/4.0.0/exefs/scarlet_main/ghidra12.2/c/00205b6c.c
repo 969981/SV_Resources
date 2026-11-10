@@ -1,0 +1,67 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 00205b6c; name: FUN_00205b6c
+ */
+
+
+void FUN_00205b6c(long param_1,char *param_2)
+
+{
+  undefined *puVar1;
+  size_t __n;
+  undefined *puVar2;
+  ulong *puVar3;
+  void *__dest;
+  ulong uVar4;
+  ulong local_58;
+  size_t local_50;
+  void *local_48;
+  
+  puVar1 = PTR_DAT_047cba80;
+  if (*(int *)(param_1 + 0x1c) != 1) {
+    FUN_0021c298(param_1);
+    *(undefined4 *)(param_1 + 0x1c) = 1;
+    *(undefined **)(param_1 + 0x10) = puVar1;
+  }
+  __n = strlen(param_2);
+  if (0xffffffffffffffef < __n) {
+                    /* WARNING: Subroutine does not return */
+    std::__basic_string_common<true>::__throw_length_error();
+  }
+  if (__n < 0x17) {
+    local_58 = CONCAT71(local_58._1_7_,(char)((int)__n << 1));
+    __dest = (void *)((ulong)&local_58 | 1);
+    if (__n == 0) goto LAB_00205c1c;
+  }
+  else {
+    uVar4 = __n + 0x10 & 0xfffffffffffffff0;
+    __dest = (void *)FUN_0049e770(PTR_FUN_047cba38,uVar4);
+    local_58 = uVar4 | 1;
+    local_50 = __n;
+    local_48 = __dest;
+  }
+  memcpy(__dest,param_2,__n);
+LAB_00205c1c:
+  *(undefined1 *)((long)__dest + __n) = 0;
+  puVar3 = (ulong *)(*(ulong *)(param_1 + 8) & 0xfffffffffffffffe);
+  if ((*(ulong *)(param_1 + 8) & 1) == 0) {
+    puVar2 = *(undefined **)(param_1 + 0x10);
+  }
+  else {
+    puVar3 = (ulong *)*puVar3;
+    puVar2 = *(undefined **)(param_1 + 0x10);
+  }
+  if (puVar2 == puVar1) {
+    FUN_001fcdc8(param_1 + 0x10,puVar3,&local_58);
+  }
+  else {
+                    /* try { // try from 00205c38 to 00205c5f has its CatchHandler @ 00205c98 */
+    FUN_001fcec0(puVar2,&local_58);
+  }
+  if ((local_58 & 1) != 0) {
+    FUN_0049e790(PTR_LAB_047cba48,local_48);
+  }
+  return;
+}
+
+
