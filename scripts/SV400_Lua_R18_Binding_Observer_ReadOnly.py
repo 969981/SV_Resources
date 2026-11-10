@@ -31,6 +31,7 @@ VM_EVENTS = 0
 MAX_VM_EVENTS = 160
 LAST_CALL_BY_L = {}
 BREAKPOINTS = []
+BLR_CONTEXTS_BY_THREAD = {}
 
 def reg(name):
     return int(gdb.parse_and_eval("$" + name))
@@ -99,6 +100,41 @@ def bounded_vm_event():
         return False
     VM_EVENTS += 1
     return True
+
+def read_u64(address):
+    return int.from_bytes(mem(address, 8), "little")
+
+def snapshot_candidate_object(obj):
+    """Bounded, read-only snapshots of statically identified write regions.
+
+    These are sampled offsets, NOT exhaustive Memory SSA or proof of aliasing.
+    """
+    if not obj:
+        return {"status": "NULL_OBJECT"}
+    out = {
+        "obj_0x38_0x60": safe_mem(obj + 0x38, 0x28),
+        "obj_0x178_0x188": safe_mem(obj + 0x178, 0x10),
+        "obj_0x244_u16": safe_mem(obj + 0x244, 2),
+        "obj_0x2a0_u8": safe_mem(obj + 0x2a0, 1),
+        "linked_first_four": [],
+    }
+    try:
+        first = read_u64(obj + 0x178)
+        last = read_u64(obj + 0x180)
+        span = last - first
+        if first and 0 <= span <= 0x8000 and span % 8 == 0:
+            out["linked_total_count"] = span // 8
+            for i in range(min(span // 8, 4)):
+                ptr = read_u64(first + i * 8)
+                out["linked_first_four"].append({
+                    "index": i, "pointer": hex(ptr),
+                    "child_0x1fc_u8": safe_mem(ptr + 0x1fc, 1) if ptr else "NULL"
+                })
+        else:
+            out["linked_total_count"] = "INVALID_OR_UNREADABLE_RANGE"
+    except Exception as exc:
+        out["linked_error"] = str(exc)[:120]
+    return out
 
 class Observer(gdb.Breakpoint):
     def __init__(self, off, kind):
@@ -223,16 +259,38 @@ class Observer(gdb.Breakpoint):
                      lr=hex(reg("x30")), sp=hex(sp))
             elif self.kind == "INDIRECT_CALL":
                 x0, x1, x8 = reg("x0"), reg("x1"), reg("x8")
+                thread = gdb.selected_thread()
+                tid = thread.global_num if thread else -1
+                before = snapshot_candidate_object(x0)
+                context = {
+                    "object": x0, "mode_w1": x1 & 0xffffffff,
+                    "target": x8, "before": before, "caller_sp": sp,
+                }
+                BLR_CONTEXTS_BY_THREAD.setdefault(tid, []).append(context)
                 emit(self.kind, pc=hex(pc), x0_arg=hex(x0), x1_arg=hex(x1),
+                     w1_unsigned=x1 & 0xffffffff, thread_id=tid,
                      x8_target_candidate=hex(x8),
                      target_rva_candidate=hex(x8 - BASE) if x8 >= BASE else None,
-                     x0_bytes_0x40=safe_mem(x0, 0x40) if x0 else "NULL",
+                     static_initial_target_rva_candidate="0xEF4890",
+                     target_matches_static_candidate=(x8 == BASE + 0xef4890),
+                     sampled_object_before=before,
                      x1_bytes_0x20_candidate=safe_mem(x1, 0x20) if x1 else "NOT_AVAILABLE",
                      lr=hex(reg("x30")), sp=hex(sp))
             elif self.kind == "INDIRECT_RETURN":
+                thread = gdb.selected_thread()
+                tid = thread.global_num if thread else -1
+                stack = BLR_CONTEXTS_BY_THREAD.get(tid, [])
+                context = stack.pop() if stack else None
+                after = snapshot_candidate_object(context["object"]) if context else None
                 emit(self.kind, pc=hex(pc), return_x0=hex(reg("x0")),
+                     thread_id=tid, matched_pending_blr=(context is not None),
+                     call_target=hex(context["target"]) if context else None,
+                     call_mode_w1=context["mode_w1"] if context else None,
+                     original_object=hex(context["object"]) if context else None,
+                     sampled_object_before=context["before"] if context else None,
+                     sampled_object_after=after,
                      lr=hex(reg("x30")), sp=hex(sp),
-                     note="after BLR and before wrapper clears W0")
+                     note="after BLR and before wrapper clears W0; bounded snapshots are NOT exhaustive Memory SSA")
         except Exception as exc:
             emit("DIAGNOSTIC", stage=self.kind, error=str(exc)[:220])
         return False

@@ -104,3 +104,28 @@ The original run's `headless.log` explicitly reports `ANALYZING all memory and c
 3. Verify loader slide, static-slot relocation, actual runtime X8 target, argument signedness/enum and any return-value side effects.
 4. Build per-invocation memory SSA: object provenance, aliases, writes, downstream consumption and cross-call lifetime.
 5. Keep PR Draft, and do not promote unobserved guest claims to verified.
+
+## R18 follow-up: static default call target recovered from the published R17 corpus
+
+The raw 8 bytes at the wrapper's function-pointer slot were `90 48 FF 00 00 00 00 00`. Using Ghidra's 0x100000 image base, the program address `0x00FF4890` corresponds to the existing, already-published decompilation, with **no new ELF analysis needed**:
+
+- [Scarlet `00ff4890.c`](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/00ff4890.c)
+- [Violet `00ff4890.c`](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/violet_main/ghidra12.2/c/00ff4890.c)
+
+Both recovered bodies agree apart from the provenance header:
+
+```c
+void FUN_00ff4890(long object, uint mode);
+```
+
+Static dataflow and effects:
+- `mode` is selected by a switch. Mode 0 clears `*(u16*)(object+0x244)`; for nonzero modes a bucket code OR 1 is written there. The observed buckets include 0x000, 0x100, 0x200 ... 0xA00, depending on mode.
+- `object+0x58` and `object+0x59` are state bytes, updated as needed. The mode 0 branch can write the 16-bit value 0xA00 to `object+0x58`.
+- When the state changes, a conditional call uses the pointer at `object+0x48`, then a virtual call uses the object at `object+0x38` with vtable slot `+0x20`.
+- The pointer array between `object+0x178` and `object+0x180` is traversed in 8-byte elements, potentially writing `child+0x1FC`. Its value depends on `object+0x244` and `object+0x2A0`.
+
+This resolves the **default static C++ target's two parameter types at decompiler level (object pointer, u32)** and its directly visible memory side effects. It does not prove that the runtime function-pointer slot still contains this target, that the function is always reached, or that there are no additional effects inside its callees.
+
+Important contrast with [R17 binding analysis](https://github.com/969981/SV_Resources/blob/master/docs/research/sv400-haxe-r17-native-registration-guest-call.md): upstream `CE35B3EB3.f558733FC(interval:UInt, part_interval:UInt):Void` declares two explicit UInt arguments, while the original Lua CALL provides receiver + one explicit argument, and the statically resolved native target takes object + one u32. This strengthens the **extern arity mismatch** finding; it does not justify using the upstream declaration as the original game's ABI without guest object-identity confirmation.
+
+The local GDB observer additionally records bounded pre-/post-BLR samples of the statically identified object fields and up to four linked children, associated by a thread-local pending BLR stack. These samples are **not** full memory SSA, not exhaustive alias analysis, and may be irrelevant if X8 dynamically points elsewhere. No guest run has yet been conducted.
