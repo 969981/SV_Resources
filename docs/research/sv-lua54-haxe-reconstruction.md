@@ -1,64 +1,101 @@
-# SV 4.0.0 Haxe 重建工作区：源码、HashAbi、Proto/PC 归档
+# SV 4.0.0 Haxe 重建：原生方法 Proto / PC / ABI 闭合（首批四方法）
 
-> [!warning] 证据范围（2026-11-10）
-> 这里交付的是 Haxe 工程位置、旧版 SV 单方法移植示例和 4.0.0 方法溯源校验框架，**不是**整份 `main.blua` 已恢复成 Haxe。示例方法的 4.0.0 Proto / PC / code_offset 全部为 null；Haxe 编译、Lua 行为差异和游戏实机验证均未运行。
+> [!success] 原生静态归属
+> `main` 的 `CompositionCamera.CalcXFov`、`StrUtil.Format`，以及 `dll_util` 的 `Assert.IsNull`、`MathUtil.Clamp`，已经从 4.0.0 **原始 Lua 5.4 字节码**获取真实类/成员哈希、Root 注册点、Child Proto、全 PC 范围、原生代码偏移和逐条原始 opcode 指纹。验证器在 CI 重新解析原始 BLUA 并核对，不是根据旧版 Haxe 猜的。
+>
+> [!warning] Haxe 语义验收尚未闭合
+> `SV400_NATIVE_MAPPED` 仅确认 **方法原生所有权与指令对应**；当前 `haxe_compile_status=NOT_RUN`、`lua_differential_status=NOT_RUN`、`runtime_status=NOT_OBSERVED`。`Assert.IsNull` 仅归档 `extern` ABI，未伪造函数体。
 
-## 位置约定
+## 仓库位置
 
-| 类别 | 保存位置 |
-| --- | --- |
-| 可维护源码 | `tools/SV.Lua54/haxe/4.0.0/source/main/{field,battle,event,util}/`（只创建有证据的类） |
-| 其他 Lua 模块 | `tools/SV.Lua54/haxe/4.0.0/source/dll_*/` |
-| 方法记录 | `tools/SV.Lua54/haxe/4.0.0/methods.jsonl` |
-| AST→Haxe 转换器（后续） | `tools/SV.Lua54/src/sv_lua54/emit_haxe/` |
-| 统一校验入口 | `scripts/Verify-SV-Haxe-Recovery.py` |
-| 大量自动生成结果（默认不提交） | `Unpack/4.0.0/romfs/arc/data.trpfs/virtual_converted/script/lua/haxe/` |
-| 原始输入（只读） | `Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/` |
+- [Haxe 4.0.0 源码工作区](../../tools/SV.Lua54/haxe/4.0.0/README.md)：`tools/SV.Lua54/haxe/4.0.0/source/`
+- [methods.jsonl](../../tools/SV.Lua54/haxe/4.0.0/methods.jsonl)：每行对应一个类方法，包含 `source_sha256`、`proto_id`、`parent_proto_id`、`pc_start`、`pc_end_exclusive`、`code_offset`、`root_pc`、`closure_pc`、`assignment_pc`、`child_index`、`native_root_opcode_words`、`native_child_opcode_words` 和互不混淆的状态字段
+- `scripts/Link-SV-Haxe-Native.py`：只读源字节码，原生 C→S 闭包链接和子函数反汇编（两种注册模式）
+- `scripts/Verify-SV-Haxe-Recovery.py`：同源字节码独立校验，无有效证据拒绝升级状态
+- `scripts/Probe-SV-Haxe-Native.py` 与 `scripts/Inventory-SV-DllUtil-Haxe.py`：候选扫描与 DLL 根常量/注册分析
+- `tests/test_sv_haxe_recovery.py`：哈希、来源、四个 Proto/PC 定位和状态的自动化测试
+- `.github/workflows/slr-haxe-recovery.yml`：稀疏检出原始两个 BLUA 与符号表做 CI 复核
+- `tools/SV.Lua54/src/sv_lua54/emit_haxe/`：将来 Lua AST→Haxe AST 转换器应放的位置，暂未实现
+- `Unpack/4.0.0/romfs/arc/data.trpfs/virtual_converted/script/lua/haxe/`：大批量临时生成结果，默认不提交。
 
-这样符合现有 `docs/research/sv-lua54-source-reconstruction-roadmap.md` 所要求的 `emit_haxe/` 后端和大规模临时输出分离；源码样本则单独归档于可审查的 Haxe 目录。
+原始 `virtual/script/lua/bin/release/` 和 `4.0.0/{0,1}/` 不动。
 
-## 输入与实际核实
+## 4.0.0 输入二进制基线
 
-`tools/SV.Lua54/fixtures/native_manifest.json` 中，SV Violet 4.0.0：
+| BLUA | 原生 SHA-256 | Proto |
+| --- | --- | ---: |
+| `main` | `c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815` | 37,743 |
+| `dll_util` | `bc2b5891d70c57bddbdd5c9f221756509b93dd24e6f2226664cd0e48797d7e01` | 133 |
+| 六模块合计 | `tools/SV.Lua54/fixtures/native_manifest.json` | 46,084 |
 
-- `main`: 37,743 Proto，SHA-256 `c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815`
-- `main_dynamic`: 7,036 Proto，SHA-256 `ae4a7d0168751f53af11746ac5ae7771cb1a5bfa580bcc0f79e2b9ee85acb572`
-- 六个 BLUA 文件总数：46,084 Proto，已通过 Lua 5.4 parser 字节往返。它不等于 Haxe 源码已恢复。
+这是可逆 Lua 5.4 字节码解析基线，不代表整份 Haxe 源码已还原。
 
-源代码参考：
+## 原生方法级证据
 
-- [Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) **已经包含 SV Haxe**，路径如 `source/main/`、`source/dll_util/`、`source/dll_stadium/`。
-- [Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 包含 `HashAbi` 元数据校验、Haxe 4.3.1、Lua 5.4.3 构建、`cppbindings` 原生接口和项目 finalizer。项目功能与具体字节码版本需要独立核实，不能直接声称适配 SV 4.0.0。
-- [pkZukan/PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 SV C/F/S/E 已知哈希名称。
-- [Martmists-GH/SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 提供旧版 SV 可读 Lua 方法，跨版本只作参考。
+| 方法 | C / S 哈希 | Root PC（开始→CLOSURE→赋值） | Child Proto | Child 原始 PC | Code offset | Haxe 方法体 |
+| --- | --- | --- | ---: | --- | ---: | --- |
+| `main.util.CompositionCamera.CalcXFov` | `CFEA9C3BFB3FCD429` / `S424E3EA0446070E7` | 426666 → 426670 → 426671 | 36158 | [0,16) | 12229810 | 原生运算表达式已转写，未重编译 |
+| `main.util.StrUtil.Format` | `C23E5342B132D5323` / `S042B860498E558B2` | 427562 → 427566 → 427567 | 36271 | [0,10) | 12255904 | 原生 `string.format` 转发已转写，未重编译 |
+| `dll_util.Assert.IsNull` | `CE5FCD7D9D8F34718` / `SB859A84B9E933D14` | 243 → 244 → 245 | 69 | [0,4) | 13418 | **extern only**，意图仍待验 |
+| `dll_util.MathUtil.Clamp` | `CED59418C4CAB0EC4` / `S05B90B9B5A6DE6BC` | 270 → 271 → 272 | 76 | [0,8) | 13663 | 条件分支表达式已转写，未重编译 |
 
-Hash 算法是 offset basis `0xCBF29CE484222645`、prime `0x100000001B3` 的 64-bit FNV-1a，前缀 `C`（类）、`F`（实例）、`S`（静态）、`E`（枚举）。Hash 对上只证明命名候选，不证明同一版本调用行为。
+两类真实原生注册模式：
 
-## 第一条真实示范（旧版证据，非 4.0.0 证明）
+```text
+main:     GETUPVAL → LOADK(C) → GETTABLE → LOADK(S) → CLOSURE → SETTABLE
+dll_util: GETTABUP(C) → CLOSURE → SETFIELD(S)
+```
 
-`main.util.CompositionCamera` = `CFEA9C3BFB3FCD429`；
-`CalcXFov` = `S424E3EA0446070E7`。
+校验不只看相邻字符串，也验证 Lua 寄存器、`_ENV` 上值索引、类/成员常量表下标、子 Proto 索引、完整原生 opcode words，因此同一个 `S` 名称出现在不同类时不会错误配对。
 
-- `.hx`：`tools/SV.Lua54/haxe/4.0.0/source/main/util/CompositionCamera.hx`
-- `body_status` = `OLDER_SV_REFERENCE`；命名 = `POKEDOCS_HASH_EXACT`
-- 原生 `proto_id`、`parent_proto_id`、`pc_start`、`pc_end_exclusive`、`code_offset` 全部为空。
-- `haxe_compile_status` 和 `lua_differential_status` 均为 `NOT_RUN`；`runtime_status` 为 `NOT_OBSERVED`。
-- 具体 Lua 表达式取自较早的公开 SV 工程，并与公开 Haxe 示例对照；4.0.0 的原始方法归属和行为仍需核对。
+### main.util.CompositionCamera.CalcXFov
 
-## 后续验收关口
+原生 Child Proto 36158 采用 `GETTABUP math`、`GETFIELD atan2`、`LOADF 960`、`GETFIELD tan`、`DIVK 2`、`CALL`、`LOADF 540`、`DIV`、`CALL`、`MULK 2`、`RETURN1`，包括 Lua5.4 `MMBIN*` 后备指令。
 
-1. 原始 4.0.0 Lua Proto / C→F、C→S 静态注册关联，记录确切 child Proto 与 PC 和 `code_offset`，区分 `_ENV` 初始化与闭包 Upvalue；映射未闭合不能填造编号。
-2. Haxe 类生成、继承和 `@:abiSlot`、`@:hashAbi`、`@:native` 的 ABI 保真。对于没有证据的语义，保留动态字段。
-3. Lua AST → Haxe AST 时保留 nil-hole、Lua 1-based table、返回多个值、闭包与异步/协程控制流，不能用字符串替换声称完成反编译。
-4. 固定编译器、Lua 编译器和 finalizer，Haxe→Lua 与纯 Lua 5.4 差异测试分别报告；语言层验证和原生引擎 ABI/实机验证分离。
+源码表达式：
+```haxe
+return lua.Math.atan2(960.0, 540.0 / lua.Math.tan(fovy / 2.0)) * 2.0;
+```
+`main.blua` 参数数为 1，静态方法体 16 指令。该表达式和旧版 SV-Script-RE / ZAScripts 对照一致，但 **没有 Haxe 编译与 Lua 语义 A/B**。
 
-## 复核命令
+### main.util.StrUtil.Format
+
+Child Proto 36271 有 5 个 Lua 入参：`GETTABUP string`、`GETFIELD format`、五条 `MOVE`、`TAILCALL`、`RETURN` / `RETURN0`，原生语义为 `string.format(format, a, b, c, d)`。Haxe 源使用 `lua.NativeStringTools.format`；目标 Lua 是否精确等价尚待编译核查。
+
+### dll_util.MathUtil.Clamp
+
+Child Proto 76 有 3 个入参，原版 `LT R0,R1`、条件跳转、`MOVE R0,R1`、`LT R2,R0`、条件跳转、`MOVE R0,R2`、`RETURN1 R0`。按此恢复：
+
+```haxe
+if (value < min) value = min;
+if (max < value) value = max;
+return value;
+```
+
+### dll_util.Assert.IsNull
+
+Child Proto 69（2 参数）仅有 `EQK`、`JMP`、`LOADK`、`RETURN0`。虽然名称为 IsNull，但原始高层意图与断言副作用不能据函数名猜测；目前只提供 `extern` 声明及完整 Proto/PC 溯源，**不声明实现已恢复**。
+
+`dll_util.StrUtil.Format`（旧版 SVScripts 中存在）在 4.0.0 的 `dll_util` 根常量/注册模式中没有找到该 C/S 组合。不能把其旧版源码冒充 4.0.0。实际 `dll_util` 根常量中出现 16 个 C 类哈希和 54 个 S 成员哈希；当前已明确发现 `dll_util.Assert`、`dll_util.MathUtil`、多个 `dll_util.miyamoto.*` 类。
+
+## 自动复现与状态规则
 
 ```bash
 python scripts/Verify-SV-Haxe-Recovery.py
 python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 ```
 
-这两个命令只验证哈希、路径、版本约束和部分元数据；若未来将记录升级为 `SV400_NATIVE_MAPPED`，脚本会要求实际 4.0.0 字节码存在、SHA 一致，并严格验证 Proto/PC 在真实原型中的边界。**它仍不等于行为一致性证明**。
+初版 `main` 两方法严格校验 [Actions #42747810335](https://github.com/969981/SV_Resources/actions/runs/42747810335) 通过 6/6；包含 `dll_util` 的后续专项校验在 `slr-haxe-recovery.yml` 持续验收。
 
-关联：[[sv-lua54-source-reconstruction-roadmap]] · [[sv-lua54-r5-mainbody-haxe-runtime-captures]] · [[sv-lua54-r7-runtime-upval-table-identity]]。
+每条记录独立保存：
+- `body_status=SV400_NATIVE_MAPPED`：说明原始 **C/S→Child Proto** 对应已从版本固定的 BLUA 验证。
+- `haxe_body_status=STATIC_OPCODE_EXPRESSION_MATCHED_UNCOMPILED` 或 `EXTERN_ONLY_UNRECONSTRUCTED`：说明目前源代码完成程度。
+- `haxe_compile_status` / `lua_differential_status` / `runtime_status`：全部单独验收，不能拿解析成功冒充游戏行为通过。
+
+## 上游资料与下一关
+
+[Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) 有 SV `source/main`、`source/dll_util`、`source/dll_stadium`；[Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 提供 Haxe 4.3.1、`HashAbi`、`@:chunk`、`@:abiSlot`、`cppbindings`、Lua 5.4.3 和 build finalizer 的参考实现；[PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 C/S/F/E 哈希与名称；[SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 是旧版 Lua 对照。
+
+下一道严格关口是：用固定 Haxe Lua 编译器检查这三段已转写的函数，执行 Lua 5.4 纯函数差异测试（包括 Clamp 边界情况、NaN、格式化参数），然后才考虑 ABI 重命名、真实运行时对账，以及扩展到 `main.field`、`main.battle`、`main.event`。
+
+关联 [[sv-lua54-source-reconstruction-roadmap]] · [[sv-lua54-r5-mainbody-haxe-runtime-captures]] · [[sv-lua54-r7-runtime-upval-table-identity]]。
