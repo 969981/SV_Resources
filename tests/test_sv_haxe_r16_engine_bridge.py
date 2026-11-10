@@ -11,7 +11,7 @@ sys.path.insert(0,str(ROOT/"tools/SV.Lua54/src"))
 from sv_lua54.chunk import Constant,Proto
 from sv_lua54.emit_haxe.r16_engine_bridge import (
     EXPECTED_ELF,LUA_K,R15_METHODS,static_memory_effects,
-    inspect_elf,inspect_cppbindings,
+    inspect_elf,inspect_cppbindings,compare_candidate_arity,
 )
 
 NATIVE=("00008094","020200C4","000000C2","800003B8",
@@ -95,6 +95,31 @@ class R16StaticEngineEvidence(unittest.TestCase):
             with patch.dict(EXPECTED_ELF,{"violet_main":hashlib.sha256(b).hexdigest()}):
                 with self.assertRaisesRegex(ValueError,"AArch64"):
                     inspect_elf(f,"violet_main")
+
+    def test_upstream_two_uint_parameters_do_not_prove_native_lua_call_abi(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp)/"CE35B3EB3.hx"
+            p.write_text('@:native("cE35B3EB3")\n'
+                         'public function f558733FC(interval:UInt, part_interval:UInt):Void;\n',
+                         "utf-8")
+            evidence=inspect_cppbindings(Path(tmp))
+            arity=compare_candidate_arity(evidence)
+            self.assertEqual(arity["upstream_declared_explicit_argument_count"],2)
+            self.assertEqual(arity["original_lua_explicit_argument_count_excluding_self"],1)
+            self.assertEqual(arity["declared_minus_lua_explicit"],1)
+            self.assertEqual(arity["declaring_haxe_native_class"],"cE35B3EB3")
+            self.assertEqual(arity["classification"],
+                             "UPSTREAM_EXTERN_ARITY_DIFFERS_FROM_SV400_LUA_CALL")
+            self.assertEqual(arity["abi_status"],"NOT_RESOLVED")
+
+    def test_cppbinding_missing_or_unparseable_is_never_a_native_entry(self):
+        info={"matches":{"f558733FC":[]}}
+        self.assertEqual(compare_candidate_arity(info)["classification"],
+                         "NO_UNIQUE_UPSTREAM_DECLARATION")
+        info["matches"]["f558733FC"]=[
+            {"file":"test.hx","line":1,"snippet":'@:native("f558733FC")'}]
+        self.assertEqual(compare_candidate_arity(info)["classification"],
+                         "UPSTREAM_DECLARATION_NOT_PARSEABLE")
 
     def test_cppbinding_exact_case_linenumbers_are_version_scoped(self):
         with tempfile.TemporaryDirectory() as tmp:
