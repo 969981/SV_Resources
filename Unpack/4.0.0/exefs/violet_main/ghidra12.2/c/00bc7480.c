@@ -1,0 +1,79 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 00bc7480; name: FUN_00bc7480
+ */
+
+
+byte * FUN_00bc7480(long param_1,undefined8 param_2,byte *param_3)
+
+{
+  uint uVar1;
+  long *plVar2;
+  uint uVar3;
+  byte *pbVar4;
+  uint uVar5;
+  byte *pbVar6;
+  byte *pbVar7;
+  
+  uVar3 = *(uint *)(param_1 + 0x10);
+  if ((uVar3 & 1) != 0) {
+    pbVar4 = *(byte **)(param_1 + 0x18);
+    pbVar6 = param_3 + 1;
+    *param_3 = 10;
+    uVar3 = (uint)(*pbVar4 >> 1);
+    if ((*pbVar4 & 1) != 0) {
+      uVar3 = *(uint *)(pbVar4 + 8);
+    }
+    if (0x7f < uVar3) {
+      pbVar7 = pbVar6;
+      uVar5 = uVar3;
+      do {
+        uVar3 = uVar5 >> 7;
+        uVar1 = uVar5 >> 0xe;
+        pbVar6 = pbVar7 + 1;
+        *pbVar7 = (byte)uVar5 | 0x80;
+        pbVar7 = pbVar6;
+        uVar5 = uVar3;
+      } while (uVar1 != 0);
+    }
+    *pbVar6 = (byte)uVar3;
+    pbVar7 = *(byte **)(pbVar4 + 0x10);
+    uVar5 = (uint)(*pbVar4 >> 1);
+    if ((*pbVar4 & 1) == 0) {
+      pbVar7 = pbVar4 + 1;
+    }
+    else {
+      uVar5 = (uint)*(undefined8 *)(pbVar4 + 8);
+    }
+    memcpy(pbVar6 + 1,pbVar7,(long)(int)uVar5);
+    uVar3 = *(uint *)(param_1 + 0x10);
+    param_3 = pbVar6 + 1 + (int)uVar5;
+  }
+  if ((uVar3 >> 1 & 1) != 0) {
+    plVar2 = *(long **)(param_1 + 0x20);
+    pbVar4 = param_3 + 1;
+    *param_3 = 0x12;
+    uVar3 = *(uint *)((long)plVar2 + 0x34);
+    if (0x7f < uVar3) {
+      pbVar6 = pbVar4;
+      uVar5 = uVar3;
+      do {
+        uVar3 = uVar5 >> 7;
+        uVar1 = uVar5 >> 0xe;
+        pbVar4 = pbVar6 + 1;
+        *pbVar6 = (byte)uVar5 | 0x80;
+        pbVar6 = pbVar4;
+        uVar5 = uVar3;
+      } while (uVar1 != 0);
+    }
+    *pbVar4 = (byte)uVar3;
+    param_3 = (byte *)(**(code **)(*plVar2 + 0x80))(plVar2,0,pbVar4 + 1);
+  }
+  if ((*(ulong *)(param_1 + 8) & 1) == 0) {
+    return param_3;
+  }
+  pbVar4 = (byte *)FUN_00c02cac(*(ulong *)(param_1 + 8) & 0xfffffffffffffffe,param_3);
+  return pbVar4;
+}
+
+
