@@ -1,0 +1,24 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 01d0954c; name: FUN_01d0954c
+ */
+
+
+void FUN_01d0954c(int *param_1,undefined8 param_2)
+
+{
+  undefined8 uVar1;
+  undefined8 local_8;
+  
+  local_8 = param_2;
+  uVar1 = nn::time::ToCalendarTimeInUtc((PosixTime *)&local_8);
+  *param_1 = (int)(short)uVar1;
+  param_1[1] = ((int)uVar1 << 8) >> 0x18;
+  param_1[2] = (int)uVar1 >> 0x18;
+  param_1[3] = (int)((ulong)uVar1 >> 8) >> 0x18;
+  param_1[4] = (int)((ulong)uVar1 >> 0x10) >> 0x18;
+  param_1[5] = (int)((ulong)uVar1 >> 0x18) >> 0x18;
+  return;
+}
+
+
