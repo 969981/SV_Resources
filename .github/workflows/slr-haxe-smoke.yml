@@ -37,9 +37,13 @@ jobs:
           haxe build.hxml
       - name: Lua5.4 syntax validation
         run: luac5.4 -p tools/SV.Lua54/haxe/4.0.0/build/abi_probe.lua
-      - name: Execute pure utility smoke with stock runtime
+      - name: Execute isolated Lua5.4 utility smoke with explicit compatibility shims
         working-directory: tools/SV.Lua54/haxe/4.0.0
-        run: lua5.4 build/abi_probe.lua
+        # Stock Lua5.4 does not expose the game's math.atan2 extension and
+        # Haxe Lua output requires the optional lua-utf8 module. The smoke
+        # only executes ASCII examples; this is NOT game runtime equivalence.
+        run: |
+          lua5.4 -e 'package.preload["lua-utf8"]=function() return utf8 end; math.atan2=math.atan' build/abi_probe.lua
       - uses: actions/upload-artifact@v4
         if: always()
         with:
