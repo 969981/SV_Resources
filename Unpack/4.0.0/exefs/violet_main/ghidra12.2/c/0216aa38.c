@@ -1,0 +1,68 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 0216aa38; name: FUN_0216aa38
+ */
+
+
+void FUN_0216aa38(long param_1,long param_2)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  int iVar4;
+  long lVar5;
+  char *pcVar6;
+  long *local_30;
+  undefined8 local_28;
+  
+  if (param_2 != 0) {
+    local_28 = 0xffffffffffffffff;
+    if (*(char *)(param_1 + 0x18c) == '\0') {
+      (**(code **)(**(long **)(param_1 + 0x70) + 0x78))(&local_30);
+      pcVar6 = (char *)FUN_00ccbbb0(*(undefined8 *)(local_30[0xe] + 0x110),local_30 + 6);
+      if (*pcVar6 != '\0' && *(long *)(pcVar6 + 8) != 0) {
+        FUN_00f1d9f4(*(long *)(*(long *)(*(long *)(param_1 + 0x40) + 0x30) + 0x6140) + 0x110,
+                     &local_28,*(undefined4 *)(*(long *)(pcVar6 + 8) + 0x88));
+      }
+      if (local_30 != (long *)0x0) {
+        plVar1 = local_30 + 5;
+        do {
+          lVar5 = *plVar1;
+          iVar4 = (int)lVar5 + -1;
+          cVar2 = '\x01';
+          bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+          if (bVar3) {
+            *(int *)plVar1 = iVar4;
+            cVar2 = ExclusiveMonitorsStatus();
+          }
+        } while (cVar2 != '\0');
+        if (iVar4 == 0) {
+          (**(code **)(*local_30 + 0x10))();
+        }
+        else if ((int)lVar5 == 0) {
+                    /* WARNING: Subroutine does not return */
+          nn::diag::detail::AbortImpl
+                    ("count != std::numeric_limits<uint32_t>::max()","DecrementReferenceInternal",
+                     "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/reference_object.h"
+                     ,0x58,"Reference counter underflows.");
+        }
+      }
+    }
+    else {
+      pcVar6 = (char *)FUN_00ccbbb0(*(undefined8 *)
+                                     (*(long *)(*(long *)(param_1 + 0x68) + 0x70) + 0x110),
+                                    *(long *)(param_1 + 0x68) + 0x30);
+      if (*pcVar6 != '\0' && *(long *)(pcVar6 + 8) != 0) {
+        FUN_00f1d9f4(*(long *)(*(long *)(*(long *)(param_1 + 0x40) + 0x30) + 0x6140) + 0x110,
+                     &local_28,*(undefined4 *)(*(long *)(pcVar6 + 8) + 0x88));
+      }
+    }
+    *(undefined8 *)(param_1 + 0x158) = local_28;
+    *(long *)(*(long *)(param_2 + 0x18) + (long)*(int *)(param_1 + 0x188) * 0x10 + 8) =
+         param_1 + 0x150;
+  }
+  return;
+}
+
+
