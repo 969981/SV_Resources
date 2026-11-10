@@ -1,0 +1,40 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 010a3b6c; name: FUN_010a3b6c
+ */
+
+
+long FUN_010a3b6c(long *param_1,undefined8 *param_2,undefined8 *param_3,undefined8 *param_4,
+                 undefined1 *param_5)
+
+{
+  undefined4 *puVar1;
+  long lVar2;
+  long lVar3;
+  
+  puVar1 = (undefined4 *)FUN_01053840();
+  lVar2 = nn::os::GetTlsValue(*puVar1);
+  if (0xf < *(ulong *)(lVar2 + 0x80)) {
+                    /* WARNING: Subroutine does not return */
+    abort();
+  }
+  *(long **)(lVar2 + *(ulong *)(lVar2 + 0x80) * 8) = param_1;
+  *(long *)(lVar2 + 0x80) = *(long *)(lVar2 + 0x80) + 1;
+  lVar3 = (**(code **)(*param_1 + 0x10))(param_1,0x4b8,8);
+  if (lVar3 == 0) {
+    (**(code **)(*param_1 + 0xe8))(param_1);
+                    /* WARNING: Subroutine does not return */
+    nn::diag::detail::AbortImpl
+              ("ptr","Create",
+               "C:/jenkins/workspace/sudachi/nuget/nuget_battleLogic_build_s2/battleLogic_titan/prog/../lib/gflib3/include\\core/object_factory.h"
+               ,0x40);
+  }
+  FUN_010ad9f4(lVar3,*param_2,*param_3,*param_4,*param_5);
+  *(undefined4 *)(lVar3 + 0x18) = 0x804b8;
+  *(long **)(lVar3 + 8) = param_1;
+  *(long *)(lVar3 + 0x10) = lVar3;
+  *(long *)(lVar2 + 0x80) = *(long *)(lVar2 + 0x80) + -1;
+  return lVar3;
+}
+
+

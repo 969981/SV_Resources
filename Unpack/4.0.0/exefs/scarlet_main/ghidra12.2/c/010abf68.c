@@ -1,0 +1,76 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 010abf68; name: FUN_010abf68
+ */
+
+
+void FUN_010abf68(long *param_1)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  int iVar4;
+  undefined *puVar5;
+  undefined4 *puVar6;
+  long lVar7;
+  long lVar8;
+  long *local_28;
+  
+  puVar5 = PTR_DAT_047d66f8;
+  param_1[2] = 0;
+  *(undefined4 *)(param_1 + 3) = 0;
+  *param_1 = (long)(puVar5 + 0x10);
+  puVar6 = (undefined4 *)FUN_01053840();
+  lVar7 = nn::os::GetTlsValue(*puVar6);
+  lVar8 = 0;
+  if (lVar7 != 0) {
+    if (*(long *)(lVar7 + 0x80) == 0) {
+      lVar8 = 0;
+    }
+    else {
+      lVar8 = *(long *)(lVar7 + *(long *)(lVar7 + 0x80) * 8 + -8);
+    }
+  }
+  *(undefined4 *)(param_1 + 6) = 0;
+  *param_1 = (long)&PTR_LAB_045ee1e0;
+  param_1[1] = lVar8;
+  param_1[8] = 0;
+  param_1[4] = (long)&PTR_LAB_045ee228;
+  param_1[5] = 0;
+  param_1[7] = 0;
+  param_1[0xd] = 0;
+  param_1[9] = 0;
+  param_1[10] = 0;
+  *(undefined1 *)(param_1 + 10) = 5;
+  param_1[0xb] = 0;
+  param_1[0xc] = 0;
+  FUN_010ac080(&local_28);
+  FUN_010ac0ec(param_1 + 7,&local_28);
+  if (local_28 != (long *)0x0) {
+    plVar1 = local_28 + 5;
+    do {
+      lVar7 = *plVar1;
+      iVar4 = (int)lVar7 + -1;
+      cVar2 = '\x01';
+      bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+      if (bVar3) {
+        *(int *)plVar1 = iVar4;
+        cVar2 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar2 != '\0');
+    if (iVar4 == 0) {
+      (**(code **)(*local_28 + 0x10))();
+    }
+    else if ((int)lVar7 == 0) {
+                    /* WARNING: Subroutine does not return */
+      nn::diag::detail::AbortImpl
+                ("count != std::numeric_limits<uint32_t>::max()","DecrementReferenceInternal",
+                 "C:/jenkins/workspace/sudachi/nuget/nuget_battleLogic_build_s2/battleLogic_titan/prog/../lib/gflib3/include\\core/reference_object.h"
+                 ,0x58,"Reference counter underflows.");
+    }
+  }
+  return;
+}
+
+

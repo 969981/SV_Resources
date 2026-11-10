@@ -1,0 +1,68 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 010cbae0; name: FUN_010cbae0
+ */
+
+
+void FUN_010cbae0(long *param_1,long param_2,undefined8 param_3,undefined8 *param_4,
+                 undefined8 *param_5)
+
+{
+  int iVar1;
+  long lVar2;
+  long lVar3;
+  long *plVar4;
+  undefined8 uVar5;
+  undefined8 *puVar6;
+  undefined8 uVar7;
+  
+  puVar6 = (undefined8 *)(param_2 + 0x38);
+  lVar2 = (**(code **)(*(long *)*puVar6 + 0x10))((long *)*puVar6,0x50,8);
+  if (lVar2 == 0) {
+    (**(code **)(*(long *)*puVar6 + 0xe8))();
+  }
+  *param_1 = lVar2;
+  param_1[1] = (long)puVar6;
+  *(undefined1 *)(param_1 + 2) = 0;
+  uVar7 = *puVar6;
+  if (((DAT_04865a38 & 1) == 0) && (iVar1 = __cxa_guard_acquire(&DAT_04865a38), iVar1 != 0)) {
+    FUN_010538c0(&DAT_04865a30,&LAB_028bf190);
+    FUN_00100190(PTR_LAB_047d3900,&DAT_04865a30,&PTR_LOOP_04483000);
+    __cxa_guard_release(&DAT_04865a38);
+  }
+  lVar3 = nn::os::GetTlsValue(DAT_04865a30);
+  if (lVar3 != 0) {
+    if (0xf < *(ulong *)(lVar3 + 0x80)) {
+                    /* WARNING: Subroutine does not return */
+      abort();
+    }
+    *(undefined8 *)(lVar3 + *(ulong *)(lVar3 + 0x80) * 8) = uVar7;
+    *(long *)(lVar3 + 0x80) = *(long *)(lVar3 + 0x80) + 1;
+  }
+  *(undefined8 *)(lVar2 + 0x10) = *param_4;
+  *(undefined8 *)(lVar2 + 0x18) = param_4[1];
+  *(undefined8 *)(lVar2 + 0x20) = param_4[2];
+  plVar4 = (long *)param_4[3];
+  *(long **)(lVar2 + 0x28) = plVar4;
+  if (plVar4 != (long *)0x0) {
+    (**(code **)(*plVar4 + 0x18))();
+  }
+  uVar7 = *param_5;
+  *param_5 = 0;
+  *(undefined8 *)(lVar2 + 0x30) = uVar7;
+  uVar7 = param_5[1];
+  uVar5 = param_5[3];
+  *(undefined8 *)(lVar2 + 0x40) = param_5[2];
+  *(undefined8 *)(lVar2 + 0x48) = uVar5;
+  *(undefined8 *)(lVar2 + 0x38) = uVar7;
+  if (lVar3 != 0) {
+    *(long *)(lVar3 + 0x80) = *(long *)(lVar3 + 0x80) + -1;
+  }
+  *(undefined1 *)(param_1 + 2) = 1;
+  puVar6 = (undefined8 *)*param_1;
+  *puVar6 = 0;
+  puVar6[1] = param_3;
+  return;
+}
+
+

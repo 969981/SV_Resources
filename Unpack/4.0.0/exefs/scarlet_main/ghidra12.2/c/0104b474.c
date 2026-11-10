@@ -1,0 +1,107 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 0104b474; name: FUN_0104b474
+ */
+
+
+long FUN_0104b474(long param_1,undefined8 param_2)
+
+{
+  long *plVar1;
+  char cVar2;
+  long lVar3;
+  ulong uVar4;
+  long lVar5;
+  long *plVar6;
+  bool bVar7;
+  
+  plVar6 = (long *)(param_1 + 8);
+  lVar5 = *plVar6;
+  lVar3 = nn::os::GetCurrentThread();
+  if (lVar3 != lVar5) {
+    lVar3 = nn::os::GetCurrentThread();
+LAB_0104b4ac:
+    if (*plVar6 == 0) goto code_r0x0104b4b4;
+    ClearExclusiveLocal();
+    nn::os::WaitLightEvent((LightEventType *)(param_1 + 0x10));
+    do {
+      if (*plVar6 != 0) {
+        do {
+          ClearExclusiveLocal();
+          nn::os::WaitLightEvent((LightEventType *)(param_1 + 0x10));
+          while (*plVar6 == 0) {
+            cVar2 = '\x01';
+            bVar7 = (bool)ExclusiveMonitorPass(plVar6,0x10);
+            if (bVar7) {
+              *plVar6 = lVar3;
+              cVar2 = ExclusiveMonitorsStatus();
+            }
+            if (cVar2 == '\0') goto LAB_0104b4bc;
+          }
+        } while( true );
+      }
+      cVar2 = '\x01';
+      bVar7 = (bool)ExclusiveMonitorPass(plVar6,0x10);
+      if (bVar7) {
+        *plVar6 = lVar3;
+        cVar2 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar2 != '\0');
+LAB_0104b4bc:
+    bVar7 = false;
+    goto LAB_0104b4c0;
+  }
+  bVar7 = true;
+LAB_0104b4c0:
+  plVar6 = *(long **)(param_1 + 0x20);
+  plVar1 = *(long **)(param_1 + 0x28);
+  if (plVar6 != plVar1) {
+    do {
+      uVar4 = FUN_0104b5d0(plVar6,param_2);
+      if ((uVar4 & 1) != 0) goto LAB_0104b4ec;
+      plVar6 = plVar6 + 1;
+    } while (plVar1 != plVar6);
+    plVar6 = plVar1;
+LAB_0104b4ec:
+    if ((plVar6 != *(long **)(param_1 + 0x28)) && (*plVar6 != 0)) {
+      lVar3 = *plVar6 + -0x20;
+      goto LAB_0104b59c;
+    }
+  }
+  plVar6 = *(long **)(param_1 + 0x58);
+  plVar1 = *(long **)(param_1 + 0x60);
+  if (plVar6 != plVar1) {
+    do {
+      uVar4 = FUN_0104b5d0(plVar6,param_2);
+      if ((uVar4 & 1) != 0) goto LAB_0104b534;
+      plVar6 = plVar6 + 1;
+    } while (plVar1 != plVar6);
+    plVar6 = plVar1;
+LAB_0104b534:
+    if (plVar6 != *(long **)(param_1 + 0x60)) {
+      lVar3 = 0;
+      if (*plVar6 != 0) {
+        lVar3 = *plVar6 + -0x20;
+      }
+      goto LAB_0104b59c;
+    }
+  }
+  lVar3 = 0;
+LAB_0104b59c:
+  if (!bVar7) {
+    *(undefined8 *)(param_1 + 8) = 0;
+    nn::os::SignalLightEvent((LightEventType *)(param_1 + 0x10));
+  }
+  return lVar3;
+code_r0x0104b4b4:
+  cVar2 = '\x01';
+  bVar7 = (bool)ExclusiveMonitorPass(plVar6,0x10);
+  if (bVar7) {
+    *plVar6 = lVar3;
+    cVar2 = ExclusiveMonitorsStatus();
+  }
+  if (cVar2 == '\0') goto LAB_0104b4bc;
+  goto LAB_0104b4ac;
+}
+
+
