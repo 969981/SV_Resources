@@ -1,0 +1,144 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 00d93250; name: FUN_00d93250
+ */
+
+
+ulong FUN_00d93250(undefined8 param_1,long *param_2)
+
+{
+  short *psVar1;
+  short sVar2;
+  long *plVar3;
+  long *plVar4;
+  bool bVar5;
+  char cVar6;
+  bool bVar7;
+  code *pcVar8;
+  long lVar9;
+  long *plVar10;
+  long *plVar11;
+  ulong local_e0;
+  long *local_d8;
+  undefined1 *local_d0;
+  code *local_c8;
+  undefined1 *local_c0;
+  undefined1 *puStack_b8;
+  uint *local_b0 [13];
+  uint local_44;
+  
+  FUN_00d64f48(&local_d8);
+  if (local_d8 == (long *)0x0) {
+LAB_00d933a0:
+    plVar11 = (long *)0xffffffff;
+LAB_00d933a4:
+    return (ulong)plVar11 & 0xffffffff;
+  }
+  plVar11 = local_d8 + 0x10;
+  plVar3 = local_d8 + 0x60;
+  lVar9 = nn::os::GetCurrentThread();
+LAB_00d9328c:
+  if (*plVar3 == 0) goto code_r0x00d93294;
+  ClearExclusiveLocal();
+  nn::os::WaitLightEvent((LightEventType *)(local_d8 + 0x61));
+  do {
+    if (*plVar3 != 0) {
+      do {
+        ClearExclusiveLocal();
+        nn::os::WaitLightEvent((LightEventType *)(local_d8 + 0x61));
+        while (*plVar3 == 0) {
+          cVar6 = '\x01';
+          bVar7 = (bool)ExclusiveMonitorPass(plVar3,0x10);
+          if (bVar7) {
+            *plVar3 = lVar9;
+            cVar6 = ExclusiveMonitorsStatus();
+          }
+          if (cVar6 == '\0') goto LAB_00d9329c;
+        }
+      } while( true );
+    }
+    cVar6 = '\x01';
+    bVar7 = (bool)ExclusiveMonitorPass(plVar3,0x10);
+    if (bVar7) {
+      *plVar3 = lVar9;
+      cVar6 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar6 != '\0');
+LAB_00d9329c:
+  plVar3 = (long *)local_d8[0x10];
+  plVar4 = (long *)local_d8[0x11];
+  plVar10 = plVar3;
+  if ((plVar3 != plVar4) && (*plVar3 != *param_2)) {
+    do {
+      plVar10 = plVar10 + 0xb;
+      if (plVar4 == plVar10) {
+        plVar10 = plVar4;
+        goto LAB_00d932d4;
+      }
+    } while (*plVar10 != *param_2);
+  }
+LAB_00d932d4:
+  if (plVar4 == plVar10) {
+    local_d8[0x60] = 0;
+    nn::os::SignalLightEvent((LightEventType *)(local_d8 + 0x61));
+    bVar7 = true;
+  }
+  else {
+    local_d8[0x60] = 0;
+    nn::os::SignalLightEvent((LightEventType *)(local_d8 + 0x61));
+    local_e0 = (ulong)(uint)((int)((ulong)((long)plVar10 - (long)plVar3) >> 3) * -0x45d1745d) <<
+               0x20 | 1;
+    local_b0[0] = &local_44;
+    local_44 = 0;
+    local_d0 = &LAB_02e65a44;
+    local_c8 = FUN_02e65a84;
+    local_c0 = &LAB_02e65a88;
+    puStack_b8 = &LAB_02e65a94;
+    FUN_00c837c0(local_d8,plVar11,&local_e0,&local_d0);
+    pcVar8 = local_c8;
+    if (local_c8 != (code *)0x0) {
+      local_c0 = (undefined1 *)0x0;
+      puStack_b8 = (undefined1 *)0x0;
+      local_d0 = (undefined1 *)0x0;
+      local_c8 = (code *)0x0;
+      (*pcVar8)(local_b0);
+    }
+    plVar11 = (long *)(ulong)local_44;
+    bVar7 = false;
+  }
+  lVar9 = local_d8[6];
+  psVar1 = (short *)(lVar9 + 0x1a);
+  do {
+    sVar2 = *psVar1;
+    cVar6 = '\x01';
+    bVar5 = (bool)ExclusiveMonitorPass(psVar1,0x10);
+    if (bVar5) {
+      *psVar1 = sVar2 + -1;
+      cVar6 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar6 != '\0');
+  if (sVar2 == 1) {
+    *(undefined8 *)(lVar9 + 0x10) = 0;
+    (**(code **)(*local_d8 + 0x50))(local_d8);
+  }
+  else if (sVar2 == 0) {
+                    /* WARNING: Subroutine does not return */
+    nn::diag::detail::AbortImpl
+              ("count != std::numeric_limits<uint16_t>::max()","ReleaseReference",
+               "C:/jenkins/workspace/sudachi/rom/rom_build/programs/prog/app/packages/trinity_titan.2023.9.1-sudachi2/build//include/gflib3\\core/indexed_handle.h"
+               ,0x60,"Reference counter underflows.");
+  }
+  if (!bVar7) goto LAB_00d933a4;
+  goto LAB_00d933a0;
+code_r0x00d93294:
+  cVar6 = '\x01';
+  bVar7 = (bool)ExclusiveMonitorPass(plVar3,0x10);
+  if (bVar7) {
+    *plVar3 = lVar9;
+    cVar6 = ExclusiveMonitorsStatus();
+  }
+  if (cVar6 == '\0') goto LAB_00d9329c;
+  goto LAB_00d9328c;
+}
+
+

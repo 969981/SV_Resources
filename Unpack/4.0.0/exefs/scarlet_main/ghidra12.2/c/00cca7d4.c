@@ -1,0 +1,82 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 00cca7d4; name: FUN_00cca7d4
+ */
+
+
+void FUN_00cca7d4(long *param_1,long *param_2)
+
+{
+  int *piVar1;
+  int iVar2;
+  char cVar3;
+  bool bVar4;
+  long lVar5;
+  
+  lVar5 = *param_2;
+  *param_1 = lVar5;
+  if (lVar5 != 0) {
+    piVar1 = (int *)(lVar5 + 0x28);
+    do {
+      iVar2 = *piVar1;
+      cVar3 = '\x01';
+      bVar4 = (bool)ExclusiveMonitorPass(piVar1,0x10);
+      if (bVar4) {
+        *piVar1 = iVar2 + 1;
+        cVar3 = ExclusiveMonitorsStatus();
+      }
+    } while (cVar3 != '\0');
+    if (iVar2 == -1) {
+                    /* WARNING: Subroutine does not return */
+      nn::diag::detail::AbortImpl
+                ("count != 0","IncrementReferenceInternal",
+                 "C:/jenkins/workspace/sudachi/nuget/nuget_trinity_build_s2/trinity_titan/lib/gflib3/include\\core/reference_object.h"
+                 ,0x53,"Reference counter overflows.");
+    }
+  }
+  *(undefined1 *)(param_1 + 1) = 0;
+  *(undefined1 *)(param_1 + 3) = 0;
+  *(undefined1 *)(param_1 + 5) = 0;
+  *(undefined1 *)(param_1 + 7) = 0;
+  *(undefined1 *)(param_1 + 9) = 0;
+  *(undefined1 *)(param_1 + 0xb) = 0;
+  *(undefined1 *)(param_1 + 0xd) = 0;
+  *(undefined1 *)(param_1 + 0xf) = 0;
+  *(undefined1 *)(param_1 + 0x11) = 0;
+  *(undefined1 *)(param_1 + 0x13) = 0;
+  *(undefined1 *)(param_1 + 0x15) = 0;
+  *(undefined1 *)(param_1 + 0x17) = 0;
+  *(undefined1 *)(param_1 + 0x19) = 0;
+  *(undefined1 *)(param_1 + 0x1b) = 0;
+  *(undefined1 *)(param_1 + 0x1d) = 0;
+  *(undefined1 *)(param_1 + 0x1f) = 0;
+  *(undefined1 *)(param_1 + 0x21) = 0;
+  *(undefined1 *)(param_1 + 0x23) = 0;
+  *(undefined1 *)(param_1 + 0x25) = 0;
+  *(undefined1 *)(param_1 + 0x27) = 0;
+  *(undefined1 *)(param_1 + 0x29) = 0;
+  *(undefined1 *)(param_1 + 0x2b) = 0;
+  *(undefined1 *)(param_1 + 0x2d) = 0;
+  *(undefined1 *)(param_1 + 0x2f) = 0;
+  *(undefined1 *)(param_1 + 0x31) = 0;
+  *(undefined1 *)(param_1 + 0x33) = 0;
+  *(undefined1 *)(param_1 + 0x35) = 0;
+  *(undefined1 *)(param_1 + 0x37) = 0;
+  *(undefined1 *)(param_1 + 0x39) = 0;
+  *(undefined1 *)(param_1 + 0x3b) = 0;
+  *(undefined1 *)(param_1 + 0x3d) = 0;
+  *(undefined1 *)(param_1 + 0x3f) = 0;
+  *(undefined1 *)(param_1 + 0x41) = 0;
+  *(undefined1 *)(param_1 + 0x43) = 0;
+  *(undefined1 *)(param_1 + 0x45) = 0;
+  *(undefined1 *)(param_1 + 0x47) = 0;
+  *(undefined1 *)(param_1 + 0x49) = 0;
+  *(undefined1 *)(param_1 + 0x4b) = 0;
+  *(undefined1 *)(param_1 + 0x4d) = 0;
+  *(undefined1 *)(param_1 + 0x4f) = 0;
+  *(undefined1 *)(param_1 + 0x51) = 0;
+  *(undefined1 *)(param_1 + 0x53) = 0;
+  return;
+}
+
+
