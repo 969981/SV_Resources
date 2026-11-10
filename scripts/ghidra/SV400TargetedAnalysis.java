@@ -293,6 +293,7 @@ public class SV400TargetedAnalysis extends GhidraScript {
 
         if (cText != null) write(new File(outputDir, requested + ".c"), cText);
 
+        String instructionHash = hex(digest.digest());
         StringBuilder json = new StringBuilder();
         json.append("{\n")
             .append("\"game\":").append(q(currentProgram.getName())).append(",\n")
@@ -306,7 +307,7 @@ public class SV400TargetedAnalysis extends GhidraScript {
             .append("\"body_bytes\":").append(f.getBody().getNumAddresses()).append(",\n")
             .append("\"instruction_count\":").append(instructions.size()).append(",\n")
             .append("\"instruction_bytes\":").append(instructionBytes).append(",\n")
-            .append("\"instruction_stream_sha256\":").append(q(hex(digest.digest()))).append(",\n")
+            .append("\"instruction_stream_sha256\":").append(q(instructionHash)).append(",\n")
             .append("\"decompilation\":{\"default_status\":").append(q(defaultStatus))
             .append(",\"default_error\":").append(q(defaultError))
             .append(",\"normalize_status\":").append(q(normalizeStatus))
@@ -355,7 +356,7 @@ public class SV400TargetedAnalysis extends GhidraScript {
             ",\"normalize_status\":" + q(normalizeStatus) +
             ",\"selected_variant\":" + q(selectedVariant) +
             ",\"instruction_count\":" + instructions.size() +
-            ",\"instruction_stream_sha256\":" + q(hex(digest.digest())) + "}");
+            ",\"instruction_stream_sha256\":" + q(instructionHash) + "}");
         println("Target " + requested + " => " + defaultStatus +
             (normalizeStatus.equals("NOT_ATTEMPTED") ? "" : " / normalize=" + normalizeStatus) +
             " instructions=" + instructions.size() + " callers=" + callerJson.size());
