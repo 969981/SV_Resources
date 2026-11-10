@@ -1,0 +1,73 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 034ac158; name: FUN_034ac158
+ */
+
+
+void FUN_034ac158(long param_1)
+
+{
+  undefined *puVar1;
+  long lVar2;
+  long lVar3;
+  long lVar4;
+  long *plVar5;
+  
+  puVar1 = PTR_DAT_047e70c0;
+  lVar2 = *(long *)(param_1 + 0x90);
+  if (lVar2 == 0) {
+    return;
+  }
+  if (0 < *(short *)(lVar2 + 0x90)) {
+    return;
+  }
+  if (0 < *(short *)(lVar2 + 0x94)) {
+    return;
+  }
+  if (*(short *)(lVar2 + 0x88) != 0) {
+    return;
+  }
+  if (*(short *)(lVar2 + 0x8a) != 0) {
+    return;
+  }
+  if (*(long *)(lVar2 + 0x10) != 0) {
+    return;
+  }
+  if (*(int *)(lVar2 + 8) != 0) {
+    return;
+  }
+  if ((*(byte *)(lVar2 + 0x98) >> 1 & 1) != 0) {
+    plVar5 = (long *)(PTR_DAT_047e70c0 + 0x10);
+    lVar4 = 0;
+    do {
+      lVar3 = lVar4;
+      lVar4 = *plVar5;
+      plVar5 = (long *)(lVar4 + 0x50);
+    } while (lVar4 != 0 && lVar4 != param_1);
+    if (lVar4 != 0) {
+      plVar5 = (long *)(PTR_DAT_047e70c0 + 0x10);
+      if (*(long *)(PTR_DAT_047e70c0 + 0x10) != lVar4) {
+        plVar5 = (long *)(lVar3 + 0x50);
+      }
+      *plVar5 = *(long *)(lVar4 + 0x50);
+      if (*(long *)(puVar1 + 8) == lVar4) {
+        *(long *)(puVar1 + 8) = lVar3;
+      }
+      *(int *)puVar1 = *(int *)puVar1 + -1;
+      lVar2 = *(long *)(param_1 + 0x90);
+    }
+    if (lVar2 == 0) goto LAB_034ac234;
+  }
+  if (*(long *)(param_1 + 0x98) != 0) {
+    FUN_034ac158();
+  }
+  if (*(long *)(param_1 + 0xa0) != 0) {
+    FUN_034ac158();
+  }
+LAB_034ac234:
+  FUN_034ac254(&DAT_048b0280,*(undefined8 *)(param_1 + 0x90));
+  *(undefined8 *)(param_1 + 0x90) = 0;
+  return;
+}
+
+

@@ -1,0 +1,41 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 034e55a0; name: FUN_034e55a0
+ */
+
+
+void FUN_034e55a0(long *param_1)
+
+{
+  undefined *puVar1;
+  ulong *puVar2;
+  ulong uVar3;
+  
+  *param_1 = (long)&PTR_FUN_047c5a10;
+  nn::os::FinalizeMutex((MutexType *)(param_1 + 0x26));
+  *param_1 = (long)(PTR_DAT_047e6f50 + 0x10);
+  puVar1 = PTR_DAT_047e2fd0;
+  puVar2 = (ulong *)param_1[0x1f];
+  while (puVar2 != (ulong *)0x0) {
+    uVar3 = *puVar2;
+    (**(code **)(puVar1 + 0x30))(0x10);
+    puVar2 = (ulong *)(uVar3 & 0x3fffffffffffffff);
+  }
+  param_1[0x1f] = 0;
+  if (param_1[0x19] != 0) {
+    *(undefined4 *)(param_1 + 0x1a) = 0;
+    (**(code **)(puVar1 + 0x30))(0);
+    param_1[0x19] = 0;
+    *(undefined4 *)((long)param_1 + 0xd4) = 0;
+  }
+  if (param_1[0x12] != 0) {
+    *(undefined4 *)(param_1 + 0x13) = 0;
+    (**(code **)(puVar1 + 0x30))(0);
+    param_1[0x12] = 0;
+    *(undefined4 *)((long)param_1 + 0x9c) = 0;
+  }
+  nn::os::FinalizeMutex((MutexType *)(param_1 + 0xd));
+  return;
+}
+
+
