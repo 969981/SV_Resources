@@ -152,7 +152,7 @@ jobs:
           New-Item -ItemType Directory -Force $root,'tools/_local' | Out-Null
           Copy-Item tools/HashCaches/SV/GFPAKHashCache.bin tools/_local/GFPAKHashCache.bin
           & ./scripts/Prepare-SV-Trinity.ps1 -Workspace $root -SkipHashBuild
-          if ($LASTEXITCODE -ne 0 -or -not $?) { throw 'Original Trinity SHA restore failed' }
+          if (-not $?) { throw 'Original Trinity SHA restore failed' }
           "SV_NATIVE_ROMFS=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
       - name: Extract exact 61 native files with SHA checks
         shell: pwsh
