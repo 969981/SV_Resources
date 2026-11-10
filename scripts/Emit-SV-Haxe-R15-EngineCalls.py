@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Evidence-gated R15 source staging for SV400 exact four short C/F methods.
+"""Evidence-gated R15 source staging for two original SELF CALL TEST methods.
 
 Original main.blua, PokeDocs class/member identities, closure Root PC,
 Proto/PC, raw opcode sequence, constants and CFG/HIR must match. No tracked
 .hx or original ROM data changes until independent ZAScripts Lua5.4 A/B
-including alias/side-effect/branch cases and full regression pass.
+including mock host call traces, table alias/side-effect and CFG/SSA regression.
 """
 from __future__ import annotations
 import argparse,copy,hashlib,json,runpy,shutil,sys
@@ -58,7 +58,7 @@ def stage(root:Path,out:Path,run_id:int)->dict:
     selected={(r["class_name"],r["method_name"]):r for r in registered
               if (r["class_name"],r["method_name"]) in TARGETS}
     if set(selected)!=set(TARGETS):
-        raise ValueError("four original named 4.0.0 methods could not be linked uniquely")
+        raise ValueError("two original named 4.0.0 methods could not be linked uniquely")
     old=[json.loads(line) for line in (root/WORK/"methods.jsonl").read_text("utf-8").splitlines()
          if line.strip()]
     if len(old)!=81 or sum(x.get("promotion_batch")=="R14_DYNAMIC_MULTIWRITE_BRANCH" for x in old)!=4:
@@ -135,7 +135,7 @@ def stage(root:Path,out:Path,run_id:int)->dict:
           "naming_evidence":"POKEDOCS_HASH_EXACT",
           "ownership_evidence":"SV400_NATIVE_CLOSURE_ASSIGNMENT",
           "body_status":"SV400_NATIVE_MAPPED",
-          "haxe_body_status":"R15_NATIVE_DYNAMIC_BRANCH_AST",
+          "haxe_body_status":"R15_NATIVE_SELF_CALL_SSA",
           "haxe_compile_status":"NOT_RUN","stock_lua_smoke_status":"NOT_RUN",
           "za_toolchain_pin":ZA,
           "za_haxe_compile_status":"PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT",
@@ -154,7 +154,7 @@ def stage(root:Path,out:Path,run_id:int)->dict:
           "r15_return_phi":RETURN_PHI,
           "r15_mocked_host_status":"MOCK_HOST_CALL_EVENT_ALIAS_AND_PARTIAL_WRITE_PASS",
           "r15_engine_runtime_status":"NOT_OBSERVED",
-          "promotion_batch":"R15_DYNAMIC_MULTIWRITE_BRANCH",
+          "promotion_batch":"R15_MOCKED_SELF_CALL_SSA",
           "haxe_source":str(WORK/rel),
           "reference_urls":["https://github.com/pkZukan/PokeDocs/tree/main/SV/Hashlists/Lua"]
         })
