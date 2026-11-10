@@ -1,0 +1,37 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 031ee700; name: _INIT_1631
+ */
+
+
+void _INIT_1631(void)
+
+{
+  DAT_048848e8 = &PTR_LAB_046a6f08;
+  DAT_048848f8 = 1;
+  DAT_048848f0 = &PTR_LAB_046a6730;
+  DAT_04884908 = 1;
+  DAT_04884900 = &PTR_LAB_046a67b8;
+  DAT_04884918 = 1;
+  DAT_04884910 = &PTR_LAB_046a6810;
+  DAT_04884928 = 1;
+  DAT_04884920 = &PTR_LAB_046a6868;
+  DAT_04884938 = 1;
+  DAT_04884930 = &PTR_LAB_046a68e8;
+  DAT_048849a8 = 1;
+  DAT_048849a0 = &PTR_LAB_046a6aa8;
+  DAT_04884ad8 = 1;
+  DAT_04884ad0 = &PTR_LAB_046a6eb8;
+  DAT_04884ae8 = 1;
+  DAT_04884ae0 = &PTR_LAB_046a6fc8;
+  DAT_04884af8 = 1;
+  DAT_04884af0 = &PTR_LAB_046a7048;
+  DAT_04884b00 = *(ulong *)PTR_DAT_047d3888 & 0xfffffffffffffffc;
+  DAT_04884b08 = &DAT_046a70d8;
+  DAT_04884b10 = 0;
+  DAT_04884b18 = 0;
+  *(ulong **)PTR_DAT_047d3888 = &DAT_04884b00;
+  return;
+}
+
+

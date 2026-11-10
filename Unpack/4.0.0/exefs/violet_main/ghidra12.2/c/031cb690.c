@@ -1,0 +1,26 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 031cb690; name: FUN_031cb690
+ */
+
+
+void FUN_031cb690(long *param_1,ulong *param_2)
+
+{
+  ulong uVar1;
+  float fVar2;
+  ulong uVar3;
+  
+  uVar3 = param_2[1];
+  uVar1 = *param_2;
+  fVar2 = (float)(uVar1 >> 0x20);
+  param_1[5] = 0;
+  param_1[4] = CONCAT44(-(float)uVar1,fVar2);
+  param_1[1] = (ulong)(uint)-fVar2;
+  *param_1 = uVar3 << 0x20;
+  param_1[3] = uVar1 & 0xffffffff;
+  param_1[2] = (ulong)(uint)-(float)uVar3;
+  return;
+}
+
+
