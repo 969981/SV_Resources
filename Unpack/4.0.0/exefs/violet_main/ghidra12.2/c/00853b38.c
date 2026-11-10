@@ -1,0 +1,34 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 00853b38; name: FUN_00853b38
+ */
+
+
+undefined4 FUN_00853b38(long param_1)
+
+{
+  int iVar1;
+  undefined8 uVar2;
+  long lVar3;
+  undefined1 auStack_240 [16];
+  undefined1 auStack_230 [512];
+  
+  lVar3 = *(long *)(param_1 + 0x18);
+  if (*(char *)(lVar3 + 0x1fe) == '\0') {
+    FUN_032260f8(auStack_240,auStack_230,0x200);
+    uVar2 = FUN_0322b1e0(auStack_240,"No index available (");
+    uVar2 = FUN_0322b2c8(uVar2,*(undefined4 *)(lVar3 + 0x1f8));
+    FUN_0322b1e0(uVar2,") hkgpConvexHull::buildIndices need to be called before this operation.");
+    iVar1 = FUN_03226f50(0x79f9d886,auStack_230,
+                         "../..\\Common/Internal/GeometryProcessing/ConvexHull/hkgpConvexHullInternals.h"
+                         ,0x189);
+    if (iVar1 != 0) {
+      CallSupervisor(0x26);
+    }
+    FUN_032261b0(auStack_240);
+    lVar3 = *(long *)(param_1 + 0x18);
+  }
+  return *(undefined4 *)(lVar3 + 0x98);
+}
+
+

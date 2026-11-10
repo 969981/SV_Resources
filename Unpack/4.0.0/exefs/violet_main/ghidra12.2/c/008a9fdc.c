@@ -1,0 +1,56 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 008a9fdc; name: FUN_008a9fdc
+ */
+
+
+void FUN_008a9fdc(long param_1,undefined8 param_2)
+
+{
+  ulong uVar1;
+  
+  FUN_008a9ed4();
+  if (*(long **)(param_1 + 0x48) != (long *)0x0) {
+    uVar1 = (**(code **)(**(long **)(param_1 + 0x48) + 0x30))();
+    if ((uVar1 & 1) != 0) {
+      (**(code **)(**(long **)(param_1 + 0x48) + 0x18))(*(long **)(param_1 + 0x48),param_2);
+    }
+    FUN_00896e98(*(undefined8 *)(param_1 + 0x48));
+    *(undefined8 *)(param_1 + 0x48) = 0;
+  }
+  if (*(long **)(param_1 + 0x80) != (long *)0x0) {
+    uVar1 = (**(code **)(**(long **)(param_1 + 0x80) + 0x30))();
+    if ((uVar1 & 1) != 0) {
+      (**(code **)(**(long **)(param_1 + 0x80) + 0x18))(*(long **)(param_1 + 0x80),param_2);
+    }
+    FUN_00896e98(*(undefined8 *)(param_1 + 0x80));
+    *(undefined8 *)(param_1 + 0x80) = 0;
+  }
+  if (*(long **)(param_1 + 0x88) != (long *)0x0) {
+    uVar1 = (**(code **)(**(long **)(param_1 + 0x88) + 0x30))();
+    if ((uVar1 & 1) != 0) {
+      (**(code **)(**(long **)(param_1 + 0x88) + 0x18))(*(long **)(param_1 + 0x88),param_2);
+    }
+    FUN_00896e98(*(undefined8 *)(param_1 + 0x88));
+    *(undefined8 *)(param_1 + 0x88) = 0;
+  }
+  if (*(long **)(param_1 + 0x90) != (long *)0x0) {
+    uVar1 = (**(code **)(**(long **)(param_1 + 0x90) + 0x30))();
+    if ((uVar1 & 1) != 0) {
+      (**(code **)(**(long **)(param_1 + 0x90) + 0x18))(*(long **)(param_1 + 0x90),param_2);
+    }
+    FUN_00896e98(*(undefined8 *)(param_1 + 0x90));
+    *(undefined8 *)(param_1 + 0x90) = 0;
+  }
+  if (*(long **)(param_1 + 0x78) != (long *)0x0) {
+    uVar1 = (**(code **)(**(long **)(param_1 + 0x78) + 0x30))();
+    if ((uVar1 & 1) != 0) {
+      (**(code **)(**(long **)(param_1 + 0x78) + 0x18))(*(long **)(param_1 + 0x78),param_2);
+    }
+    FUN_00896e98(*(undefined8 *)(param_1 + 0x78));
+    *(undefined8 *)(param_1 + 0x78) = 0;
+  }
+  return;
+}
+
+
