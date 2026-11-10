@@ -105,4 +105,4 @@ Keep evidence statuses visible. Do not present planned work as completed.
 - [SV 4.0.0 R8：ZAScripts HashAbi/cppbindings/后处理与原生 Proto → Haxe → Lua 32/32 差异测试](sv400-haxe-zascripts-native-differential.md) — 原生字节码独立行为验收和批量扩展准入门槛。
 - [SV 4.0.0 R9：field/battle/event 3,892 个原生 Proto/PC 候选及三个原生 RETURN0 Haxe 实例方法](sv400-haxe-field-battle-event-promotion.md) — 从原生指令恢复 3 个实例方法并完成 41/41 差异测试。
 - [SV 4.0.0 R10：Lua 5.4 CFG/HIR/AST→Haxe 非空方法、56/56 原版差异测试与 64 个可恢复候选](sv400-haxe-r10-cfg-hir-ast-lowering.md) — 受限发射器和原生字节码验收。
-- [SV 4.0.0 Haxe R11–R13：59 条字面量方法、GETI/SETI/LT/MOVE 252/252 A/B 与 GETFIELD/SETFIELD 原始字段溯源](sv400-haxe-r11-r12-r13-native-lowering.md) — 带表状态、nil 和 __newindex 副作用验收。
+- [SV 4.0.0 Haxe R11–R13：59 条字面量方法、GETI/SETI/LT/MOVE、三条 GETFIELD/SETFIELD 正式 Haxe、280/280 原始 Lua A/B](sv400-haxe-r11-r12-r13-native-lowering.md) — 两层 __index/__newindex 事件、嵌套表快照和异常前状态验收，游戏运行时尚未观察。
