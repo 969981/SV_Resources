@@ -1,0 +1,21 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 020eaa60; name: FUN_020eaa60
+ */
+
+
+uint FUN_020eaa60(long param_1,int *param_2)
+
+{
+  uint uVar1;
+  
+  uVar1 = param_2[1] + *param_2 * 0x1e;
+  if (0x3dd < uVar1) {
+                    /* WARNING: Subroutine does not return */
+    FUN_020eaaa0();
+  }
+  return (uint)(*(ulong *)(param_1 + ((ulong)(uVar1 >> 3) & 0x1ffffff8)) >> ((ulong)uVar1 & 0x3f)) &
+         1;
+}
+
+
