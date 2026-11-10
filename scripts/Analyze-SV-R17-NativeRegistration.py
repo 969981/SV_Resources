@@ -132,6 +132,40 @@ def analyze(game,path):
             "relocation_entries_within_0x60":adjacent,
             "status":"DATA_STRUCTURE_CANDIDATE_NOT_CONFIRMED_CPP_CALLABLE",
         }
+    # Check raw native wrapper bytes before interpreting possible Lua stack
+    # argument positions. Two independent table-linked wrapper entry points
+    # show calls with W1=1 and W1=2. The C API helper identities and
+    # full native signature are NOT recovered here.
+    checks={
+      "class_table_wrapper":{
+        0x1959E50:"21008052",0x1959E58:"EE9EC797",
+        0x1959E6C:"41008052",0x1959E70:"E2031FAA",
+        0x1959E74:"DFE3C897",0x1959EF8:"00013FD6",
+        0x1959F00:"E0031F2A",0x1959F0C:"C0035FD6",
+      },
+      "other_table_wrapper":{
+        0x194E920:"21008052",0x194E928:"3ACCC797",
+        0x194E93C:"41008052",0x194E940:"E2031FAA",
+        0x194E944:"2B11C997",0x194E998:"00013FD6",
+      },
+    }
+    wrapper_evidence={}
+    for name,expected_words in checks.items():
+        for addr,hexword in expected_words.items():
+            pos=offset_of(segs,addr)
+            if raw[pos:pos+4].hex().upper()!=hexword:
+                raise ValueError(f"original {name} source instruction mismatch at 0x{addr:X}")
+        wrapper_evidence[name]={
+          "original_source_bytes_verified":[{"pc":f"0x{p:x}","word_le":w} for p,w in expected_words.items()],
+          "observed_lua_stack_indices":[1,2],
+          "first_reader_direct_bl":"0xb41a10",
+          "second_reader_direct_bl":"0xb92df0",
+          "second_reader_x2_is_zero":True,
+          "static_return_zero_path_observed":name=="class_table_wrapper",
+          "callee_cpp_parameter_types":"NOT_RESOLVED",
+          "lua_cclosure_object_identity":"NOT_OBSERVED",
+          "status":"STATIC_LUA_CF_WRAPPER_ARGUMENT_READ_PATTERN_NOT_RUNTIME_ABI",
+        }
     # Native callback +0x1600050 builds X1=+0x44B14E0 at PC+0x88,
     # calls +0xDEB2F0 at PC+0x98. Decode consecutive relocation pairs
     # as a possible registration array; each pair MUST be validated and
@@ -202,6 +236,7 @@ def analyze(game,path):
         "native_direct_call_and_callback_code":traced_targets,
         "native_method_relocation_pointer_neighbors":relocation_neighbors,
         "class_callback_relocation_pairs":class_table_trace,
+        "native_lua_wrapper_arg_pattern":wrapper_evidence,
         "static_cpp_call_target_proven":False,
         "lua_cclosure_pointer_proven":False,
         "runtime_status":"NOT_OBSERVED",
@@ -240,6 +275,7 @@ def main():
            k:results["scarlet_main"]["native_direct_call_and_callback_code"][k]["first_80_instructions"][:68]
            for k in ("f558733FC_other_table_code_candidate","f558733FC_class_table_code_candidate")
        },
+       "scarlet_verified_native_wrapper_arguments":results["scarlet_main"]["native_lua_wrapper_arg_pattern"],
        "scarlet_class_method_table":{
           "source":results["scarlet_main"]["class_callback_relocation_pairs"]["table_first_rva"],
           "via_code":results["scarlet_main"]["class_callback_relocation_pairs"]["table_passed_to_direct_bl_pc"],
