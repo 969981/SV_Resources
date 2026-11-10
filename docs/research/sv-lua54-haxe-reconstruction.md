@@ -145,6 +145,17 @@ python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 
 **当前汇总：81 条原生方法 Proto/PC 映射、80 个有验证方法体的 Haxe 方法、1 个 `Assert.IsNull` extern-only。** 其余 3,892 个已命名候选中的未恢复部分不能按方法名自动生成占位源码。游戏原生 Lua VM/C++/UpValue 实机状态全部仍是 `NOT_OBSERVED`；有限 Lua 输入对账不是全部可达游戏状态的等价证明。
 
+## R15：真实 SELF/CALL/TEST 的有界 CFG、SSA 与宿主模拟调用验收
+
+[详细 Obsidian R15 源码证据与运行对账](sv400-haxe-r15-engine-call-cfg-ssa.md)。
+
+- [R15 原版 4.0.0 Haxe 编译和 A/B #42772389014](https://github.com/969981/SV_Resources/actions/runs/42772389014) **Success**：原始 `main.field.action.base.IAction.Setup`（Proto 12930、Root PC 160285）与 `IAutoAction.Setup`（Proto 13197、Root PC 163143）完成 `SELF/CALL/TEST/JMP`、两次调用的函数/接收者寄存器配对、`SETFIELD` 与返回分支恢复。新增 28/28 独立 Lua 回调模拟测试，原有 329 组无退化，累计 **357/357**。
+- 生成源码已合并进对应两个已有 `.hx` 类。原版 K 为 `F22C7B81A049FA20D`、`component`、`f558733FC`、`updateInterval`，且保留指令 PC、基本块、SSA 寄存器来源和合成函数出口两路返回值 φ 记录。不能用函数名凭空认定第二次调用的 C++ 接口。
+- 回调使用明确注入的**宿主模拟方法**；测试覆盖参数、接收者身份、Lua truthy 真值、`__index/__newindex` 事件顺序、共享引用以及抛错后部分写入。**这不代表真实 Switch 引擎、原版 C++/TValue/UpValue 已执行**，所以 `r15_engine_runtime_status=NOT_OBSERVED`、`runtime_status=NOT_OBSERVED`。
+- [R15 有界通用 CFG/SSA 候选只读检查 #42773054350](https://github.com/969981/SV_Resources/actions/runs/42773054350) 在 3,892 条具名原生方法中对 **886** 条短 `SELF/CALL/TEST` 函数完成语法 CFG/基本块/寄存器 reaching-definitions 诊断，**744** 条出现可能 φ 合流、**366** 条出现多个函数返回点、**229** 条有未支持的寄存器影响语义。这些分类可交叉，**均不是已恢复的 Haxe 数量**，`CALL/GET/SET` 带未知内存副作用，不得擅自把寄存器定义传播等同于内存 SSA。
+
+**当前合计：83 条原版 C/F 方法 Proto/PC 映射，82 个有独立 Lua 有限输入对账的 Haxe 方法体，1 个 `Assert.IsNull` 仅 extern。** 已验证的 357 组仍不代表游戏运行时等价。下一步先解决引擎 callable 的真实对象/调用参数身份观测和合流后内存副作用，而不是从 744 条 φ 候选直接批量生成源码。
+
 ## 上游资料与下一关
 
 [Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) 有 SV `source/main`、`source/dll_util`、`source/dll_stadium`；[Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 提供 Haxe 4.3.1、`HashAbi`、`@:chunk`、`@:abiSlot`、`cppbindings`、Lua 5.4.3 和 build finalizer 的参考实现；[PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 C/S/F/E 哈希与名称；[SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 是旧版 Lua 对照。
