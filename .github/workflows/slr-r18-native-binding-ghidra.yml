@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/slr-r18-native-binding-ghidra.yml"
       - "tools/ghidra/sv/SV400R18BindingTrace.java"
+      - "scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py"
   workflow_dispatch:
 permissions:
   contents: read
@@ -28,6 +29,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             tools/ghidra/sv/SV400R18BindingTrace.java
+            scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py
             Unpack/4.0.0/exefs/scarlet_main/scarlet_main.elf
             Unpack/4.0.0/exefs/violet_main/violet_main.elf
       - uses: actions/setup-java@v4
@@ -45,6 +47,8 @@ jobs:
           file="Unpack/4.0.0/exefs/$GAME/$GAME.elf"
           echo "$hash  $file" | sha256sum -c
           readelf -h "$file" | grep -q AArch64
+      - name: Syntax-check local guest observer without importing GDB
+        run: python3 -m py_compile scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py
       - name: Install hash-pinned official Ghidra 12.2
         run: |
           set -euo pipefail
