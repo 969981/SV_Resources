@@ -114,3 +114,4 @@ Keep evidence statuses visible. Do not present planned work as completed.
 - [SV 4.0.0 Haxe R11–R13：59 条字面量方法、GETI/SETI/LT/MOVE、三条 GETFIELD/SETFIELD 正式 Haxe、280/280 原始 Lua A/B](sv400-haxe-r11-r12-r13-native-lowering.md) — 两层 __index/__newindex 事件、嵌套表快照和异常前状态验收，游戏运行时尚未观察。
 - [SV 4.0.0 Haxe R14：动态 SETFIELD、双 SETI 共享引用图、两次 EQI 分支，原版 329/329 A/B](sv400-haxe-r14-dynamic-field-shared-alias-branch.md) — 4 个具 Proto/PC 和 HIR 证据的方法，完整表快照、异常前状态、元方法事件和共享引用对账，游戏 VM 仍 NOT_OBSERVED。
 - [SV 4.0.0 Haxe R15：原版 SELF/CALL/TEST、CFG/SSA 返回合流，357/357 模拟宿主 A/B，以及 886 条有界调用方法的 φ 候选扫描](sv400-haxe-r15-engine-call-cfg-ssa.md) — 两个有实际 Proto/PC 证据的方法已晋升 Haxe；引擎实机状态仍 NOT_OBSERVED，744 个合流只是只读候选。
+- [SV 4.0.0 Haxe R16：双原版 ELF、ZAScripts cppbindings cE35B3EB3 / f558733FC 绑定线索、原始 Lua CALL 参数数量差异与保守 Memory SSA](sv400-haxe-r16-native-cppbindings-memory-effects.md) — 静态交叉验证及 只读 guest 轨迹协议；仍缺实机 CFunction*／TValue* 证据，禁止宣称原生引擎等价。
