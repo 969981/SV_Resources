@@ -1,0 +1,41 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 00120430; name: FUN_00120430
+ */
+
+
+ulong FUN_00120430(ulong param_1)
+
+{
+  ulong uVar1;
+  ThreadType *pTVar2;
+  uint uVar3;
+  
+  uVar1 = 0x10;
+  switch(param_1) {
+  case 1:
+    return 0x1f;
+  case 2:
+    return 0x17;
+  case 3:
+    goto switchD_00120454_caseD_3;
+  case 4:
+    return 8;
+  case 5:
+    return 0;
+  case 6:
+    pTVar2 = (ThreadType *)nn::os::GetCurrentThread();
+    uVar1 = nn::os::GetThreadCurrentPriority(pTVar2);
+    return uVar1;
+  default:
+    uVar3 = 0xffffffff;
+    if ((~(uint)param_1 & 0xf) == 0) {
+      uVar3 = (uint)(param_1 >> 4);
+    }
+    uVar1 = (ulong)uVar3;
+switchD_00120454_caseD_3:
+    return uVar1;
+  }
+}
+
+
