@@ -1,0 +1,161 @@
+name: SV400 R11 gated promotion of 59 literal Haxe methods
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/Emit-SV-Haxe-R11-Batch.py"
+      - "tools/SV.Lua54/haxe/4.0.0/compare-r11-batch.lua"
+      - ".github/workflows/slr-haxe-r11-promote.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: sv400-r11-gated-promotion
+  cancel-in-progress: false
+jobs:
+  verify-and-promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/Stage-SV-Haxe-Namespace-Candidates.py
+            scripts/Emit-SV-Haxe-R11-Batch.py
+            scripts/Emit-SV-Haxe-R10-ConstantReturns.py
+            scripts/Build-SV-Haxe-Native-FnFixtures.py
+            scripts/Verify-SV-Haxe-Recovery.py
+            tests/test_sv_haxe_recovery.py
+            tests/test_sv_haxe_emitter.py
+            tools/SV.Lua54/haxe/4.0.0
+            tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/fixtures/native_manifest.json
+            tools/PokeDocs/SV/Hashlists/Lua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/dll_util/dll_util.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Pin exact original ZAScripts Haxe HashAbi/cppbindings/finalizer
+        run: |
+          set -euo pipefail
+          PIN=$(python3 -c 'import json;print(json.load(open("tools/SV.Lua54/haxe/4.0.0/zascripts.lock.json"))["upstream_commit"])')
+          UPSTREAM="$RUNNER_TEMP/ZAScripts"
+          git init -q "$UPSTREAM"
+          git -C "$UPSTREAM" remote add origin https://github.com/Reisyukaku/ZAScripts.git
+          git -C "$UPSTREAM" -c protocol.version=2 fetch -q --no-tags --depth 1 --filter=blob:none origin "$PIN"
+          git -C "$UPSTREAM" sparse-checkout init --cone
+          git -C "$UPSTREAM" sparse-checkout set tools/haxe-4.3.1 tools/gfl_build tools/lua-5.4.3/src
+          git -C "$UPSTREAM" checkout -q --detach FETCH_HEAD
+          test "$(git -C "$UPSTREAM" rev-parse HEAD)" = "$PIN"
+          test -f "$UPSTREAM/tools/haxe-4.3.1/std/haxe/macro/HashAbi.hx"
+          test -f "$UPSTREAM/tools/haxe-4.3.1/std/cppbindings/C016374C1.hx"
+          test -f "$UPSTREAM/tools/gfl_build/build_post_process.py"
+          echo "UPSTREAM=$UPSTREAM" >> "$GITHUB_ENV"
+          echo "HAXE_STD_PATH=$UPSTREAM/tools/haxe-4.3.1/std" >> "$GITHUB_ENV"
+          make -C "$UPSTREAM/tools/lua-5.4.3/src" linux MYLDFLAGS=-no-pie -j2 >/dev/null
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" --version
+      - name: Stage 59 original Proto/PC and typed CFG/HIR/AST methods
+        run: |
+          python3 scripts/Emit-SV-Haxe-R11-Batch.py --out "$RUNNER_TEMP/sv400-r11" --run-id "$GITHUB_RUN_ID"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"sv400-r11/r11-summary.json").read_text())
+          assert d["new_methods"]==59 and d["restricted_eligible"]==64
+          assert d["total_haxe_mapped_methods"]==71 and d["haxe_method_implementations"]==70
+          assert d["expected_new_differential_cases"]==177
+          assert len(set(d["method_protos"]))==59
+          print("PASS: 59 native methods staged with strict original Proto and opcode evidence")
+          PY
+      - name: Compile generated classes with pinned ZAScripts HashAbi and LuaOutput
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/sv400-r11/project"
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" build-za-main.hxml
+          "$UPSTREAM/tools/haxe-4.3.1/haxe" build-za-dll-util.hxml
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -p build/za_main.lua build/za_dll_util.lua
+          "$UPSTREAM/tools/lua-5.4.3/src/luac" -s -o build/za_main.blua build/za_main.lua
+      - name: Compare all 59 original child Proto against regenerated Haxe Lua
+        run: |
+          set -euo pipefail
+          find "$RUNNER_TEMP/sv400-r11/native" -name 'R11_*.luac' -print0 | xargs -0 -n1 "$UPSTREAM/tools/lua-5.4.3/src/luac" -p
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" "$RUNNER_TEMP/sv400-r11/compare-r11-generated.lua" \
+            "$RUNNER_TEMP/sv400-r11/native" "$RUNNER_TEMP/sv400-r11/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r11/r11-differential.tsv"
+          python3 - <<'PY'
+          import csv,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"sv400-r11/r11-differential.tsv"
+          data=list(csv.DictReader(p.open(),delimiter="\t"))
+          assert len(data)==59 and len({r["proto"] for r in data})==59
+          assert all(r["passed"]=="3" and r["cases"]=="3" for r in data)
+          print("PASS: 59 methods, 177/177 original Lua/Haxe differences checked")
+          PY
+      - name: Regress the eleven previously recovered methods against original Lua
+        run: |
+          python3 scripts/Build-SV-Haxe-Native-FnFixtures.py --out "$RUNNER_TEMP/sv400-r11/native"
+          python3 scripts/Emit-SV-Haxe-R10-ConstantReturns.py \
+            --output "$RUNNER_TEMP/sv400-r11/r10" \
+            --native-output "$RUNNER_TEMP/sv400-r11/native" --verify-repo-source
+          "$UPSTREAM/tools/lua-5.4.3/src/lua" tools/SV.Lua54/haxe/4.0.0/compare-native-vs-za.lua \
+            "$RUNNER_TEMP/sv400-r11/native" \
+            "$RUNNER_TEMP/sv400-r11/project/build/za_main.lua" \
+            "$RUNNER_TEMP/sv400-r11/project/build/za_dll_util.lua" \
+            "$RUNNER_TEMP/sv400-r11/r10-regression.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"sv400-r11/r10-regression.json").read_text())
+          assert d["status"]=="PASS" and len(d["methods"])==11
+          assert sum(m["passed"] for m in d["methods"])==56
+          print("PASS: previous 11 method bodies, 56/56 cases")
+          PY
+      - name: Copy staged Haxe + manifest only after A/B, validate before committing
+        run: |
+          python3 - <<'PY'
+          import json,os,shutil
+          from pathlib import Path
+          root=Path("tools/SV.Lua54/haxe/4.0.0")
+          stage=Path(os.environ["RUNNER_TEMP"])/"sv400-r11"
+          report=json.loads((stage/"r11-summary.json").read_text())
+          for rel in report["source_paths"]:
+              assert rel.startswith("source/") and rel.endswith(".hx")
+              src=stage/"project"/rel
+              dst=root/rel
+              dst.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copyfile(src,dst)
+          shutil.copyfile(stage/"methods.jsonl",root/"methods.jsonl")
+          print("Copied staged source to checkout for read-only Proto and Haxe verifier")
+          PY
+          python3 scripts/Verify-SV-Haxe-Recovery.py
+          python3 -m unittest discover -s tests -p "test_sv_haxe_recovery.py" -v
+          python3 -m unittest discover -s tests -p "test_sv_haxe_emitter.py" -v
+      - name: Promote to master only when all 233 A/B cases and provenance pass
+        if: github.ref == 'refs/heads/master'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          CURRENT="$(git ls-remote origin refs/heads/master | cut -f1)"
+          test "$CURRENT" = "$GITHUB_SHA" || {
+            echo "master changed during build: refusing to publish stale source"; exit 1;
+          }
+          git add -- tools/SV.Lua54/haxe/4.0.0/source tools/SV.Lua54/haxe/4.0.0/methods.jsonl
+          git diff --cached --quiet && { echo "No generated changes"; exit 1; }
+          git commit -m "R11: promote 59 source-verified Haxe methods after 233/233 original Lua54 differential"
+          git push origin HEAD:master
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv400-r11-59-method-evidence
+          path: |
+            ${{ runner.temp }}/sv400-r11/r11-summary.json
+            ${{ runner.temp }}/sv400-r11/r11-differential.tsv
+            ${{ runner.temp }}/sv400-r11/r10-regression.json
+          if-no-files-found: ignore
+          retention-days: 7
