@@ -8,7 +8,9 @@ package dll_util;
  * Stock Haxe 4.3.7 Lua smoke compiled/ran; native game semantics and bytecode differential NOT verified.
  */
 @:keep
+@:chunk("dll_util")
 @:hashAbi("CED59418C4CAB0EC4")
+@:expose("CED59418C4CAB0EC4")
 @:native("CED59418C4CAB0EC4")
 class MathUtil {
     @:hashAbi("S05B90B9B5A6DE6BC")
