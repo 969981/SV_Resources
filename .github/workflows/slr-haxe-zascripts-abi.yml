@@ -46,7 +46,7 @@ jobs:
       - name: Check Haxe 4.3.1 and build pinned Lua5.4.3 compiler
         run: |
           "$UPSTREAM/tools/haxe-4.3.1/haxe" --version
-          make -C "$UPSTREAM/tools/lua-5.4.3/src" linux -j2 >/dev/null
+          make -C "$UPSTREAM/tools/lua-5.4.3/src" linux MYLDFLAGS=-no-pie -j2 >/dev/null
           "$UPSTREAM/tools/lua-5.4.3/src/luac" -v
       - name: Compile main + dll_util through upstream HashAbi and LuaOutput finalizer
         working-directory: tools/SV.Lua54/haxe/4.0.0
