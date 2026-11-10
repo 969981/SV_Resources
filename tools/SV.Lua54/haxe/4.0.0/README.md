@@ -1,6 +1,6 @@
 # SV Violet 4.0.0 curated Haxe reconstruction
 
-**Status: 81 original SV400 native method Proto/PC links, 80 Haxe method bodies independently validated against original Child Lua 5.4.3 (329/329 tested inputs), and one extern-only Assert.IsNull. Switch game runtime remains NOT_OBSERVED.** This is a curated, evidence-tracked workspace, not a complete SV source project.
+**Status: 83 original SV400 native method Proto/PC links, 82 Haxe method bodies independently validated against original Child Lua 5.4.3 (357/357 tested inputs, with R15 host calls mocked), and one extern-only Assert.IsNull. Switch game runtime remains NOT_OBSERVED.** This is a curated, evidence-tracked workspace, not a complete SV source project.
 
 ## Location and files
 
@@ -54,6 +54,13 @@ haxe build.hxml
 ```
 
 The pinned ZAScripts custom compiler now executes the real `haxe.macro.HashAbi` ABI checker (including a negative intentionally wrong S-hash test), `LuaOutput` postprocessor and `cppbindings` typechecking. Preserve separate stock-Haxe and ZAScripts build states; do not call these standalone tests game-runtime parity.
+
+## R15 native SELF/CALL/TEST CFG/SSA with mocked host calls
+
+- [R15 Obsidian evidence, scope and call-SSA](../../../../docs/research/sv400-haxe-r15-engine-call-cfg-ssa.md) · [fully gated R15 original Lua vs Haxe A/B #42772389014](https://github.com/969981/SV_Resources/actions/runs/42772389014): **2 new original `IAction.Setup` and `IAutoAction.Setup`**, Proto 12930/13197, root PC 160285/163143, 28/28 callback-mock A/B, old 329/329 intact (**357/357 total**).
+- Original `SELF` retains callable + receiver separately; `CALL` result flows into `TEST/JMP`, `SETFIELD` precedes the next `SELF/GETFIELD/CALL`. Haxe methods were appended to existing `source/main/field/action/base/IAction.hx` and `IAutoAction.hx`, never generated as unverified classes. Full original C/F/K/bytecode/PC evidence and the synthetic function-exit SSA return PHI are in `methods.jsonl`.
+- This is **mock host call trace parity**, NOT game engine/C++ equivalence. `r15_mocked_host_status=MOCK_HOST_CALL_EVENT_ALIAS_AND_PARTIAL_WRITE_PASS`, `r15_engine_runtime_status=NOT_OBSERVED`.
+- [bounded generic original CFG/SSA diagnostic #42773054350](https://github.com/969981/SV_Resources/actions/runs/42773054350) independently examined **886** named short `SELF/CALL/TEST` methods; **744** contain potential reaching-definition PHI joins, **366** have synthetic multi-return joins, **229** have register semantics still unsupported. `cfg_ssa_diagnostic.py` marks CALL/GET/SET heap barriers; **no Haxe was emitted** from this diagnostic census.
 
 ## R14 original dynamic field / ordered table writes / multi-branch source
 
