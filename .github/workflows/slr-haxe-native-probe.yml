@@ -1,0 +1,36 @@
+name: SV 4.0.0 Haxe native opcode probe
+on:
+  push:
+    branches: [master]
+    paths:
+      - "scripts/Probe-SV-Haxe-Native.py"
+      - ".github/workflows/slr-haxe-native-probe.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          fetch-depth: 1
+          sparse-checkout: |
+            scripts/Probe-SV-Haxe-Native.py
+            tools/SV.Lua54/src/sv_lua54
+            tools/SV.Lua54/fixtures/native_manifest.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/dll_util/dll_util.blua
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Read-only 4.0.0 class and member opcode lookup
+        run: python scripts/Probe-SV-Haxe-Native.py --output "$RUNNER_TEMP/haxe_native_probe.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sv400-haxe-native-probe
+          path: "${{ runner.temp }}/haxe_native_probe.json"
+          retention-days: 7
