@@ -5,8 +5,11 @@ on:
     paths:
       - ".github/workflows/slr-haxe-r16-engine-abi-audit.yml"
       - "scripts/Analyze-SV-Haxe-R16-EngineAbi.py"
+      - "scripts/Verify-SV-Haxe-R16-GuestTrace.py"
       - "tools/SV.Lua54/src/sv_lua54/emit_haxe/r16_engine_bridge.py"
+      - "tools/SV.Lua54/src/sv_lua54/emit_haxe/r16_guest_trace.py"
       - "tests/test_sv_haxe_r16_engine_bridge.py"
+      - "tests/test_sv_haxe_r16_guest_trace.py"
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,6 +28,7 @@ jobs:
             .github/workflows/slr-haxe-r16-engine-abi-audit.yml
             scripts/Analyze-SV-Haxe-R16-EngineAbi.py
             tests/test_sv_haxe_r16_engine_bridge.py
+            tests/test_sv_haxe_r16_guest_trace.py
             tools/SV.Lua54/src/sv_lua54/
             tools/SV.Lua54/haxe/4.0.0/methods.jsonl
             tools/SV.Lua54/haxe/4.0.0/zascripts.lock.json
@@ -38,6 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m unittest discover -s tests -p "test_sv_haxe_r16_engine_bridge.py" -v
+          python3 -m unittest discover -s tests -p "test_sv_haxe_r16_guest_trace.py" -v
       - name: Checkout EXACT pinned Reisyukaku ZAScripts cppbindings source
         run: |
           set -euo pipefail
@@ -70,6 +75,13 @@ jobs:
           assert data["new_haxe_generated"] is False
           assert data["game_runtime_status"]=="NOT_OBSERVED"
           assert data["engine_runtime_abi_status"]=="NOT_RESOLVED"
+          candidate=data["upstream_cppbindings_vs_original_lua_call_arity"]
+          assert candidate["method_key"]=="f558733FC"
+          assert candidate["candidate_file"]=="CE35B3EB3.hx" and candidate["candidate_line"]==24
+          assert candidate["upstream_declared_explicit_argument_count"]==2
+          assert candidate["original_lua_explicit_argument_count_excluding_self"]==1
+          assert candidate["classification"]=="UPSTREAM_EXTERN_ARITY_DIFFERS_FROM_SV400_LUA_CALL"
+          assert candidate["abi_status"]=="NOT_RESOLVED"
           assert all(v["abi_status"]=="NOT_RESOLVED" for v in data["native_binary_literal_evidence"].values())
           assert all(v["memory_ssa_status"]=="CONSERVATIVE_MAY_WRITE_ONLY"
                      and len(v["pc_events"])==15 for v in data["r15_callsite_originals"].values())
