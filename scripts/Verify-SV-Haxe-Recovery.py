@@ -283,9 +283,9 @@ def verify(root: Path = ROOT) -> dict:
                         or r.get("ast_return_type") != lifted.return_type
                         or r.get("cfg_edges") != [list(x) for x in lifted.cfg_edges]):
                     raise ValueError(f"line {n}: original source CFG/HIR/AST witness changed")
-                pattern=(r"\\bpublic\\s+function\\s+"+re.escape(method)+
-                         r"\\s*\\(\\s*\\)\\s*:\\s*"+re.escape(lifted.return_type)+
-                         r"\\s*\\{\\s*return\\s+"+re.escape(lifted.haxe_expression)+r";\\s*\\}")
+                pattern=(r"\bpublic\s+function\s+"+re.escape(method)+
+                         r"\s*\(\s*\)\s*:\s*"+re.escape(lifted.return_type)+
+                         r"\s*\{\s*return\s+"+re.escape(lifted.haxe_expression)+r";\s*\}")
                 if not re.search(pattern,hx):
                     raise ValueError(f"line {n}: committed Haxe body differs from strict AST emission")
             if r["haxe_body_status"] == "NATIVE_RETURN0_NOOP_IMPLEMENTED":
