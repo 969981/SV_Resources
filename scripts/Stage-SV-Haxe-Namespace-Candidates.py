@@ -16,6 +16,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"tools/SV.Lua54/src"))
 from sv_lua54.chunk import parse
 from sv_lua54.r1 import annotate_methods, direct_cf_methods, read_symbols, decode
+from sv_lua54.emit_haxe import LiftFailure, lift_constant_return
 
 NATIVE="Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua"
 SHA="c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815"
@@ -38,6 +39,8 @@ def stage(root:Path)->tuple[list[dict],dict]:
     result=[]
     counts=Counter()
     unknown=Counter()
+    literal_eligible=Counter()
+    reason_blocked=Counter()
     for row in annotated:
         cls=row["class_name_candidate"]
         namespace=row["class_namespace_candidate"]
@@ -54,7 +57,22 @@ def stage(root:Path)->tuple[list[dict],dict]:
         proto=protos[row["child_proto_id"]]
         if proto.parent_id!=0 or proto.instruction_count!=row["child_instructions"]:
             raise ValueError("root-registered Child Proto ownership mismatch")
+        try:
+            lifted=lift_constant_return(proto)
+            eligibility="RESTRICTED_CFG_HIR_AST_LITERAL_ELIGIBLE"
+            return_preview={"kind":lifted.ast.value.kind,
+                            "value":lifted.ast.value.value,
+                            "haxe_type":lifted.return_type,
+                            "cfg_edges":[list(e) for e in lifted.cfg_edges]}
+            literal_eligible[group]+=1
+        except LiftFailure as ex:
+            eligibility="BLOCKED_AST_UNSUPPORTED"
+            return_preview=None
+            reason_blocked[str(ex)]+=1
         result.append({
+            "r10_literal_lowering_status":eligibility,
+            "r10_literal_ast_preview":return_preview,
+            "r10_haxe_source_generated":False,
             "game_version":"SV Violet 4.0.0","module":"main",
             "source_sha256":SHA,"class_name":cls,
             "class_hash":row["class_hash"],
@@ -93,6 +111,9 @@ def stage(root:Path)->tuple[list[dict],dict]:
         "unresolved_method_names_in_selected_groups":dict(sorted(unknown.items())),
         "total_named_candidates":len(result),
         "haxe_files_generated":0,
+        "literal_eligible_by_group":dict(sorted(literal_eligible.items())),
+        "literal_eligible_total":sum(literal_eligible.values()),
+        "rejection_reasons":dict(reason_blocked.most_common()),
         "status":"NATIVE_PROTO_PC_CANDIDATES_ONLY_NO_HAXE_BODY",
         "warning":"No compiled or behavior-verified Haxe for these staged field/battle/event functions",
     }
