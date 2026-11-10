@@ -1,0 +1,79 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 013e50c0; name: FUN_013e50c0
+ */
+
+
+void FUN_013e50c0(long param_1,undefined8 param_2)
+
+{
+  long *plVar1;
+  char cVar2;
+  long lVar3;
+  code *pcVar4;
+  bool bVar5;
+  long lVar6;
+  
+  plVar1 = (long *)(param_1 + 8);
+  lVar6 = *plVar1;
+  lVar3 = nn::os::GetCurrentThread();
+  if (lVar3 == lVar6) {
+    bVar5 = true;
+LAB_013e5114:
+    FUN_013e51cc(param_2,param_1 + 0x20);
+    FUN_013e51cc(param_2,param_1 + 0x58);
+    if ((*(byte *)(param_1 + 600) & 7) != 0) {
+      pcVar4 = *(code **)(param_1 + 0xa8);
+      if ((*(ulong *)(param_1 + 0xb0) & 1) != 0) {
+        pcVar4 = *(code **)(pcVar4 + *(long *)(param_1 + ((long)*(ulong *)(param_1 + 0xb0) >> 1)));
+      }
+      (*pcVar4)();
+    }
+    if (bVar5) {
+      return;
+    }
+    *(undefined8 *)(param_1 + 8) = 0;
+    nn::os::SignalLightEvent((LightEventType *)(param_1 + 0x10));
+    return;
+  }
+  lVar3 = nn::os::GetCurrentThread();
+  while (*plVar1 == 0) {
+    cVar2 = '\x01';
+    bVar5 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+    if (bVar5) {
+      *plVar1 = lVar3;
+      cVar2 = ExclusiveMonitorsStatus();
+    }
+    if (cVar2 == '\0') goto LAB_013e5110;
+  }
+  ClearExclusiveLocal();
+  nn::os::WaitLightEvent((LightEventType *)(param_1 + 0x10));
+  do {
+    if (*plVar1 != 0) {
+      do {
+        ClearExclusiveLocal();
+        nn::os::WaitLightEvent((LightEventType *)(param_1 + 0x10));
+        while (*plVar1 == 0) {
+          cVar2 = '\x01';
+          bVar5 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+          if (bVar5) {
+            *plVar1 = lVar3;
+            cVar2 = ExclusiveMonitorsStatus();
+          }
+          if (cVar2 == '\0') goto LAB_013e5110;
+        }
+      } while( true );
+    }
+    cVar2 = '\x01';
+    bVar5 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+    if (bVar5) {
+      *plVar1 = lVar3;
+      cVar2 = ExclusiveMonitorsStatus();
+    }
+  } while (cVar2 != '\0');
+LAB_013e5110:
+  bVar5 = false;
+  goto LAB_013e5114;
+}
+
+

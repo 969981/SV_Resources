@@ -1,0 +1,55 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 01368d78; name: FUN_01368d78
+ */
+
+
+void FUN_01368d78(long *param_1,undefined8 *param_2)
+
+{
+  undefined *puVar1;
+  int iVar2;
+  long lVar3;
+  long lVar4;
+  
+  param_1[2] = 0;
+  puVar1 = PTR_DAT_047d66f8;
+  *(undefined4 *)(param_1 + 3) = 0;
+  *param_1 = (long)(puVar1 + 0x10);
+  if (((DAT_04865a38 & 1) == 0) && (iVar2 = __cxa_guard_acquire(&DAT_04865a38), iVar2 != 0)) {
+    FUN_010538c0(&DAT_04865a30,&LAB_028bf190);
+    FUN_00100190(PTR_LAB_047d3900,&DAT_04865a30,&PTR_LOOP_04483000);
+    __cxa_guard_release(&DAT_04865a38);
+  }
+  lVar3 = nn::os::GetTlsValue(DAT_04865a30);
+  if (lVar3 == 0) {
+    lVar4 = 0;
+  }
+  else {
+    lVar4 = 0;
+    if (*(long *)(lVar3 + 0x80) != 0) {
+      lVar4 = *(long *)(lVar3 + *(long *)(lVar3 + 0x80) * 8 + -8);
+    }
+  }
+  *(undefined4 *)(param_1 + 5) = 0;
+  *param_1 = (long)&DAT_04590df8;
+  param_1[1] = lVar4;
+  param_1[4] = (long)&PTR_LAB_045919a0;
+  param_1[6] = param_2[1];
+  param_1[7] = param_2[2];
+  param_1[8] = param_2[3];
+  *(undefined4 *)(param_1 + 9) = *(undefined4 *)(param_2 + 4);
+  *(undefined1 *)((long)param_1 + 0x4c) = *(undefined1 *)((long)param_2 + 0x24);
+  param_1[10] = 0;
+  param_1[0xb] = 0;
+  param_1[0xc] = 0;
+  param_1[0xd] = 0;
+  FUN_01368ea4(param_1 + 0xe);
+  *(undefined2 *)(param_1 + 0x1b) = 0;
+  *(undefined1 *)((long)param_1 + 0xda) = 0;
+  *(undefined4 *)((long)param_1 + 0xdc) = 0;
+  FUN_0136905c(param_1,*param_2);
+  return;
+}
+
+
