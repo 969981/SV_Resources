@@ -126,6 +126,15 @@ python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 
 注意该路径并非完整导入 unluac-rs 通用 HIR/AST，只是受限且经过字节码验证的 CFG/HIR/AST 后端。完整 Lua 表、条件/循环、Upvalue、游戏 C++ 原生对象和实机 VM 仍需逐项单独验证，`runtime_status=NOT_OBSERVED`。
 
+## R11–R13：批量恢复 59 条及表读写/条件分支
+
+[Obsidian R11/R12/R13 完整技术验证](sv400-haxe-r11-r12-r13-native-lowering.md)。
+
+- [R11 Actions #42761612949](https://github.com/969981/SV_Resources/actions/runs/42761612949)：剩余的 **59/59** 字面量候选在原版 C→F/Proto/PC 与 PokeDocs 严格匹配后，按类合并生成 Haxe，定制 ZAScripts 编译与原版 Child 差异 **177/177 PASS**，加历史 56/56，累计 233/233。
+- [R12 Actions #42762760077](https://github.com/969981/SV_Resources/actions/runs/42762760077)：增加原版 `BattleView.GetGemEnableCount`（GETI）、`SetGemEnableCount`（SETI）、`DanRushAfterEvent.clamp`（LT/JMP/MOVE）。新增 **19/19**，加 233 组回归为 **252/252 PASS**。SETI 要比较表状态、未修改字段、nil 与 `__newindex` 元方法事件，不能仅比较返回值。
+- 当前 **74 条真实原始映射、73 个已独立 Lua 对账的 Haxe 方法体、1 个 extern-only**。未验证游戏原生 Lua VM/C++/UpVal*，`runtime_status=NOT_OBSERVED`。
+- [R13 静态字段取证 #42763034047](https://github.com/969981/SV_Resources/actions/runs/42763034047) 从原版常量表证实 `callFromReserve`、`skipPlayerStuckCheck=true` 和 `length`。`GETFIELD/SETFIELD` 受限 AST 已有合成测试，但尚未完成三方法原生 Lua A/B，不计入上述已恢复数。
+
 ## 上游资料与下一关
 
 [Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) 有 SV `source/main`、`source/dll_util`、`source/dll_stadium`；[Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 提供 Haxe 4.3.1、`HashAbi`、`@:chunk`、`@:abiSlot`、`cppbindings`、Lua 5.4.3 和 build finalizer 的参考实现；[PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 C/S/F/E 哈希与名称；[SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 是旧版 Lua 对照。
