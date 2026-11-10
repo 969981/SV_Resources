@@ -144,14 +144,36 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          CURRENT="$(git ls-remote origin refs/heads/master | cut -f1)"
-          test "$CURRENT" = "$GITHUB_SHA" || {
-            echo "master changed during build: refusing to publish stale source"; exit 1;
-          }
           git add -- tools/SV.Lua54/haxe/4.0.0/source tools/SV.Lua54/haxe/4.0.0/methods.jsonl
           git diff --cached --quiet && { echo "No generated changes"; exit 1; }
           git commit -m "R12: recover GETI SETI LT MOVE with original Lua54 and observable table side-effect parity"
-          git push origin HEAD:master
+          # The independent full-secondary resource sweep also writes master.
+          # Permit only changes unrelated to R12's code and provenance input;
+          # rebase the verified commit on those changes instead of overwriting.
+          for attempt in 1 2 3; do
+            git fetch --no-tags origin master
+            CHANGED="$(git diff --name-only "$GITHUB_SHA" FETCH_HEAD -- \
+              tools/SV.Lua54/haxe/4.0.0 \
+              tools/SV.Lua54/src/sv_lua54 \
+              scripts/Stage-SV-Haxe-Namespace-Candidates.py \
+              scripts/Emit-SV-Haxe-R12-Slots.py \
+              scripts/Verify-SV-Haxe-Recovery.py \
+              tools/PokeDocs/SV/Hashlists/Lua \
+              Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua)"
+            if test -n "$CHANGED"; then
+              echo "R12 ABI/provenance input changed during validation; refusing publish"
+              echo "$CHANGED"
+              exit 1
+            fi
+            git rebase FETCH_HEAD
+            if git push origin HEAD:master; then
+              echo "Published verified R12 source after rebasing unrelated resource updates"
+              exit 0
+            fi
+            echo "Concurrent unrelated master update; retrying guarded rebase"
+          done
+          echo "Could not safely publish after three guarded rebase attempts"
+          exit 1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
