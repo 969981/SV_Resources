@@ -5,7 +5,7 @@ package dll_util;
  * CED59418C4CAB0EC4 / S05B90B9B5A6DE6BC.
  * Root PC 270 GETTABUP, 271 CLOSURE, 272 SETFIELD
  * -> Proto 76 (8 native instructions, byte offset 13663).
- * Haxe→Lua recompilation and game semantics NOT verified.
+ * Stock Haxe 4.3.7 Lua smoke compiled/ran; native game semantics and bytecode differential NOT verified.
  */
 @:keep
 @:hashAbi("CED59418C4CAB0EC4")
