@@ -138,6 +138,48 @@ def _elf_segments(raw: bytes):
     return segs
 
 
+def adrp_add_string_xrefs(image: bytes, segments, literal_rvas, limit_per_literal=12):
+    """Scan only executable PT_LOAD for adjacent ARM64 ADRP/ADD addressing.
+
+    Results are syntactic direct references to a STRING, not C++ calls,
+    function boundaries, dispatch-table registration or real execution.
+    """
+    targets={int(rva,16):name for name,rvlist in literal_rvas.items()
+             for rva in rvlist}
+    results={k:[] for k in literal_rvas}
+    if not targets:
+        return results
+    for offset,end,vaddr,flags in segments:
+        if not (flags & 1):
+            continue
+        # AArch64 instructions are aligned in virtual-address space.
+        start=offset + (-vaddr & 3)
+        for position in range(start,end-7,4):
+            word=struct.unpack_from("<I",image,position)[0]
+            if (word & 0x9f000000)!=0x90000000:continue
+            follow=struct.unpack_from("<I",image,position+4)[0]
+            if (follow & 0xff000000)!=0x91000000:continue
+            if ((follow>>5)&31)!=(word&31):continue
+            shift=(follow>>22)&3
+            if shift not in (0,1):continue
+            imm21=(((word>>5)&0x7ffff)<<2)|((word>>29)&3)
+            if imm21&(1<<20):imm21-=1<<21
+            codeva=vaddr+position-offset
+            page=(codeva & ~0xfff)+(imm21<<12)
+            addr=page+(((follow>>10)&0xfff)<<(12 if shift else 0))
+            key=targets.get(addr)
+            if key is None or len(results[key])>=limit_per_literal:continue
+            results[key].append({
+              "adrp_rva":f"0x{codeva:x}",
+              "add_rva":f"0x{codeva+4:x}",
+              "adrp_word":f"{word:08X}",
+              "add_word":f"{follow:08X}",
+              "literal_rva":f"0x{addr:x}",
+              "status":"DIRECT_ADRP_ADD_STRING_XREF_NOT_CPP_FUNCTION_ENTRY",
+            })
+    return results
+
+
 def inspect_elf(path: Path, game: str, keys=LUA_K):
     """Only detect literal bytes and map PT_LOAD offsets. Never claim function RVA."""
     if game not in EXPECTED_ELF:
@@ -166,9 +208,17 @@ def inspect_elf(path: Path, game: str, keys=LUA_K):
             "at_least_16": len(found) == 16,
             "status": "LITERAL_OCCURRENCE_ONLY_NO_LUA_TO_CPP_CALL_RESOLUTION",
         })
+    target_rvas={
+        m["literal"]:[entry["rva"] for hit in m["exact_ascii_matches_first_16"]
+                      for entry in hit["mapped_segments"]]
+        for m in matches
+    }
+    direct_xrefs=adrp_add_string_xrefs(data,segments,target_rvas)
     return {
         "game": game, "elf_sha256": digest, "architecture": "AArch64 ELF64 LE",
         "literal_occurrences": matches,
+        "literal_direct_adrp_add_xref_candidates": direct_xrefs,
+        "xref_status":"DIRECT_STRING_REFERENCE_NOT_CPP_CALL_REGISTRATION",
         "symbol_to_cpp_entry": None,
         "native_cpp_signature": None,
         "abi_status": "NOT_RESOLVED",
