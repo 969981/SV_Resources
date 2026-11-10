@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "kind": "SV400_R17_ORIGINAL_ELF_LUA_CALL_STATIC_NATIVE_BINDING_CANDIDATES",
+  "game_version": "4.0.0",
+  "original_main_blua_sha256": "c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815",
+  "original_elf_sha256": {
+    "scarlet_main": "53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f",
+    "violet_main": "84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30"
+  },
+  "zascripts_reference_commit": "c7bc243ac4d28356dff9f06b6723330ea92247d5",
+  "source_methods": [
+    {
+      "haxe_class": "main.field.action.base.IAction",
+      "method": "Setup",
+      "child_proto_id": 12930,
+      "root_pc": 160285,
+      "first_self_hash": "F22C7B81A049FA20D",
+      "second_self_key": "f558733FC",
+      "owner_geti_slot": 10,
+      "child_geti_slot": 12,
+      "original_lua_call_pc": 9,
+      "original_lua_call_instruction": "CALL A3 B3 C1",
+      "lua_total_arguments_including_self": 2,
+      "lua_explicit_arguments": 1,
+      "runtime_child_type": "NOT_OBSERVED"
+    },
+    {
+      "haxe_class": "main.field.action.base.IAutoAction",
+      "method": "Setup",
+      "child_proto_id": 13197,
+      "root_pc": 163143,
+      "first_self_hash": "F22C7B81A049FA20D",
+      "second_self_key": "f558733FC",
+      "owner_geti_slot": 2,
+      "child_geti_slot": 4,
+      "original_lua_call_pc": 9,
+      "original_lua_call_instruction": "CALL A3 B3 C1",
+      "lua_total_arguments_including_self": 2,
+      "lua_explicit_arguments": 1,
+      "runtime_child_type": "NOT_OBSERVED"
+    }
+  ],
+  "native_static_class_registration": {
+    "class_utf8": "cE35B3EB3",
+    "literal_rva": "0x3b04bcb",
+    "code_adrp_rva": "0x13fe21c",
+    "code_add_rva": "0x13fe220",
+    "callee_bl_pc": "0x13fe234",
+    "callee_target_rva": "0xe7d200",
+    "x2_callback_code_rva": "0x1600050",
+    "callback_table_adrp_pc": "0x1600088",
+    "callback_table_rva": "0x44b14e0",
+    "table_consumer_bl_pc": "0x1600098",
+    "table_consumer_target_rva": "0xdeb2f0",
+    "table_method_record_index_zero_based": 25,
+    "method_name_slot": "0x44b1670",
+    "method_code_slot": "0x44b1678",
+    "method_name_literal_rva": "0x3ae83c2",
+    "method_code_target_rva": "0x1959e40",
+    "native_wrapper_first_lua_argument_reader_pc": "0x1959e58",
+    "native_wrapper_second_lua_argument_reader_pc": "0x1959e74",
+    "native_wrapper_indirect_cpp_call_pc": "0x1959ef8",
+    "status": "ELF_STATIC_CALL_SEQUENCE_AND_RELOCATION_PAIR_VERIFIED_NOT_RUNTIME_POINTER"
+  },
+  "other_same_name_static_registry": {
+    "method_name_slot": "0x4426ac0",
+    "code_pointer_slot": "0x4426ac8",
+    "code_target_rva": "0x194e910",
+    "class_identity": "NOT_RESOLVED"
+  },
+  "upstream_haxe_extern_reference": {
+    "class_file": "CE35B3EB3.hx",
+    "line": 24,
+    "source": "public function f558733FC(interval:UInt, part_interval:UInt):Void;",
+    "explicit_arguments": 2,
+    "source_scope": "ZASCRIPTS_COMMIT_NOT_SV400_NATIVE_ABI"
+  },
+  "known_original_cpp_binding_argument_discrepancy": "UPSTREAM_2_EXPLICIT_VS_SV400_LUA_1_EXPLICIT",
+  "evidence_runs": {
+    "original_native_code": 42781289828,
+    "previous_bridge": 42777057724,
+    "guest_probe_synthetic": 42780968070,
+    "ghidra_targeted_started": 42779039230
+  },
+  "runtime_registers_observed": false,
+  "guest_lua_child_tvalue_observed": false,
+  "guest_cclosure_cfunction_pointer_observed": false,
+  "actual_cpp_argument_return_abi_verified": false,
+  "game_runtime_status": "NOT_OBSERVED",
+  "memory_ssa_status": "CONSERVATIVE_MAY_WRITE_ONLY",
+  "provenance_level": "ORIGINAL_ELF_STATIC_ONLY",
+  "comment": "Never overwrite known R15 Haxe body or elevate runtime_status from this static-only sidecar."
+}
