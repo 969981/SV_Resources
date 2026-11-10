@@ -55,6 +55,15 @@ haxe build.hxml
 
 The pinned ZAScripts custom compiler now executes the real `haxe.macro.HashAbi` ABI checker (including a negative intentionally wrong S-hash test), `LuaOutput` postprocessor and `cppbindings` typechecking. Preserve separate stock-Haxe and ZAScripts build states; do not call these standalone tests game-runtime parity.
 
+## R17 original cE35B3EB3 native registration and f558733FC pointer (static only)
+
+- [R17 Obsidian source-backed native binding research](../../../../docs/research/sv400-haxe-r17-native-registration-guest-call.md) · [Original Scarlet/Violet ELF machine code & relocation Actions #42781289828](https://github.com/969981/SV_Resources/actions/runs/42781289828), **Success**.
+- Original class-name `cE35B3EB3` code pointer path: `main+0x13FE21C` ADRP/ADD string → `BL main+0xE7D200` with `X2=main+0x1600050`. That callback passes `X1=main+0x44B14E0` at `BL main+0xDEB2F0`. The referenced 16-byte records bind name `f558733FC` to executable code `main+0x1959E40` (relocation slots `0x44B1670/0x44B1678`).
+- Independently, a different relocation table at `0x4426AC0/0x4426AC8` references the same method string but executable `0x194E910`: never assume the two types are identical.
+- The two byte-verified wrappers show `MOV W1,#1` and `MOV W1,#2` reader call patterns, compatible with native Lua receiver plus **one** explicit argument; the pinned upstream Haxe extern declares **two** explicit UInt arguments. This mismatch remains **STATIC ABI INVESTIGATION**, not verified native C++ types.
+- Machine-readable source link: `r17-native-binding-candidates.json` with original `IAction.Setup` Proto 12930 / PC 160285 and `IAutoAction.Setup` Proto 13197 / PC 163143. The sidecar explicitly sets `runtime_status=NOT_OBSERVED`, without mutating the 83-method authoritative `methods.jsonl`.
+- [Ghidra 12.2 targeted verification](https://github.com/969981/SV_Resources/actions/runs/42779039230) is separate from already-successful Capstone/ELF analysis. `SV400_Lua_R17_ClassBinding_ReadOnly.py` can collect actual GDB events in a user-controlled offline guest, but **no actual guest was connected and no original Lua child / CClosure pointer observed**.
+
 ## R16 dual ELF / upstream native-binding and memory barriers (static only)
 
 - [R16 Obsidian technical investigation](../../../../docs/research/sv400-haxe-r16-native-cppbindings-memory-effects.md) · [R16 original ELF and pinned cppbindings Actions #42776515318](https://github.com/969981/SV_Resources/actions/runs/42776515318), **Success**; 18 new synthetic validation tests pass. This is **not a new Haxe-method promotion**: the total remains 83 original method links / 82 implemented methods / 357 independent Lua A/B cases.
