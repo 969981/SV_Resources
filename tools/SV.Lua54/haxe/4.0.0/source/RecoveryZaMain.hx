@@ -3,6 +3,10 @@ import main.util.StrUtil;
 import main.field.action.ActionChair;
 import main.battle.BattleViewBase;
 import main.event.base.BaseBattleTalkEvent;
+import main.field.behaviour.DanPartnerPokemon;
+import main.field.behaviour.DanPokemonBehavior;
+import main.battle.BattleView;
+import main.event.base.BaseScenarioEvent;
 
 /**
  * ABI integration probe, not original SV root or gameplay loader.
@@ -17,10 +21,18 @@ class RecoveryZaMain {
         var chairClass:Class<ActionChair> = ActionChair;
         var battleClass:Class<BattleViewBase> = BattleViewBase;
         var eventClass:Class<BaseBattleTalkEvent> = BaseBattleTalkEvent;
+        var partnerClass:Class<DanPartnerPokemon> = DanPartnerPokemon;
+        var pokemonBehaviorClass:Class<DanPokemonBehavior> = DanPokemonBehavior;
+        var battleViewClass:Class<BattleView> = BattleView;
+        var scenarioClass:Class<BaseScenarioEvent> = BaseScenarioEvent;
         if (untyped __lua__("false")) {
             trace(chairClass);
             trace(battleClass);
             trace(eventClass);
+            trace(partnerClass);
+            trace(pokemonBehaviorClass);
+            trace(battleViewClass);
+            trace(scenarioClass);
             trace(angle);
             trace(format);
         }
