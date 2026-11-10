@@ -97,12 +97,12 @@ def verify(root: Path = ROOT) -> dict:
                       "closure_pc", "assignment_pc", "child_index"):
                 if type(r.get(k)) is not int:
                     raise ValueError(f"line {n}: missing original root closure {k}")
-            expected_link_status = ("SV400_NATIVE_DLL_STATIC_CLOSURE_LINKED"
-                                    if r["module"] == "dll_util"
+            expected_link_status = ("SV400_NATIVE_INSTANCE_CLOSURE_LINKED" if mh.startswith("F")
+                                    else "SV400_NATIVE_DLL_STATIC_CLOSURE_LINKED" if r["module"] == "dll_util"
                                     else "SV400_NATIVE_STATIC_CLOSURE_LINKED")
             if r.get("native_binding_status") != expected_link_status:
                 raise ValueError(f"line {n}: missing proven native C-S binding status")
-            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED"):
+            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED", "NATIVE_RETURN0_NOOP_IMPLEMENTED"):
                 raise ValueError(f"line {n}: unreviewed Haxe expression status")
             if r["runtime_status"] != "NOT_OBSERVED":
                 raise ValueError(f"line {n}: game runtime remains unobserved")
@@ -117,6 +117,25 @@ def verify(root: Path = ROOT) -> dict:
                         or r.get("za_differential_passed") is not None
                         or r.get("za_differential_run_id") is not None):
                     raise ValueError(f"line {n}: extern without method body must not claim Lua parity")
+            elif r["haxe_body_status"] == "NATIVE_RETURN0_NOOP_IMPLEMENTED":
+                if (mh[0] != "F" or r["module"] != "main"):
+                    raise ValueError(f"line {n}: no-op method must be original main instance F")
+                if (r.get("za_haxe_compile_status") != "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT"
+                        or r.get("za_haxe_build_evidence_run_id") != 42754153383):
+                    raise ValueError(f"line {n}: missing pinned Haxe F-prototype compilation evidence")
+                if r["lua_differential_status"] == "NOT_RUN":
+                    if any(r.get(k) is not None for k in (
+                        "za_differential_cases","za_differential_passed","za_differential_run_id")):
+                        raise ValueError(f"line {n}: pending F differential must have no claimed result")
+                elif r["lua_differential_status"] == "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS":
+                    if (r.get("za_differential_cases") != 3
+                            or r.get("za_differential_passed") != 3
+                            or type(r.get("za_differential_run_id")) is not int
+                            or r.get("za_differential_evidence_url") !=
+                                f"https://github.com/969981/SV_Resources/actions/runs/{r['za_differential_run_id']}"):
+                        raise ValueError(f"line {n}: F-method A/B results missing pinned case evidence")
+                else:
+                    raise ValueError(f"line {n}: unverified instance-method differential status")
             else:
                 expected={"CalcXFov":13,"Format":8,"Clamp":11}.get(r["method_name"])
                 if (expected is None
@@ -127,7 +146,7 @@ def verify(root: Path = ROOT) -> dict:
                         or r.get("za_differential_run_id") != 42752782758
                         or r.get("za_differential_evidence_url") !=
                             "https://github.com/969981/SV_Resources/actions/runs/42752782758"):
-                    raise ValueError(f"line {n}: native differential results mismatch the pinned CI record")
+                    raise ValueError(f"line {n}: static native differential mismatch pinned CI record")
             compile_status = r["haxe_compile_status"]
             smoke_status = r.get("stock_lua_smoke_status")
             if compile_status == "NOT_RUN":
@@ -185,6 +204,31 @@ def verify(root: Path = ROOT) -> dict:
                         or native_root.constants[orig[2].b].payload != mh.encode("ascii")):
                     raise ValueError(f"line {n}: original dll class/member hash differs")
                 closure=orig[1]
+            elif r["module"] == "main" and mh.startswith("F"):
+                if not 0 <= site < len(native_ops)-7:
+                    raise ValueError(f"line {n}: instance root binding PC out of range")
+                orig = native_ops[site:site+8]
+                if [x.name for x in orig] != [
+                    "GETUPVAL","LOADK","GETTABLE","LOADK",
+                    "GETTABLE","LOADK","CLOSURE","SETTABLE"]:
+                    raise ValueError(f"line {n}: instance root opcode pattern mismatch")
+                a=orig[0].a
+                if not (orig[0].b==0 and orig[1].a==a+1
+                        and (orig[2].a,orig[2].b,orig[2].c)==(a,a,a+1)
+                        and orig[3].a==a+1
+                        and (orig[4].a,orig[4].b,orig[4].c)==(a,a,a+1)
+                        and orig[5].a==a+1 and orig[6].a==a+2
+                        and (orig[7].a,orig[7].b,orig[7].c)==(a,a+1,a+2)):
+                    raise ValueError(f"line {n}: instance root register constraints mismatch")
+                if (r["class_load_pc"],r["method_load_pc"],
+                        r["closure_pc"],r["assignment_pc"]) != (
+                        site+1,site+5,site+6,site+7):
+                    raise ValueError(f"line {n}: instance method registration PC mismatch")
+                if (native_root.constants[orig[1].bx].payload != ch.encode("ascii")
+                        or native_root.constants[orig[3].bx].payload != b"prototype"
+                        or native_root.constants[orig[5].bx].payload != mh.encode("ascii")):
+                    raise ValueError(f"line {n}: wrong instance class/prototype/method hash constants")
+                closure=orig[6]
             elif r["module"] == "main":
                 if not 0 <= site < len(native_ops)-5:
                     raise ValueError(f"line {n}: main root binding PC out of range")
@@ -213,6 +257,12 @@ def verify(root: Path = ROOT) -> dict:
                     or closure.bx >= len(native_root.children)
                     or native_root.children[closure.bx].id != p.id):
                 raise ValueError(f"line {n}: exact CLOSURE child ownership mismatch")
+            if r["haxe_body_status"] == "NATIVE_RETURN0_NOOP_IMPLEMENTED":
+                if (p.instruction_count != 1 or p.code != bytes.fromhex("c7000100")
+                        or p.num_params != 1 or p.upvalue_count != 0):
+                    raise ValueError(f"line {n}: claimed 4.0.0 empty instance body differs from RETURN0")
+                if not re.search(r"\bfunction\s+"+re.escape(method)+r"\s*\(\s*\)\s*:\s*Void\s*\{\s*\}",hx):
+                    raise ValueError(f"line {n}: Haxe no-op method has unverified extra code")
             if [f"{x.word:08X}" for x in orig] != r.get("native_root_opcode_words"):
                 raise ValueError(f"line {n}: root instruction byte witness mismatch")
             child_words = [f"{word:08X}" for (word,) in struct.iter_unpack("<I", p.code)]
