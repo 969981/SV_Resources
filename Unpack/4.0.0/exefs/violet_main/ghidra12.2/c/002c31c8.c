@@ -1,0 +1,46 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 002c31c8; name: FUN_002c31c8
+ */
+
+
+long FUN_002c31c8(undefined8 *param_1)
+
+{
+  long *plVar1;
+  char cVar2;
+  bool bVar3;
+  long *plVar4;
+  long lVar5;
+  long lVar6;
+  long *local_18;
+  
+  lVar5 = FUN_0049e770(PTR_FUN_047cba38,0xa8);
+  if (lVar5 != 0) {
+    local_18 = (long *)*param_1;
+    *param_1 = 0;
+                    /* try { // try from 002c31f8 to 002c3203 has its CatchHandler @ 002c3264 */
+    FUN_002c32b0(lVar5,&local_18);
+    plVar4 = local_18;
+    if (local_18 != (long *)0x0) {
+      plVar1 = local_18 + 1;
+      do {
+        lVar6 = *plVar1;
+        cVar2 = '\x01';
+        bVar3 = (bool)ExclusiveMonitorPass(plVar1,0x10);
+        if (bVar3) {
+          *plVar1 = lVar6 + -1;
+          cVar2 = ExclusiveMonitorsStatus();
+        }
+      } while (cVar2 != '\0');
+      if (lVar6 + -1 == 0) {
+        (**(code **)(*local_18 + 8))(local_18);
+        FUN_0049e790(PTR_LAB_047cba48,plVar4);
+        return lVar5;
+      }
+    }
+  }
+  return lVar5;
+}
+
+
