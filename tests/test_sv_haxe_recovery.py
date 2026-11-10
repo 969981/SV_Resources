@@ -69,10 +69,13 @@ class TestHaxeRecovery(unittest.TestCase):
                 self.assertEqual(row["lua_differential_status"], "NOT_RUN")
                 self.assertEqual(row["za_haxe_compile_status"], "NOT_TESTED_EXTERN_ONLY")
             elif row["haxe_body_status"] == "NATIVE_RETURN0_NOOP_IMPLEMENTED":
-                self.assertEqual(row["lua_differential_status"], "NOT_RUN")
+                self.assertEqual(row["lua_differential_status"],
+                                 "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
                 self.assertEqual(row["za_haxe_compile_status"],
                                  "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT")
-                self.assertIsNone(row["za_differential_cases"])
+                self.assertEqual(row["za_differential_cases"], 3)
+                self.assertEqual(row["za_differential_passed"], 3)
+                self.assertEqual(row["za_differential_run_id"], 42754893614)
             else:
                 self.assertEqual(row["lua_differential_status"],
                                  "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
@@ -95,8 +98,8 @@ class TestHaxeRecovery(unittest.TestCase):
         self.assertEqual(summary["stock_haxe_compiled"], 3)
         self.assertEqual(summary["extern_only"], 1)
         self.assertEqual(summary["pinned_za_haxe_compiled"], 6)
-        self.assertEqual(summary["native_lua_differential_passed_methods"], 3)
-        self.assertEqual(summary["native_lua_differential_total_cases"], 32)
+        self.assertEqual(summary["native_lua_differential_passed_methods"], 6)
+        self.assertEqual(summary["native_lua_differential_total_cases"], 41)
 
 
 if __name__ == "__main__":
