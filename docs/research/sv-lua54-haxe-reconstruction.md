@@ -112,6 +112,10 @@ python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 - `haxe_body_status=STATIC_OPCODE_EXPRESSION_MATCHED` 或 `EXTERN_ONLY_UNRECONSTRUCTED`：说明目前源代码完成程度。
 - `haxe_compile_status` / `lua_differential_status` / `runtime_status`：全部单独验收，不能拿解析成功冒充游戏行为通过。
 
+## R9：命名空间的真实 F 方法恢复
+
+[Obsidian R9 报告：3,892 个原生 Proto/PC 候选与三个单指令 RETURN0 的 Haxe 实例方法](sv400-haxe-field-battle-event-promotion.md)。已证明 `main.field`、`main.battle`、`main.event` 真实 C→F 根注册点可与 PokeDocs/Child Proto/Upvalue 关联；三个从一条 `RETURN0` 直接恢复的 Haxe 实例函数已通过固定 ZAScripts 编译与真实原版 Child Lua 差异试验。旧三静态 32/32 + 新三实例 9/9 = **41/41 PASS**。这些是纯函数独立输入测试，未声称实机行为。
+
 ## 上游资料与下一关
 
 [Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) 有 SV `source/main`、`source/dll_util`、`source/dll_stadium`；[Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 提供 Haxe 4.3.1、`HashAbi`、`@:chunk`、`@:abiSlot`、`cppbindings`、Lua 5.4.3 和 build finalizer 的参考实现；[PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 C/S/F/E 哈希与名称；[SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 是旧版 Lua 对照。
