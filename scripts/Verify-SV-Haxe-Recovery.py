@@ -102,7 +102,7 @@ def verify(root: Path = ROOT) -> dict:
                                     else "SV400_NATIVE_STATIC_CLOSURE_LINKED")
             if r.get("native_binding_status") != expected_link_status:
                 raise ValueError(f"line {n}: missing proven native C-S binding status")
-            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED_UNCOMPILED", "EXTERN_ONLY_UNRECONSTRUCTED"):
+            if r.get("haxe_body_status") not in ("STATIC_OPCODE_EXPRESSION_MATCHED", "EXTERN_ONLY_UNRECONSTRUCTED"):
                 raise ValueError(f"line {n}: unreviewed Haxe expression status")
             if (r["lua_differential_status"], r["runtime_status"]) != (
                     "NOT_RUN", "NOT_OBSERVED"):
@@ -116,7 +116,7 @@ def verify(root: Path = ROOT) -> dict:
                 elif smoke_status not in ("NOT_RUN", None):
                     raise ValueError(f"line {n}: uncompiled method has invalid smoke status")
             elif compile_status == "STOCK_HAXE_4_3_7_LUA_COMPILED":
-                if (r["haxe_body_status"] != "STATIC_OPCODE_EXPRESSION_MATCHED_UNCOMPILED"
+                if (r["haxe_body_status"] != "STATIC_OPCODE_EXPRESSION_MATCHED"
                         or smoke_status != "PASS_WITH_LUA_UTF8_AND_ATAN2_SHIMS"
                         or type(r.get("stock_haxe_evidence_run_id")) is not int
                         or r.get("stock_haxe_evidence_url") !=
