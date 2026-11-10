@@ -1,0 +1,49 @@
+name: SV 4.0.0 Haxe to Lua smoke build
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "tools/SV.Lua54/haxe/4.0.0/source/**"
+      - "tools/SV.Lua54/haxe/4.0.0/build.hxml"
+      - ".github/workflows/slr-haxe-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stock-haxe-lua-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            tools/SV.Lua54/haxe/4.0.0
+          sparse-checkout-cone-mode: false
+      - name: Install distro Haxe + Lua5.4 for independent compile smoke
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq haxe lua5.4
+          haxe --version
+          lua5.4 -v
+      - name: Haxe typecheck and Lua codegen
+        working-directory: tools/SV.Lua54/haxe/4.0.0
+        run: |
+          mkdir -p build
+          haxe build.hxml
+      - name: Lua5.4 syntax validation
+        run: luac5.4 -p tools/SV.Lua54/haxe/4.0.0/build/abi_probe.lua
+      - name: Execute pure utility smoke with stock runtime
+        working-directory: tools/SV.Lua54/haxe/4.0.0
+        run: lua5.4 build/abi_probe.lua
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv400-haxe-stock-smoke-lua
+          path: tools/SV.Lua54/haxe/4.0.0/build/abi_probe.lua
+          if-no-files-found: ignore
+          retention-days: 7
