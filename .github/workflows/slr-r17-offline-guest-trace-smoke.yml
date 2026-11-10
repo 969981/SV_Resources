@@ -1,0 +1,36 @@
+name: SV400 R17 offline guest trace protocol static smoke
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/slr-r17-offline-guest-trace-smoke.yml"
+      - "scripts/SV400_Lua_R17_ClassBinding_ReadOnly.py"
+      - "scripts/Verify-SV-Lua-R17-GdbLog.py"
+      - "tests/test_sv_lua_r17_gdb_log.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fail-closed-synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/SV400_Lua_R17_ClassBinding_ReadOnly.py
+            scripts/Verify-SV-Lua-R17-GdbLog.py
+            tests/test_sv_lua_r17_gdb_log.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile nonexecuted guest source and reject fake CClosure equivalence
+        run: |
+          python3 -m py_compile \
+            scripts/SV400_Lua_R17_ClassBinding_ReadOnly.py \
+            scripts/Verify-SV-Lua-R17-GdbLog.py
+          python3 -m unittest discover -s tests -p test_sv_lua_r17_gdb_log.py -v
+          echo "SYNTHETIC_ONLY_NO_GUEST_CONNECTION_OR_RUNTIME_VERIFICATION"
