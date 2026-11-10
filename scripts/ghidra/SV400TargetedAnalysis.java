@@ -14,7 +14,7 @@ import ghidra.program.model.listing.Listing;
 import ghidra.program.model.symbol.Reference;
 import ghidra.program.model.symbol.ReferenceIterator;
 import ghidra.program.model.symbol.ReferenceManager;
-import ghidra.program.model.symbol.ReferenceType;
+import ghidra.program.model.symbol.RefType;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -86,7 +86,7 @@ public class SV400TargetedAnalysis extends GhidraScript {
         for (Reference ref : refs) {
             if (!first) out.append(',');
             first = false;
-            ReferenceType type = ref.getReferenceType();
+            RefType type = ref.getReferenceType();
             out.append("{\"to\":").append(q(addr(ref.getToAddress())))
                .append(",\"kind\":").append(q(type.toString()))
                .append(",\"operand\":").append(ref.getOperandIndex())
