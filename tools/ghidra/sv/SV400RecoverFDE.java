@@ -2,7 +2,7 @@
 // original .eh_frame FDE, while preserving any overlapping Ghidra function.
 //@category PokemonSV
 // Usage: -postScript SV400RecoverFDE.java <fde_ranges.csv.gz> <report.csv>
-// The input is generated ONLY by tools/home41_ghidra_elf_atlas.py after it
+// The input is generated ONLY by tools/ghidra/sv/sv400_fde.py after it
 // verifies the original ELF SHA256 and all discovered FDE program-counter ranges.
 import ghidra.app.script.GhidraScript;
 import ghidra.app.cmd.function.CreateFunctionCmd;
@@ -35,7 +35,7 @@ public class SV400RecoverFDE extends GhidraScript {
         String[] argv=getScriptArgs();
         if(argv.length!=2)
             throw new IllegalArgumentException(
-                "SV400RecoverFDE.java <fde_25803.csv.gz> <report.csv>");
+                "SV400RecoverFDE.java <fde_ranges.csv.gz> <report.csv>");
         Path source=Paths.get(argv[0]).toAbsolutePath();
         Path report=Paths.get(argv[1]).toAbsolutePath();
         Files.createDirectories(report.getParent());
