@@ -1,0 +1,98 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 022f39f0; name: FUN_022f39f0
+ */
+
+
+ulong FUN_022f39f0(undefined1 *param_1,code *UNRECOVERED_JUMPTABLE_00,ulong param_3,
+                  undefined4 *param_4,undefined4 *param_5)
+
+{
+  long lVar1;
+  short *psVar2;
+  short sVar3;
+  char cVar4;
+  bool bVar5;
+  uint uVar6;
+  long *plVar7;
+  ulong uVar8;
+  long lVar9;
+  short sVar10;
+  long local_8;
+  
+  lVar1 = (long)param_3 >> 1;
+  switch(*param_1) {
+  case 0:
+  case 1:
+    if (*(long *)(param_1 + 8) == 0) {
+      return 0;
+    }
+    plVar7 = (long *)(*(long *)(param_1 + 8) + lVar1);
+    if ((param_3 & 1) != 0) {
+      UNRECOVERED_JUMPTABLE_00 = *(code **)(UNRECOVERED_JUMPTABLE_00 + *plVar7);
+    }
+                    /* WARNING: Could not recover jumptable at 0x022f3a38. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    uVar8 = (*UNRECOVERED_JUMPTABLE_00)(*param_5,plVar7,*param_4);
+    return uVar8;
+  case 2:
+    if ((*(long *)(param_1 + 8) == 0) ||
+       (lVar9 = *(long *)(*(long *)(param_1 + 8) + 0x10), lVar9 == 0)) {
+      return 0;
+    }
+    plVar7 = (long *)(lVar9 + lVar1 + -0x28);
+    if ((param_3 & 1) != 0) {
+      UNRECOVERED_JUMPTABLE_00 = *(code **)(UNRECOVERED_JUMPTABLE_00 + *plVar7);
+    }
+                    /* WARNING: Could not recover jumptable at 0x022f3a8c. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    uVar8 = (*UNRECOVERED_JUMPTABLE_00)(*param_5,plVar7,*param_4);
+    return uVar8;
+  case 3:
+    break;
+  default:
+    return 0;
+  }
+  lVar9 = *(long *)(param_1 + 8);
+  if ((lVar9 != 0) && (*(short *)(lVar9 + 0x1a) != 0)) {
+    psVar2 = (short *)(lVar9 + 0x1a);
+    sVar10 = *(short *)(lVar9 + 0x1a);
+    do {
+      sVar3 = *psVar2;
+      if (sVar3 == sVar10) {
+        cVar4 = '\x01';
+        bVar5 = (bool)ExclusiveMonitorPass(psVar2,0x10);
+        if (bVar5) {
+          *psVar2 = sVar10 + 1;
+          cVar4 = ExclusiveMonitorsStatus();
+        }
+        if (cVar4 != '\0') goto LAB_022f3af0;
+        bVar5 = true;
+      }
+      else {
+        ClearExclusiveLocal();
+LAB_022f3af0:
+        bVar5 = false;
+      }
+      if (bVar5) {
+        if (*(long *)(lVar9 + 0x10) != 0) {
+          local_8 = *(long *)(lVar9 + 0x10) + -0x28;
+          if ((param_3 & 1) != 0) {
+            UNRECOVERED_JUMPTABLE_00 =
+                 *(code **)(UNRECOVERED_JUMPTABLE_00 + *(long *)(local_8 + lVar1));
+          }
+          uVar6 = (*UNRECOVERED_JUMPTABLE_00)(*param_5,(long *)(local_8 + lVar1),*param_4);
+          FUN_022f2600(&local_8);
+          return (ulong)(uVar6 & 1);
+        }
+        break;
+      }
+      sVar10 = sVar3;
+    } while (sVar3 != 0);
+  }
+  local_8 = 0;
+  FUN_022f2600(&local_8);
+  return 0;
+}
+
+
