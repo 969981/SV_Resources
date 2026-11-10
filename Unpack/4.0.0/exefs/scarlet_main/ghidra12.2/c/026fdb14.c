@@ -1,0 +1,163 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f
+ * Ghidra function entry: 026fdb14; name: FUN_026fdb14
+ */
+
+
+void FUN_026fdb14(undefined1 param_1 [16],undefined8 *param_2,ulong param_3)
+
+{
+  undefined1 auVar1 [16];
+  undefined1 auVar2 [16];
+  undefined1 auVar3 [16];
+  undefined1 auVar4 [16];
+  undefined8 uVar5;
+  undefined1 auVar6 [16];
+  undefined1 auVar7 [16];
+  undefined1 auVar8 [16];
+  undefined1 auVar9 [16];
+  undefined8 uVar10;
+  undefined1 auVar11 [16];
+  undefined1 auVar12 [16];
+  undefined1 auVar13 [16];
+  undefined8 uVar14;
+  undefined1 auVar15 [16];
+  float fVar16;
+  float fVar17;
+  float fVar18;
+  float fVar19;
+  undefined8 uVar20;
+  undefined8 uVar21;
+  undefined8 uVar22;
+  float fVar23;
+  undefined8 uVar24;
+  float fVar25;
+  undefined8 uVar26;
+  float fVar27;
+  undefined8 uVar28;
+  float fVar29;
+  undefined8 uVar30;
+  float fVar31;
+  undefined8 uVar32;
+  float fVar33;
+  float fVar34;
+  float fVar35;
+  float fVar36;
+  float fVar37;
+  float fVar38;
+  float fVar39;
+  float fVar40;
+  float fVar41;
+  float fVar42;
+  undefined8 uVar43;
+  float fVar44;
+  undefined1 auStack_40 [32];
+  
+  if ((param_3 & 1) == 0) {
+    FUN_0250aaf4(auStack_40,param_2);
+    param_1 = FUN_026fdc6c(param_1,auStack_40);
+  }
+  fVar18 = (float)param_2[5];
+  fVar19 = (float)((ulong)param_2[5] >> 0x20);
+  fVar16 = (float)param_2[4];
+  fVar17 = (float)((ulong)param_2[4] >> 0x20);
+  auVar15._0_4_ = *(float *)(param_2 + 2) - fVar16;
+  auVar15._4_4_ = *(float *)((long)param_2 + 0x14) - fVar17;
+  auVar15._8_4_ = *(float *)(param_2 + 3) - fVar18;
+  auVar15._12_4_ = *(float *)((long)param_2 + 0x1c) - fVar19;
+  fVar34 = (float)*param_2 - fVar16;
+  fVar35 = (float)((ulong)*param_2 >> 0x20) - fVar17;
+  fVar37 = (float)param_2[1] - fVar18;
+  fVar38 = (float)((ulong)param_2[1] >> 0x20) - fVar19;
+  fVar16 = param_1._0_4_ - fVar16;
+  fVar17 = param_1._4_4_ - fVar17;
+  fVar18 = param_1._8_4_ - fVar18;
+  fVar19 = param_1._12_4_ - fVar19;
+  auVar6._4_4_ = fVar35;
+  auVar6._0_4_ = fVar34;
+  auVar6._8_4_ = fVar37;
+  auVar6._12_4_ = fVar38;
+  uVar21 = a64_TBL(ZEXT816(0),auVar6,DAT_03cb56c8);
+  auVar7._4_4_ = fVar35;
+  auVar7._0_4_ = fVar34;
+  auVar7._8_4_ = fVar37;
+  auVar7._12_4_ = fVar38;
+  uVar24 = a64_TBL(ZEXT816(0),auVar7,DAT_03cb54d8);
+  uVar28 = a64_TBL(ZEXT816(0),auVar15,DAT_03cb5488);
+  auVar8._4_4_ = fVar35;
+  auVar8._0_4_ = fVar34;
+  auVar8._8_4_ = fVar37;
+  auVar8._12_4_ = fVar38;
+  uVar32 = a64_TBL(ZEXT816(0),auVar8,DAT_03cb5488);
+  auVar1._4_4_ = fVar17;
+  auVar1._0_4_ = fVar16;
+  auVar1._8_4_ = fVar18;
+  auVar1._12_4_ = fVar19;
+  uVar26 = a64_TBL(ZEXT816(0),auVar1,DAT_03cb5488);
+  uVar30 = a64_TBL(ZEXT816(0),auVar15,DAT_03cb54c0);
+  auVar9._4_4_ = fVar35;
+  auVar9._0_4_ = fVar34;
+  auVar9._8_4_ = fVar37;
+  auVar9._12_4_ = fVar38;
+  uVar43 = a64_TBL(ZEXT816(0),auVar9,DAT_03cb54c0);
+  uVar10 = a64_TBL(ZEXT816(0),auVar15,DAT_03cb56c8);
+  fVar36 = (float)((ulong)uVar10 >> 0x20);
+  uVar14 = a64_TBL(ZEXT816(0),auVar15,DAT_03cb54d8);
+  auVar2._4_4_ = fVar17;
+  auVar2._0_4_ = fVar16;
+  auVar2._8_4_ = fVar18;
+  auVar2._12_4_ = fVar19;
+  uVar22 = a64_TBL(ZEXT816(0),auVar2,DAT_03cb54d8);
+  fVar34 = (float)((ulong)uVar14 >> 0x20);
+  fVar44 = (float)((ulong)uVar43 >> 0x20);
+  fVar38 = (float)((ulong)uVar21 >> 0x20);
+  fVar29 = (float)((ulong)uVar28 >> 0x20);
+  fVar25 = (float)((ulong)uVar24 >> 0x20);
+  fVar31 = (float)((ulong)uVar30 >> 0x20);
+  fVar33 = (float)((ulong)uVar32 >> 0x20);
+  fVar39 = (float)uVar21 * (float)uVar28 - (float)uVar32 * (float)uVar10;
+  fVar40 = fVar38 * fVar29 - fVar33 * fVar36;
+  fVar41 = (float)uVar24 * (float)uVar30 - (float)uVar43 * (float)uVar14;
+  fVar42 = fVar25 * fVar31 - fVar44 * fVar34;
+  auVar3._4_4_ = fVar17;
+  auVar3._0_4_ = fVar16;
+  auVar3._8_4_ = fVar18;
+  auVar3._12_4_ = fVar19;
+  uVar20 = a64_TBL(ZEXT816(0),auVar3,DAT_03cb56c8);
+  auVar4._4_4_ = fVar17;
+  auVar4._0_4_ = fVar16;
+  auVar4._8_4_ = fVar18;
+  auVar4._12_4_ = fVar19;
+  uVar5 = a64_TBL(ZEXT816(0),auVar4,DAT_03cb54c0);
+  fVar35 = (float)((ulong)uVar5 >> 0x20);
+  auVar11._0_4_ = fVar39 * fVar39 + fVar40 * fVar40;
+  auVar11._4_4_ = fVar41 * fVar41 + fVar42 * fVar42;
+  auVar11._8_4_ = fVar39 * fVar39 + fVar40 * fVar40;
+  auVar11._12_4_ = fVar41 * fVar41 + fVar42 * fVar42;
+  fVar37 = (float)((ulong)uVar20 >> 0x20);
+  fVar23 = (float)((ulong)uVar22 >> 0x20);
+  fVar27 = (float)((ulong)uVar26 >> 0x20);
+  NEON_ext(auVar11,auVar11,4,1);
+  NEON_fmov(0x3f800000,4);
+  fVar16 = fVar39 * ((float)uVar21 * (float)uVar26 - (float)uVar32 * (float)uVar20);
+  fVar17 = fVar40 * (fVar38 * fVar27 - fVar33 * fVar37);
+  fVar18 = fVar41 * ((float)uVar24 * (float)uVar5 - (float)uVar43 * (float)uVar22);
+  fVar19 = fVar42 * (fVar25 * fVar35 - fVar44 * fVar23);
+  fVar39 = fVar39 * ((float)uVar28 * (float)uVar20 - (float)uVar10 * (float)uVar26);
+  fVar40 = fVar40 * (fVar29 * fVar37 - fVar36 * fVar27);
+  fVar41 = fVar41 * ((float)uVar30 * (float)uVar22 - (float)uVar14 * (float)uVar5);
+  fVar42 = fVar42 * (fVar31 * fVar23 - fVar34 * fVar35);
+  auVar12._0_4_ = fVar16 + fVar17;
+  auVar12._4_4_ = fVar18 + fVar19;
+  auVar12._8_4_ = fVar16 + fVar17;
+  auVar12._12_4_ = fVar18 + fVar19;
+  NEON_ext(auVar12,auVar12,4,1);
+  auVar13._0_4_ = fVar39 + fVar40;
+  auVar13._4_4_ = fVar41 + fVar42;
+  auVar13._8_4_ = fVar39 + fVar40;
+  auVar13._12_4_ = fVar41 + fVar42;
+  NEON_ext(auVar13,auVar13,4,1);
+  return;
+}
+
+
