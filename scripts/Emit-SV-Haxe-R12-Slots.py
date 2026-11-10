@@ -158,6 +158,33 @@ def run(root:Path,stage:Path,run_id:int):
             "haxe_source":str(WORK/rel),
             "reference_urls":["https://github.com/pkZukan/PokeDocs/tree/main/SV/Hashlists/Lua"]
         })
+    # Reconstruct all 59 already-verified R11 native child fixtures, so the
+    # R12 compiler must also regress them before newly staged source is pushed.
+    r11=[x for x in baseline if x.get("promotion_batch")=="R11_59"]
+    if len(r11)!=59:
+        raise ValueError("R11 baseline requires exactly 59 proven native methods")
+    for row in r11:
+        proto=protos[row["proto_id"]]
+        if (proto.parent_id!=0 or proto.code_offset!=row["code_offset"]
+                or [f"{x.word:08X}" for x in __import__(
+                   "sv_lua54.r1",fromlist=["decode"]).decode(proto)]
+                    !=row["native_child_opcode_words"]):
+            raise ValueError("R11 native source identity changed during R12 regression")
+        child=copy.deepcopy(proto)
+        child.id=0; child.parent_id=None
+        source=Chunk(chunk.header,child.upvalue_count,child,"").encode()
+        if parse(source).root.code!=proto.code:
+            raise ValueError("R11 original regression fixture differs from original")
+        (native/f'R11_{row["proto_id"]}.luac').write_bytes(source)
+    regress_rows="\n".join(
+        "  {"+f'file="R11_{r["proto_id"]}",'
+        +f'c="{r["class_hash"]}",f="{r["method_hash"]}",'
+        +f'name="{r["class_name"]}.{r["method_name"]}"'+"},"
+        for r in r11
+    )
+    comparison=(root/WORK/"compare-r11-batch.lua").read_text("utf-8")
+    (stage/"compare-r11-regression.lua").write_text(
+        comparison.replace("-- <NATIVE_METHOD_ROWS>",regress_rows),"utf-8")
     probe=project/"source/RecoveryZaMain.hx"
     src=probe.read_text("utf-8")
     cls="main.event.general.ajito.DanRushAfterEvent"
