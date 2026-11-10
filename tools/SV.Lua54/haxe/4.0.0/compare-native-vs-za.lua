@@ -25,6 +25,14 @@ local function generated(exports,cls,method)
   return fn
 end
 
+local function generated_instance(exports,cls,method)
+  local class_table=assert(exports[cls],"missing native instance class export "..cls)
+  local prototype=assert(class_table.prototype,"missing prototype for "..cls)
+  local fn=assert(prototype[method],"missing native F method "..method)
+  assert(type(fn)=="function","mapped native F is not a function")
+  return fn
+end
+
 local function native(name)
   local fn=assert(loadfile(native_dir.."/"..name..".luac","b",_G))
   assert(type(fn)=="function","native BLUA fixture not loadable: "..name)
@@ -61,6 +69,21 @@ local functions={
       {0/0,0,1},
     },
   },
+  ActionChairBegin={
+    native=native("ActionChairBegin"),
+    compiled=generated_instance(main_export,"C5797B404FC92DA57","F92D30755A380E89F"),
+    cases={{{}}, {13}, {"hello"}},
+  },
+  BattleStartIdle={
+    native=native("BattleStartIdle"),
+    compiled=generated_instance(main_export,"C2391C1B3E531D954","F727F99876D3FB086"),
+    cases={{{}}, {13}, {"hello"}},
+  },
+  EventOnCreate={
+    native=native("EventOnCreate"),
+    compiled=generated_instance(main_export,"C2C51A2FB219477E8","FC87C731D11C58354"),
+    cases={{{}}, {13}, {"hello"}},
+  },
 }
 local function scalar_equal(a,b)
   if type(a)~=type(b) then return false end
@@ -84,7 +107,7 @@ end
 local function json_escape(s)
   return (s:gsub("\\","\\\\"):gsub('"','\\"'):gsub("\n","\\n"):gsub("\r","\\r"))
 end
-local method_names={"CalcXFov","Format","Clamp"}
+local method_names={"CalcXFov","Format","Clamp","ActionChairBegin","BattleStartIdle","EventOnCreate"}
 local output,failed={},false
 for _,name in ipairs(method_names) do
   local entry=functions[name]
