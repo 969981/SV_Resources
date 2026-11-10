@@ -1,0 +1,85 @@
+/* Recovered by Ghidra 12.2, not original Nintendo source.
+ * SV 4.0.0 original ELF SHA256: 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30
+ * Ghidra function entry: 0053b5e8; name: FUN_0053b5e8
+ */
+
+
+bool FUN_0053b5e8(undefined8 *param_1,undefined8 *param_2,undefined8 *param_3)
+
+{
+  undefined8 *puVar1;
+  ulong uVar2;
+  ulong uVar3;
+  size_t __n;
+  void *__s2;
+  byte *pbVar4;
+  byte bVar5;
+  byte bVar6;
+  int iVar7;
+  byte *__s1;
+  byte *pbVar8;
+  
+  if (param_2 != param_3) {
+    pbVar8 = (byte *)*param_1;
+    pbVar4 = (byte *)param_1[1];
+    param_2 = param_2 + 2;
+    do {
+      if (pbVar4 == pbVar8) {
+        return true;
+      }
+      bVar5 = *(byte *)(param_2 + -2);
+      uVar2 = (ulong)(bVar5 >> 1);
+      if ((bVar5 & 1) != 0) {
+        uVar2 = param_2[-1];
+      }
+      bVar6 = *pbVar8;
+      uVar3 = (ulong)(bVar6 >> 1);
+      if ((bVar6 & 1) != 0) {
+        uVar3 = *(ulong *)(pbVar8 + 8);
+      }
+      __n = uVar2;
+      if (uVar3 <= uVar2) {
+        __n = uVar3;
+      }
+      if (__n == 0) {
+        if (uVar2 != uVar3) {
+          return uVar3 < uVar2;
+        }
+      }
+      else {
+        __s1 = *(byte **)(pbVar8 + 0x10);
+        if ((bVar6 & 1) == 0) {
+          __s1 = pbVar8 + 1;
+        }
+        __s2 = (void *)((long)param_2 + -0xf);
+        if ((bVar5 & 1) != 0) {
+          __s2 = (void *)*param_2;
+        }
+        iVar7 = memcmp(__s1,__s2,__n);
+        if (iVar7 == 0) {
+          if (uVar3 < uVar2) {
+            return true;
+          }
+        }
+        else if (iVar7 < 0) {
+          return true;
+        }
+        iVar7 = memcmp(__s2,__s1,__n);
+        if (iVar7 == 0) {
+          if (uVar2 < uVar3) {
+            return false;
+          }
+        }
+        else if (iVar7 < 0) {
+          return false;
+        }
+      }
+      puVar1 = param_2 + 2;
+      param_2 = param_2 + 4;
+      pbVar8 = pbVar8 + 0x20;
+    } while (puVar1 != param_3);
+  }
+  return false;
+}
+
+
