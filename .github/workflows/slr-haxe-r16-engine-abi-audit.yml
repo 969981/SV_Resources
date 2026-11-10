@@ -1,0 +1,84 @@
+name: SV400 R16 original engine ABI memory-effect and cppbindings static audit
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/slr-haxe-r16-engine-abi-audit.yml"
+      - "scripts/Analyze-SV-Haxe-R16-EngineAbi.py"
+      - "tools/SV.Lua54/src/sv_lua54/emit_haxe/r16_engine_bridge.py"
+      - "tests/test_sv_haxe_r16_engine_bridge.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-static-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout original game main.blua, exact two ELF and analysis
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/workflows/slr-haxe-r16-engine-abi-audit.yml
+            scripts/Analyze-SV-Haxe-R16-EngineAbi.py
+            tests/test_sv_haxe_r16_engine_bridge.py
+            tools/SV.Lua54/src/sv_lua54/
+            tools/SV.Lua54/haxe/4.0.0/methods.jsonl
+            tools/SV.Lua54/haxe/4.0.0/zascripts.lock.json
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+            Unpack/4.0.0/exefs/scarlet_main/scarlet_main.elf
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Negative tests for false CPP entry matches and conservative memory SSA
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_sv_haxe_r16_engine_bridge.py" -v
+      - name: Checkout EXACT pinned Reisyukaku ZAScripts cppbindings source
+        run: |
+          set -euo pipefail
+          PIN=$(python3 -c 'import json;print(json.load(open("tools/SV.Lua54/haxe/4.0.0/zascripts.lock.json"))["upstream_commit"])')
+          test "$PIN" = "c7bc243ac4d28356dff9f06b6723330ea92247d5"
+          SRC="$RUNNER_TEMP/ZAScripts"
+          git init -q "$SRC"
+          git -C "$SRC" remote add origin https://github.com/Reisyukaku/ZAScripts.git
+          git -C "$SRC" -c protocol.version=2 fetch -q --no-tags --depth 1 --filter=blob:none origin "$PIN"
+          git -C "$SRC" sparse-checkout init --cone
+          git -C "$SRC" sparse-checkout set tools/haxe-4.3.1/std/cppbindings
+          git -C "$SRC" checkout -q --detach FETCH_HEAD
+          test "$(git -C "$SRC" rev-parse HEAD)" = "$PIN"
+          test -f "$SRC/tools/haxe-4.3.1/std/cppbindings/C016374C1.hx"
+          echo "UPSTREAM_CPP=$SRC/tools/haxe-4.3.1/std/cppbindings" >> "$GITHUB_ENV"
+      - name: Verify Scarlet/Violet ELF SHA, original Lua-PC and version-scoped hash-literal hits
+        run: |
+          set -euo pipefail
+          python3 scripts/Analyze-SV-Haxe-R16-EngineAbi.py \
+            --cppbindings "$UPSTREAM_CPP" \
+            --out "$RUNNER_TEMP/sv400-r16-engine-evidence.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          data=json.loads((Path(os.environ["RUNNER_TEMP"])/"sv400-r16-engine-evidence.json").read_text())
+          assert data["main_original_proto_count"] == 37743
+          assert data["haxe_verified_mappings_prior"]==83
+          assert len(data["r15_callsite_originals"])==2
+          assert data["guest_trace_present"] is False
+          assert data["new_haxe_generated"] is False
+          assert data["game_runtime_status"]=="NOT_OBSERVED"
+          assert data["engine_runtime_abi_status"]=="NOT_RESOLVED"
+          assert all(v["abi_status"]=="NOT_RESOLVED" for v in data["native_binary_literal_evidence"].values())
+          assert all(v["memory_ssa_status"]=="CONSERVATIVE_MAY_WRITE_ONLY"
+                     and len(v["pc_events"])==15 for v in data["r15_callsite_originals"].values())
+          print("R16_STATIC_BRIDGE_PASS; no live runtime object or C++ ABI proof")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv400-r16-engine-abi-static-elf-cppbindings
+          path: ${{ runner.temp }}/sv400-r16-engine-evidence.json
+          if-no-files-found: warn
+          retention-days: 14
