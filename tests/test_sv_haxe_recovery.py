@@ -38,7 +38,7 @@ class TestHaxeRecovery(unittest.TestCase):
 
     def test_exact_native_linked_method_ids(self):
         rows = records()
-        self.assertIn(len(rows), (12, 71, 74))
+        self.assertIn(len(rows), (12, 71, 74, 77))
         expected = {
             "main.util.CompositionCamera.CalcXFov": (36158, 426666, 426670, 426671, 16),
             "main.util.StrUtil.Format": (36271, 427562, 427566, 427567, 10),
@@ -55,7 +55,16 @@ class TestHaxeRecovery(unittest.TestCase):
         }
         for row in rows:
             key = row["class_name"] + "." + row["method_name"]
-            if row.get("promotion_batch") == "R12_GETI_SETI_LT_MOVE":
+            if row.get("promotion_batch") == "R13_NAMED_FIELDS":
+                self.assertNotIn(key, expected)
+                self.assertIn((row["proto_id"],row["root_pc"],row["r13_operation_kind"],row["r13_field_key"]),{
+                    (669,24815,"self_field_get","callFromReserve"),
+                    (11176,141665,"self_field_set_true","skipPlayerStuckCheck"),
+                    (5683,87331,"self_field_get","length")})
+                self.assertEqual(row["closure_pc"],row["root_pc"]+6)
+                self.assertEqual(row["assignment_pc"],row["root_pc"]+7)
+                self.assertEqual(row["native_binding_status"],"SV400_NATIVE_INSTANCE_CLOSURE_LINKED")
+            elif row.get("promotion_batch") == "R12_GETI_SETI_LT_MOVE":
                 self.assertNotIn(key, expected)
                 self.assertIn((row["proto_id"],row["root_pc"],row["r12_operation_kind"]),{
                     (6367,94058,"self_slot_get"),
@@ -77,6 +86,9 @@ class TestHaxeRecovery(unittest.TestCase):
             if row["haxe_body_status"] == "EXTERN_ONLY_UNRECONSTRUCTED":
                 self.assertEqual(row["haxe_compile_status"], "NOT_RUN")
                 self.assertEqual(row["stock_lua_smoke_status"], "NOT_APPLICABLE_EXTERN_ONLY")
+            elif row["haxe_body_status"] == "R13_NATIVE_FIELD_AST":
+                self.assertEqual(row["haxe_compile_status"],"NOT_RUN")
+                self.assertEqual(row["stock_lua_smoke_status"],"NOT_RUN")
             elif row["haxe_body_status"] == "R12_NATIVE_OPERATION_AST":
                 self.assertEqual(row["haxe_compile_status"], "NOT_RUN")
                 self.assertEqual(row["stock_lua_smoke_status"], "NOT_RUN")
@@ -96,6 +108,17 @@ class TestHaxeRecovery(unittest.TestCase):
             if row["haxe_body_status"] == "EXTERN_ONLY_UNRECONSTRUCTED":
                 self.assertEqual(row["lua_differential_status"], "NOT_RUN")
                 self.assertEqual(row["za_haxe_compile_status"], "NOT_TESTED_EXTERN_ONLY")
+            elif row["haxe_body_status"] == "R13_NATIVE_FIELD_AST":
+                self.assertEqual(row["lua_differential_status"],
+                                 "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
+                self.assertEqual(row["za_haxe_compile_status"],
+                                 "PINNED_ZASCRIPTS_HAXE_4_3_1_LUA_5_4_3_BUILT")
+                self.assertGreater(row["za_differential_run_id"],42763034047)
+                self.assertEqual(row["za_differential_cases"],row["za_differential_passed"])
+                self.assertEqual(row["r13_write_side_effect_status"],
+                                 "FIELD_TABLE_SNAPSHOT_AND_NEWINDEX_EVENTS_PASS"
+                                 if row["r13_operation_kind"]=="self_field_set_true"
+                                 else "NOT_APPLICABLE")
             elif row["haxe_body_status"] == "R12_NATIVE_OPERATION_AST":
                 self.assertEqual(row["lua_differential_status"],
                                  "SV400_ORIGINAL_CHILD_VS_ZASCRIPTS_LUA54_PASS")
@@ -140,7 +163,7 @@ class TestHaxeRecovery(unittest.TestCase):
 
     def test_complete_original_bytecode_witness(self):
         summary = mod.verify(ROOT)
-        self.assertIn(summary["validated_records"], (12, 71, 74))
+        self.assertIn(summary["validated_records"], (12, 71, 74, 77))
         self.assertEqual(summary["native_mapped"], summary["validated_records"])
         self.assertEqual(summary["reference_only"], 0)
         self.assertEqual(summary["stock_haxe_compiled"], 3)
@@ -148,13 +171,19 @@ class TestHaxeRecovery(unittest.TestCase):
         self.assertEqual(summary["pinned_za_haxe_compiled"], summary["validated_records"]-1)
         self.assertEqual(summary["native_lua_differential_passed_methods"], summary["validated_records"]-1)
         literal_extra=59 if summary["validated_records"]>=71 else 0
-        operation_extra=3 if summary["validated_records"]==74 else 0
+        operation_extra=3 if summary["validated_records"]>=74 else 0
+        field_extra=3 if summary["validated_records"]==77 else 0
         self.assertEqual(summary["native_lua_differential_total_cases"],
-                         56+3*literal_extra+19 if operation_extra else 56+3*literal_extra)
+                         56+3*literal_extra+19*(operation_extra//3)+28*(field_extra//3))
         self.assertEqual(summary["cfg_hir_ast_lifted"], 5+literal_extra)
         self.assertEqual(summary["r12_read_write_branch_mapped"],operation_extra)
         self.assertEqual(summary["r12_table_writes_state_verified"],
                          1 if operation_extra else 0)
+        self.assertEqual(summary["r13_named_field_mapped"],field_extra)
+        self.assertEqual(summary["r13_field_reads_index_verified"],
+                         2 if field_extra else 0)
+        self.assertEqual(summary["r13_field_writes_snapshot_verified"],
+                         1 if field_extra else 0)
 
 
 if __name__ == "__main__":
