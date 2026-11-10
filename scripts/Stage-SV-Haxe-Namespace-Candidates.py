@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"tools/SV.Lua54/src"))
 from sv_lua54.chunk import parse
-from sv_lua54.r1 import annotate_methods, direct_cf_methods, read_symbols
+from sv_lua54.r1 import annotate_methods, direct_cf_methods, read_symbols, decode
 
 NATIVE="Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua"
 SHA="c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815"
@@ -33,6 +33,7 @@ def stage(root:Path)->tuple[list[dict],dict]:
         raise ValueError(f"native C→F evidence baseline changed: {len(native_edges)}")
     names=read_symbols(root/"tools/PokeDocs/SV/Hashlists/Lua")
     annotated=annotate_methods(native_edges,names)
+    native_root_ops=decode(chunk.root)
     protos={p.id:p for p in chunk.protos()}
     result=[]
     counts=Counter()
@@ -61,6 +62,12 @@ def stage(root:Path)->tuple[list[dict],dict]:
             "method_hash":row["method_hash"],
             "namespace_group":group,
             "root_pc":row["root_pc"],
+            "class_load_pc":row["root_pc"]+1,
+            "method_load_pc":row["root_pc"]+5,
+            "closure_pc":row["root_pc"]+6,
+            "child_index":row["child_index"],
+            "native_root_opcode_words":[f"{x.word:08X}" for x in native_root_ops[row["root_pc"]:row["root_pc"]+8]],
+            "native_child_opcode_words":[f"{x.word:08X}" for x in decode(proto)],
             "assignment_pc":row["assignment_pc"],
             "proto_id":proto.id,
             "parent_proto_id":0,
