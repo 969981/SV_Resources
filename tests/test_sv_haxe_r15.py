@@ -55,8 +55,8 @@ class R15NativeSelfCallSSA(unittest.TestCase):
         cls="main.field.action.base.IAutoAction.Setup"
         ast=lift_setup(fixture(cls),cls)
         self.assertEqual((ast.first_slot,ast.second_slot),(2,4))
-        self.assertIn('untyped this[2]',ast.lines)
-        self.assertIn('untyped this[4]',ast.lines)
+        self.assertTrue(any("untyped this[2]" in line for line in ast.lines))
+        self.assertTrue(any("untyped this[4]" in line for line in ast.lines))
 
     def test_reject_unregistered_class(self):
         cls="main.field.action.base.IAction.Setup"
