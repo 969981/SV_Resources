@@ -77,6 +77,26 @@ def analyze(game,path):
                             "literal":key,"literal_rva":f"0x{addend:x}",
                             "status":"EXACT_RELOCATION_ADDEND_TO_LITERAL_NOT_FUNCTION_POINTER",
                         })
+    # R7 used a different SHA ELF. Never borrow its VM dispatch offset
+    # without comparing original instruction words in BOTH current ELFs.
+    historical_vm_words={
+       0x41150:0xD10383FF,0x411CC:0xB8404774,
+       0x411E4:0x12001A88,0x411EC:0xF8685B08,
+       0x411F0:0xD61F0100,0x453FC:0xF9400BE8,
+       0x4543C:0x97FF9081,0x4548C:0x97FF90B5,
+       0x454D8:0xF85E83B4,
+    }
+    historical_dispatch_probes=[]
+    for location,expected in historical_vm_words.items():
+        off=offset_of(segs,location)
+        actual=struct.unpack_from("<I",raw,off)[0]
+        historical_dispatch_probes.append({
+           "rva":f"0x{location:x}",
+           "historical_reference_word":f"{expected:08X}",
+           "original_this_elf_word":f"{actual:08X}",
+           "machine_word_matches":actual==expected,
+           "status":"CURRENT_ORIGINAL_ELF_BYTE_CHECK_NOT_LIVE_GUEST"
+        })
     # Follow the actual original BL and callback pointer loaded into X2.
     # Validated source: X1="cE35B3EB3", X2=main+0x1600050,
     # W3=1, BL main+0xE7D200, then tail branch to main+0xB5DB00.
@@ -237,6 +257,7 @@ def analyze(game,path):
         "native_method_relocation_pointer_neighbors":relocation_neighbors,
         "class_callback_relocation_pairs":class_table_trace,
         "native_lua_wrapper_arg_pattern":wrapper_evidence,
+        "old_r7_vm_offsets_revalidated_against_this_elf":historical_dispatch_probes,
         "static_cpp_call_target_proven":False,
         "lua_cclosure_pointer_proven":False,
         "runtime_status":"NOT_OBSERVED",
@@ -276,6 +297,7 @@ def main():
            for k in ("f558733FC_other_table_code_candidate","f558733FC_class_table_code_candidate")
        },
        "scarlet_verified_native_wrapper_arguments":results["scarlet_main"]["native_lua_wrapper_arg_pattern"],
+       "old_r7_native_dispatch_elf_word_checks":results["scarlet_main"]["old_r7_vm_offsets_revalidated_against_this_elf"],
        "scarlet_class_method_table":{
           "source":results["scarlet_main"]["class_callback_relocation_pairs"]["table_first_rva"],
           "via_code":results["scarlet_main"]["class_callback_relocation_pairs"]["table_passed_to_direct_bl_pc"],
