@@ -64,7 +64,7 @@ class TestNativeSlotAndBranchLowering(unittest.TestCase):
 
     def test_reject_unrecognized_side_effect(self):
         with self.assertRaisesRegex(LiftFailure,"unsupported"):
-            lift_instance(fixture(["01010091","00010147"],2))
+            lift_instance(fixture(["01010092","00010147"],2))
 
 
 if __name__=="__main__":
