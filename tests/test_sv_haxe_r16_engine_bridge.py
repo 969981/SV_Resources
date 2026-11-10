@@ -83,6 +83,32 @@ class R16StaticEngineEvidence(unittest.TestCase):
             self.assertEqual(d["abi_status"],"NOT_RESOLVED")
             self.assertIsNone(d["symbol_to_cpp_entry"])
 
+    def test_original_arm64_adrp_add_literal_xref_is_only_static_candidate(self):
+        raw=bytearray(0x320)
+        raw[:6]=b"\x7fELF\x02\x01"
+        struct.pack_into("<H",raw,18,183)
+        struct.pack_into("<Q",raw,32,64)
+        struct.pack_into("<H",raw,54,56)
+        struct.pack_into("<H",raw,56,2)
+        struct.pack_into("<IIQQQQQQ",raw,64,1,5,0x100,0x71000000,0,
+                         0x100,0x100,0x1000)
+        struct.pack_into("<IIQQQQQQ",raw,120,1,4,0x200,0x71001000,0,
+                         0x100,0x100,0x1000)
+        struct.pack_into("<II",raw,0x110,0x90000020,0x91005400)
+        raw[0x215:0x21e]=b"f558733FC"
+        b=bytes(raw)
+        with tempfile.TemporaryDirectory() as tmp:
+            f=Path(tmp)/"violet_main.elf"
+            f.write_bytes(b)
+            with patch.dict(EXPECTED_ELF,{"violet_main":hashlib.sha256(b).hexdigest()}):
+                d=inspect_elf(f,"violet_main")
+            hits=d["literal_direct_adrp_add_xref_candidates"]["f558733FC"]
+            self.assertEqual(len(hits),1)
+            self.assertEqual(hits[0]["adrp_rva"],"0x71000010")
+            self.assertEqual(hits[0]["literal_rva"],"0x71001015")
+            self.assertIn("NOT_CPP_FUNCTION_ENTRY",hits[0]["status"])
+            self.assertIsNone(d["native_cpp_signature"])
+
     def test_reject_unpinned_and_wrong_architecture_elf(self):
         with tempfile.TemporaryDirectory() as tmp:
             f=Path(tmp)/"violet_main.elf"
