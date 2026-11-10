@@ -55,6 +55,14 @@ haxe build.hxml
 
 The pinned ZAScripts custom compiler now executes the real `haxe.macro.HashAbi` ABI checker (including a negative intentionally wrong S-hash test), `LuaOutput` postprocessor and `cppbindings` typechecking. Preserve separate stock-Haxe and ZAScripts build states; do not call these standalone tests game-runtime parity.
 
+## R16 dual ELF / upstream native-binding and memory barriers (static only)
+
+- [R16 Obsidian technical investigation](../../../../docs/research/sv400-haxe-r16-native-cppbindings-memory-effects.md) · [R16 original ELF and pinned cppbindings Actions #42776515318](https://github.com/969981/SV_Resources/actions/runs/42776515318), **Success**; 18 new synthetic validation tests pass. This is **not a new Haxe-method promotion**: the total remains 83 original method links / 82 implemented methods / 357 independent Lua A/B cases.
+- The original second R15 `SELF` key `f558733FC` and upstream ZAScripts native extern class name `cE35B3EB3` each appear once as exact ASCII literals in **both** SHA-verified SV 4.0.0 Scarlet/Violet ELF. The original AArch64 executable code also has **one direct ADRP+ADD string xref to `cE35B3EB3` per ELF**, still **not a C++ function entry**.
+- [ZAScripts `cppbindings/CE35B3EB3.hx` pinned declaration](https://github.com/Reisyukaku/ZAScripts/blob/c7bc243ac4d28356dff9f06b6723330ea92247d5/tools/haxe-4.3.1/std/cppbindings/CE35B3EB3.hx#L24): `f558733FC(interval:UInt, part_interval:UInt):Void` has **2 explicit arguments**, but original SV `CALL A3 B3 C1` passes **one** explicit argument after SELF receiver. This arity discrepancy is explicitly **NOT_RESOLVED**, and ZAScripts extern is not an authoritative 4.0.0 game ABI.
+- `r16_engine_bridge.py` gives per-PC conservative heap barriers around CALL, GETI/GETFIELD, SETFIELD, SELF and the synthetic return merge. `r16_guest_trace.py` rejects bad original opcode/version/object-token events, but a purported guest JSON still only counts as self-reported consistency, not live/independently attested runtime equivalence.
+- Current real guest / CFunction pointer / engine argument and return ABI: `NOT_OBSERVED` / `NOT_RESOLVED`. Do not infer object types, remove alias barriers, or upgrade `runtime_status` from this static-only work.
+
 ## R15 native SELF/CALL/TEST CFG/SSA with mocked host calls
 
 - [R15 Obsidian evidence, scope and call-SSA](../../../../docs/research/sv400-haxe-r15-engine-call-cfg-ssa.md) · [fully gated R15 original Lua vs Haxe A/B #42772389014](https://github.com/969981/SV_Resources/actions/runs/42772389014): **2 new original `IAction.Setup` and `IAutoAction.Setup`**, Proto 12930/13197, root PC 160285/163143, 28/28 callback-mock A/B, old 329/329 intact (**357/357 total**).
