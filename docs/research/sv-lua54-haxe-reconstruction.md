@@ -156,6 +156,16 @@ python -m unittest discover -s tests -p test_sv_haxe_recovery.py -v
 
 **当前合计：83 条原版 C/F 方法 Proto/PC 映射，82 个有独立 Lua 有限输入对账的 Haxe 方法体，1 个 `Assert.IsNull` 仅 extern。** 已验证的 357 组仍不代表游戏运行时等价。下一步先解决引擎 callable 的真实对象/调用参数身份观测和合流后内存副作用，而不是从 744 条 φ 候选直接批量生成源码。
 
+## R16：双原版 ELF、cppbindings 交叉引用及内存 SSA 屏障（已完成静态阶段）
+
+[Obsidian R16：完整原始 ELF/C++ extern 静态证据、参数差异与只读 guest 轨迹校验](sv400-haxe-r16-native-cppbindings-memory-effects.md)。[R16 Actions #42776515318](https://github.com/969981/SV_Resources/actions/runs/42776515318) **Success**，18 项合成和拒绝伪阳性测试通过。
+
+- 在 Scarlet/Violet 两份原始 ELF 上校验全文件 SHA-256 与 AArch64 `PT_LOAD`，对固定版 ZAScripts 的 118 份 `cppbindings` 分析。原版第二次 `SELF` 方法键 `f558733FC` 在两份 ELF 各出现一次，ZAScripts `cppbindings/CE35B3EB3.hx` 第 24 行也存在该方法名；上游类 native 名 `cE35B3EB3` 在两份 ELF 各出现一次，其 ELF 可执行段还各找到一组 `ADRP+ADD` **字符串**直接交叉引用候选。仍未建立 Lua `CFunction` 实际入口对应关系。
+- **关键差异：**上游 extern `f558733FC(interval:UInt, part_interval:UInt):Void` 有两个显式参数，但原始 SV Lua `CALL A3 B3 C1` 只有一个显式参数加 receiver。记录为 `UPSTREAM_EXTERN_ARITY_DIFFERS_FROM_SV400_LUA_CALL`，不得凭同名把 Z-A 声明直接写成 SV 原生 C++ ABI。
+- 原始 Child Proto 12930/13197 的 PC0/1/4/5/6/7/8/9 已建立保守 Memory SSA **效应顺序**：`CALL` 和 `__index/__newindex` 可能修改可达堆；即使返回 false 也不能假设无外部副作用。这个 `M?` 序号**不是**真实别名、内存 SSA 或 `TValue*` 证明。
+- 已增加严格的原版 opcode／对象身份 token／同一帧 guest 只读日志**离线验收协议**，但没有连接真实游戏或执行 GDB 观察。即使自报日志内部一致仍不能自动成为真实运行证据；`game_runtime_status=NOT_OBSERVED`。
+- 原有 **83 条原始方法映射／82 个 Haxe 方法体／357 组独立 Lua 输入 A/B** 均不变。本轮只补齐静态取证和原生验收先决条件，**没有**把待证实的对象类型、函数指针或调用签名晋升为完成状态。
+
 ## 上游资料与下一关
 
 [Reisyukaku/SVScripts](https://github.com/Reisyukaku/SVScripts) 有 SV `source/main`、`source/dll_util`、`source/dll_stadium`；[Reisyukaku/ZAScripts](https://github.com/Reisyukaku/ZAScripts) 提供 Haxe 4.3.1、`HashAbi`、`@:chunk`、`@:abiSlot`、`cppbindings`、Lua 5.4.3 和 build finalizer 的参考实现；[PokeDocs](https://github.com/pkZukan/PokeDocs) 提供 C/S/F/E 哈希与名称；[SV-Script-RE](https://github.com/Martmists-GH/SV-Script-RE) 是旧版 Lua 对照。
