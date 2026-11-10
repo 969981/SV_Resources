@@ -131,3 +131,7 @@ def emit(method,method_hash,ast):
       *["        "+x for x in ast.lines],
       "    }","",
     ])
+
+# Explicit public names used by the CI staging/provenance gates.
+lift_setup = lift
+emit_setup = emit
