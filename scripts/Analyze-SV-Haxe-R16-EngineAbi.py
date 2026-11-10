@@ -142,6 +142,10 @@ if __name__=="__main__":
           }
           for edition,result in d["native_binary_literal_evidence"].items()
        },
+       "elf_direct_string_adrp_add_candidates":{
+          edition:{key:len(hits) for key,hits in report["literal_direct_adrp_add_xref_candidates"].items()}
+          for edition,report in d["native_binary_literal_evidence"].items()
+       },
        "upstream_cppbinding_native_class_text_elf_hits":{
           edition:{
             x:next((len(rec["exact_ascii_matches_first_16"])
