@@ -150,6 +150,7 @@ def main():
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--top',type=int,default=100)
     p.add_argument('--owners-out',type=Path,help='Also export encounter source-string XREF owners on the SAME validated SQLite')
+    p.add_argument('--consumers-out',type=Path,help='Also scan native direct A/B candidate struct fields +0xB0/+0xB1')
     a=p.parse_args()
     if not 1<=a.top<=500:p.error('--top must be 1..500')
     with tempfile.TemporaryDirectory(prefix='sv400-version-') as temp:
@@ -173,6 +174,14 @@ def main():
                 owner_module=module_from_spec(spec)
                 spec.loader.exec_module(owner_module)
                 owner_report=owner_module.analyze(db)
+            if a.consumers_out:
+                consumer_script=Path(__file__).with_name('Trace-SV400-VersionFieldConsumers.py')
+                spec=spec_from_file_location('sv400_version_consumers',consumer_script)
+                if spec is None or spec.loader is None:
+                    raise RuntimeError('Missing field consumer tracer')
+                consumer_module=module_from_spec(spec)
+                spec.loader.exec_module(consumer_module)
+                consumer_report=consumer_module.trace(db,top=100)
         if proof and proof['original_elf_sha256']!=report['original_elf_sha256']:
             raise ValueError('ELF SHA mismatch between manifest and SQLite')
         report['reconstruction_proof']=proof
@@ -185,6 +194,11 @@ def main():
             owner_report['reconstruction_proof']=proof
             a.owners_out.write_text(json.dumps(owner_report,ensure_ascii=False,indent=2)+'\n','utf-8')
             print('lexical owner roots:',owner_report['matched_function_owners'])
+        if a.consumers_out:
+            a.consumers_out.parent.mkdir(parents=True,exist_ok=True)
+            consumer_report['reconstruction_proof']=proof
+            a.consumers_out.write_text(json.dumps(consumer_report,ensure_ascii=False,indent=2)+'\n','utf-8')
+            print('A/B field consumer candidates:',consumer_report['functions_with_any_direct_byte_offset_access'])
         print('status:',report['status'],'functions:',report['functions_scanned'],
               'candidates:',report['functions_with_candidate_offsets'])
         print('reports:',a.out,a.out.with_suffix('.md'))
