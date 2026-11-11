@@ -1,0 +1,34 @@
+name: SV400 guest trace static and fake-GDB smoke validation
+
+on:
+  push:
+    branches:
+      - ghidra/sv400-semantic-*
+    paths:
+      - .github/workflows/sv400-guest-trace-smoke.yml
+      - scripts/guest/sv400_virtual_dispatch_trace.py
+      - scripts/guest/test_sv400_virtual_dispatch_trace.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-guest-tracer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            scripts/guest/
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Parse Python scripts
+        run: python -m py_compile scripts/guest/sv400_virtual_dispatch_trace.py scripts/guest/test_sv400_virtual_dispatch_trace.py
+      - name: Run mocked guest-GDB protocol validation
+        run: python -m unittest discover -s scripts/guest -p 'test_sv400_virtual_dispatch_trace.py' -v
