@@ -175,6 +175,7 @@ def main():
                 spec.loader.exec_module(owner_module)
                 owner_report=owner_module.analyze(db)
             if a.consumers_out:
+                from importlib.util import module_from_spec, spec_from_file_location
                 consumer_script=Path(__file__).with_name('Trace-SV400-VersionFieldConsumers.py')
                 spec=spec_from_file_location('sv400_version_consumers',consumer_script)
                 if spec is None or spec.loader is None:
