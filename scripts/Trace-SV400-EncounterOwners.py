@@ -26,6 +26,9 @@ def analyze(db,limit=120):
            for a,n,b,c in db.execute(
                'SELECT entry,name,min_addr,max_addr FROM functions ORDER BY min_addr')]
     starts=[f['min'] for f in funcs]
+    by_entry={f['entry']:f for f in funcs}
+    meta=dict(db.execute('SELECT key,value FROM metadata'))
+    image_base=int(meta.get('image_base','00100000'),16)
     def owner(addr):
         i=bisect_right(starts,int(addr,16))-1
         if i<0 or int(addr,16)>funcs[i]['max']:return None
@@ -51,7 +54,7 @@ def analyze(db,limit=120):
                 obj['data_xrefs'].append({'from':src,'to':addr,'kind':typ})
     ranked=[]
     for ent,hit in anchored.items():
-        f=next(x for x in funcs if x['entry']==ent)
+        f=by_entry[ent]
         calls=[{'from':a,'kind':typ}
                for a,typ in db.execute(
                    'SELECT from_addr,ref_type FROM references_full WHERE is_call=1 AND to_addr=? LIMIT 40',(ent,))]
@@ -61,7 +64,7 @@ def analyze(db,limit=120):
             (f'{f["min"]:08x}',f'{f["max"]:08x}')):
             outgoing.append({'from':a,'to':to,'kind':typ})
         row=db.execute('SELECT status,c,error FROM decompilation WHERE entry=?',(ent,)).fetchone()
-        ranked.append({'function_entry':ent,'function_rva':hex(int(ent,16)-int(dict(db.execute('SELECT key,value FROM metadata')).get('image_base','00100000'),16)),
+        ranked.append({'function_entry':ent,'function_rva':hex(int(ent,16)-image_base),
             'function_name':f['name'],'score':hit['score'],
             'matching_strings':hit['strings'],'data_xrefs':hit['data_xrefs'],
             'direct_callers':calls,'direct_callees':outgoing,
