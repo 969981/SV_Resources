@@ -81,3 +81,12 @@ with elf.open('rb') as fp:
    print('ARM64_WINDOW',game,'key_half_offset',hex(off),'ELF_VA',hex(int(seg['p_vaddr'])+off-int(seg['p_offset'])),flush=True)
    for inst in md.disasm(raw[start:end],va):
     print('INS',hex(inst.address),inst.bytes.hex(),inst.mnemonic,inst.op_str,flush=True)
+
+print('===== INITIALIZER ARM64 WINDOWS =====',flush=True)
+for start_rva,size in [(0x158d10c,0x30),(0x158d138,0x80),(0x158d1b0,0x14),(0x158d1c0,0x70)]:
+ seg=next((s for s in segs if s['p_vaddr']<=start_rva<s['p_vaddr']+s['p_filesz']),None)
+ if seg is None:print('NO_SEGMENT',hex(start_rva),flush=True);continue
+ off=int(seg['p_offset'])+start_rva-int(seg['p_vaddr'])
+ print('INIT_FUNC',game,hex(start_rva),'ELF_OFFSET',hex(off),flush=True)
+ for ins in md.disasm(raw[off:off+size],start_rva):
+  print('INIT_INS',hex(ins.address),ins.bytes.hex(),ins.mnemonic,ins.op_str,flush=True)
