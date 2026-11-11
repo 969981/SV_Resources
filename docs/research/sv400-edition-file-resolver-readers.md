@@ -22,3 +22,14 @@ The whole-instruction scan yielded **5** instruction-text matches of `#0xB0B8/#0
 **Edition object A:** [FUN_012B3900](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/012b3900.c) allocates a 0x30-byte object with `+0x2C=0`, [FUN_012AE314](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/012ae314.c) installs it via `FUN_012AF1C8`, and [FUN_01F8331C](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/01f8331c.c) reads `+0x2C`. Dynamic object identity remains unverified.
 
 This research uses original published Ghidra artifacts and read-only new Actions; original ELF, Ghidra DB and `master` were not modified. All addresses above are Ghidra VAs with image_base 0x00100000.
+
+
+## Resolved filename suffix (further two-function proof)
+
+[RUN #42933763803](https://github.com/969981/SV_Resources/actions/runs/42933763803) completed successfully **in both versions**; their `indirect_candidates.tsv` outputs are byte-identical, including 13,617,357 decoded instructions and the five literal-offset matches.
+
+[Native FUN_00E5587C](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/00e5587c.c) explicitly starts a suffix with `'_' `, appends the one-character edition digit, then appends the original extension from `strrchr(path,'.')`. [Native FUN_00E55910](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/00e55910.c) extracts the original filename stem and resolves paths using the constructed suffix.
+
+For a compatible resource name `resource.ext`, the edition-specific candidates are therefore `resource_0.ext` (Scarlet) and `resource_1.ext` (Violet). This applies **when the version-variant path branch is enabled**; it does not prove that all resources have two files or that wild encounter tables necessarily use this suffix system.
+
+The `FUN_00E55738` `param_2` pointer alias to the `PTR_DAT_047D4E00` singleton must still be proven from caller arguments. A separate [direct-callers workflow](https://github.com/969981/SV_Resources/actions/workflows/sv-ghidra-12.2-direct-callers.yml) will provide source callsites; do not treat a running job as complete.
