@@ -5,6 +5,8 @@ on:
       - '.github/workflows/sv400-encount-version-branch.yml'
       - 'scripts/Trace-SV400-EncountVersion.py'
       - 'tests/test_sv400_encount_version.py'
+      - 'tests/test_sv400_version_refiner.py'
+      - 'scripts/Refine-SV400-VersionCandidates.py'
       - 'docs/research/sv400-encount-version-arm64.md'
   workflow_dispatch:
 permissions:
@@ -23,8 +25,12 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             scripts/Trace-SV400-EncountVersion.py
+            scripts/Refine-SV400-VersionCandidates.py
             tests/test_sv400_encount_version.py
-      - run: python3 tests/test_sv400_encount_version.py
+            tests/test_sv400_version_refiner.py
+      - run: |
+          python3 tests/test_sv400_encount_version.py
+          python3 tests/test_sv400_version_refiner.py
 
   static-sqlite:
     needs: synthetic
@@ -53,7 +59,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/trace"
           python3 scripts/Trace-SV400-EncountVersion.py \
             --source "Unpack/4.0.0/exefs/$GAME/ghidra12.2" \
-            --top 100 --out "$RUNNER_TEMP/trace/$GAME.json"
+            --top 500 --out "$RUNNER_TEMP/trace/$GAME.json"
           head -n 45 "$RUNNER_TEMP/trace/$GAME.md" >> "$GITHUB_STEP_SUMMARY"
       - name: Upload original instruction, C and caller xref evidence
         uses: actions/upload-artifact@v4
@@ -68,6 +74,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Refine-SV400-VersionCandidates.py
       - uses: actions/download-artifact@v4
         with:
           name: SV400-Version-scarlet_main
@@ -96,8 +108,15 @@ jobs:
           print('Same candidate function RVA:',len(both),'of',len(sa),'and',len(sb))
           print('Top common RVAs:',','.join(both[:30]))
           PY
+      - name: Classify actual field-28 table-uoffset versus scalar reads
+        run: |
+          python3 scripts/Refine-SV400-VersionCandidates.py --scarlet reports/scarlet_main.json --violet reports/violet_main.json --output reports/refined-structural.json
+          head -n 40 reports/refined-structural.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: SV400-Version-cross-version
-          path: reports/cross-version.json
+          path: |
+            reports/cross-version.json
+            reports/refined-structural.json
+            reports/refined-structural.md
           retention-days: 30
