@@ -116,3 +116,10 @@ Keep evidence statuses visible. Do not present planned work as completed.
 - [SV 4.0.0 Haxe R15：原版 SELF/CALL/TEST、CFG/SSA 返回合流，357/357 模拟宿主 A/B，以及 886 条有界调用方法的 φ 候选扫描](sv400-haxe-r15-engine-call-cfg-ssa.md) — 两个有实际 Proto/PC 证据的方法已晋升 Haxe；引擎实机状态仍 NOT_OBSERVED，744 个合流只是只读候选。
 - [SV 4.0.0 Haxe R16：双原版 ELF、ZAScripts cppbindings cE35B3EB3 / f558733FC 绑定线索、原始 Lua CALL 参数数量差异与保守 Memory SSA](sv400-haxe-r16-native-cppbindings-memory-effects.md) — 静态交叉验证及 只读 guest 轨迹协议；仍缺实机 CFunction*／TValue* 证据，禁止宣称原生引擎等价。
 - [SV 4.0.0 Haxe R17：cE35B3EB3 原生方法注册表、f558733FC 指针 0x1959E40、Lua 参数 1/2 与离线 GDB](sv400-haxe-r17-native-registration-guest-call.md) — 双 ELF 原始机器码/重定位已通过，Ghidra 定点分析单独验收；真正 CClosure/child 身份与游戏运行时仍未观察。
+
+## SV 4.0.0 新建训练家 ID32 / 双原版 ELF（Obsidian）
+
+- [总览：新建训练家身份和 ID32 保存块结构](sv400-new-save-trainer-id-elf.md) — 朱紫双 ELF、KMyStatus 0xE3E89BD1、PKHeX 字段、原生函数地址、真实结论边界。
+- [原生 ARM64 逐行汇编、原始指令字节和动态指针链](sv400-trainer-id-native-asm.md) — FUN_0168D238/FUN_020F8D00、MOVZ/MOVK、ELF offset/RVA/Ghidra 地址换算、直接调用者。
+- [初始化器：FUN_0168D138 清零 0x68 字节和版本/语言/默认字段](sv400-trainer-id-initializer.md) — 朱紫相同 C 与 Ghidra 参数数量不一致的 ABI 验证关口。
+- [新建→首次 ID32 写入→保存→重启读回的实机验收](sv400-trainer-id-validation.md) — 明确 ID 生成器、seed、保存 ACK 与 Switch UserID 仍 UNKNOWN；只读观察方案。
