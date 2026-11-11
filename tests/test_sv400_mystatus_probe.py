@@ -143,6 +143,18 @@ class ProbeTests(unittest.TestCase):
         b["hash_sysbot"] = "0" * 64
         self.assertEqual(probe.classify([a, b]), "INCONCLUSIVE_CHANGED_DURING_SAMPLES")
 
+    def test_matching_address_with_different_bytes_is_read_race(self):
+        x = probe.capture(MemorySwitch(), 0x7100000000)
+        y = copy.deepcopy(x)
+        y["equal_all_0x68_bytes"] = False
+        self.assertEqual(probe.classify([x, y]), "INCONCLUSIVE_NON_ATOMIC_READ_RACE")
+
+    def test_moving_pointer_between_samples_is_inconclusive(self):
+        x = probe.capture(MemorySwitch(), 0x7100000000)
+        y = copy.deepcopy(x)
+        y["hash_sysbot_address"] = "0" * 64
+        self.assertEqual(probe.classify([x, y]), "INCONCLUSIVE_POINTER_MOVED_BETWEEN_SAMPLES")
+
     def test_socket_wire_is_read_only_and_fragmentation_safe(self):
         left, right = socket.socketpair()
         obj = probe.SocketReadOnly.__new__(probe.SocketReadOnly)
