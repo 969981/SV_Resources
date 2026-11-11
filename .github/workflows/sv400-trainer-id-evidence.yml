@@ -31,6 +31,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python3 -m pip install --disable-pip-version-check 'capstone==5.0.6' 'pyelftools==0.32'
           python3 -m py_compile scripts/Trace-SV400-TrainerID.py
           for game in scarlet_main violet_main; do
             python3 scripts/Trace-SV400-TrainerID.py . "$game" 2>&1 | tee "trainer-$game-evidence.log"
