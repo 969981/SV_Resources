@@ -11,8 +11,8 @@ import json
 import re
 from pathlib import Path
 
-DIRECT = re.compile(r'^ldrh\\s+w(\\d+),\\s*\\[(x\\d+),\\s*#(?:0x0*3c|60)\\]', re.I)
-STACK = re.compile(r'^ldrh\\s+w\\d+,\\s*\\[(?:sp|x29),\\s*#(?:0x0*3c|60)\\]', re.I)
+DIRECT = re.compile(r'^ldrh\s+w(\d+),\s*\[(x\d+),\s*#(?:0x0*3c|60)\]', re.I)
+STACK = re.compile(r'^ldrh\s+w\d+,\s*\[(?:sp|x29),\s*#(?:0x0*3c|60)\]', re.I)
 
 def classify(item):
     display = item['access'].strip().lower()
@@ -28,8 +28,8 @@ def classify(item):
         return 'IMMEDIATE_OR_OTHER_OFFSET_NOT_DIRECT_FIELD28_ACCESS', []
     r = m.group(1)
     tail = rows[center+1:center+17]
-    scalar = re.compile(r'\\bldrb\\s+w\\d+,\\s*\\[x\\d+,\\s*x'+r+r'\\s*\\]',re.I)
-    field_uoffset = re.compile(r'\\bldr\\s+w\\d+,\\s*\\[x\\d+,\\s*x'+r+r'\\s*\\]',re.I)
+    scalar = re.compile(r'\bldrb\s+w\d+,\s*\[x\d+,\s*x'+r+r'\s*\]',re.I)
+    field_uoffset = re.compile(r'\bldr\s+w\d+,\s*\[x\d+,\s*x'+r+r'\s*\]',re.I)
     scalar_hits = [z['addr'] for z in tail if scalar.search(z.get('display', ''))]
     uoffset_hits = [z['addr'] for z in tail if field_uoffset.search(z.get('display', ''))]
     if scalar_hits and not uoffset_hits:
@@ -77,7 +77,7 @@ def main():
     x=p.parse_args()
     out=run(json.loads(x.scarlet.read_text('utf-8')),json.loads(x.violet.read_text('utf-8')))
     x.output.parent.mkdir(parents=True,exist_ok=True)
-    x.output.write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\\n','utf-8')
+    x.output.write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n','utf-8')
     lines=['# SV400 VersionTable phase-2 structural triage','',
        '> NOT a verified native version branch; object type and game context remain unresolved.','',
        f"- Scarlet candidate functions included: {out['input_candidate_count'][0]}",
@@ -92,7 +92,7 @@ def main():
         if e['class'] != 'IMMEDIATE_OR_OTHER_OFFSET_NOT_DIRECT_FIELD28_ACCESS':
             lines.append(f"| \`{e['rva']}\` | {e['class']} | \`{e['instruction']}\` |")
     lines+=['','These are offset-access signatures, NOT a validated EncountPokeData.Version read.']
-    x.output.with_suffix('.md').write_text('\\n'.join(lines)+'\\n','utf-8')
+    x.output.with_suffix('.md').write_text('\n'.join(lines)+'\n','utf-8')
     print(json.dumps({k:v for k,v in out.items() if k not in ('entries','native_sqlite_provenance')},ensure_ascii=False,indent=2))
 if __name__=='__main__':
     main()
