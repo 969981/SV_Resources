@@ -1,0 +1,86 @@
+name: SV400 R18 targeted native Lua binding Ghidra 12.2
+on:
+  # Manual trigger only: a fresh -import otherwise repeats full auto-analysis.
+  # For follow-up, restore the R17 Ghidra project and process targeted functions.
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-elf-ghidra:
+    strategy:
+      fail-fast: false
+      matrix:
+        game: [scarlet_main, violet_main]
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      GAME: ${{ matrix.game }}
+      GHIDRA_URL: https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.2_build/ghidra_12.2_PUBLIC_20261016.zip
+      GHIDRA_SHA: 2c2cd776db3c1f6a097ba418922378ac3649cadd5e844a6f5f088ae628a7be67
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            tools/ghidra/sv/SV400R18BindingTrace.java
+            scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py
+            Unpack/4.0.0/exefs/scarlet_main/scarlet_main.elf
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+      - name: Verify exact original ELF SHA-256 and AArch64
+        run: |
+          set -euo pipefail
+          case "$GAME" in
+            scarlet_main) hash=53776abb60a9d316b7b5365e0091cb7c971e62ffbf493e4541184f0d955aa79f ;;
+            violet_main) hash=84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 ;;
+            *) exit 1 ;;
+          esac
+          file="Unpack/4.0.0/exefs/$GAME/$GAME.elf"
+          echo "$hash  $file" | sha256sum -c
+          readelf -h "$file" | grep -q AArch64
+      - name: Syntax-check local guest observer without importing GDB
+        run: python3 -m py_compile scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py
+      - name: Install hash-pinned official Ghidra 12.2
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o "$RUNNER_TEMP/ghidra.zip" "$GHIDRA_URL"
+          echo "$GHIDRA_SHA  $RUNNER_TEMP/ghidra.zip" | sha256sum -c
+          unzip -q "$RUNNER_TEMP/ghidra.zip" -d "$RUNNER_TEMP/ghidra"
+          bin="$(find "$RUNNER_TEMP/ghidra" -path '*/support/analyzeHeadless' -type f -print -quit)"
+          test -n "$bin"
+          chmod +x "$bin"
+          echo "HEADLESS=$bin" >> "$GITHUB_ENV"
+      - name: Recover targeted original functions and VM handler blocks
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/projects/$GAME" "$RUNNER_TEMP/r18/$GAME"
+          elf="$GITHUB_WORKSPACE/Unpack/4.0.0/exefs/$GAME/$GAME.elf"
+          dir="$RUNNER_TEMP/r18/$GAME"
+          timeout --signal=TERM --kill-after=30s 55m \
+            "$HEADLESS" "$RUNNER_TEMP/projects/$GAME" SVR18 \
+            -import "$elf" \
+            -scriptPath "$GITHUB_WORKSPACE/tools/ghidra/sv" \
+            -analysisTimeoutPerFile 1800 -max-cpu 2 \
+            -postScript SV400R18BindingTrace.java "$dir/r18.txt" "$GAME" \
+            -log "$dir/headless.log" -scriptlog "$dir/script.log" \
+            2>&1 | tee "$dir/console.log"
+          grep -Fx "KIND=SV400_R18_TARGETED_NATIVE_LUA_BINDING_GHIDRA" "$dir/r18.txt"
+          grep -Fx "RUNTIME_STATUS=NOT_OBSERVED" "$dir/r18.txt"
+          grep -Fx "CPP_ABI_STATUS=NOT_RESOLVED" "$dir/r18.txt"
+          grep -Fx "CLOSURE_LAYOUT_STATUS=NOT_RESOLVED" "$dir/r18.txt"
+          for target in 0x1959E40 0xB41A10 0xB92DF0 0x278B0 0x42088 0x4487C 0x453FC 0x46DDF30; do
+            grep -F "=$target" "$dir/r18.txt"
+          done
+          echo "R18_GHIDRA_TARGET_TRACE_PASS_STATIC_ONLY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sv400-r18-ghidra-binding-${{ matrix.game }}
+          path: ${{ runner.temp }}/r18/${{ matrix.game }}/*
+          retention-days: 14
+          if-no-files-found: warn
