@@ -51,13 +51,48 @@ The previously supplied `main+0x29DD990` **belongs inside** `FUN_02ADD878` (Ghid
 
 In existing business context, `+0x1C8` and `+0x1CC` correspond to solo/team completion counters, but the exact native type enum should be confirmed by examining mission-definition data and real values; the machine code itself only distinguishes `type==2` from other cases.
 
-**Do not conflate:** `FUN_02ADD878` changes mission state and fills a completion result. Its direct callees **do not include `FUN_02AFA3CC`**. The BP award consumer may be a Lua/event callback or different native caller; the chain `mission complete → reward amount → WriteBP` remains unclosed. The save-block key proposed for quest history (`0x7BF02DBE`) and specific quest record offsets `+0x188/+0x18C` are **not yet independently located** in this narrow slice.
+**Do not conflate:** `FUN_02ADD878` changes mission state and fills a completion result. Its direct callees **do not include `FUN_02AFA3CC`**. The BP award consumer may be a Lua/event callback or different native caller; the chain `mission complete → reward amount → WriteBP` remains unclosed. The separate quest-record save block key `0x7BF02DBE`, native read/write routines, and serialized counter-offset correspondence are now recovered in the appendix below. The reward-award bridge remains unclosed.
 
 ## Remaining investigations and minimum proof
 
 1. Locate the **actual BP reward award/accumulation consumer**: start at completed result from `FUN_02ADD878`, then the Lua enqueue/event path; identify mission base reward field, any modifiers and the transition into BP GET/SET, capturing an actual PC/LR if possible.
-2. Independently confirm `KBlueberryQuestRecords=0x7BF02DBE` readers/writers and persistence, comparing save record `+0x188/+0x18C` and the live `BBQManager+0x1C8/+0x1CC` counters.
+2. Confirm actual on-disk persistence by real guest save/reload. Static serializers now map payload `+0x188/+0x18C` to live `BBQManager+0x1C8/+0x1CC`; this is not yet a disk durability proof.
 3. Observe before/after in guest: mission result, reward display, BP GET, HashDB update return, final BP GET, and **save/reload** on Scarlet and Violet; do not interpret transient RAM write as successful save.
 4. Maintain separate categories: `STATICS_VERIFIED` for read/write and completion counter increments; `UNRESOLVED` for reward-chain bridging, persistent storage confirmation and 3-color quest-control side effects.
 
 Only the separate analysis branch is modified; no live game process or save was touched.
+
+
+## Update: quest record serializer and deserializer recovered (Run #42940820911)
+
+### Two previously unrecognized native functions
+
+The existing Ghidra project had **no function boundary** at the two original literal-key sites, although the native AArch64 instructions were present and identical in Scarlet/Violet in the [Run #42940336825](https://github.com/969981/SV_Resources/actions/runs/42940336825) disassembly. A narrowly scoped script [SV400BlueberryQuestRecover.java](https://github.com/969981/SV_Resources/blob/ghidra/sv400-semantic-recovery/scripts/ghidra/SV400BlueberryQuestRecover.java) temporarily built functions **inside a database transaction rolled back on exit**, exported decompiled C and emitted status without modifying the original saved Ghidra project.
+
+| Ghidra recovered entry | Role | Key | Source / destination |
+|---|---|---|---|
+| `0x02AD814C` | **QuestRecords write/update** | `0x7BF02DBE` | `BBQManager+0x40` as input; 0x210-byte source data passed to `FUN_015D05BC` |
+| `0x02AD889C` | **QuestRecords read/restore** | `0x7BF02DBE` | `BBQManager+0x40` as output; 0x210-byte destination capacity passed to `FUN_00F88478` |
+
+Scarlet [artifact 13820148445](https://github.com/969981/SV_Resources/actions/runs/42940820911/artifacts/13820148445) contains both `02ad814c.c` and `02ad889c.c`, and `recovered.tsv` reports **both OK**. The first function creates/normalizes a HashDB record buffer of **0x215 bytes**; the generic [FUN_015D05BC](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/015d05bc.c) explicitly emits **1 type byte (4) + 4-byte length + 0x210 data bytes**, accounting for the additional five bytes. The second function calls generic [FUN_00F88478](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/00f88478.c), which reads the type+length header and copies the decoded payload to the provided output address. Both generic functions have status/error branches; this does **not** prove a successful physical save to the console's storage.
+
+### Exact live-to-record offset correspondence
+
+The `BBQManager+0x40` pointer is the first byte of the **logical 0x210-byte quest-record payload**. The two known live counters are within the copied data range:
+
+```text
+BBQManager+0x40  <-- copy begins, logical payload +0x000
+     ...
+BBQManager+0x1C8  == payload+0x188   counter A (non-type-2/solo)
+BBQManager+0x1CC  == payload+0x18C   counter B (type-2/team)
+     ...
+BBQManager+0x24F  <-- last byte, logical payload +0x20F
+```
+
+The underlying serialized element reserves **0x215** bytes due to its 5-byte type+length header; thus raw hash-element storage offsets differ by +5 from *logical* payload offsets. Do not confuse the two forms. This mapping is a strong **STATIC_SERIALIZATION_LAYOUT_VERIFIED** result, not proof of disk write, online save acknowledgements, or guest save/load roundtrip.
+
+### Status gate
+
+- VERIFIED_STATIC: `KBlueberryPoints=0x66A33824` GET/SET, `KBlueberryQuestRecords=0x7BF02DBE` write/read, data size 0x210 and native field-layout mapping `+0x1C8/+0x1CC ↔ +0x188/+0x18C`.
+- STILL UNRESOLVED: `CompletedResult → reward amount/mission modifiers → BP wallet delta → WriteBP`; which Lua/event callback actually pays rewards; on-disk durability and guest save/reload verification.
+- IMPORTANT: no original native Ghidra DB, ELF, C, or master was altered. Recovered C files are in Actions artifacts only.
