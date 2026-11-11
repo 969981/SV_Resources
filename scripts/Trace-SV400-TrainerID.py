@@ -48,3 +48,36 @@ for half in (0x9bd1,0xe3e8,0x4240,0x000f):
   if (ins & 0x7f800000) in (0x52800000,0x72800000) and ((ins>>5)&0xffff)==half:
    found.append((hex(off),hex(ins),(ins>>21)&3,ins&31))
  print('MOV_W_HALF',hex(half),'COUNT',len(found),'FIRST',found[:90],flush=True)
+
+print('===== CALL GRAPH CANDIDATES =====',flush=True)
+targets=['0168d238','020f8d00','015d0cb8','00f844f4']
+for target in targets:
+ pattern=re.compile('FUN_'+target,re.I)
+ callers=[]
+ for file in files:
+  if file.stem.lower()==target:continue
+  c=file.read_text(encoding='utf-8',errors='replace')
+  m=pattern.search(c)
+  if m:callers.append((file.name,c[max(0,m.start()-180):m.end()+220]))
+ print('CALLERS',target,'COUNT',len(callers),flush=True)
+ for file,excerpt in callers[:40]:
+  print('CALLER',target,file,excerpt.replace('\n',' | '),flush=True)
+print('===== ARM64 ELF KEY INSTRUCTION WINDOWS =====',flush=True)
+from elftools.elf.elffile import ELFFile
+from capstone import Cs, CS_ARCH_ARM64, CS_MODE_ARM
+md=Cs(CS_ARCH_ARM64,CS_MODE_ARM)
+with elf.open('rb') as fp:
+ ef=ELFFile(fp)
+ segs=[s for s in ef.iter_segments() if s['p_type']=='PT_LOAD']
+ print('ELF_SEGMENTS',[(hex(s['p_offset']),hex(s['p_vaddr']),hex(s['p_filesz']),hex(s['p_flags'])) for s in segs],flush=True)
+ for half in (0x9bd1,):
+  for off in range(0,len(raw)-4,4):
+   ins=int.from_bytes(raw[off:off+4],'little')
+   if (ins & 0x7f800000) not in (0x52800000,0x72800000) or (ins>>5)&0xffff!=half:continue
+   seg=next((s for s in segs if s['p_offset']<=off<s['p_offset']+s['p_filesz']),None)
+   if seg is None:continue
+   start=max(int(seg['p_offset']),off-48);end=min(int(seg['p_offset']+seg['p_filesz']),off+120)
+   va=int(seg['p_vaddr'])+(start-int(seg['p_offset']))
+   print('ARM64_WINDOW',game,'key_half_offset',hex(off),'ELF_VA',hex(int(seg['p_vaddr'])+off-int(seg['p_offset'])),flush=True)
+   for inst in md.disasm(raw[start:end],va):
+    print('INS',hex(inst.address),inst.bytes.hex(),inst.mnemonic,inst.op_str,flush=True)
