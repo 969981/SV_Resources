@@ -5,7 +5,7 @@ import struct
 import tempfile
 import unittest
 
-p=Path(__file__).with_name('pkhex_pkl_json.py')
+p=Path(__file__).resolve().parents[1]/'scripts'/'PKHeX-PKL-JSON.py'
 s=importlib.util.spec_from_file_location('pkl_converter',p)
 m=importlib.util.module_from_spec(s)
 s.loader.exec_module(m)
