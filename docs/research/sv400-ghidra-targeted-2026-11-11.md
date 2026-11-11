@@ -49,3 +49,12 @@ Incoming references to `0159B96C`: `03E2E01C` (INDIRECTION), `0408B1F8` (DATA), 
 - `RELOCATED` and `COMPILER_OR_EXPORT_ONLY`: not demonstrated by these targeted exports.
 
 Next: extract **all readers/writers of `048420A8`**; investigate the three indirect/data references, `FUN_0159BA2C` callers and object provenance; verify AArch64 address mapping; diagnose P-code and VariablePiece failures separately; inspect giant-function boundaries and response limits before raising decompiler timeouts. No guest testing, complete consumer-chain verification, or original published C overwrite was performed.
+
+
+## Follow-up: version-identity hypothesis and new xref probe (2026-11-11)
+
+The literal constants in the native `0159B96C` delta match the *external* PKHeX/pkNX `GameVersion` enum exactly: **Scarlet SL=50 (0x32)** and **Violet VL=51 (0x33)**. Cross-check: [PKHeX GameVersion.cs](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Game/Enums/GameVersion.cs), [pkNX GameVersion.cs](https://github.com/kwsch/pkNX/blob/master/pkNX.Structures/GameVersion.cs). This establishes a strong **candidate** business interpretation, not a verified native enum type. In parallel, `0/1` passed to `FUN_0159BA2C` is consistent with an independent two-value edition selector, but its semantics require consumers and object types.
+
+The [existing native Ghidra C for FUN_017DCD80](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/017dcd80.c) returns `&DAT_0485A098`. `FUN_0159B96C` subsequently performs indirect/vtable calls before updating edition state. The vtable target identities and object's business owner remain unverified.
+
+A **separate read-only workflow** [sv-ghidra-12.2-state-chain.yml](https://github.com/969981/SV_Resources/blob/ghidra/sv400-semantic-recovery/.github/workflows/sv-ghidra-12.2-state-chain.yml) and [SV400StateChainXrefs.java](https://github.com/969981/SV_Resources/blob/ghidra/sv400-semantic-recovery/scripts/ghidra/SV400StateChainXrefs.java) were committed to this analysis branch. It checks xrefs for Ghidra `048420A8` and ±0x40, `0159BA2C`, `0159B96C`, pointer/global initialization sites and table origins `03E2E01C`, `0408B1F8`, `04540058`. Unlike whole-program text search, this inspects existing Ghidra references; **absence of an xref will not prove absence of indirect readers**. Analysis uses `-noanalysis` and publishes TSV artifacts; do not equate a queued Actions run with verified output.
