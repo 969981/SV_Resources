@@ -90,3 +90,16 @@ for start_rva,size in [(0x158d10c,0x30),(0x158d138,0x80),(0x158d1b0,0x14),(0x158
  print('INIT_FUNC',game,hex(start_rva),'ELF_OFFSET',hex(off),flush=True)
  for ins in md.disasm(raw[off:off+size],start_rva):
   print('INIT_INS',hex(ins.address),ins.bytes.hex(),ins.mnemonic,ins.op_str,flush=True)
+
+print('===== TRAINER STATE GLOBAL / INIT XREF =====',flush=True)
+re_globals=re.compile(r'DAT_04840ac0|FUN_0168d10c|FUN_0168d138|FUN_0168d1b0|FUN_0168d1c0',re.I)
+hits=[]
+for file in files:
+ c=file.read_text(encoding='utf-8',errors='replace')
+ matches=list(re_globals.finditer(c))
+ if not matches:continue
+ excerpts=' | '.join(c[max(0,m.start()-140):min(len(c),m.end()+180)].replace('\n',' ') for m in matches[:4])
+ hits.append((file.name,len(matches),excerpts))
+print('STATE_XREF_FILES',len(hits),flush=True)
+for name,count,excerpt in hits[:250]:
+ print('STATE_XREF',name,'hits',count,excerpt,flush=True)
