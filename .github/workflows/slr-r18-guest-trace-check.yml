@@ -1,0 +1,41 @@
+name: SV400 R18 guest observer syntax and synthetic trace validation
+on:
+  push:
+    branches: [codex/r18-native-binding-ghidra]
+    paths:
+      - ".github/workflows/slr-r18-guest-trace-check.yml"
+      - "scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py"
+      - "scripts/Verify-SV-R18-GuestCall.py"
+      - "tests/test_sv_r18_guest_call.py"
+  pull_request:
+    paths:
+      - ".github/workflows/slr-r18-guest-trace-check.yml"
+      - "scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py"
+      - "scripts/Verify-SV-R18-GuestCall.py"
+      - "tests/test_sv_r18_guest_call.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  syntax-and-synthetic-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py
+            scripts/Verify-SV-R18-GuestCall.py
+            tests/test_sv_r18_guest_call.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python syntax without importing GDB
+        run: |
+          python -m py_compile scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py \
+            scripts/Verify-SV-R18-GuestCall.py tests/test_sv_r18_guest_call.py
+      - name: Run synthetic-only positive and negative checks
+        run: python -m unittest discover -s tests -p "test_sv_r18_guest_call.py" -v
+      - name: Explicitly state runtime evidence boundary
+        run: echo "SYNTHETIC_TESTS_ONLY_NO_GUEST_CONNECTED_NO_RUNTIME_ATTESTATION"

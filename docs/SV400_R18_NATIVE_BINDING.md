@@ -129,3 +129,63 @@ This resolves the **default static C++ target's two parameter types at decompile
 Important contrast with [R17 binding analysis](https://github.com/969981/SV_Resources/blob/master/docs/research/sv400-haxe-r17-native-registration-guest-call.md): upstream `CE35B3EB3.f558733FC(interval:UInt, part_interval:UInt):Void` declares two explicit UInt arguments, while the original Lua CALL provides receiver + one explicit argument, and the statically resolved native target takes object + one u32. This strengthens the **extern arity mismatch** finding; it does not justify using the upstream declaration as the original game's ABI without guest object-identity confirmation.
 
 The local GDB observer additionally records bounded pre-/post-BLR samples of the statically identified object fields and up to four linked children, associated by a thread-local pending BLR stack. These samples are **not** full memory SSA, not exhaustive alias analysis, and may be irrelevant if X8 dynamically points elsewhere. No guest run has yet been conducted.
+
+## R18 guest single-invocation closure gate (observer v2)
+
+**This phase is prepared, NOT runtime verified.** No attached GDB session or guest memory was available in the GitHub connector. Do not say that the callback or target executed in the game until an offline guest log contains an actual matching complete invocation.
+
+### Critical address distinction
+
+The initial static code pointer is printed as **Ghidra program address** `0x00FF4890` because the R17 Ghidra database has image base `0x00100000`. Its ELF/main **RVA** is `0x00EF4890`. With an actual page-aligned loaded main NSO base `BASE`, the expected executable target PC is **`BASE + 0xEF4890`**. Do not compare runtime X8 directly against unrelocated `0x00FF4890`, or add `0xFF4890` to BASE.
+
+The native wrapper RVA is `0x1959E40`. The function pointer slot RVA is `0x46DDF30`. Compare these as BASE-relative addresses in the same guest.
+
+### Dynamic witness chain
+
+1. Read the actual function TValue for `CALL A3 B3 C1`, and resolve tag `0x16` (direct native function) or tag `0x26` (candidate CClosure object, function pointer at `+0x18`). **Emit CALL only if the resulting native pointer is `BASE + 0x1959E40`**, avoiding stale/unrelated B=3 events.
+2. Enter the wrapper on the same GDB thread and with the same `lua_State*`; keep the CALL sequence as the invocation ID rather than pairing solely by the Lua-state address.
+3. From the captured second TValue (receiver), derive its light-userdata value or full-userdata payload and compare to the return of `0xB41A10` (helper index 1). Read the payload's first pointer and its state byte, and compare the selected holder path to final BLR X0. This establishes pointer **provenance**, not a C++ RTTI class name.
+4. Record scalar helper index 2 `W0`, loaded global slot address and its value, and actual X8/X0/W1 at BLR.
+5. Catch the CPU at `BASE + 0xEF4890` with `LR = BASE + caller_return_RVA` and the same X0/W1. The direct wrapper BLR is `0x1959EF8` (return `0x1959EFC`); the state-3 slow helper may BLR at `0x195A050` (return `0x195A054`). **Merely seeing X8 contain the candidate address is not proof that CPU executed its code.**
+6. Match the return and wrapper `0x1959F0C` returning `W0=0` (zero Lua results). Compare bounded pre/post field snapshots `+0x58`, `+0x59`, `+0x244`, `+0x2A0` and first four linked `child+0x1FC`. These are observational samples, not an exhaustive Memory SSA or proof of actual object C++ type.
+
+### Local offline guest run
+
+Only an operator with GDB access to the **actual offline game guest** can complete the next gate:
+
+```gdb
+info inferiors
+show architecture
+p/x $pc
+set $main = 0xACTUAL_LOADED_MAIN_NSO_BASE
+set $r18_game = 0
+set pagination off
+set logging file r18-local-private-gdb.log
+set logging enabled on
+source scripts/SV400_Lua_R18_Binding_Observer_ReadOnly.py
+continue
+```
+
+Use `$r18_game = 1` for Violet. Replace `ACTUAL_LOADED_MAIN_NSO_BASE` with the **real verified** loaded base. The observer refuses to arm unless the pre-checked code words and method-name literal match. Let the game naturally execute the target setup call; do not patch game logic or seed synthetic events into the live log.
+
+When a single invocation has occurred, terminate GDB logging locally. Use the offline checker:
+
+```bash
+python3 scripts/Verify-SV-R18-GuestCall.py \
+  --log r18-local-private-gdb.log --out r18-evaluation.json --require-complete
+```
+
+Result categories:
+- `NO_GUEST_EVENTS` / `NO_TARGET_CALL`: no useful evidence for this invocation.
+- `INCOMPLETE_OR_MISMATCH`: a stage is missing, mismatched or out of order. Look at the checker reasons; do not call it a success.
+- `INVALID_TRACE`: broken sequence/session/hash claims or observer diagnostics.
+- `SELF_REPORTED_COMPLETE_NOT_INDEPENDENTLY_ATTESTED`: one consistent recorded guest event chain; still **not independent identity/attestation**.
+- `SYNTHETIC_FIXTURE_ONLY`: complete-looking unit fixtures, never real runtime evidence.
+
+`--require-complete` returns exit code 2 on incomplete traces. The checker output is pointer-free; the original GDB log can contain guest memory and raw pointers and should remain private. Software breakpoints alter code/timing, and a missing hit (especially with a narrow opcode or function-pointer filter) does **not** prove the code path does not exist.
+
+### CI: syntax and synthetic negative tests only
+
+`.github/workflows/slr-r18-guest-trace-check.yml` runs Python syntax compilation of the observer and verifier plus synthetic positive/negative unit tests. It downloads neither ELF nor Ghidra and never connects to a guest. Treat `success` as **tooling preparation validated**, not guest evidence.
+
+The PR remains Draft. Full C++ object class identity, native side effects inside callees, and complete Memory SSA require more evidence than this sampled execution path.
