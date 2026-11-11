@@ -111,3 +111,29 @@ Downloaded and compared ZIP contents locally: the full reconstructed `02ad814c.c
 ## Newly isolated BP wallet setter caller
 
 The first targeted analysis ZIP `02afa3cc.json` includes three incoming references to `FUN_02AFA3CC`: `03ECCED4` (`INDIRECTION` in unwind data), `0418A1C8` (`DATA` unwind data), and a **single direct AArch64 call** at **Ghidra `009209C0`**. The direct call occurs in a code range not recognized as a function by the original Ghidra full analysis; the returned caller function is null. The unique callsite is a focused lead for `BP debit/award → new total → WriteBP`, but **does not yet prove it is the reward-consumer path**; spending BP could use the same wallet setter. [Read-only callsite workflow](https://github.com/969981/SV_Resources/actions/workflows/sv400-bp-reward-callsite.yml) exports nearby ARM64 instructions and getter xrefs for both original editions. Until the preceding `W0` dataflow and call conditions are verified, classify the operation as **UNRESOLVED_ABSOLUTE_BP_UPDATE_CALLER**, not as confirmed `AddBP`.
+
+
+## Follow-up: unique wallet callsite is a Lua binding, not a proven award routine
+
+**Evidence checked 2026-11-11:** [Run #42941605525](https://github.com/969981/SV_Resources/actions/runs/42941605525) finished **SUCCESS** in Scarlet and Violet, with [Scarlet artifact 13820762504](https://github.com/969981/SV_Resources/actions/runs/42941605525/artifacts/13820762504) and [Violet artifact 13821595564](https://github.com/969981/SV_Resources/actions/runs/42941605525/artifacts/13821595564). The `bp_caller_window.tsv` files are byte-identical (SHA-256 `dfbe8b0971761b73958a4626bbbbc5445374fadc81047247c990b6db043139b7`); the reference TSVs are also byte-identical (SHA-256 `c9d938b407ddd06763af81c267c9b275c795526bcfebd69dcf0e0b3929c64537`).
+
+**Correction of the earlier reward-callsite hypothesis:** the `BL FUN_02AFA3CC` at Ghidra VA `0x009209C0` is inside a native **Lua binding wrapper**, not itself an observed BP reward calculation. Its apparent function entry is Ghidra VA `0x00920970` (`main+0x00820970` after subtracting the project's `0x00100000` image base). Original Ghidra function ownership is still empty, but its entry prologue and return epilogue are apparent in the exported ARM64 instructions:
+
+```asm
+00920970  sub sp,sp,#0x20
+0092097C  mov w1,#0x1
+00920980  mov x2,xzr
+00920984  bl  0x00C92DF0     ; reads Lua stack integer at index 1, status ptr NULL
+...
+009209C0  bl  0x02AFA3CC     ; accepts returned low 32 bits as proposed balance
+009209C8  mov w0,wzr        ; Lua C-function returns zero result values
+009209D0  ret
+```
+
+The existing original decompilation [`FUN_00C92DF0`](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/00c92df0.c) retrieves a Lua stack slot by index and converts/checks the integer tag (`3`), with an optional status output. Thus this binding behaves like `LuaSetBlueberryPoints(L)`, obtaining a numeric Lua argument and invoking the native **absolute-balance** setter. It does **not** itself add an awarded delta or read the previous balance.
+
+The paired Ghidra VA `0x00920A60` (`main+0x00820A60`) is the Lua GET binding. At `0x00920AA8` it calls `FUN_02AFA2C4`, passes the resulting value as argument 2 to [`FUN_00C5D960`](https://github.com/969981/SV_Resources/blob/master/Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/00c5d960.c) (which pushes the integer with Lua value tag `3`), then returns `1` Lua result. This gives a coherent native GET/SET Lua API pair, but their exact Lua-exposed names and registration table entries remain **UNKNOWN**.
+
+**Verified/static:** wrapper instruction-stream parity between Scarlet and Violet; Lua argument integer → absolute wallet setter; wallet getter → Lua integer result. **Not verified:** the Lua-exposed registration names, any Lua/event script that calls this setter during mission completion, reward amount/delta calculation, BP UI refresh, write-status propagation, or saved-file durability. The direct-call xref listing is *not* exhaustive of indirect/dynamic calls.
+
+**Next focused investigation:** resolve xrefs/registration-table entries of wrapper VAs `0x00920970` and `0x00920A60`; use discovered names to search the `main.blua` and event script call graph. On a read-only guest trace, capture the setter Lua argument, native setter entry, completion result and before/after wallet values; separately validate save/reload. Do not run full Ghidra analysis again.
