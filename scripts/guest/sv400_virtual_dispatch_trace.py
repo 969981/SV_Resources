@@ -87,6 +87,33 @@ class Watch(gdb.Breakpoint):
         return False
 
 
+
+class ConstructorReturn(gdb.Breakpoint):
+    """Optional caller-return probe; validates the constructor actually installed the vtable."""
+    def __init__(self, session, obj, return_pc):
+        super().__init__("*" + hx(return_pc), internal=True, temporary=True)
+        self.session = session
+        self.obj = obj
+
+    def stop(self):
+        try:
+            vptr = u(self.obj, 8)
+            slot = u(vptr + 0x88, 8) if vptr else None
+            confirmed = slot == self.session.entry and vptr == self.session.abs(GH_VTABLE)
+            if confirmed:
+                self.session.known_constructed_complete.add(self.obj)
+            self.session.emit({
+                "event": "class_constructor_return", "object": hx(self.obj),
+                "vptr": hx(vptr), "vtable_slot_17": hx(slot),
+                "vtable_and_slot_verified": confirmed,
+                "lr_at_return": hx(reg("x30"))
+            })
+        except Exception as exc:
+            gdb.write("SV400 ctor return capture error: %s\n" % exc, gdb.STDERR)
+        return False
+
+
+
 class Session:
     def __init__(self, entry, path, max_hits):
         architecture = gdb.selected_frame().architecture().name().lower()
@@ -107,6 +134,8 @@ class Session:
         self.entry_hits = 0
         self.ctor_hits = 0
         self.known_constructed = set()
+        self.known_constructed_complete = set()
+        self.constructor_return_breakpoints = []
         self.file = open(path, "a", encoding="utf-8")
         self.watches = [
             Watch(self, "target_entry", entry),
@@ -162,6 +191,9 @@ class Session:
                 self.known_constructed.add(x0)
                 data["constructed_object_candidate"] = hx(x0)
                 data["entry_only_not_construction_complete"] = True
+                if lr:
+                    bp = ConstructorReturn(self, x0, lr)
+                    self.constructor_return_breakpoints.append(bp)
             else:
                 self.watches[3].enabled = False
         if label == "target_entry":
@@ -175,13 +207,16 @@ class Session:
                 vtable_slot_matches_target=slot == self.entry,
                 vptr_matches_expected_table=vptr == self.abs(GH_VTABLE),
                 x0_previously_seen_in_constructor=x0 in self.known_constructed,
+                x0_constructor_return_vtable_verified=x0 in self.known_constructed_complete,
                 x0_is_this_not_assumed=True
             )
             gdb.write("SV400 %s entry #%d pc=%s lr=%s slot_match=%s\n" %
                       (self.game, self.entry_hits, hx(pc), hx(lr), slot == self.entry))
             if self.entry_hits >= self.max_hits:
-                for bp in self.watches:
-                    bp.enabled = False
+                # Keep the post-write probe active for this last invocation.
+                self.watches[0].enabled = False
+                self.watches[1].enabled = False
+                self.watches[3].enabled = False
         if label == "edition_helper_entry":
             data["argument_edition"] = reg("x1") & 0xffffffff
             data["object_A_before_edition"] = u(x0 + 0x2C, 4)
@@ -189,11 +224,14 @@ class Session:
             data["state_after_write"] = self.data_state()
             data["expected_edition"] = self.edition
             data["expected_global_game_version"] = self.game_version
+            if self.entry_hits >= self.max_hits:
+                self.watches[2].enabled = False
         self.emit(data)
 
     def close(self):
-        for bp in self.watches:
-            bp.delete()
+        for bp in self.watches + self.constructor_return_breakpoints:
+            if bp.is_valid():
+                bp.delete()
         self.file.close()
 
 
