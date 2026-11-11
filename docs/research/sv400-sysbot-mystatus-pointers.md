@@ -243,3 +243,7 @@ FUN_00C5D960(out, sixDigit);
 ~~~
 
 这些 Ghidra 代码展示 getter 的包装返回；`FUN_00C5D960` 的真实业务身份尚未恢复。它与 setter 的上游 RNG 恢复是两项不同调查。
+
+## 11. 运行时只读 A/B 工具已实现（非实机数据证明）
+
+运行工具、完整 0x68 字节对账和三条辅助链的准确测试流程详见 [[sv400-mystatus-live-parity-verification]]；CI 合成验证与设备实际内存读取是两种不同证据。**目前无实机 A/B 地址回读**；请勿提前将指针等同视为 CONFIRMED。
