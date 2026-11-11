@@ -1,0 +1,46 @@
+name: SV400 SysBot MyStatus Pointer and TrainerID XREF
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/sv400-sysbot-mystatus-pointer-20261111]
+    paths:
+      - .github/workflows/sv400-sysbot-trainer-pointer.yml
+      - scripts/Trace-SV400-SysBot-MyStatus-Xrefs.py
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Sparse checkout published dual ELF and focused Ghidra C
+        uses: actions/checkout@v4
+        with:
+          ref: research/sv400-sysbot-mystatus-pointer-20261111
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Trace-SV400-SysBot-MyStatus-Xrefs.py
+            Unpack/4.0.0/exefs/scarlet_main/scarlet_main.elf
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf
+            Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/
+            Unpack/4.0.0/exefs/violet_main/ghidra12.2/c/
+      - name: Only scan existing Ghidra C, no full decompile
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/Trace-SV400-SysBot-MyStatus-Xrefs.py
+          for game in scarlet_main violet_main; do
+            python3 scripts/Trace-SV400-SysBot-MyStatus-Xrefs.py . "$game" \
+              | tee "$game-sysbot-pointer-xrefs.log"
+          done
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv400-sysbot-trainer-id-xrefs
+          if-no-files-found: warn
+          path: "*-sysbot-pointer-xrefs.log"
+          retention-days: 30
