@@ -106,3 +106,8 @@ The underlying serialized element reserves **0x215** bytes due to its 5-byte typ
 - Violet [artifact 13821026072](https://github.com/969981/SV_Resources/actions/runs/42940820911/artifacts/13821026072), ZIP SHA-256 `9f21c648b77e7440ac331502e9af45b10083cc032051e5c003e055fb1a12675d`.
 
 Downloaded and compared ZIP contents locally: the full reconstructed `02ad814c.c` files match **byte-for-byte** between Scarlet and Violet (SHA-256 `323dcbb4f5f68e6be87fb1a1e746f1151352a2dfbfc19cf7272dd83b7228b495`); so do `02ad889c.c` (SHA-256 `037f390b32cf5b7660ab4554d28147840830761ccee471e71f1d51f58f0dd4f8`) and `recovered.tsv`. This rules out an edition-dependent divergence in these two native quest-record routines within these reconstructed functions.
+
+
+## Newly isolated BP wallet setter caller
+
+The first targeted analysis ZIP `02afa3cc.json` includes three incoming references to `FUN_02AFA3CC`: `03ECCED4` (`INDIRECTION` in unwind data), `0418A1C8` (`DATA` unwind data), and a **single direct AArch64 call** at **Ghidra `009209C0`**. The direct call occurs in a code range not recognized as a function by the original Ghidra full analysis; the returned caller function is null. The unique callsite is a focused lead for `BP debit/award → new total → WriteBP`, but **does not yet prove it is the reward-consumer path**; spending BP could use the same wallet setter. [Read-only callsite workflow](https://github.com/969981/SV_Resources/actions/workflows/sv400-bp-reward-callsite.yml) exports nearby ARM64 instructions and getter xrefs for both original editions. Until the preceding `W0` dataflow and call conditions are verified, classify the operation as **UNRESOLVED_ABSOLUTE_BP_UPDATE_CALLER**, not as confirmed `AddBP`.
