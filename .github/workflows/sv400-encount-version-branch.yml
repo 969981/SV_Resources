@@ -7,6 +7,8 @@ on:
       - 'tests/test_sv400_encount_version.py'
       - 'tests/test_sv400_version_refiner.py'
       - 'scripts/Refine-SV400-VersionCandidates.py'
+      - 'scripts/Trace-SV400-EncounterOwners.py'
+      - 'tests/test_sv400_encounter_owners.py'
       - 'docs/research/sv400-encount-version-arm64.md'
   workflow_dispatch:
 permissions:
@@ -26,11 +28,14 @@ jobs:
           sparse-checkout: |
             scripts/Trace-SV400-EncountVersion.py
             scripts/Refine-SV400-VersionCandidates.py
+            scripts/Trace-SV400-EncounterOwners.py
             tests/test_sv400_encount_version.py
+            tests/test_sv400_encounter_owners.py
             tests/test_sv400_version_refiner.py
       - run: |
           python3 tests/test_sv400_encount_version.py
           python3 tests/test_sv400_version_refiner.py
+          python3 tests/test_sv400_encounter_owners.py
 
   static-sqlite:
     needs: synthetic
@@ -50,6 +55,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             scripts/Trace-SV400-EncountVersion.py
+            scripts/Trace-SV400-EncounterOwners.py
             Unpack/4.0.0/exefs/${{ matrix.game }}/ghidra12.2/parts_manifest.json
             Unpack/4.0.0/exefs/${{ matrix.game }}/ghidra12.2/database/
       - name: Verify all original shards and rank field-28 accessor candidates
@@ -59,7 +65,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/trace"
           python3 scripts/Trace-SV400-EncountVersion.py \
             --source "Unpack/4.0.0/exefs/$GAME/ghidra12.2" \
-            --top 500 --out "$RUNNER_TEMP/trace/$GAME.json"
+            --top 500 --out "$RUNNER_TEMP/trace/$GAME.json" --owners-out "$RUNNER_TEMP/trace/$GAME-owners.json"
           head -n 45 "$RUNNER_TEMP/trace/$GAME.md" >> "$GITHUB_STEP_SUMMARY"
       - name: Upload original instruction, C and caller xref evidence
         uses: actions/upload-artifact@v4
