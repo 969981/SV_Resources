@@ -1,0 +1,45 @@
+name: SV400 Trainer ID static ELF investigation
+on:
+  push:
+    branches: [research/sv400-trainer-id-20261111]
+    paths:
+      - .github/workflows/sv400-trainer-id-evidence.yml
+      - scripts/Trace-SV400-TrainerID.py
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  focused-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Sparse checkout dual original ELF and published Ghidra C
+        uses: actions/checkout@v4
+        with:
+          ref: research/sv400-trainer-id-20261111
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Trace-SV400-TrainerID.py
+            Unpack/4.0.0/exefs/scarlet_main/scarlet_main.elf
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf
+            Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/
+            Unpack/4.0.0/exefs/violet_main/ghidra12.2/c/
+      - name: Scan ELF and Ghidra C without modifying originals
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/Trace-SV400-TrainerID.py
+          for game in scarlet_main violet_main; do
+            python3 scripts/Trace-SV400-TrainerID.py . "$game" 2>&1 | tee "trainer-$game-evidence.log"
+          done
+      - name: Upload static evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trainer-identity-static-evidence
+          path: trainer-*-evidence.log
+          if-no-files-found: warn
+          retention-days: 30
