@@ -123,3 +123,9 @@ Keep evidence statuses visible. Do not present planned work as completed.
 - [原生 ARM64 逐行汇编、原始指令字节和动态指针链](sv400-trainer-id-native-asm.md) — FUN_0168D238/FUN_020F8D00、MOVZ/MOVK、ELF offset/RVA/Ghidra 地址换算、直接调用者。
 - [初始化器：FUN_0168D138 清零 0x68 字节和版本/语言/默认字段](sv400-trainer-id-initializer.md) — 朱紫相同 C 与 Ghidra 参数数量不一致的 ABI 验证关口。
 - [新建→首次 ID32 写入→保存→重启读回的实机验收](sv400-trainer-id-validation.md) — 明确 ID 生成器、seed、保存 ACK 与 Switch UserID 仍 UNKNOWN；只读观察方案。
+
+## SV 4.0.0 原生训练家 ID32 与 SysBot RAM 指针链（R4）
+
+- [原版 21 KB ELF 逆向整合 Obsidian 文档（含 R4 修正）](sv400-new-save-trainer-id-elf-consolidated.md) — 保存此前的完整技术笔记，追加 setter/getter、指针链、X0 ABI 更正。
+- [SysBot 4.0.0 MyStatusPointer → 双 ELF ID32 的逐层对账](sv400-sysbot-mystatus-pointers.md) — 本地 MyStatus、Config、Box、TradeMyStatus 分离；运行时两条指针链 A/B；原生 setter/getter/TID6 函数；Actions 双版交叉引用核验。
+- [定向只读双版本交叉引用扫描](../../scripts/Trace-SV400-SysBot-MyStatus-Xrefs.py) — 固定 ELF SHA、原始 Ghidra C 97,871/97,873 文件、独立 Actions 证据。**setter 上层与 guest 物理地址一致性仍 NOT_OBSERVED**。
