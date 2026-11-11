@@ -1,0 +1,134 @@
+name: SV400 EncountPokeData Version ARM64 static triage (existing SQLite only)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/sv400-encount-version-branch.yml'
+      - 'scripts/Trace-SV400-EncountVersion.py'
+      - 'tests/test_sv400_encount_version.py'
+      - 'tests/test_sv400_version_refiner.py'
+      - 'scripts/Refine-SV400-VersionCandidates.py'
+      - 'scripts/Trace-SV400-EncounterOwners.py'
+      - 'scripts/Trace-SV400-VersionFieldConsumers.py'
+      - 'tests/test_sv400_version_consumers.py'
+      - 'tests/test_sv400_encounter_owners.py'
+      - 'docs/research/sv400-encount-version-arm64.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sv400-encount-version-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Trace-SV400-EncountVersion.py
+            scripts/Refine-SV400-VersionCandidates.py
+            scripts/Trace-SV400-EncounterOwners.py
+            scripts/Trace-SV400-VersionFieldConsumers.py
+            tests/test_sv400_encount_version.py
+            tests/test_sv400_version_consumers.py
+            tests/test_sv400_encounter_owners.py
+            tests/test_sv400_version_refiner.py
+      - run: |
+          python3 tests/test_sv400_encount_version.py
+          python3 tests/test_sv400_version_refiner.py
+          python3 tests/test_sv400_encounter_owners.py
+          python3 tests/test_sv400_version_consumers.py
+
+  static-sqlite:
+    needs: synthetic
+    strategy:
+      fail-fast: false
+      matrix:
+        game: [scarlet_main, violet_main]
+    runs-on: ubuntu-latest
+    timeout-minutes: 160
+    env:
+      GAME: ${{ matrix.game }}
+    steps:
+      - name: Sparse checkout published SQLite shards (never original ELF / native project)
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Trace-SV400-EncountVersion.py
+            scripts/Trace-SV400-EncounterOwners.py
+            scripts/Trace-SV400-VersionFieldConsumers.py
+            Unpack/4.0.0/exefs/${{ matrix.game }}/ghidra12.2/parts_manifest.json
+            Unpack/4.0.0/exefs/${{ matrix.game }}/ghidra12.2/database/
+      - name: Verify all original shards and rank field-28 accessor candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/trace"
+          python3 scripts/Trace-SV400-EncountVersion.py \
+            --source "Unpack/4.0.0/exefs/$GAME/ghidra12.2" \
+            --top 500 --out "$RUNNER_TEMP/trace/$GAME.json" --owners-out "$RUNNER_TEMP/trace/$GAME-owners.json" --consumers-out "$RUNNER_TEMP/trace/$GAME-consumers.json"
+          head -n 45 "$RUNNER_TEMP/trace/$GAME.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload original instruction, C and caller xref evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV400-Version-${{ matrix.game }}
+          path: ${{ runner.temp }}/trace/
+          retention-days: 30
+          if-no-files-found: error
+
+  compare:
+    needs: static-sqlite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Refine-SV400-VersionCandidates.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: SV400-Version-scarlet_main
+          path: reports
+      - uses: actions/download-artifact@v4
+        with:
+          name: SV400-Version-violet_main
+          path: reports
+      - name: Compare candidate function RVAs without asserting native branch semantics
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('reports')
+          a=json.loads((p/'scarlet_main.json').read_text())
+          b=json.loads((p/'violet_main.json').read_text())
+          sa={c['entry_rva']:c for c in a['candidates']}
+          sb={c['entry_rva']:c for c in b['candidates']}
+          both=sorted(set(sa)&set(sb),key=lambda x:int(x,16))
+          report={'status':'STATIC_CANDIDATE_RVA_COMPARISON_NOT_NATIVE_BRANCH_PROOF',
+                  'scarlet_count':len(sa),'violet_count':len(sb),
+                  'matching_function_rvas':both,
+                  'scarlet_only_function_rvas':sorted(set(sa)-set(sb)),
+                  'violet_only_function_rvas':sorted(set(sb)-set(sa))}
+          (p/'cross-version.json').write_text(json.dumps(report,indent=2)+'\n')
+          print('Same candidate function RVA:',len(both),'of',len(sa),'and',len(sb))
+          print('Top common RVAs:',','.join(both[:30]))
+          PY
+      - name: Classify actual field-28 table-uoffset versus scalar reads
+        run: |
+          python3 scripts/Refine-SV400-VersionCandidates.py --scarlet reports/scarlet_main.json --violet reports/violet_main.json --output reports/refined-structural.json
+          head -n 40 reports/refined-structural.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SV400-Version-cross-version
+          path: |
+            reports/cross-version.json
+            reports/refined-structural.json
+            reports/refined-structural.md
+          retention-days: 30
