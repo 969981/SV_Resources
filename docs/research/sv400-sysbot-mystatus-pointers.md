@@ -218,3 +218,28 @@ Console.WriteLine($"SysBot={statusAbsolute:X16}; ELF={elfStatusAbsolute:X16}");
 - [Ghidra 01b78d30.c](../../Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/01b78d30.c)
 - [Ghidra 01b78da0.c](../../Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/01b78da0.c)
 - [Ghidra 01b79160.c](../../Unpack/4.0.0/exefs/scarlet_main/ghidra12.2/c/01b79160.c)
+
+## 10. 双 ELF 直接交叉引用扫描结果（第三次核验）
+
+- [Actions #42953356433](https://github.com/969981/SV_Resources/actions/runs/42953356433) **Success**：均先确认 ELF SHA256，随后只扫描已有 Ghidra 12.2 的全部 C 文件，朱 97,871 份、紫 97,873 份。
+- `FUN_01B78D30` 写 ID32 函数：双版扫描均只有其自身 C 文件包含函数名，**没有直接的其他 C 调用者**。这可能是间接注册、虚表/函数指针调用，也可能存在静态 C 文本漏检；不能因此认定 setter 未被游戏使用。
+- `FUN_01B78DA0` 读 ID32：双版均看到 `FUN_01B78D40` 作为直接 C 调用者，它把返回值交给 `FUN_00C5D960`。
+- `FUN_01B79160` 六位 TID：双版均看到 `FUN_01B79100` 作为直接 C 调用者，也把结果交给 `FUN_00C5D960`。这是额外的显示/脚本返回包装链锚点。
+- `FUN_019A8130` 训练家数据拷贝：该特定函数名只有自身 C 文件；还须查间接引用。
+- 全局 `DAT_04840AC0`：双版均 30 个反编译 C 文件含直接符号引用。
+- 对 SysBot `main+0x047350D8` 的对应 Ghidra VA `0x048350D8`，本次按准确符号／字面量规则的 C 文本扫描**没有直接命中**。这只是直接符号检索的负结果，不是 ELF 中没有这条指针链的证明；尚需原始 Ghidra reference / relocation / 数据表和真实 guest 进行绑定。
+- 与其它联网/渲染子系统相近的 Ghidra 全局地址不能仅凭前缀相似就当作 MyStatusPointer 根。
+
+### 新增调用/显示包装函数（Ghidra VA，非 main RVA）
+
+~~~cpp
+// FUN_01B78D40（main+0x01A78D40）
+uint32_t id32 = FUN_01B78DA0();
+FUN_00C5D960(out, id32);
+
+// FUN_01B79100（main+0x01A79100）
+uint32_t sixDigit = FUN_01B79160();
+FUN_00C5D960(out, sixDigit);
+~~~
+
+这些 Ghidra 代码展示 getter 的包装返回；`FUN_00C5D960` 的真实业务身份尚未恢复。它与 setter 的上游 RNG 恢复是两项不同调查。
