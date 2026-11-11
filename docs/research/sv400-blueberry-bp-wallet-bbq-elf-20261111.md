@@ -96,3 +96,13 @@ The underlying serialized element reserves **0x215** bytes due to its 5-byte typ
 - VERIFIED_STATIC: `KBlueberryPoints=0x66A33824` GET/SET, `KBlueberryQuestRecords=0x7BF02DBE` write/read, data size 0x210 and native field-layout mapping `+0x1C8/+0x1CC ↔ +0x188/+0x18C`.
 - STILL UNRESOLVED: `CompletedResult → reward amount/mission modifiers → BP wallet delta → WriteBP`; which Lua/event callback actually pays rewards; on-disk durability and guest save/reload verification.
 - IMPORTANT: no original native Ghidra DB, ELF, C, or master was altered. Recovered C files are in Actions artifacts only.
+
+
+### Cross-version verification completed
+
+[Run #42940820911](https://github.com/969981/SV_Resources/actions/runs/42940820911) has now completed successfully in **both** matrix jobs. Both reconstructed functions are recovered with `created=true,status=OK`:
+
+- Scarlet [artifact 13820148445](https://github.com/969981/SV_Resources/actions/runs/42940820911/artifacts/13820148445), ZIP SHA-256 `c99282bef9e7fd14aa202f2603fd9990e9afa12f7e57954dd9a9ab9a71d7c5ae`.
+- Violet [artifact 13821026072](https://github.com/969981/SV_Resources/actions/runs/42940820911/artifacts/13821026072), ZIP SHA-256 `9f21c648b77e7440ac331502e9af45b10083cc032051e5c003e055fb1a12675d`.
+
+Downloaded and compared ZIP contents locally: the full reconstructed `02ad814c.c` files match **byte-for-byte** between Scarlet and Violet (SHA-256 `323dcbb4f5f68e6be87fb1a1e746f1151352a2dfbfc19cf7272dd83b7228b495`); so do `02ad889c.c` (SHA-256 `037f390b32cf5b7660ab4554d28147840830761ccee471e71f1d51f58f0dd4f8`) and `recovered.tsv`. This rules out an edition-dependent divergence in these two native quest-record routines within these reconstructed functions.
