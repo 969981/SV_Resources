@@ -1,0 +1,108 @@
+name: SV400 Blueberry BP and BBQ save key static scan
+
+on:
+  push:
+    branches:
+      - ghidra/sv400-semantic-*
+    paths:
+      - .github/workflows/sv400-blueberry-keyscan.yml
+      - scripts/ghidra/SV400BlueberryKeyScan.java
+      - scripts/ghidra/restore_ghidra_project.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sv400-blueberry-keyscan-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  blueberry-bp-analysis:
+    name: Blueberry block keys ${{ matrix.game }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        game: [scarlet_main, violet_main]
+    env:
+      GAME: ${{ matrix.game }}
+      GHIDRA_ZIP: ghidra_12.2_PUBLIC_20261016.zip
+      GHIDRA_URL: https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.2_build/ghidra_12.2_PUBLIC_20261016.zip
+      GHIDRA_SHA: 2c2cd776db3c1f6a097ba418922378ac3649cadd5e844a6f5f088ae628a7be67
+
+    steps:
+      - name: Sparse checkout the published native Ghidra project only
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            Unpack/4.0.0/exefs/${{ matrix.game }}/ghidra12.2/parts_manifest.json
+            Unpack/4.0.0/exefs/${{ matrix.game }}/ghidra12.2/project/
+            Unpack/4.0.0/exefs/${{ matrix.game }}/ghidra12.2/project_parts/
+            scripts/ghidra/
+
+      - name: Set up Ghidra 12.2 runtime
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Restore only the saved native Ghidra project and verify SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE="$GITHUB_WORKSPACE/Unpack/4.0.0/exefs/$GAME/ghidra12.2"
+          OUT="$RUNNER_TEMP/sv400_project/$GAME"
+          mkdir -p "$RUNNER_TEMP/sv400_project"
+          python3 -m py_compile scripts/ghidra/restore_ghidra_project.py
+          python3 scripts/ghidra/restore_ghidra_project.py \
+            --source "$SOURCE" --out "$OUT" --game "$GAME" \
+            | tee "$RUNNER_TEMP/restore-$GAME.json"
+          test -f "$OUT/project/SV400.gpr"
+          test -d "$OUT/project/SV400.rep"
+
+      - name: Download and verify official Ghidra 12.2
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 4 --retry-delay 10 \
+            --output "$RUNNER_TEMP/$GHIDRA_ZIP" "$GHIDRA_URL"
+          printf '%s  %s\n' "$GHIDRA_SHA" "$RUNNER_TEMP/$GHIDRA_ZIP" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/sv400_ghidra"
+          unzip -q "$RUNNER_TEMP/$GHIDRA_ZIP" -d "$RUNNER_TEMP/sv400_ghidra"
+          headless="$(find "$RUNNER_TEMP/sv400_ghidra" -type f -path '*/support/analyzeHeadless' -print -quit)"
+          test -n "$headless"
+          chmod +x "$headless"
+          echo "GHIDRA_HEADLESS=$headless" >> "$GITHUB_ENV"
+          rm -f "$RUNNER_TEMP/$GHIDRA_ZIP"
+
+      - name: Scan existing instructions for wallet and BBQ save block keys
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/sv400_blueberry_keyscan/$GAME"
+          mkdir -p "$OUT"
+          timeout --signal=TERM --kill-after=30s 90m \
+            "$GHIDRA_HEADLESS" "$RUNNER_TEMP/sv400_project/$GAME/project" SV400 \
+            -process "$GAME.elf" -noanalysis -max-cpu 2 \
+            -scriptPath "$GITHUB_WORKSPACE/scripts/ghidra" \
+            -postScript SV400BlueberryKeyScan.java "$OUT" \
+            -log "$OUT/ghidra.log" -scriptlog "$OUT/script.log" \
+            2>&1 | tee "$OUT/console.log"
+          test -s "$OUT/key_candidates.tsv"
+
+      - name: Upload targeted analysis evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SV400-blueberry-keyscan-${{ matrix.game }}
+          retention-days: 30
+          if-no-files-found: warn
+          compression-level: 6
+          path: |
+            ${{ runner.temp }}/sv400_blueberry_keyscan/${{ matrix.game }}/
+            ${{ runner.temp }}/restore-${{ matrix.game }}.json
