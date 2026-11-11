@@ -1,0 +1,83 @@
+name: PKHeX all PKL to JSON byte-exact roundtrip
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pkhex-pkl-json-roundtrip.yml'
+      - 'scripts/PKHeX-PKL-JSON.py'
+      - 'tests/test_pkhex_pkl_json.py'
+      - 'docs/research/pkhex-all-pkl-json-roundtrip.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  all-pkl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout converter code (no game data modifications)
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/PKHeX-PKL-JSON.py
+            tests/test_pkhex_pkl_json.py
+      - name: Checkout pinned PKHeX original resource tree
+        uses: actions/checkout@v4
+        with:
+          repository: kwsch/PKHeX
+          ref: 0660d1e1f4924b8478daec73281bb8071a82ad19
+          path: upstream-pkhex
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            PKHeX.Core/Resources/
+      - name: Run synthetic field-layout + bytes-only tests
+        run: |
+          python3 -m py_compile scripts/PKHeX-PKL-JSON.py
+          python3 tests/test_pkhex_pkl_json.py
+      - name: Convert every pinned original .pkl -> JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          ORIGINAL=upstream-pkhex/PKHeX.Core/Resources
+          n="$(find "$ORIGINAL" -type f -name '*.pkl' | wc -l)"
+          test "$n" -eq 133
+          python3 scripts/PKHeX-PKL-JSON.py export \
+            --input "$ORIGINAL" \
+            --output "$RUNNER_TEMP/pkhex-json"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'pkhex-json/pkl-json-manifest.json'
+          a=json.loads(p.read_text())
+          assert a['count']==133 and a['total_source_bytes']==5636952,a
+          assert all(x['byte_exact'] for x in a['files'])
+          from collections import Counter
+          print('Format distribution:',dict(Counter(x['layout'] for x in a['files'])))
+          print('Typed:',[x['path'] for x in a['files'] if x['profile']])
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('## PKHeX PKL/JSON original source byte roundtrip\n')
+              f.write('- Upstream pinned commit: `0660d1e1f4924b8478daec73281bb8071a82ad19`\n')
+              f.write('- Files: 133 / 133\n')
+              f.write('- Original total bytes: 5,636,952\n')
+              f.write('- In-memory PKL → JSON → PKL: 133/133 byte exact\n')
+              f.write('- Layout distribution: '+str(dict(Counter(x['layout'] for x in a['files'])))+'\n')
+          PY
+      - name: Rebuild all JSON -> PKL, compare byte-exact against upstream original
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/PKHeX-PKL-JSON.py import \
+            --input "$RUNNER_TEMP/pkhex-json" \
+            --output "$RUNNER_TEMP/pkhex-rebuilt" \
+            --reference upstream-pkhex/PKHeX.Core/Resources
+          test "$(find "$RUNNER_TEMP/pkhex-rebuilt" -name '*.pkl' | wc -l)" -eq 133
+      - name: Preserve 133 editable JSONs + source SHA manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKHeX-all-133-PKL-JSON-pinned-0660d1e1
+          path: ${{ runner.temp }}/pkhex-json/
+          compression-level: 9
+          retention-days: 30
+          if-no-files-found: error
