@@ -129,3 +129,8 @@ Keep evidence statuses visible. Do not present planned work as completed.
 - [原版 21 KB ELF 逆向整合 Obsidian 文档（含 R4 修正）](sv400-new-save-trainer-id-elf-consolidated.md) — 保存此前的完整技术笔记，追加 setter/getter、指针链、X0 ABI 更正。
 - [SysBot 4.0.0 MyStatusPointer → 双 ELF ID32 的逐层对账](sv400-sysbot-mystatus-pointers.md) — 本地 MyStatus、Config、Box、TradeMyStatus 分离；运行时两条指针链 A/B；原生 setter/getter/TID6 函数；Actions 双版交叉引用核验。
 - [定向只读双版本交叉引用扫描](../../scripts/Trace-SV400-SysBot-MyStatus-Xrefs.py) — 固定 ELF SHA、原始 Ghidra C 97,871/97,873 文件、独立 Actions 证据。**setter 上层与 guest 物理地址一致性仍 NOT_OBSERVED**。
+
+## SV 4.0.0 MyStatus 运行时指针一致性（准备就绪，尚未实机观测）
+
+- [SysBot ↔ ELF MyStatus 0x68 实机一致性验收](sv400-mystatus-live-parity-verification.md) — 只读 Wi‑Fi botbase、完整 A/B 数据比较、三条公共管理器链辅助验证、多次稳定采样、脱敏报告与严格证据边界。
+- [只读实机探针](../../scripts/Probe-SV400-MyStatus-Live.py) — 只发送查询类命令；[12 项合成单元测试](../../tests/test_sv400_mystatus_probe.py) 与 [对应 CI](../../.github/workflows/sv400-mystatus-live-probe-tests.yml) 仅验证工具正确性，不宣称真实 Switch 数据已读到。
