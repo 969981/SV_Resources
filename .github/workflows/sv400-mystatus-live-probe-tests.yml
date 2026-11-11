@@ -1,0 +1,31 @@
+name: SV400 MyStatus Live Probe - Offline Contract Tests
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - research/sv400-mystatus-live-parity-probe
+    paths:
+      - scripts/Probe-SV400-MyStatus-Live.py
+      - tests/test_sv400_mystatus_probe.py
+      - .github/workflows/sv400-mystatus-live-probe-tests.yml
+permissions:
+  contents: read
+jobs:
+  synthetic-contracts:
+    name: Synthetic protocol/identity tests (NOT a Switch capture)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Probe-SV400-MyStatus-Live.py
+            tests/test_sv400_mystatus_probe.py
+      - name: Syntax check
+        run: python3 -m py_compile scripts/Probe-SV400-MyStatus-Live.py tests/test_sv400_mystatus_probe.py
+      - name: Synthetic unit tests (no device, no first-party network)
+        run: python3 -m unittest discover -s tests -p 'test_sv400_mystatus_probe.py' -v
