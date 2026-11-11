@@ -149,6 +149,7 @@ def main():
     g.add_argument('--db',type=Path)
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--top',type=int,default=100)
+    p.add_argument('--owners-out',type=Path,help='Also export encounter source-string XREF owners on the SAME validated SQLite')
     a=p.parse_args()
     if not 1<=a.top<=500:p.error('--top must be 1..500')
     with tempfile.TemporaryDirectory(prefix='sv400-version-') as temp:
@@ -163,12 +164,27 @@ def main():
             if db.execute('PRAGMA quick_check').fetchone()[0]!='ok':
                 raise ValueError('SQLite quick_check failed')
             report=scan(db,a.top)
+            if a.owners_out:
+                from importlib.util import module_from_spec, spec_from_file_location
+                owners_script=Path(__file__).with_name('Trace-SV400-EncounterOwners.py')
+                spec=spec_from_file_location('sv400_owner_roots', owners_script)
+                if spec is None or spec.loader is None:
+                    raise RuntimeError('Missing owner tracer')
+                owner_module=module_from_spec(spec)
+                spec.loader.exec_module(owner_module)
+                owner_report=owner_module.analyze(db)
         if proof and proof['original_elf_sha256']!=report['original_elf_sha256']:
             raise ValueError('ELF SHA mismatch between manifest and SQLite')
         report['reconstruction_proof']=proof
         a.out.parent.mkdir(parents=True,exist_ok=True)
         a.out.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n','utf-8')
         a.out.with_suffix('.md').write_text(markdown_report(report),'utf-8')
+        if a.owners_out:
+            a.owners_out.parent.mkdir(parents=True,exist_ok=True)
+            owner_report['original_elf_sha256']=report['original_elf_sha256']
+            owner_report['reconstruction_proof']=proof
+            a.owners_out.write_text(json.dumps(owner_report,ensure_ascii=False,indent=2)+'\n','utf-8')
+            print('lexical owner roots:',owner_report['matched_function_owners'])
         print('status:',report['status'],'functions:',report['functions_scanned'],
               'candidates:',report['functions_with_candidate_offsets'])
         print('reports:',a.out,a.out.with_suffix('.md'))
