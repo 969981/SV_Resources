@@ -1,0 +1,46 @@
+name: SV400 shared subsdk0 AArch64 Version field static check
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/sv400-sub-sdk-version-smoke.yml'
+      - 'scripts/Trace-SV400-Subsdk0Version.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  subsdk0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Trace-SV400-Subsdk0Version.py
+            Unpack/4.0.0/exefs/subsdk0/subsdk0.elf
+      - name: Verify original module SHA and scan executable ARM64 instructions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/Trace-SV400-Subsdk0Version.py
+          python3 scripts/Trace-SV400-Subsdk0Version.py \
+            --elf Unpack/4.0.0/exefs/subsdk0/subsdk0.elf \
+            --out "$RUNNER_TEMP/subsdk0-version-access.json"
+          python3 - <<'PY'
+          import json,os
+          d=json.load(open(os.environ['RUNNER_TEMP']+'/subsdk0-version-access.json'))
+          print('LDRH #0x3C accesses:', d['ldrh_field28_immediate_hits'])
+          print('Literal matches:',d['lexical_strings'])
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('## subsdk0 original ELF structural check\n')
+              f.write('- AArch64 instructions: '+str(d['arm64_instructions_scanned'])+'\n')
+              f.write('- Direct LDRH #0x3C hits: '+str(d['ldrh_field28_immediate_hits'])+'\n')
+              f.write('- No native game version filtering asserted.\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SV400-Subsdk0-Version-Static
+          path: ${{ runner.temp }}/subsdk0-version-access.json
+          if-no-files-found: error
+          retention-days: 30
