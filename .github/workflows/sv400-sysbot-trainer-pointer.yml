@@ -2,7 +2,7 @@ name: SV400 SysBot MyStatus Pointer and TrainerID XREF
 on:
   workflow_dispatch:
   push:
-    branches: [research/sv400-sysbot-mystatus-pointer-20261111]
+    branches: [master, research/sv400-sysbot-mystatus-pointer-20261111]
     paths:
       - .github/workflows/sv400-sysbot-trainer-pointer.yml
       - scripts/Trace-SV400-SysBot-MyStatus-Xrefs.py
@@ -16,7 +16,7 @@ jobs:
       - name: Sparse checkout published dual ELF and focused Ghidra C
         uses: actions/checkout@v4
         with:
-          ref: research/sv400-sysbot-mystatus-pointer-20261111
+          ref: ${{ github.ref_name }}
           fetch-depth: 1
           filter: blob:none
           persist-credentials: false
