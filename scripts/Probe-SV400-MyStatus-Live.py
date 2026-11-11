@@ -128,6 +128,8 @@ def capture(t, main_base, reveal=False):
         "pointerPeek_matches_absolute": a == peek,
         "hash_sysbot": sha(a),
         "hash_elf": sha(b),
+        "hash_sysbot_address": sha(addr.to_bytes(8, "little")),
+        "hash_elf_address": sha(elf_addr.to_bytes(8, "little")),
         "id32_equal": a[:4] == b[:4],
         "first_difference_offset": next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), None),
         "payload_all_zero": not any(a),
@@ -173,6 +175,10 @@ def classify(samples):
         return "INCONCLUSIVE_UNINITIALIZED"
     if not all(x["pointerAll_matches_manual"] and x["pointerPeek_matches_absolute"] for x in samples):
         return "INCONCLUSIVE_POINTER_SEMANTICS"
+    if any(x["same_address"] and not x["equal_all_0x68_bytes"] for x in samples):
+        return "INCONCLUSIVE_NON_ATOMIC_READ_RACE"
+    if len({x["hash_sysbot_address"] for x in samples}) != 1 or len({x["hash_elf_address"] for x in samples}) != 1:
+        return "INCONCLUSIVE_POINTER_MOVED_BETWEEN_SAMPLES"
     if len({x["hash_sysbot"] for x in samples}) != 1 or len({x["hash_elf"] for x in samples}) != 1:
         return "INCONCLUSIVE_CHANGED_DURING_SAMPLES"
     if all(x["same_address"] and x["equal_all_0x68_bytes"] for x in samples):
