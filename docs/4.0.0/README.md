@@ -1,6 +1,7 @@
 # SV 4.0.0 — Obsidian research notebook
 
 Entry points:
+- [[sv400-blueberry-bp-no-mod]] — 蓝莓 BP 钱包 / BBQ 奖励 / 免 Mod 运行时修改（静态审计，实机未验收）
 - [[Tools/R0-R1-CLI]]
 - [[Tools/Secondary-Batches]] — virtual/ 全量与分批二次加工（gftool / PNG / DAT/TBL）
 - [[Tools/R3-R4-Automation]]
