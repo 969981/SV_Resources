@@ -134,3 +134,7 @@ Keep evidence statuses visible. Do not present planned work as completed.
 
 - [SysBot ↔ ELF MyStatus 0x68 实机一致性验收](sv400-mystatus-live-parity-verification.md) — 只读 Wi‑Fi botbase、完整 A/B 数据比较、三条公共管理器链辅助验证、多次稳定采样、脱敏报告与严格证据边界。
 - [只读实机探针](../../scripts/Probe-SV400-MyStatus-Live.py) — 只发送查询类命令；[12 项合成单元测试](../../tests/test_sv400_mystatus_probe.py) 与 [对应 CI](../../.github/workflows/sv400-mystatus-live-probe-tests.yml) 仅验证工具正确性，不宣称真实 Switch 数据已读到。
+
+## SV 4.0.0 蓝莓 BP / BBQ 免 Mod 运行时与存档研究（Obsidian）
+
+- [蓝莓 BP 钱包 SCBlock、MissionDef 奖励字段、原生结算链与实机验收](sv400-blueberry-bp-no-mod.md) — 《紫》4.0.0 历史 ELF/BLUA 静态地址、sys-botbase 候选指针、PKHeX 无 Mod 改存档、单任务 9,999,999 BP 实验方案；**到账、保存和重载仍 NOT_OBSERVED**。
