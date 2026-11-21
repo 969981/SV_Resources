@@ -1,0 +1,537 @@
+name: SLR R4 - Violet 4.0.0 Lua VM ELF preflight
+
+on:
+  push:
+    branches:
+      - feature/sv-lua54-cf-trace-r1
+    paths:
+      - "scripts/Audit-SV400-LuaVM-ELF.py"
+      - "tests/test_sv400_luavm_elf.py"
+      - "scripts/Locate-SV400-LuaVM-Xrefs.py"
+      - "tests/test_sv400_luavm_xrefs.py"
+      - "scripts/Probe-SV400-LuaVM-GDB.py"
+      - "tests/test_sv400_gdb_probe.py"
+      - "scripts/Scan-SV400-Lua54-DispatchShapes.py"
+      - "tests/test_sv400_luavm_dispatch_shapes.py"
+      - "scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py"
+      - "tests/test_sv400_luavm_diagnostic_xrefs.py"
+      - "scripts/Verify-SV400-Lua54-NativeDispatch.py"
+      - "tests/test_sv400_luavm_native_dispatch.py"
+      - "tests/test_sv400_gdb_stub_entry.py"
+      - "scripts/Map-SV400-Lua54-NativeTraceTargets.py"
+      - "tests/test_sv400_luavm_native_trace_plan.py"
+      - "scripts/Inspect-SV400-Lua54-LiveFrame.py"
+      - "tests/test_sv400_luavm_liveframe.py"
+      - "scripts/Inspect-SV400-Lua54-GDB.py"
+      - "tests/test_sv400_gdb_frame_command.py"
+      - "scripts/Audit-SV400-Lua54-OpcodeFrames.py"
+      - "scripts/Inspect-SV400-Lua54-OpcodeContext.py"
+      - "tests/test_sv400_luavm_opcode_context.py"
+      - "tests/test_sv400_gdb_opcode_command.py"
+      - "scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py"
+      - "tests/test_sv400_lua54_read_watch_plan.py"
+      - "scripts/Analyze-SV400-Setup-ClosureBridge.py"
+      - "scripts/Inspect-SV400-Lua54-ClosureCapture.py"
+      - "tests/test_sv400_lua54_closure_capture.py"
+      - "scripts/Validate-SV400-Lua54-LiveCapture.py"
+      - "tests/test_sv400_lua54_capture_sequence.py"
+      - "scripts/Filter-SV400-Lua54-HandlerHits-GDB.py"
+      - "tests/test_sv400_lua54_handler_filter.py"
+      - "tests/test_sv400_gdb_handler_filter_stub.py"
+      - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
+  pull_request:
+    paths:
+      - "scripts/Audit-SV400-LuaVM-ELF.py"
+      - "tests/test_sv400_luavm_elf.py"
+      - ".github/workflows/slr-r4-luavm-elf-preflight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Read-only sparse checkout verified Violet ELF
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/Audit-SV400-LuaVM-ELF.py
+            tests/test_sv400_luavm_elf.py
+            scripts/Locate-SV400-LuaVM-Xrefs.py
+            tests/test_sv400_luavm_xrefs.py
+            scripts/Probe-SV400-LuaVM-GDB.py
+            tests/test_sv400_gdb_probe.py
+            scripts/Scan-SV400-Lua54-DispatchShapes.py
+            tests/test_sv400_luavm_dispatch_shapes.py
+            scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py
+            tests/test_sv400_luavm_diagnostic_xrefs.py
+            scripts/Verify-SV400-Lua54-NativeDispatch.py
+            tests/test_sv400_luavm_native_dispatch.py
+            tests/test_sv400_gdb_stub_entry.py
+            scripts/Map-SV400-Lua54-NativeTraceTargets.py
+            tests/test_sv400_luavm_native_trace_plan.py
+            scripts/Inspect-SV400-Lua54-LiveFrame.py
+            tests/test_sv400_luavm_liveframe.py
+            scripts/Inspect-SV400-Lua54-GDB.py
+            tests/test_sv400_gdb_frame_command.py
+            scripts/Audit-SV400-Lua54-OpcodeFrames.py
+            scripts/Inspect-SV400-Lua54-OpcodeContext.py
+            tests/test_sv400_luavm_opcode_context.py
+            tests/test_sv400_gdb_opcode_command.py
+            scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py
+            tests/test_sv400_lua54_read_watch_plan.py
+            scripts/Analyze-SV400-Setup-ClosureBridge.py
+            scripts/Inspect-SV400-Lua54-ClosureCapture.py
+            tests/test_sv400_lua54_closure_capture.py
+            scripts/Validate-SV400-Lua54-LiveCapture.py
+            tests/test_sv400_lua54_capture_sequence.py
+            scripts/Filter-SV400-Lua54-HandlerHits-GDB.py
+            tests/test_sv400_lua54_handler_filter.py
+            tests/test_sv400_gdb_handler_filter_stub.py
+            tools/SV.Lua54/src/sv_lua54
+            tests/test_sv_lua54_trace.py
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf
+            Unpack/4.0.0/exefs/violet_main/provenance.json
+            Unpack/4.0.0/exefs/subsdk0/subsdk0.elf
+            Unpack/4.0.0/exefs/subsdk0/provenance.json
+            Unpack/4.0.0/exefs/sdk/sdk.elf
+            Unpack/4.0.0/exefs/sdk/provenance.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax tests
+        run: |
+          python -m py_compile scripts/Audit-SV400-LuaVM-ELF.py scripts/Locate-SV400-LuaVM-Xrefs.py scripts/Probe-SV400-LuaVM-GDB.py scripts/Scan-SV400-Lua54-DispatchShapes.py scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py scripts/Verify-SV400-Lua54-NativeDispatch.py scripts/Map-SV400-Lua54-NativeTraceTargets.py scripts/Inspect-SV400-Lua54-LiveFrame.py scripts/Inspect-SV400-Lua54-GDB.py scripts/Audit-SV400-Lua54-OpcodeFrames.py scripts/Inspect-SV400-Lua54-OpcodeContext.py scripts/Watch-SV400-Lua54-OpcodeReads-GDB.py scripts/Analyze-SV400-Setup-ClosureBridge.py scripts/Inspect-SV400-Lua54-ClosureCapture.py scripts/Validate-SV400-Lua54-LiveCapture.py scripts/Filter-SV400-Lua54-HandlerHits-GDB.py
+          python -m unittest discover -s tests -p "test_sv400_luavm_elf.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_xrefs.py" -v
+          python -m unittest discover -s tests -p "test_sv400_gdb_probe.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_dispatch_shapes.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_diagnostic_xrefs.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_native_dispatch.py" -v
+          python -m unittest discover -s tests -p "test_sv400_gdb_stub_entry.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_native_trace_plan.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_liveframe.py" -v
+          python -m unittest discover -s tests -p "test_sv400_gdb_frame_command.py" -v
+          python -m unittest discover -s tests -p "test_sv400_luavm_opcode_context.py" -v
+          python -m unittest discover -s tests -p "test_sv400_gdb_opcode_command.py" -v
+          python -m unittest discover -s tests -p "test_sv400_lua54_read_watch_plan.py" -v
+          python -m unittest discover -s tests -p "test_sv400_lua54_closure_capture.py" -v
+          python -m unittest discover -s tests -p "test_sv400_lua54_capture_sequence.py" -v
+          python -m unittest discover -s tests -p "test_sv400_lua54_handler_filter.py" -v
+          python -m unittest discover -s tests -p "test_sv400_gdb_handler_filter_stub.py" -v
+      - name: Pin exact ELF bytes and extract possible Lua VM markers
+        run: |
+          python scripts/Audit-SV400-LuaVM-ELF.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --output slr-violet-luavm-elf-preflight.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          elf=Path("Unpack/4.0.0/exefs/violet_main/provenance.json")
+          p=json.loads(elf.read_text(encoding="utf-8"))
+          r=json.loads(Path("slr-violet-luavm-elf-preflight.json").read_text())
+          assert r["source_sha256"]==p["elfSha256"]
+          assert r["status"]=="STATIC_IMAGE_STRING_PREFLIGHT_ONLY"
+          assert r["candidate_dispatch_pc"] is None
+          assert r["runtime_vm_attached"] is False
+          print("VM_STATIC_PREFLIGHT_ONLY",len(r["load_segments"]),
+                "load segments; no attached game process")
+          PY
+      - name: AArch64 ADRP and ADD xrefs for pinned Lua version and BLUA anchor
+        run: |
+          python scripts/Locate-SV400-LuaVM-Xrefs.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --blua-vaddr 0x3b36536 --lua-version-vaddr 0x3b74bee \
+            --output slr-violet-luavm-static-xrefs.json
+          python - <<'PY'
+          import json
+          x=json.load(open("slr-violet-luavm-static-xrefs.json"))
+          assert x["status"] == "STATIC_XREF_PRECURSOR_ONLY"
+          assert x["runtime_dispatch_entry"] is None
+          assert x["real_vm_events_collected"] is False
+          assert x["inputs"][".blua"]["string_vaddr"] == 0x3b36536
+          assert x["inputs"]["Lua 5.4"]["string_vaddr"] == 0x3b74bee
+          print("STATIC_XREF_COUNTS",
+                {k:v["xref_candidate_count_bounded"] for k,v in x["inputs"].items()})
+          PY
+      - name: Scan native 7-bit opcode dispatch shapes without claiming VM identity
+        run: |
+          python scripts/Scan-SV400-Lua54-DispatchShapes.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --output slr-violet-luavm-dispatch-shapes.json
+          python - <<'PY'
+          import json
+          d=json.load(open("slr-violet-luavm-dispatch-shapes.json"))
+          assert d["status"] == "STATIC_DISPATCH_SHAPE_CANDIDATES_NOT_VM_PROOF"
+          assert d["vm_opcode_dispatch_rva"] is None
+          assert d["game_lua_runtime_events"] is False
+          print("DISPATCH_SHAPE_COUNT",len(d["candidates"]),
+                "masked_opcode_shapes", d["summary"].get("mask_total",0))
+          PY
+      - name: Generate exact root/Setup full-code fingerprints for future live GDB frame gating
+        run: |
+          python scripts/Inspect-SV400-Lua54-LiveFrame.py \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --output slr-violet-original-frame-identities.json
+          python - <<'PY'
+          import json
+          d=json.load(open("slr-violet-original-frame-identities.json"))
+          assert d["runtime_status"]=="NOT_OBSERVED"
+          assert d["native_layout_offsets_verified_in_game"] is False
+          m=d["proto_code_identities"]
+          assert m["root"]["proto_id"]==0
+          assert m["setup"]["proto_id"]==17900
+          assert m["setup"]["code_length_bytes"]==1056
+          assert m["setup"]["code_sha256"]=="9491ca5a3f0ca76cc7a21d31ef8320bb57b95e7e2bdf990806d21d02946006c1"
+          print("ORIGINAL_FRAME_FINGERPRINTS_READY",[(k,v["code_length_bytes"],v["code_sha256"]) for k,v in m.items()])
+          PY
+      - name: Compare opcode dispatch shapes in subsdk0 and sdk ELF modules
+        run: |
+          python scripts/Scan-SV400-Lua54-DispatchShapes.py \
+            Unpack/4.0.0/exefs/subsdk0/subsdk0.elf \
+            --expected-sha256 463db1eac0b20bc7b92984b50c807af0640a2dc1aa586e1b920ab6a63c1a2a1a \
+            --output slr-subsdk0-luavm-dispatch-shapes.json
+          python scripts/Scan-SV400-Lua54-DispatchShapes.py \
+            Unpack/4.0.0/exefs/sdk/sdk.elf \
+            --expected-sha256 23f55ce1b1609f1086f62a93f45ee7dc98233db4d0486b192798feeec9926abf \
+            --output slr-sdk-luavm-dispatch-shapes.json
+          python - <<'PY'
+          import json
+          for name in ('violet','subsdk0','sdk'):
+              j=json.load(open(f"slr-{name}-luavm-dispatch-shapes.json"))
+              assert j['status']=='STATIC_DISPATCH_SHAPE_CANDIDATES_NOT_VM_PROOF'
+              assert j['vm_opcode_dispatch_rva'] is None
+              assert j['game_lua_runtime_events'] is False
+              print('MODULE_STATIC_ONLY',name,'mask_count',
+                    j['summary'].get('mask_total',0),
+                    'cmp_bound',j['summary'].get('mask_with_81_to_84_cmp',0),
+                    'candidate_count',len(j['candidates']))
+          PY
+      - name: Inspect bounded canonical Lua runtime diagnostics across native modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > slr-luavm-diagnostic-string-anchors.txt
+          for name in violet_main subsdk0 sdk; do
+            elf="Unpack/4.0.0/exefs/$name/$name.elf"
+            echo "MODULE $name" >> slr-luavm-diagnostic-string-anchors.txt
+            strings -a -t x -n 10 "$elf" \
+              | grep -Ei 'attempt to (index|call|concatenate|perform arithmetic|compare)|stack overflow|C stack overflow|protected metatable|luaV_execute|luaD_call|lua_gettop|lua_pcall|too many (local|upvalue)|Lua 5\.4|\.blua' \
+              | head -45 >> slr-luavm-diagnostic-string-anchors.txt || true
+          done
+          cat slr-luavm-diagnostic-string-anchors.txt
+      - name: Trace Lua comparison and stack-error diagnostics to actual native xrefs
+        run: |
+          python scripts/Trace-SV400-Lua54-Diagnostic-Xrefs.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --output slr-violet-luavm-diagnostic-xrefs.json
+          python - <<'PY'
+          import json
+          d=json.load(open("slr-violet-luavm-diagnostic-xrefs.json"))
+          assert d['status']=='STATIC_LUA_DIAGNOSTIC_XREF_EVIDENCE_ONLY'
+          assert d['runtime_vm_dispatch_rva'] is None
+          assert d['runtime_lua_state'] is None
+          msgs={row['message']:row for row in d['anchors']}
+          assert msgs['attempt to compare two %s values']['occurrence_count_bounded']>=1
+          assert msgs['C stack overflow']['occurrence_count_bounded']>=1
+          for name,row in msgs.items():
+              print('LUA_ERROR_SOURCE',name,'anchors',row['occurrence_count_bounded'],
+                    'xrefs',sum(x['candidate_xref_count'] for x in row['anchors']))
+          PY
+      - name: Disassemble bounded Lua comparison error and stack-error native clusters
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq binutils-aarch64-linux-gnu
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          aarch64-linux-gnu-objdump -d -w --start-address=0x25b30 --stop-address=0x25c70 "$elf" \
+            > slr-lua-error-common-25b90.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x260e0 --stop-address=0x26220 "$elf" \
+            > slr-lua-compare-errors-26180.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x3af80 --stop-address=0x3b100 "$elf" \
+            > slr-lua-cstack-errors-3afe4.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x240e0 --stop-address=0x24220 "$elf" \
+            > slr-lua-stack-errors-24184.txt
+          for f in slr-lua-error-common-25b90.txt slr-lua-compare-errors-26180.txt slr-lua-cstack-errors-3afe4.txt slr-lua-stack-errors-24184.txt; do
+            test "$(wc -c < "$f")" -gt 120
+            test "$(wc -c < "$f")" -lt 30000
+            echo "LUA_ERR_NATIVE_BOUND $(basename "$f") $(wc -l < "$f")"
+            cat "$f"
+          done
+      - name: Inspect dense 7-bit opcode dispatch cluster and cross-reference Lua errors
+        shell: bash
+        run: |
+          set -euo pipefail
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          aarch64-linux-gnu-objdump -d -w --start-address=0x40e80 --stop-address=0x41440 "$elf" \
+            > slr-lua-switch-40e80-41440.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x43f50 --stop-address=0x44180 "$elf" \
+            > slr-lua-switch-43f50-44180.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0x45400 --stop-address=0x45700 "$elf" \
+            > slr-lua-switch-45400-45700.txt
+          for f in slr-lua-switch-40e80-41440.txt slr-lua-switch-43f50-44180.txt slr-lua-switch-45400-45700.txt; do
+            test "$(wc -c < "$f")" -gt 200
+            test "$(wc -c < "$f")" -lt 80000
+            echo "LUA_VM_SWITCH_DISASM $(basename "$f") lines=$(wc -l < "$f")"
+            cat "$f"
+          done
+      - name: Disassemble bounded opcode fetch, CALL and CLOSURE native data paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          for row in "41150 4126c entry" "4487c 44ad0 call" "453fc 45554 closure" "41d14 41df0 seti" "29640 29870 upval"; do
+            read -r from to label <<< "$row"
+            aarch64-linux-gnu-objdump -d -w --start-address="0x$from" --stop-address="0x$to" "$elf" > "slr-r4-${label}-native.txt"
+            test "$(wc -l < "slr-r4-${label}-native.txt")" -gt 8
+            test "$(wc -c < "slr-r4-${label}-native.txt")" -lt 90000
+            echo "SLR_R4_NATIVE_DISASM_BEGIN ${label}"
+            cat "slr-r4-${label}-native.txt"
+            echo "SLR_R4_NATIVE_DISASM_END ${label}"
+          done
+      - name: Probe native 83-entry Lua 5.4 jump table and exact dispatcher instructions
+        run: |
+          python - <<'PY'
+          import hashlib,json,struct
+          from pathlib import Path
+          p=Path("Unpack/4.0.0/exefs/violet_main/violet_main.elf")
+          b=p.read_bytes()
+          assert hashlib.sha256(b).hexdigest()=="84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30"
+          phoff=struct.unpack_from("<Q",b,32)[0]
+          entsize,count=struct.unpack_from("<HH",b,54)
+          segments=[]
+          for i in range(count):
+              t,flags,off,addr,_,sz,_,_=struct.unpack_from("<IIQQQQQQ",b,phoff+i*entsize)
+              if t==1:
+                  segments.append(dict(flags=flags,off=off,addr=addr,size=sz))
+          def mapva(vaddr, length=1):
+              for s in segments:
+                  if s["addr"]<=vaddr and vaddr+length<=s["addr"]+s["size"]:
+                      return s["off"]+vaddr-s["addr"]
+              raise ValueError(hex(vaddr))
+          codeva=0x41150
+          tableva=0x4383398
+          tableoff=mapva(tableva,83*8)
+          values=[struct.unpack_from("<Q",b,tableoff+8*i)[0] for i in range(83)]
+          exec_segs=[s for s in segments if s["flags"]&1]
+          def isexec(v):
+              return v != 0 and any(s["addr"]<=v<s["addr"]+s["size"] for s in exec_segs)
+          valid=[isexec(v) for v in values]
+          print("LUA54_DISPATCH_TABLE_RAW",hex(tableva),"first12",[hex(v) for v in values[:12]],
+                "direct_exec_targets",sum(valid),"unique",len(set(values)),
+                "last3",[hex(v) for v in values[-3:]])
+          preview={
+              "elf_sha256":hashlib.sha256(b).hexdigest(),
+              "dispatch_candidate_entry_rva":codeva,
+              "dispatch_table_vaddr":tableva,
+              "entry_count_tested":83,
+              "raw_entries":[hex(v) for v in values],
+              "executable_address_count":sum(valid),
+              "zero_raw_slots":values.count(0),
+              "table_slot_status":"RAW_ZERO_REQUIRES_LOADER_RELOCATION_OR_INIT" if values.count(0)==83 else "HAS_FILE_INITIALIZED_ENTRIES",
+              "executable_address_flags":valid,
+              "status":"STATIC_JUMP_TABLE_NOT_RUNTIME_VERIFIED",
+              "vm_runtime_attached":False,
+          }
+          Path("slr-violet-luavm-opcode-table-audit.json").write_text(
+              json.dumps(preview,sort_keys=True,indent=2)+"\n")
+          PY
+      - name: Inspect loader relocation records for 83-entry native Lua dispatch table
+        shell: bash
+        run: |
+          set -euo pipefail
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          readelf -rW "$elf" > "$RUNNER_TEMP/violet-rela-all.txt"
+          python - <<'PY'
+          import re,json,os
+          from pathlib import Path
+          src=Path(os.environ['RUNNER_TEMP'])/"violet-rela-all.txt"
+          table=0x4383398
+          end=table+83*8
+          rows=[]
+          for line in src.read_text(errors="replace").splitlines():
+              x=re.match(r"^\s*([0-9a-fA-F]{8,16})\s+([0-9a-fA-F]{8,16})\s+(\S+)\s*(.*)$",line)
+              if x:
+                  off=int(x.group(1),16)
+                  if table <= off < end:
+                      rows.append({"offset":hex(off),"type":x.group(3),"details":x.group(4)[:96]})
+          result={
+              "dispatch_table_rva":hex(table),"entry_count":83,
+              "relocation_count_in_range":len(rows),
+              "relocations":rows,
+              "status":"STATIC_RELOCATION_CANDIDATES_NOT_RUNTIME_OBSERVATION",
+              "runtime_vm_verified":False,
+          }
+          Path("slr-violet-luavm-table-relocations.json").write_text(
+              json.dumps(result,sort_keys=True,indent=2)+"\n")
+          print("DISPATCH_TABLE_RELOCATIONS",len(rows),
+                "first",rows[:8], "last",rows[-4:])
+          PY
+      - name: Verify Lua VM execute 0x41150 with exact native instruction words and 83 RELA opcode handlers
+        run: |
+          python scripts/Verify-SV400-Lua54-NativeDispatch.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --expected-sha256 84e1e6c1ae3d4122eb736045cda82d075a189c718e9ba024a9fa90ee726f7d30 \
+            --output slr-violet-luavm-verified-native-dispatch.json
+          python - <<'PY'
+          import json
+          j=json.load(open('slr-violet-luavm-verified-native-dispatch.json'))
+          assert j['static_identity']=='LUA54_83_WAY_NATIVE_OPCODE_DISPATCH_VERIFIED'
+          assert j['dispatch_native_entry_rva']=='0x41150'
+          assert j['dispatch_table_slots']==83
+          assert j['relative_relocation_count']==83
+          assert j['unique_targets']==83
+          assert j['runtime_state']=='NOT_OBSERVED'
+          handlers=j['opcode_handlers']
+          assert [x['target_handler_rva'] for x in handlers[:5]]==[
+              '0x4126c','0x412bc','0x4130c','0x4135c','0x413b0']
+          assert [x['target_handler_rva'] for x in handlers[-4:]]==[
+              '0x453fc','0x45554','0x455b8','0x45628']
+          print("NATIVE_LUA54_VM_OPCODE_DISPATCH_CONFIRMED",j['dispatch_native_entry_rva'],
+                '83 native relocations and handlers, runtime',j['runtime_state'])
+          PY
+      - name: Pin exact Setup and root Lua PCs to four verified ARM64 opcode handlers
+        run: |
+          python scripts/Map-SV400-Lua54-NativeTraceTargets.py \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --expected-sha256 c1a4f4e2625912cf0b739a642a79ba3357df0557a544b92da22a6cb139de2815 \
+            --dispatch-manifest slr-violet-luavm-verified-native-dispatch.json \
+            --output slr-violet-lua-pc-native-handlers.json
+          python - <<'PY'
+          import json
+          d=json.load(open('slr-violet-lua-pc-native-handlers.json'))
+          assert d['status']=='PINNED_LUA_PC_TO_NATIVE_HANDLER_PLAN_ONLY'
+          assert d['setup_proto_id']==17900
+          assert d['root_closure_creation_pc']==215522
+          assert len(d['probe_rows'])==9
+          assert d['native_handler_count']==4
+          assert d['unique_native_handler_rvas']=={
+              'CALL':'0x4487c',
+              'SETI':'0x41d14',
+              'CLOSURE':'0x453fc',
+              'SETTABLE':'0x41b9c'}
+          assert d['runtime_vm_attached'] is False
+          assert d['runtime_objects_observed'] is False
+          print('SV_NATIVE_LUA_PC_HOOK_PLAN', d['unique_native_handler_rvas'],
+                '9 PC sites; original runtime events absent')
+          PY
+      - name: Pin original root CLOSURE -> SETTABLE register bridge
+        run: |
+          python scripts/Analyze-SV400-Setup-ClosureBridge.py \
+            Unpack/4.0.0/romfs/arc/data.trpfs/virtual/script/lua/bin/release/main/main.blua \
+            --output slr-violet-root-closure-register-bridge.json
+          python - <<'PY'
+          import json
+          a=json.load(open("slr-violet-root-closure-register-bridge.json"))
+          assert a["root_proto_id"]==0 and a["setup_proto_id"]==17900
+          assert a["closure_lua_pc"]==215522
+          assert a["next_assignment_pc"]==215523
+          assert a["closure_result_register"]==70
+          assert a["settable_rhs_register"]==70
+          assert a["closure_is_next_settable_rhs"] is True
+          assert a["return_object_observed_in_game"] is False
+          print("ROOT_CLOSURE_REGISTER_A",a["closure_result_register"],
+                "SETTABLE_C_REGISTER",a["settable_rhs_register"],
+                "SOURCE_MATCH",a["closure_is_next_settable_rhs"])
+          PY
+      - name: Cross-check native savedpc and open/closed UpVal ABI instructions
+        run: |
+          python scripts/Audit-SV400-Lua54-OpcodeFrames.py \
+            Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            --output slr-violet-native-opcode-upval-abi.json
+          python - <<'PY'
+          import json
+          a=json.load(open("slr-violet-native-opcode-upval-abi.json"))
+          assert a["runtime_identity_status"]=="NOT_OBSERVED"
+          assert a["savedpc_runtime_calibrated"] is False
+          assert a["upvalue_cell_values_runtime_verified"] is False
+          assert len(a["validated_instruction_words"])>=39
+          assert a["native_register_model"]["current_lua_pc_formula"] == "((x27 - verified_proto_code_ptr)/4) - 1"
+          p=a["closure_capture_abi_candidates"]
+          assert p["root_R55_stack_relative_to_x26"]=="0x370"
+          assert p["root_R58_stack_relative_to_x26"]=="0x3a0"
+          assert p["upval_v_tvalue_pointer_offset"]==16
+          assert p["tvalue_tag_byte_offset"]==8
+          print("SV400_NATIVE_UPVAL_ABI_BOUNDED",len(a["validated_instruction_words"]),"runtime NOT_OBSERVED")
+          PY
+      - name: Check actual exported ELF symbol names (not string-guess entrypoints)
+        shell: bash
+        run: |
+          readelf --wide --symbols Unpack/4.0.0/exefs/violet_main/violet_main.elf \
+            | grep -E 'lua[VDFHC]_|lua_getstack|lua_getinfo|lua_sethook|lua_upvalueid|luaL_loadbufferx|lua_pcallk' \
+            | head -100 > slr-luavm-symbol-hints.txt || true
+          if test -s slr-luavm-symbol-hints.txt; then
+            echo "ELF symbolic candidates are present; symbol types/sections require verification."
+            cat slr-luavm-symbol-hints.txt
+          else
+            echo "No matching exposed ELF symbol names. This is NOT proof Lua VM is absent."
+          fi
+      - name: Bound AArch64 disassembly for Lua marker xref and two nearby BL targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq binutils-aarch64-linux-gnu
+          elf=Unpack/4.0.0/exefs/violet_main/violet_main.elf
+          aarch64-linux-gnu-objdump -d -w --start-address=0x457f0 --stop-address=0x45950 "$elf" \
+            > slr-violet-luavm-xref-neighborhood.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0xb85b80 --stop-address=0xb85c80 "$elf" \
+            > slr-violet-luavm-bl-target-b85bd0.txt
+          aarch64-linux-gnu-objdump -d -w --start-address=0xdfaf60 --stop-address=0xdfb060 "$elf" \
+            > slr-violet-luavm-bl-target-dfafb0.txt
+          for f in slr-violet-luavm-xref-neighborhood.txt slr-violet-luavm-bl-target-b85bd0.txt slr-violet-luavm-bl-target-dfafb0.txt; do
+            test "$(wc -c < "$f")" -ge 50
+            test "$(wc -c < "$f")" -lt 50000
+            echo "BOUNDED_DISASM $(basename "$f") lines=$(wc -l < "$f")"
+            cat "$f"
+          done
+      - name: Upload metadata only, not ELF or game code
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SLR-R4-Violet-LuaVM-ELF-preflight
+          path: |
+            slr-violet-luavm-elf-preflight.json
+            slr-luavm-symbol-hints.txt
+            slr-violet-luavm-static-xrefs.json
+            slr-violet-original-frame-identities.json
+            slr-r4-entry-native.txt
+            slr-r4-call-native.txt
+            slr-r4-closure-native.txt
+            slr-r4-seti-native.txt
+            slr-r4-upval-native.txt
+            slr-violet-native-opcode-upval-abi.json
+            slr-violet-root-closure-register-bridge.json
+            slr-violet-luavm-dispatch-shapes.json
+            slr-violet-luavm-opcode-table-audit.json
+            slr-violet-luavm-table-relocations.json
+            slr-violet-luavm-verified-native-dispatch.json
+            slr-violet-lua-pc-native-handlers.json
+            slr-luavm-diagnostic-string-anchors.txt
+            slr-violet-luavm-diagnostic-xrefs.json
+            slr-lua-error-common-25b90.txt
+            slr-lua-switch-40e80-41440.txt
+            slr-lua-switch-43f50-44180.txt
+            slr-lua-switch-45400-45700.txt
+            slr-lua-compare-errors-26180.txt
+            slr-lua-cstack-errors-3afe4.txt
+            slr-lua-stack-errors-24184.txt
+            slr-subsdk0-luavm-dispatch-shapes.json
+            slr-sdk-luavm-dispatch-shapes.json
+            slr-violet-luavm-xref-neighborhood.txt
+            slr-violet-luavm-bl-target-b85bd0.txt
+            slr-violet-luavm-bl-target-dfafb0.txt
+          retention-days: 14
+          if-no-files-found: warn
